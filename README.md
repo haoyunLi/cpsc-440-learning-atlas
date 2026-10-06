@@ -4,7 +4,7 @@
 
 **学习网站：** https://haoyunli.github.io/cpsc-440-learning-atlas/
 
-10 个学习单元、78 个教学段落、10 个交互实验。每个单元从问题与动机进入定义、计算机制、worked examples、条件、误解与解释式练习。交互包括 binomial / CLT、α / β / power、CI repeated coverage、pairing、variance CI、ANOVA、FWER、interaction、blocking 和 regression intervals。
+10 个学习单元、78 个教学段落、10 个交互实验，另有 20 张原创静态图与 10 组分步图解（共 40 个步骤画面）。所有单元的讲解、例题与答案已逐章重写，补足计算衔接与变量解释。每个单元从问题与动机进入定义、计算机制、worked examples、条件、误解与解释式练习。交互包括 binomial / CLT、α / β / power、CI repeated coverage、pairing、variance CI、ANOVA、FWER、interaction、blocking 和 regression intervals。
 
 ## 内容与来源
 
@@ -22,7 +22,7 @@
 python3 -m http.server 4400
 ```
 
-在浏览器打开 `http://localhost:4400`。教学内容在 `content/part1.json`、`part2.json`、`part3.json`；修改后运行：
+在浏览器打开 `http://localhost:4400`。教学内容在 `content/part1.json`、`part2.json`、`part3.json`；静态图与分步图解分别在 `content/figures.json`、`content/walkthroughs.json`。修改后运行：
 
 ```sh
 python3 tools/build.py
@@ -39,5 +39,7 @@ node tests/numerical.mjs
 ```
 
 另外检查了所有章节在 1440、390、320px 下的横向溢出与参数端点，以及 interval 播放/暂停/重置、配对 covariance、设计平衡、prediction interval 宽度、输入错误、进度、搜索、可访问名称与内部链接。测试采用独立 headless browser；未操作原生桌面界面。浏览器字体、自定义辅助技术组合仍可能需要使用者反馈。
+
+新增分步图解也验证了手动前后推进、键盘 Enter、播放/暂停、离屏停止、最终步骤停止、减少动态偏好、加载失败和全部章节的无 JavaScript 回退。手机默认显示完整图，放大图的方向键移动和当前步骤同步已逐章核查。
 
 设计规则见 [DESIGN.md](DESIGN.md)。字体许可见 [FONT-LICENSE.md](assets/FONT-LICENSE.md)。

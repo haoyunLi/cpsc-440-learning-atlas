@@ -32,6 +32,9 @@ typography:
   title:
     fontSize: "23px"
     lineHeight: 1.35
+  teaching-title:
+    fontSize: "23px"
+    lineHeight: 1.5
   identity:
     fontFamily: "AtlasSerif, Georgia, serif"
     fontSize: "25px"
@@ -94,6 +97,10 @@ components:
     backgroundColor: "{colors.wash}"
     textColor: "{colors.ink}"
     padding: "18px"
+  teaching-scene:
+    backgroundColor: "{colors.white}"
+    textColor: "{colors.ink}"
+    width: "100%"
 ---
 
 # Design System: CPSC 440 Atlas
@@ -104,13 +111,14 @@ components:
 
 The site reads as an open paper field annotated in research-green ink. Broad sections, fine rules and generous reading intervals let explanations and mathematical figures share the page without dashboard framing.
 
-Chinese explanations use the platform sans-serif stack. A locally supplied serif gives the English identity and chapter numbering their book-like character. Interaction changes statistical inputs and exposes their consequences; it does not add decorative movement.
+Chinese explanations use the platform sans-serif stack. A locally supplied serif gives the English identity and chapter numbering their book-like character. Labelled teaching diagrams connect observations, calculation steps and conclusions. Interaction advances a reader-controlled explanation or changes statistical inputs to expose their consequences; it does not add decorative movement.
 
 **Key Characteristics:**
 
 - Paper ground, green ink and pale green information surfaces.
 - Ruled chapter navigation and continuous reading sections.
 - Original SVG figures with labelled axes and visible numerical readouts.
+- Step diagrams with accompanying explanations and equations in the reading flow.
 - Serif English identity paired with Chinese sans-serif explanations.
 
 ## Colors
@@ -144,7 +152,7 @@ The frontmatter records the actual role sizes; it does not imply a uniform modul
 
 Large page headings establish hierarchy. Lesson titles settle to the repeated lesson-headline role, while smaller subheadings, labels and captions support long-form reading. Article width stops at approximately (75ch), and explanatory paragraphs stop at (72ch). Equations permit horizontal overflow when necessary.
 
-Mobile body text changes to (16px) with line height (1.9). Home display text becomes (40px), lesson titles become (26px), and English hero subtitles become (21px). Chart labels increase in SVG coordinates to preserve their legibility when the figure shrinks.
+Mobile body text changes to (16px) with line height (1.9). Home display text becomes (40px), lesson titles become (26px), and English hero subtitles become (21px). Teaching-figure titles use a more open line height (1.5) and become (21px) on mobile. Their introductions and captions use (16px); step counters and motion notes use (14px). Chart labels increase in SVG coordinates to preserve their legibility when the figure shrinks; teaching-diagram groups use (25px) in the mobile overview and (21px) in the enlarged view.
 
 **The Bilingual Hierarchy Rule.** Use serif type for the English identity and numbering; preserve the readable sans-serif treatment of Chinese explanations and display headings.
 
@@ -154,7 +162,9 @@ The shared wrapper uses `min(1200px, 90vw)`. The home introduction has a two-col
 
 At (950px) and below, the chapter sidebar becomes (200px) and its column gap becomes (30px). At (700px) and below, the hero and chapter layout become single columns. The sidebar becomes an explicit details disclosure, the header changes from (72px) to (64px), and section spacing tightens. Chapter route descriptions sit beneath their titles.
 
-Laboratory controls use two equal columns; mobile select controls span both columns to accommodate long options. Figures fill their containing width. Tables and equations can scroll horizontally. The print layout removes navigation and laboratory controls while retaining the reading content.
+Laboratory controls use two equal columns; mobile select controls span both columns to accommodate long options. Figures fill their containing width. Teaching figures join the continuous article between fine rules, with space for an introduction, plot, controls, step explanation and equation. Their control rows wrap on narrow screens.
+
+On mobile, a teaching diagram first shows its complete composition at the article width. An optional native disclosure opens a separate enlarged diagram (680px) inside a local horizontal scroll region; changing a walkthrough step updates both views. Wider data tables use their own focusable horizontal scroll regions, and equations can also scroll. The print layout removes navigation, laboratory and walkthrough controls, and duplicate enlarged diagrams while retaining the reading content.
 
 ## Elevation & Depth
 
@@ -170,7 +180,7 @@ Containers and figures use straightforward rectangular geometry. Editable contro
 
 ### Buttons
 
-Filled green controls use white text, the control radius, an accent border and a minimum height of (44px). Primary hover uses deep action green. Secondary buttons have transparent backgrounds and green text; the existing shared hover treatment fills them green. Disabled buttons reduce opacity to (.5). Keyboard focus uses a rust outline (3px) offset by (4px).
+Filled green controls use white text, the control radius, an accent border and a minimum height of (44px). Primary hover uses deep action green. Secondary buttons retain transparent backgrounds and green text on hover. Disabled buttons reduce opacity to (.5). Keyboard focus uses a rust outline (3px) offset by (4px).
 
 ### Inputs / Fields
 
@@ -188,9 +198,17 @@ Equations sit on pale green surfaces with serif notation and scrolling overflow.
 
 Each laboratory is part of the article flow: accent top rule, title, explanation, controls, SVG figure, numerical readout and caption. Plots use white grounds, labelled axes, green primary curves, rust comparisons and patterned alternatives. Readouts announce updates politely. Captions state what the figure represents and which assumptions apply.
 
+### Teaching Figures and Walkthroughs
+
+Teaching figures use a fine rule above and below an explanation and a white, bordered SVG field. Captions distinguish mathematical plots, original examples and conceptual illustrations. Labels, line patterns and numerical annotations carry the meaning alongside color.
+
+Walkthroughs expose one calculation step at a time with a visible step counter, explanatory prose and an equation. The shared filled action advances to the next step; transparent companions go back, start or pause automatic demonstration, and reset to the first step. Previous and next controls are disabled at the respective endpoints. Automatic demonstration starts only on request, advances every (4.2 seconds), and stops at the final step, when the figure leaves view, when the document is hidden, or on page exit. Reduced-motion preference disables automatic demonstration and leaves manual controls available.
+
+The HTML carries the complete final diagram and a native disclosure containing every step's explanation and equation. These remain readable when JavaScript or walkthrough loading is unavailable. Successful enhancement begins at the first step. Mobile enlargement uses the native “放大查看图解” disclosure and a keyboard-focusable horizontal region; its focus outline uses the shared rust treatment with a smaller offset (3px).
+
 ### Disclosures and Tables
 
-Answer disclosures use native details and summary elements with fine top rules and generous vertical space. Tables use washed header rows and fine row dividers. Neither pattern introduces shadows or ornamental framing.
+Answer and complete-step disclosures use native details and summary elements with fine top rules and generous vertical space. Tables use washed header rows and fine row dividers. Wider tables keep overflow within a labelled, keyboard-focusable region using the same local focus treatment as enlarged figures. Neither pattern introduces shadows or ornamental framing.
 
 ## Do's and Don'ts
 
@@ -200,6 +218,8 @@ Answer disclosures use native details and summary elements with fine top rules a
 - **Do** label statistical axes, inputs and comparisons and retain shape or dash distinctions.
 - **Do** keep keyboard focus visible and maintain explicit mobile navigation.
 - **Do** use interaction to expose a statistical mechanism and honour reduced-motion preferences.
+- **Do** retain complete diagrams and step explanations in HTML and make automatic demonstration an explicit reader action.
+- **Do** keep the whole diagram visible by default on mobile and offer enlargement within a local scroll region.
 
 ### Don't:
 

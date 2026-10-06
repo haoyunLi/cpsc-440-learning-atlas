@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-06T16:40:33.432623+00:00",
+  "generatedAt": "2026-10-06T17:46:13.673392+00:00",
   "title": "Design System: CPSC 440 Atlas",
   "extensions": {
     "colorMeta": {
@@ -149,6 +149,10 @@
       "identity": {
         "displayName": "English identity",
         "purpose": "Serif identity and English subtitles; Chinese display headings use sans-serif."
+      },
+      "teaching-title": {
+        "displayName": "Teaching-figure title",
+        "purpose": "Diagram titles use the Chinese sans-serif stack with room for wrapped explanations."
       }
     },
     "shadows": [],
@@ -157,6 +161,11 @@
         "name": "reading-scroll",
         "value": "smooth",
         "purpose": "Anchor navigation; becomes auto under prefers-reduced-motion."
+      },
+      {
+        "name": "walkthrough-step-interval",
+        "value": "4200ms",
+        "purpose": "Reader-requested automatic demonstration only; can be paused and stops at the final step, offscreen, on document hiding or page exit. Disabled under prefers-reduced-motion; manual steps remain available."
       }
     ],
     "breakpoints": [
@@ -172,7 +181,8 @@
     "focus": {
       "value": "3px solid #b95c34",
       "offset": "4px",
-      "purpose": "Shared keyboard focus treatment."
+      "purpose": "Shared keyboard focus treatment; enlarged diagrams and local table regions use the smaller local offset.",
+      "localOffset": "3px"
     },
     "tonalRampNote": "Tonal ramps are synthesized OKLCH panel previews, not additional production tokens."
   },
@@ -189,9 +199,9 @@
       "name": "Secondary action",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Transparent companion control.",
+      "description": "Transparent companion control, retaining green text and a transparent background on hover.",
       "html": "<button class=\"ds-secondary\">重新计算</button>",
-      "css": ".ds-secondary{font:17px/1.5 -apple-system,BlinkMacSystemFont,\"Noto Sans SC\",\"PingFang SC\",sans-serif;min-height:44px;padding:9px 20px;border:1px solid var(--accent,#086f68);border-radius:5px;cursor:pointer;background:transparent;color:var(--accent,#086f68)}.ds-secondary:hover{background:var(--action-hover,#064d48);color:var(--white,#fff)}.ds-secondary:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-secondary:disabled{opacity:.5;cursor:default}"
+      "css": ".ds-secondary{font:17px/1.5 -apple-system,BlinkMacSystemFont,\"Noto Sans SC\",\"PingFang SC\",sans-serif;min-height:44px;padding:9px 20px;border:1px solid var(--accent,#086f68);border-radius:5px;cursor:pointer;background:transparent;color:var(--accent,#086f68)}.ds-secondary:hover{background:transparent;color:var(--accent,#086f68)}.ds-secondary:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-secondary:disabled{opacity:.5;cursor:default}"
     },
     {
       "name": "Search field",
@@ -232,15 +242,39 @@
       "description": "Native expandable explanation within the reading flow.",
       "html": "<details class=\"ds-details\"><summary>查看解释</summary><p>比较样本与模型中的数量。</p></details>",
       "css": ".ds-details{border-top:1px solid var(--line,#ccd6cf);padding:20px 0;font:17px/1.85 sans-serif;color:var(--ink,#183a37)}.ds-details summary{cursor:pointer;font-weight:600;min-height:44px}.ds-details summary:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-details p{margin:15px 0}"
+    },
+    {
+      "name": "Teaching figure with mobile enlargement",
+      "kind": "custom",
+      "refersTo": "teaching-scene",
+      "description": "A complete, labelled mathematical SVG between article rules, with optional native mobile enlargement in a focusable local scroll region.",
+      "html": "<figure class=\"ds-teaching\"><h3>逐步把观测变成 variance</h3><div class=\"ds-scene\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 680 340\" role=\"img\" aria-label=\"逐步把观测变成 variance：样本量 3，除以 n−1=2 得到 variance 4；再开平方得到 SD 2。\"><g font-family=\"sans-serif\" font-size=\"21\"><line x1=\"70\" y1=\"280\" x2=\"620\" y2=\"280\" stroke=\"#50655f\" stroke-width=\"1\"/><line x1=\"70.0\" y1=\"280\" x2=\"70.0\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"70.0\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">0</text><line x1=\"207.5\" y1=\"280\" x2=\"207.5\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"207.5\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">2</text><line x1=\"345.0\" y1=\"280\" x2=\"345.0\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"345.0\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">4</text><line x1=\"482.5\" y1=\"280\" x2=\"482.5\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"482.5\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">6</text><line x1=\"620.0\" y1=\"280\" x2=\"620.0\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"620.0\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">8</text><text x=\"645\" y=\"287\" text-anchor=\"middle\" fill=\"#183a37\">Y</text><text x=\"70\" y=\"35\" text-anchor=\"start\" fill=\"#183a37\">Y = [2, 4, 6]</text><circle cx=\"207.5\" cy=\"115\" r=\"6\" fill=\"#086f68\"/><circle cx=\"345.0\" cy=\"115\" r=\"6\" fill=\"#086f68\"/><circle cx=\"482.5\" cy=\"115\" r=\"6\" fill=\"#086f68\"/><line x1=\"345.0\" y1=\"65\" x2=\"345.0\" y2=\"245\" stroke=\"#183a37\" stroke-width=\"1\" stroke-dasharray=\"4 4\"/><text x=\"345.0\" y=\"60\" text-anchor=\"middle\" fill=\"#183a37\">ȳ=4</text><line x1=\"207.5\" y1=\"160\" x2=\"345.0\" y2=\"160\" stroke=\"#9a472e\" stroke-width=\"3\"/><text x=\"207.5\" y=\"195\" text-anchor=\"middle\" fill=\"#9a472e\">d=-2</text><line x1=\"345.0\" y1=\"160\" x2=\"345.0\" y2=\"160\" stroke=\"#9a472e\" stroke-width=\"3\"/><text x=\"345.0\" y=\"195\" text-anchor=\"middle\" fill=\"#9a472e\">d=0</text><line x1=\"482.5\" y1=\"160\" x2=\"345.0\" y2=\"160\" stroke=\"#9a472e\" stroke-width=\"3\"/><text x=\"482.5\" y=\"195\" text-anchor=\"middle\" fill=\"#9a472e\">d=2</text><rect x=\"187.5\" y=\"218\" width=\"40\" height=\"40\" fill=\"#e8efea\" stroke=\"#086f68\"/><text x=\"207.5\" y=\"243\" text-anchor=\"middle\" fill=\"#183a37\">4</text><rect x=\"325.0\" y=\"218\" width=\"40\" height=\"0\" fill=\"#e8efea\" stroke=\"#086f68\"/><text x=\"345.0\" y=\"243\" text-anchor=\"middle\" fill=\"#183a37\">0</text><rect x=\"462.5\" y=\"218\" width=\"40\" height=\"40\" fill=\"#e8efea\" stroke=\"#086f68\"/><text x=\"482.5\" y=\"243\" text-anchor=\"middle\" fill=\"#183a37\">4</text></g></svg></div><details class=\"ds-zoom\"><summary>放大查看图解</summary><div class=\"ds-zoom-scene\" tabindex=\"0\" role=\"region\" aria-label=\"放大教学图，可横向移动\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 680 340\" role=\"img\" aria-label=\"逐步把观测变成 variance：样本量 3，除以 n−1=2 得到 variance 4；再开平方得到 SD 2。\"><g font-family=\"sans-serif\" font-size=\"21\"><line x1=\"70\" y1=\"280\" x2=\"620\" y2=\"280\" stroke=\"#50655f\" stroke-width=\"1\"/><line x1=\"70.0\" y1=\"280\" x2=\"70.0\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"70.0\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">0</text><line x1=\"207.5\" y1=\"280\" x2=\"207.5\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"207.5\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">2</text><line x1=\"345.0\" y1=\"280\" x2=\"345.0\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"345.0\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">4</text><line x1=\"482.5\" y1=\"280\" x2=\"482.5\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"482.5\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">6</text><line x1=\"620.0\" y1=\"280\" x2=\"620.0\" y2=\"285\" stroke=\"#50655f\" stroke-width=\"1\"/><text x=\"620.0\" y=\"309\" text-anchor=\"middle\" fill=\"#50655f\">8</text><text x=\"645\" y=\"287\" text-anchor=\"middle\" fill=\"#183a37\">Y</text><text x=\"70\" y=\"35\" text-anchor=\"start\" fill=\"#183a37\">Y = [2, 4, 6]</text><circle cx=\"207.5\" cy=\"115\" r=\"6\" fill=\"#086f68\"/><circle cx=\"345.0\" cy=\"115\" r=\"6\" fill=\"#086f68\"/><circle cx=\"482.5\" cy=\"115\" r=\"6\" fill=\"#086f68\"/><line x1=\"345.0\" y1=\"65\" x2=\"345.0\" y2=\"245\" stroke=\"#183a37\" stroke-width=\"1\" stroke-dasharray=\"4 4\"/><text x=\"345.0\" y=\"60\" text-anchor=\"middle\" fill=\"#183a37\">ȳ=4</text><line x1=\"207.5\" y1=\"160\" x2=\"345.0\" y2=\"160\" stroke=\"#9a472e\" stroke-width=\"3\"/><text x=\"207.5\" y=\"195\" text-anchor=\"middle\" fill=\"#9a472e\">d=-2</text><line x1=\"345.0\" y1=\"160\" x2=\"345.0\" y2=\"160\" stroke=\"#9a472e\" stroke-width=\"3\"/><text x=\"345.0\" y=\"195\" text-anchor=\"middle\" fill=\"#9a472e\">d=0</text><line x1=\"482.5\" y1=\"160\" x2=\"345.0\" y2=\"160\" stroke=\"#9a472e\" stroke-width=\"3\"/><text x=\"482.5\" y=\"195\" text-anchor=\"middle\" fill=\"#9a472e\">d=2</text><rect x=\"187.5\" y=\"218\" width=\"40\" height=\"40\" fill=\"#e8efea\" stroke=\"#086f68\"/><text x=\"207.5\" y=\"243\" text-anchor=\"middle\" fill=\"#183a37\">4</text><rect x=\"325.0\" y=\"218\" width=\"40\" height=\"0\" fill=\"#e8efea\" stroke=\"#086f68\"/><text x=\"345.0\" y=\"243\" text-anchor=\"middle\" fill=\"#183a37\">0</text><rect x=\"462.5\" y=\"218\" width=\"40\" height=\"40\" fill=\"#e8efea\" stroke=\"#086f68\"/><text x=\"482.5\" y=\"243\" text-anchor=\"middle\" fill=\"#183a37\">4</text></g></svg></div><p class=\"ds-motion-note\">可左右滑动；键盘聚焦图后可用左右方向键移动。</p></details><figcaption>样本量 3，除以 n−1=2 得到 variance 4；再开平方得到 SD 2。</figcaption></figure>",
+      "css": ".ds-teaching{margin:38px 0 28px;padding:25px 0 10px;border-top:1px solid var(--line,#ccd6cf);border-bottom:1px solid var(--line,#ccd6cf);color:var(--ink,#183a37);font:17px/1.85 -apple-system,BlinkMacSystemFont,\"Noto Sans SC\",\"PingFang SC\",sans-serif}.ds-teaching h3{margin:0 0 20px;font-size:23px;line-height:1.5}.ds-scene{background:var(--white,#fff);border:1px solid var(--line,#ccd6cf);overflow:hidden}.ds-teaching svg{display:block;width:100%;height:auto}.ds-teaching figcaption{font-size:16px;line-height:1.85;margin-top:18px}.ds-zoom{display:none;border-top:1px solid var(--line,#ccd6cf);padding:20px 0}.ds-zoom summary{cursor:pointer;min-height:44px;font-size:14px;font-weight:500}.ds-zoom summary:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-zoom-scene{overflow-x:auto;border:1px solid var(--line,#ccd6cf);background:var(--white,#fff);scrollbar-color:var(--accent,#086f68) var(--wash,#e8efea);scrollbar-width:thin}.ds-zoom-scene:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:3px}.ds-zoom-scene svg{width:680px;max-width:none}.ds-zoom-scene svg g{font-size:21px}.ds-motion-note{font-size:14px;color:var(--muted,#50655f);margin-bottom:0}@media(max-width:700px){.ds-teaching h3{font-size:21px}.ds-scene svg g{font-size:25px}.ds-zoom{display:block}}@media print{.ds-zoom{display:none}.ds-teaching{break-inside:avoid}}"
+    },
+    {
+      "name": "Walkthrough controls",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Explicit previous, next, automatic demonstration and reset actions; the current step is shown with tabular numerals. This preview shows the first-step endpoint state.",
+      "html": "<div class=\"ds-walk\"><div class=\"ds-walk-controls\"><button type=\"button\" class=\"ds-walk-secondary\" disabled>上一步</button><button type=\"button\">下一步</button><button type=\"button\" class=\"ds-walk-secondary\" aria-pressed=\"false\">自动演示</button><button type=\"button\" class=\"ds-walk-secondary\">回到第一步</button></div><p class=\"ds-walk-note\">每一步停留约 4 秒。可随时暂停，或使用上一步、下一步阅读。</p><p class=\"ds-step-counter\">第 1 / 4 步</p></div>",
+      "css": ".ds-walk{font:17px/1.85 -apple-system,BlinkMacSystemFont,\"Noto Sans SC\",\"PingFang SC\",sans-serif;color:var(--ink,#183a37)}.ds-walk-controls{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0 14px}.ds-walk button{font:inherit;min-height:44px;padding:9px 20px;border:1px solid var(--accent,#086f68);background:var(--accent,#086f68);color:var(--white,#fff);border-radius:5px;cursor:pointer;line-height:1.5}.ds-walk button:hover{background:var(--action-hover,#064d48);color:var(--white,#fff)}.ds-walk button.ds-walk-secondary{background:transparent;color:var(--accent,#086f68)}.ds-walk button:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-walk button:disabled{opacity:.5;cursor:default}.ds-walk-note{font-size:14px;color:var(--muted,#50655f);margin-bottom:0}.ds-step-counter{font-size:14px;color:var(--accent,#086f68);margin:0 0 10px;font-variant-numeric:tabular-nums}@media(max-width:700px){.ds-walk-controls{gap:10px}.ds-walk button{padding:10px 16px}}@media print{.ds-walk-controls,.ds-walk-note{display:none}}"
+    },
+    {
+      "name": "Local table region",
+      "kind": "custom",
+      "description": "A wide data table keeps its horizontal overflow inside a labelled, keyboard-focusable article region.",
+      "html": "<div class=\"ds-table-region\" tabindex=\"0\" role=\"region\" aria-label=\"样本计算表，可横向移动\"><table><thead><tr><th>Observation Yᵢ</th><th>Deviation Yᵢ−ȳ</th><th>Squared deviation</th></tr></thead><tbody><tr><td>2</td><td>−2</td><td>4</td></tr><tr><td>4</td><td>0</td><td>0</td></tr><tr><td>6</td><td>2</td><td>4</td></tr></tbody></table></div>",
+      "css": ".ds-table-region{overflow-x:auto;margin:28px 0;color:var(--ink,#183a37);font:15px/1.85 -apple-system,BlinkMacSystemFont,\"Noto Sans SC\",\"PingFang SC\",sans-serif}.ds-table-region:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:3px}.ds-table-region table{display:table;overflow:visible;margin:0;border-collapse:collapse;width:100%}.ds-table-region th,.ds-table-region td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--line,#ccd6cf);min-width:110px}.ds-table-region th{background:var(--wash,#e8efea);font-weight:600}@media(max-width:700px){.ds-table-region th,.ds-table-region td{padding:10px;font-size:14px}}"
     }
   ],
   "narrative": {
     "northStar": "The Statistical Reading Atlas",
-    "overview": "The site reads as an open paper field annotated in research-green ink. Broad sections, fine rules and generous reading intervals let explanations and mathematical figures share the page without dashboard framing.\n\nChinese explanations use the platform sans-serif stack. A locally supplied serif gives the English identity and chapter numbering their book-like character. Interaction changes statistical inputs and exposes their consequences; it does not add decorative movement.",
+    "overview": "The site reads as an open paper field annotated in research-green ink. Broad sections, fine rules and generous reading intervals let explanations and mathematical figures share the page without dashboard framing.\n\nChinese explanations use the platform sans-serif stack. A locally supplied serif gives the English identity and chapter numbering their book-like character. Labelled teaching diagrams connect observations, calculation steps and conclusions. Interaction advances a reader-controlled explanation or changes statistical inputs to expose their consequences; it does not add decorative movement.",
     "keyCharacteristics": [
       "Paper ground, green ink and pale green information surfaces.",
       "Ruled chapter navigation and continuous reading sections.",
       "Original SVG figures with labelled axes and visible numerical readouts.",
+      "Step diagrams with accompanying explanations and equations in the reading flow.",
       "Serif English identity paired with Chinese sans-serif explanations."
     ],
     "rules": [
@@ -264,7 +298,9 @@
       "Do preserve the paper ground, dark green reading text and fine ruled sections.",
       "Do label statistical axes, inputs and comparisons and retain shape or dash distinctions.",
       "Do keep keyboard focus visible and maintain explicit mobile navigation.",
-      "Do use interaction to expose a statistical mechanism and honour reduced-motion preferences."
+      "Do use interaction to expose a statistical mechanism and honour reduced-motion preferences.",
+      "Do retain complete diagrams and step explanations in HTML and make automatic demonstration an explicit reader action.",
+      "Do keep the whole diagram visible by default on mobile and offer enlargement within a local scroll region."
     ],
     "donts": [
       "Don't convert continuous lesson content into a grid of raised dashboard cards.",

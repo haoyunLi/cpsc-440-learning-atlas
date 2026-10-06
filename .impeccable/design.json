@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-06T16:40:33.432623+00:00",
+  "title": "Design System: CPSC 440 Atlas",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "tonalRamp": [
+          "oklch(15% 0.00800 98.88)",
+          "oklch(26% 0.00800 98.88)",
+          "oklch(38% 0.00800 98.88)",
+          "oklch(49% 0.00800 98.88)",
+          "oklch(61% 0.00800 98.88)",
+          "oklch(72% 0.00800 98.88)",
+          "oklch(84% 0.00800 98.88)",
+          "oklch(95% 0.00800 98.88)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0.00000 89.88)",
+          "oklch(26% 0.00000 89.88)",
+          "oklch(38% 0.00000 89.88)",
+          "oklch(49% 0.00000 89.88)",
+          "oklch(61% 0.00000 89.88)",
+          "oklch(72% 0.00000 89.88)",
+          "oklch(84% 0.00000 89.88)",
+          "oklch(95% 0.00000 89.88)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Green Ink",
+        "tonalRamp": [
+          "oklch(15% 0.04004 187.76)",
+          "oklch(26% 0.04004 187.76)",
+          "oklch(38% 0.04004 187.76)",
+          "oklch(49% 0.04004 187.76)",
+          "oklch(61% 0.04004 187.76)",
+          "oklch(72% 0.04004 187.76)",
+          "oklch(84% 0.04004 187.76)",
+          "oklch(95% 0.04004 187.76)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "tonalRamp": [
+          "oklch(15% 0.02704 175.85)",
+          "oklch(26% 0.02704 175.85)",
+          "oklch(38% 0.02704 175.85)",
+          "oklch(49% 0.02704 175.85)",
+          "oklch(61% 0.02704 175.85)",
+          "oklch(72% 0.02704 175.85)",
+          "oklch(84% 0.02704 175.85)",
+          "oklch(95% 0.02704 175.85)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Research Green",
+        "tonalRamp": [
+          "oklch(15% 0.08342 187.10)",
+          "oklch(26% 0.08342 187.10)",
+          "oklch(38% 0.08342 187.10)",
+          "oklch(49% 0.08342 187.10)",
+          "oklch(61% 0.08342 187.10)",
+          "oklch(72% 0.08342 187.10)",
+          "oklch(84% 0.08342 187.10)",
+          "oklch(95% 0.08342 187.10)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Fine Rule",
+        "tonalRamp": [
+          "oklch(15% 0.01441 155.55)",
+          "oklch(26% 0.01441 155.55)",
+          "oklch(38% 0.01441 155.55)",
+          "oklch(49% 0.01441 155.55)",
+          "oklch(61% 0.01441 155.55)",
+          "oklch(72% 0.01441 155.55)",
+          "oklch(84% 0.01441 155.55)",
+          "oklch(95% 0.01441 155.55)"
+        ]
+      },
+      "wash": {
+        "role": "neutral",
+        "displayName": "Green Wash",
+        "tonalRamp": [
+          "oklch(15% 0.00997 155.09)",
+          "oklch(26% 0.00997 155.09)",
+          "oklch(38% 0.00997 155.09)",
+          "oklch(49% 0.00997 155.09)",
+          "oklch(61% 0.00997 155.09)",
+          "oklch(72% 0.00997 155.09)",
+          "oklch(84% 0.00997 155.09)",
+          "oklch(95% 0.00997 155.09)"
+        ]
+      },
+      "alert": {
+        "role": "secondary",
+        "displayName": "Comparison Rust",
+        "tonalRamp": [
+          "oklch(15% 0.11772 37.44)",
+          "oklch(26% 0.11772 37.44)",
+          "oklch(38% 0.11772 37.44)",
+          "oklch(49% 0.11772 37.44)",
+          "oklch(61% 0.11772 37.44)",
+          "oklch(72% 0.11772 37.44)",
+          "oklch(84% 0.11772 37.44)",
+          "oklch(95% 0.11772 37.44)"
+        ]
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Deep Action Green",
+        "tonalRamp": [
+          "oklch(15% 0.06389 187.18)",
+          "oklch(26% 0.06389 187.18)",
+          "oklch(38% 0.06389 187.18)",
+          "oklch(49% 0.06389 187.18)",
+          "oklch(61% 0.06389 187.18)",
+          "oklch(72% 0.06389 187.18)",
+          "oklch(84% 0.06389 187.18)",
+          "oklch(95% 0.06389 187.18)"
+        ]
+      },
+      "focus": {
+        "role": "secondary",
+        "displayName": "Focus Rust",
+        "tonalRamp": [
+          "oklch(15% 0.13184 42.72)",
+          "oklch(26% 0.13184 42.72)",
+          "oklch(38% 0.13184 42.72)",
+          "oklch(49% 0.13184 42.72)",
+          "oklch(61% 0.13184 42.72)",
+          "oklch(72% 0.13184 42.72)",
+          "oklch(84% 0.13184 42.72)",
+          "oklch(95% 0.13184 42.72)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "identity": {
+        "displayName": "English identity",
+        "purpose": "Serif identity and English subtitles; Chinese display headings use sans-serif."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "reading-scroll",
+        "value": "smooth",
+        "purpose": "Anchor navigation; becomes auto under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop",
+        "value": "950px"
+      },
+      {
+        "name": "mobile",
+        "value": "700px"
+      }
+    ],
+    "focus": {
+      "value": "3px solid #b95c34",
+      "offset": "4px",
+      "purpose": "Shared keyboard focus treatment."
+    },
+    "tonalRampNote": "Tonal ramps are synthesized OKLCH panel previews, not additional production tokens."
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Filled action for entering or changing a learning activity.",
+      "html": "<button class=\"ds-primary\">开始观察</button>",
+      "css": ".ds-primary{font:17px/1.5 -apple-system,BlinkMacSystemFont,\"Noto Sans SC\",\"PingFang SC\",sans-serif;min-height:44px;padding:9px 20px;border:1px solid var(--accent,#086f68);border-radius:5px;cursor:pointer;background:var(--accent,#086f68);color:var(--white,#fff)}.ds-primary:hover{background:var(--action-hover,#064d48)}.ds-primary:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-primary:disabled{opacity:.5;cursor:default}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Transparent companion control.",
+      "html": "<button class=\"ds-secondary\">重新计算</button>",
+      "css": ".ds-secondary{font:17px/1.5 -apple-system,BlinkMacSystemFont,\"Noto Sans SC\",\"PingFang SC\",sans-serif;min-height:44px;padding:9px 20px;border:1px solid var(--accent,#086f68);border-radius:5px;cursor:pointer;background:transparent;color:var(--accent,#086f68)}.ds-secondary:hover{background:var(--action-hover,#064d48);color:var(--white,#fff)}.ds-secondary:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-secondary:disabled{opacity:.5;cursor:default}"
+    },
+    {
+      "name": "Search field",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "Wide searchable concept field.",
+      "html": "<label class=\"ds-search-label\" for=\"ds-search\">搜索概念</label><input class=\"ds-search\" id=\"ds-search\" type=\"search\" placeholder=\"probability / 概率\">",
+      "css": ".ds-search-label{display:block;color:var(--ink,#183a37);font:14px sans-serif}.ds-search{width:100%;padding:15px;border:1px solid var(--line,#ccd6cf);border-radius:5px;background:var(--white,#fff);color:var(--ink,#183a37);font:17px sans-serif}.ds-search:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}"
+    },
+    {
+      "name": "Reading navigation",
+      "kind": "nav",
+      "refersTo": "reading-navigation",
+      "description": "Plain links with dark bold current chapter.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"章节\"><a class=\"ds-current\" href=\"#observations\" aria-current=\"page\">01 从测量到数据描述</a><a href=\"#probability\">02 概率与随机变量</a></nav>",
+      "css": ".ds-nav{font:14px/1.85 sans-serif}.ds-nav a{display:block;padding:7px 0;text-decoration:none;color:var(--accent,#086f68)}.ds-nav .ds-current{font-weight:700;color:var(--ink,#183a37)}.ds-nav a:hover{color:var(--ink,#183a37)}.ds-nav a:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}"
+    },
+    {
+      "name": "Equation panel",
+      "kind": "custom",
+      "refersTo": "equation-panel",
+      "description": "Pale surface for an explicit mathematical relationship.",
+      "html": "<div class=\"ds-equation\">SE = σ / √n</div>",
+      "css": ".ds-equation{font:18px/2.1 Georgia,\"Times New Roman\",serif;color:var(--ink,#183a37);padding:22px 25px;background:var(--wash,#e8efea);margin:26px 0;overflow-x:auto;border-radius:4px}"
+    },
+    {
+      "name": "Numerical readout",
+      "kind": "custom",
+      "refersTo": "readout",
+      "description": "Calculation output below a statistical figure.",
+      "html": "<div class=\"ds-readout\" role=\"status\">n = 25 · SE = 2.000 · mean = 10.000</div>",
+      "css": ".ds-readout{font:17px/1.75 sans-serif;font-variant-numeric:tabular-nums;color:var(--ink,#183a37);background:var(--wash,#e8efea);padding:18px;margin:18px 0;overflow-wrap:anywhere}"
+    },
+    {
+      "name": "Answer disclosure",
+      "kind": "custom",
+      "refersTo": "answer-disclosure",
+      "description": "Native expandable explanation within the reading flow.",
+      "html": "<details class=\"ds-details\"><summary>查看解释</summary><p>比较样本与模型中的数量。</p></details>",
+      "css": ".ds-details{border-top:1px solid var(--line,#ccd6cf);padding:20px 0;font:17px/1.85 sans-serif;color:var(--ink,#183a37)}.ds-details summary{cursor:pointer;font-weight:600;min-height:44px}.ds-details summary:focus-visible{outline:3px solid var(--focus,#b95c34);outline-offset:4px}.ds-details p{margin:15px 0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Statistical Reading Atlas",
+    "overview": "The site reads as an open paper field annotated in research-green ink. Broad sections, fine rules and generous reading intervals let explanations and mathematical figures share the page without dashboard framing.\n\nChinese explanations use the platform sans-serif stack. A locally supplied serif gives the English identity and chapter numbering their book-like character. Interaction changes statistical inputs and exposes their consequences; it does not add decorative movement.",
+    "keyCharacteristics": [
+      "Paper ground, green ink and pale green information surfaces.",
+      "Ruled chapter navigation and continuous reading sections.",
+      "Original SVG figures with labelled axes and visible numerical readouts.",
+      "Serif English identity paired with Chinese sans-serif explanations."
+    ],
+    "rules": [
+      {
+        "name": "Redundant Encoding",
+        "body": "Statistical comparisons pair color with labels, dash patterns or marker shapes.",
+        "section": "colors"
+      },
+      {
+        "name": "Bilingual Hierarchy",
+        "body": "Use serif type for the English identity and numbering; preserve the readable sans-serif treatment of Chinese explanations and display headings.",
+        "section": "typography"
+      },
+      {
+        "name": "Flat Reading Field",
+        "body": "Separate sections with space, rules and tonal fields rather than adding raised cards.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the paper ground, dark green reading text and fine ruled sections.",
+      "Do label statistical axes, inputs and comparisons and retain shape or dash distinctions.",
+      "Do keep keyboard focus visible and maintain explicit mobile navigation.",
+      "Do use interaction to expose a statistical mechanism and honour reduced-motion preferences."
+    ],
+    "donts": [
+      "Don't convert continuous lesson content into a grid of raised dashboard cards.",
+      "Don't communicate statistical comparisons through color alone.",
+      "Don't shrink mobile selectors into narrow columns when their options need a complete row.",
+      "Don't replace authored SVG navigation arrows with text glyph icons."
+    ]
+  }
+}

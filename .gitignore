@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+node_modules/
+.playwright/
+private/
+*.pdf
+*.pptx
+*.docx
+*.xlsx
+*.csv
+*.log

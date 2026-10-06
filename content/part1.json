@@ -1,0 +1,147 @@
+[
+  {
+    "id": "01",
+    "title": "从测量到数据描述",
+    "en": "Descriptive statistics",
+    "question": "一组植物长得怎样，能用一个平均数说清吗？",
+    "bridge": "先描述你实际观测到了什么，再讨论能否推到未观测的总体。",
+    "sim": "summary",
+    "lessons": [
+      {
+        "id": "population",
+        "title": "推断之前，先确定你在谈论谁",
+        "body": "<p>农学研究希望知道一个品种在目标环境中的表现，但通常只能测量有限的植株。<b>Population</b> 是研究目标中全部测量的集合；<b>Sample</b> 是实际观测的子集。<b>Inference space</b> 指结论适用的范围：一个温室得到的结果，不会自动适用于所有气候和土壤。</p><p><b>Parameter</b> 描述总体，例如 population mean μ 和 variance σ²；<b>Statistic / estimator</b> 从样本计算，例如 sample mean ȳ 和 variance s²。参数不一定“原则上无法测量”，而是通常未知。统计量随抽样改变，参数在指定总体中固定。</p><div class=\"flow\"><span>目标总体<br>Population</span><span>抽样与测量<br>Sample → Yᵢ</span><span>统计量与不确定性<br>Estimate + uncertainty</span></div><p>测量 20 株某品种的高度，平均 30 cm，这是这 20 株的准确描述；说该品种在整个区域平均 30 cm，就需要抽样设计及误差量化。<b>Random sampling</b> 帮助代表总体；<b>random assignment</b> 帮助比较处理的因果效应，两者承担不同任务。</p><p><b>Observational study / survey</b> 记录已经发生的暴露与结果，易受 selection bias、nonresponse 和 confounding 影响；<b>designed experiment</b> 可事先 randomize treatment。随机抽样与随机分配同时存在时，代表性与因果识别仍是两项不同条件。确定 sampling frame，避免只测容易接触的单位。</p>"
+      },
+      {
+        "id": "variables",
+        "title": "变量类型决定图与计算是否有意义",
+        "body": "<p><b>Variable</b> 是在每个 observational unit 上记录的属性。<b>Quantitative</b> 分 continuous（高度、质量）和 discrete（种子数）；<b>Qualitative</b> 分 nominal（品种名称）和 ordinal（病害等级）。数字编码 1、2、3 的品种依然是 nominal，编码的平均值没有生物意义。</p><p><b>Experimental unit (EU)</b> 是独立接受处理的单位；一盆植物接受同一肥料，测十片叶子不会变成十个独立的肥料重复。测量精度、单位、缺失值和重复结构要先记录，不能在统计检验时补救。</p>"
+      },
+      {
+        "id": "histogram",
+        "title": "Histogram 把数值范围变成可比较的频率",
+        "body": "<ol><li>选覆盖所有观测的范围，划成不重叠的 bins，约定边界，例如左闭右开。</li><li>统计每个 bin 的 frequency fᵢ；relative frequency 为 fᵢ/n，总和是 1。</li><li>横轴放测量值，纵轴放 frequency、relative frequency 或 density，并明确标签。</li></ol><p>Bar chart 比较类别，类别间留空；histogram 描述连续数值分布，相邻区间相接。改变 bin width 会改变可见细节，不能因此声称数据本身发生变化。若 bins 不等宽，必须让 <b>面积</b> 表示频率，density = fᵢ/(n × width)。</p><p>课程鸡体重增加的例子通过频数表、累计频数和 histogram 观察分布。经验概率 P(Y&gt;3.9) 是超过阈值的计数/n，边界上的等号必须处理一致。描述到“多数高于阈值”还不足以证明抗生素造成增加，仍需要对照与设计。</p><p><b>Stem-and-leaf plot</b> 保留原始数值：12.6 若 stem=12，leaf=6，key 必须写 12|6 = 12.6。将 leaf 排序，便于观察分布并恢复观测；大数据时不如 histogram 高效。</p>"
+      },
+      {
+        "id": "center",
+        "title": "Mean、median 与 mode 回答不同的“典型”",
+        "body": "<div class=\"equation\">ȳ = ΣYᵢ / n</div><p><b>Mean</b> 使用每个数值，是偏差总和为零的平衡点；<b>Median</b> 是排序后的中点，奇数取中央一项，偶数取中央两项的平均；<b>Mode</b> 是最高频数对应值，可多于一个，也适用于类别变量。</p><p>原创例子：高度 [2, 3, 3, 4, 18]，mean = 30/5 = 6，median = 3，mode = 3。18 将 mean 向右拉，却没有改变 median。右偏分布中 mean 常高于 median，但这是常见形态，不能作为所有分布的必然定理。</p><p><b>Skewness</b> 描述不对称：正偏长尾向右，负偏长尾向左。<b>Kurtosis</b> 更适合解释为标准化四阶矩与尾部极端值倾向；不同定义是否减 3 要注明，不能仅凭“峰更尖”就判定 kurtosis 更高。</p>"
+      },
+      {
+        "id": "spread",
+        "title": "Variance 将偏差平方，SD 把单位还给你",
+        "body": "<div class=\"equation\">s² = Σ(Yᵢ − ȳ)²/(n − 1)　　s = √s²</div><p>原始偏差会正负相消，所以平方后累加。估计了 ȳ 后，只剩 n−1 个独立偏差；分母 n−1 使 sample variance 在独立同分布、有限方差条件下成为 σ² 的 unbiased estimator。样本 SD 本身并非严格无偏。</p><p>原创例子 [2,4,6]：ȳ=4；偏差 −2,0,2；平方和 8；s²=8/2=4；s=2。Variance 的单位是原单位的平方，SD 与观测单位相同。<b>Range</b> 只使用最大最小值；<b>Coefficient of variation</b> CV = 100s/ȳ%，适用于有真实零点且均值远离零的正量，不能随意用于 Celsius 温度。</p><p>Normal distribution 才具有约 68%、95%、99.7% 在 μ±1σ、2σ、3σ 的 empirical rule；对偏态或多峰数据不要直接套用。</p><div class=\"equation\">working formula：s² = [ΣYᵢ² − (ΣYᵢ)²/n]/(n−1)</div><p>这是 deviation formula 展开后的等价计算：Σ(Yᵢ−ȳ)²=ΣYᵢ²−nȳ²。课程 notes 给出此 machine formula；手算可方便，但很大的数减很接近的数会产生 floating-point cancellation，程序计算优先用 centered 或稳定的 streaming method。</p>"
+      },
+      {
+        "id": "boxplot",
+        "title": "Box plot 把中心、分散和异常候选分开",
+        "body": "<p>Q1、Q2、Q3 对应 25th、50th、75th percentiles，<b>IQR</b> = Q3−Q1。箱体覆盖中间 50%；内围栏为 Q1−1.5IQR 与 Q3+1.5IQR，whiskers 到围栏以内最远的观测，超出点单独显示。围栏不是实际 whisker 端点。</p><p>课程鸡体重示例 Q1=4.1、Q3=4.5，因此 IQR=0.4、围栏 3.5 与 5.1。不同软件的 quantile 规则可能产生不同 Q1/Q3，报告规则；不要把每个 outlier 自动删除。课程 pollen 与 flight delays 例子提示：右偏数据的少数大值会改变 mean、range 和 variance，side-by-side box plots 可比较多个分布。</p><pre><code># R: 描述和可视化（替换为自己的公开/许可数据）\nmean(y); median(y); var(y); sd(y)\nquantile(y, c(.25,.5,.75), type=5)\nhist(y, breaks=10); boxplot(y)\n# SAS 对应：PROC UNIVARIATE、PROC FREQ、PROC SGPLOT</code></pre><p>Notes 还区分 <b>outer fences</b> Q1−3IQR、Q3+3IQR：超内围栏的点是 moderate outlier candidates，超外围栏的是 extreme candidates。它们是描述性规则，既不是“数据错误”的判决，也不是 normality test。</p>"
+      },
+      {
+        "id": "practice",
+        "title": "把描述转成可以检验的问题",
+        "body": "<details><summary>练习：把 [2,4,6] 的每项加 10，mean、variance 与 SD 怎样变？</summary><p>Mean 增加 10 成为 14；每个相对均值的偏差不变，所以 variance=4、SD=2 不变。若每项乘 10，则 mean 和 SD 乘 10，variance 乘 100。</p></details><details><summary>练习：两个处理 mean 相同，就能说表现一样吗？</summary><p>不能。分散、分布形态与极端风险可能不同。先用图描述，再明确要比较 mean、median 或 variance。下一章用 probability 描述随机变化的规律。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>鸡体重、pollen、flight delays</h3><p>鸡体重案例用同一数据改变 bin widths，比较 frequency 与 relative frequency；pollen 的右尾提醒 mean 对极值敏感；notes 的 flight delays 用 side-by-side box plots 比较日期与航班。三者依次练习图的尺度、尾部与分组比较。</p><h3>饮水量与 stem-and-leaf</h3><p>鼠的一小时饮水量用 stem-and-leaf 保留所有值；key 决定 decimal position。该图能读 median 与 extremes，但不能用 stem 数字替代原单位。</p>"
+      }
+    ]
+  },
+  {
+    "id": "04",
+    "title": "把随机性写成概率",
+    "en": "Probability & sampling distributions",
+    "question": "种子发芽 12/20 次，怎样判断是否与宣称的 85% 相容？",
+    "bridge": "频率描述样本；probability model 描述重复实验的规律，连接观测与推断。",
+    "sim": "probability",
+    "lessons": [
+      {
+        "id": "events",
+        "title": "先列 sample space，再计算 event",
+        "body": "<p><b>Probability</b> 在 0 与 1 之间。Classical probability 将等可能结果中有利结果数除以总数；relative-frequency interpretation 看重复实验中事件出现比例。若结果不等可能，不能简单数个数。</p><p>两颗公平骰子有 36 个等可能的有序结果，和为 7 的结果有 6 个，所以 P(sum=7)=1/6。和 2 到 12 并不等可能。两次独立公平掷币中 exactly one head 包括 HT、TH，因此概率 2/4，而不是 1/3。</p><div class=\"equation\">P(Aᶜ)=1−P(A)<br>P(A ∪ B)=P(A)+P(B)−P(A ∩ B)</div><p><b>Union</b> 是 A 或 B 或两者；<b>Intersection</b> 是同时发生；<b>Complement</b> 是 A 不发生。Mutually exclusive events 的交集为空，故 union 可直接加。补事件常简化“至少一次”，例如 n 次独立发芽中至少一次成功概率 1−(1−p)ⁿ。</p>"
+      },
+      {
+        "id": "conditional",
+        "title": "Conditional probability 改变了分母",
+        "body": "<div class=\"equation\">P(A|B)=P(A ∩ B)/P(B)，P(B)&gt;0<br>P(A ∩ B)=P(A|B)P(B)</div><p>已知 B 发生后，只在 B 内计算比例。课程保险索赔例中 total fraud 比例 10%，fire policy 内 fraud 为 6/20=30%；P(fraud) 与 P(fraud|fire) 的研究范围不同。</p><p><b>Independence</b> 意味知道 B 不改变 A 的概率，等价于 P(A∩B)=P(A)P(B)。Mutually exclusive 与 independent 不同：若两个互斥事件都有正概率，一个发生就使另一个不可能，故不独立。</p><p>原创例子：10 颗种子中 6 颗健全，不放回抽 2 颗，两颗均健全的概率 (6/10)(5/9)=1/3。放回抽则 (6/10)²=0.36。独立性要由设计保证，不能为了方便计算而假定。</p><p>区域经理抽选例是 <b>without replacement</b>：如果共有 M 人、其中 m 人是男性，则连续抽到两名男性概率 (m/M)×((m−1)/(M−1))；三名时再乘 (m−2)/(M−2)。此时 trials 不独立，不能直接套 binomial。Notes 中把“both”写成 union 的一处记号应读作 intersection A∩B。</p>"
+      },
+      {
+        "id": "binomial",
+        "title": "Binomial 把重复的 0/1 结果变成计数",
+        "body": "<p><b>Random variable</b> 将实验结果映射为数值。Discrete random variable 的 PMF 对各可能值给概率，总和 1。<b>Binomial(n,p)</b> 要求固定 n、每次两种结果、共同成功概率 p、trials 独立；Y 是 successes 的总数。</p><div class=\"equation\">P(Y=k)=C(n,k)pᵏ(1−p)ⁿ⁻ᵏ<br>E(Y)=np，Var(Y)=np(1−p)，SD(Y)=√[np(1−p)]</div><p>组合数 C(n,k) 计算成功位置的不同排列。课程 germination 例：n=20、p=.85，P(Y≥18)=P(18)+P(19)+P(20)≈.4049。P(Y≥18)=1−P(Y≤17)，边界不能写成 1−P(Y≤18)。</p><p>“Success” 是你定义的事件，没有价值判断。如果“未就业”为 success，p=.1；改为“就业”，p=.9，变量也变成 n−Y。Poll、germination 和 coin-flip 例都依靠这四个条件；群体相关性或变化的 p 会使简单 binomial 不合适。</p><pre><code>dbinom(18, size=20, prob=.85)   # P(Y=18)\npbinom(17,20,.85,lower.tail=FALSE) # P(Y&gt;17)\n# SAS: PDF('BINOMIAL', k, p, n); CDF('BINOMIAL', k, p, n)</code></pre>"
+      },
+      {
+        "id": "density",
+        "title": "Continuous probability 是面积，不是曲线高度",
+        "body": "<p>Continuous random variable 的 <b>PDF / density</b> f(y) 可大于 1，但总面积是 1。P(a≤Y≤b)=∫ₐᵇ f(y)dy；单一精确点的概率为 0。<b>CDF</b> F(y)=P(Y≤y) 是累积面积。Normal、Student's t、χ² 和 F distributions 各有用途，后续将解释它们为何出现。</p><div class=\"equation\">Y ~ Normal(μ,σ²)　→　Z=(Y−μ)/σ ~ Normal(0,1)</div><p>Normal 用 μ 决定中心，σ 决定宽度。标准化回答“离中心几个 SD”。课程例 μ=20、σ=2：P(Y&lt;23)=P(Z&lt;1.5)≈.9332；P(Y&lt;16)=Φ(−2)≈.0228。Guernsey 牛产奶量例必须分别算左尾、右尾和区间，不能把 density 高度读成概率。</p><p>求 pth percentile 反向运算：yₚ=μ+σΦ⁻¹(p)。例如 μ=55、σ=3 的 80th percentile 为 55+3×.8416≈57.525。Binomial 的 normal approximation 要检查 np 和 n(1−p) 并考虑 continuity correction，small tail probabilities 尤其要优先用 exact binomial。</p><pre><code>pnorm(23,mean=20,sd=2)\nqnorm(.80,mean=55,sd=3)</code></pre>"
+      },
+      {
+        "id": "clt",
+        "title": "Sampling distribution 描述的是统计量的反复变化",
+        "body": "<p>固定总体和 sample size n，反复抽样并每次算 ȳ，所有可能 ȳ 的分布叫 <b>sampling distribution</b>。它与一次样本中所有 individual Yᵢ 的 histogram 不同。</p><div class=\"equation\">E(ȳ)=μ，Var(ȳ)=σ²/n，SE(ȳ)=σ/√n</div><p>若 Yᵢ independent、同分布、有限均值和方差，<b>Central Limit Theorem (CLT)</b> 让标准化样本平均在 n 增大时趋向 normal。总体本身 normal 时，任何 n 的 ȳ 都精确 normal；总体偏态时只是近似。n&gt;30 是课程常用经验规则，并非保证，强偏态、极端尾或相关数据仍需检查。</p><p>课程 μ=115、σ=10、n=25：individual SD=10，mean 的 SE=2。n 乘 4 才让 SE 减半。加大样本降低随机误差，不能消除 selection bias。接下来以 sampling distribution 为依据构造 confidence interval 与 test。</p>"
+      },
+      {
+        "id": "practice",
+        "title": "区分模型假设与计算结果",
+        "body": "<details><summary>练习：P(A)=.4、P(B)=.5、P(A∩B)=.3，两事件独立吗？</summary><p>不独立，因为 .3≠.4×.5=.2。Union=.4+.5−.3=.6，P(A|B)=.3/.5=.6，与 P(A)=.4 不同。</p></details><details><summary>练习：n 从 25 变到 100，population distribution 会更窄吗？</summary><p>总体不会因抽样数改变。Mean 的 sampling distribution 变窄，SE 从 σ/5 变为 σ/10；individual variation 保持 σ。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>抽两枚硬币与两个骰子</h3><p>Coins 有四个等可能 ordered outcomes，出现一个 head 为 2/4；骰子之和 7 有 6/36，11 有 2/36。“可能的 sum 数量”不等于 equally likely outcomes。千万次模拟得到接近而非完全等于 theoretical probabilities。</p><h3>保险类型与 claim severity</h3><p>先根据联合频数计算 P(severity ∩ policy)，再用 policy 的列总数计算 P(severity|policy)。比较条件概率与 marginal probability 可检查 independence；保险类别顺序不是数值大小。</p><h3>Turfgrass germination 与 employment</h3><p>n=20、π=.85 时 P(Y=17)≈.24283，P(Y≤17)≈.59510；使用 pbinom(17,20,.85) 计算累计。Employment 例把 success 改为 unemployed 时 π 从 .9 变成 .1，Y 也要重新定义。</p><h3>选举与 normal milk production</h3><p>Candidate 例比较 H₀:π=.5 下观察结果或更极端结果的概率，不会仅凭概率曲线证明胜选。Milk production 假定 μ=70、σ=13：threshold 先变成 Z=(y−70)/13，再决定左/右尾；percentile 用 yₚ=70+13zₚ。</p>"
+      }
+    ]
+  },
+  {
+    "id": "05",
+    "title": "从样本判断总体中心",
+    "en": "Confidence intervals & hypothesis testing",
+    "question": "观察到的平均差异，是信号还是抽样波动？",
+    "bridge": "只报估计值忽略其不稳定性；本章把 sampling distribution 变成可解释的区间和决策。",
+    "sim": "inference",
+    "lessons": [
+      {
+        "id": "ci",
+        "title": "Confidence interval 是一个有覆盖率的程序",
+        "body": "<div class=\"equation\">已知 σ：CI = ȳ ± z₁₋α/₂ σ/√n<br>未知 σ、normal population：CI = ȳ ± t₁₋α/₂,ₙ₋₁ s/√n</div><p><b>Confidence level</b> 1−α 描述重复抽样时构造出的区间包含固定参数 μ 的长期比例。得到某个区间后，μ 是否落入已确定；frequentist 95% CI 不能解释成“μ 有 95% 概率在这个区间”。也不是 95% 个体落在其中。</p><p>课程例 n=168、ȳ=36.92、s=6.737，以 large-sample z approximation 得 SE=.5198，95% CI≈[35.90,37.94]。小样本且未知 σ 用 t；大样本用 t 仍然合理。相同数据下，99% CI 比 95% 更宽；n 增加、SD 降低会使区间变窄。</p><p>若已知 σ，希望 half-width 不超过 E，n≥(z₁₋α/₂σ/E)²，向上取整。课程 cereal 精度例 E=.25、σ=.75、99% confidence，用 z≈2.576 得 n≈59.72，所以 60。未知 σ 用 pilot estimate 并考虑预算及实际设计。</p>"
+      },
+      {
+        "id": "testing",
+        "title": "七步 test 把问题、模型与结论连起来",
+        "body": "<ol><li>写 H₀ 与 Hₐ：例如 H₀:μ≤μ₀，Hₐ:μ&gt;μ₀。方向由研究问题预先确定。</li><li>在观察结果前确定 α 与 sample size。</li><li>选 statistic 及它在 null 下的 reference distribution，检查设计假设。</li><li>确定 rejection region 或计算 P-value 的规则。</li><li>收集数据、算 effect estimate、SE 与 statistic。</li><li>按 P≤α 或 critical value 决定 reject / fail to reject。</li><li>用研究语言报告 effect、uncertainty、证据与适用范围。</li></ol><div class=\"equation\">Z=(ȳ−μ₀)/(σ/√n)　或　t=(ȳ−μ₀)/(s/√n)，df=n−1</div><p><b>P-value</b> 是 H₀ 及模型成立时，获得当前或更极端 statistic 的概率。它不是 H₀ 为真的概率，也不是差异由偶然造成的概率。Fail to reject 表示证据不足，不能改写为“接受 H₀”或“证明相同”。</p><p>原创例：已知 σ=10，n=25，ȳ=54，H₀:μ=50。SE=2，Z=2；双尾 P≈.0455，α=.05 时 reject。若右尾 P≈.0228；不能看完结果再把双尾改成单尾。</p>"
+      },
+      {
+        "id": "errors",
+        "title": "Type I 与 Type II errors 对应不同世界",
+        "body": "<table><thead><tr><th>决策</th><th>H₀ true</th><th>指定 alternative true</th></tr></thead><tbody><tr><td>Reject H₀</td><td>Type I error，概率 α</td><td>Power = 1−β</td></tr><tr><td>Fail to reject</td><td>正确不拒绝</td><td>Type II error，概率 β</td></tr></tbody></table><p>α 在 null 世界量化 false rejection。β 必须针对指定 μₐ、variance、n 与检验定义；不指定 effect size，就没有唯一 power。固定 n 下减小 α 通常增加 β；更大的真实差异、更小 variability 或更大 n 通常提高 power。</p><div class=\"equation\">右尾临界样本均值 c=μ₀+z₁₋α σ/√n<br>β(μₐ)=Φ[(c−μₐ)/(σ/√n)]<br>双尾 β=Φ[(cᵤ−μₐ)/SE]−Φ[(cₗ−μₐ)/SE]</div><p>课程 encyclopedia training 示例 μ₀=33、μₐ=38、s≈8.4、n=35、α=.05，以已知/规划 σ 的 z 近似得到 c≈35.34、β≈.0305、power≈.9695。未知 variance 的精确 t power 用 noncentral t，不能把 t critical value 代入 standard normal 就声称精确。</p>"
+      },
+      {
+        "id": "power-n",
+        "title": "Sample size 先服务研究中有意义的差异",
+        "body": "<div class=\"equation\">one-sided z plan: n ≈ σ²(z₁₋α + z₁₋β)²/Δ²<br>two-sided approximate plan: n ≈ σ²(z₁₋α/₂ + z₁₋β)²/Δ²</div><p>Δ=|μₐ−μ₀| 是最小值得发现的差异。公式在 independent sampling 与已知/规划 variance 下使用，双尾公式通常是近似；向上取整并考虑 dropout、clustering 和 repeated measurements。精度 E 与 power 的 Δ 回答不同问题，不要混用。</p><p>例如 σ=10，Δ=5，one-sided α=.05、目标 power=.8，n≈100(1.645+.842)²/25≈24.74，取 25。统计显著不代表 agronomically meaningful；应同时比较 estimate 和事先定义的实质阈值。</p>"
+      },
+      {
+        "id": "student",
+        "title": "Student’s t 承认我们也在估计 variance",
+        "body": "<p>σ 未知时用 s，分母变成随机量，使标准化均值有更重的尾。Normal independent observations 下 t statistic 精确服从 <b>Student's t(df=n−1)</b>；df 增大逐渐接近 standard normal。</p><p>课程冰淇淋微生物例：n=9、ȳ=.4564、s=.2128，检验 μ&gt;.3：t≈2.205、df=8、one-sided P≈.029。α=.01 时不能拒绝，即使 estimate&gt;.3。仓库处理时间例同时报告 mean CI、t 与 P；normality 诊断看数据或残差的 QQ plot，而不是只看检验结果。</p><p>t procedures 对温和偏离可能 robust，但 small n、heavy tails、强偏态和 outliers 会影响 error rates。Shapiro–Wilk 未拒绝不证明 normal，小样本下可能缺乏能力。独立性通常由实验设计判断，QQ plot 无法检验它。</p><pre><code>t.test(y,mu=.3,alternative='greater',conf.level=.99)\nqt(.975,df=8); pt(2.205,df=8,lower.tail=FALSE)\n# SAS: PROC TTEST H0=.3 SIDES=U ALPHA=.01</code></pre><p><b>Noncentral t</b> 用于未知 σ 的 t-test power：假定 planning σ，δ=(μₐ−μ₀)√n/σ；alternative 下 T~t(df=n−1,ncp=δ)。Right-tail power=1−F<sub>nct</sub>(t₁₋α;df,δ)，two-sided 将两个 rejection tails 相加。这里不能把 s 当已知 σ，再声称得到精确 t power；数值上可用 <code>pt(critical,df,ncp=delta)</code> 或 <code>power.t.test()</code>。</p>"
+      },
+      {
+        "id": "median",
+        "title": "当中心问题是 median：Sign test 与 order statistics",
+        "body": "<p><b>Sign test</b> 只记录 Yᵢ−M₀ 的正负，丢弃恰好等于 M₀ 的 ties，并用剩余 m 个值。在 continuous distribution、H₀ median=M₀ 下，positive count B~Binomial(m,.5)。方向由 Hₐ 决定，two-sided 可用两边尾概率；离散/tied 数据需要说明假设和规则。</p><p>原创例：9 个非零差中 8 个为正，right-tail P=P(B≥8)=(9+1)/512≈.01953。它回答 median 或正负平衡问题，不能当成 mean 的检验。</p><p>Median CI 用 sorted observations Y₍₁₎…Y₍ₙ₎。选 k 使 2P(Binomial(n,.5)≤k−1)≤α，再用 [Y₍ₖ₎,Y₍ₙ₋ₖ₊₁₎]；实际 coverage 由于离散性常高于名义值。课程 recyclable material 例正是将 order statistics 与 binomial 连接。</p><p>Course notes 也给 large-sample order-statistic approximation：下标约 n/2 ± z₁₋α/₂√n/2（整数与端点规则要写清）。它来自 B~Binomial(n,.5) 的 normal approximation；small n 优先用上面的 exact binomial coverage。改变 median 问题不能只因为 mean test 不显著，必须依据科学目标。</p>"
+      },
+      {
+        "id": "practice",
+        "title": "把显著性转换成准确的话",
+        "body": "<details><summary>练习：P=.08，α=.05，可以说处理“没有作用”吗？</summary><p>不能。可以说数据没有提供足够证据拒绝指定 null。报告 estimate 和 CI；若想证明差异足够小，应定义 equivalence margins 并使用合适的 equivalence test。</p></details><details><summary>练习：95% CI 不含 μ₀ 与双尾 test 的关系是什么？</summary><p>在使用相同模型、SE 和 α=.05 的对应 test 时，CI 不含 μ₀ 等价于 reject；若用不同 approximation 或单尾 test，必须先确认对应关系。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>Known-σ CI：样本与树林</h3><p>n=168、ȳ=36.92、σ=6.73，95% CI≈[35.90,37.94]。树木例 n=50、ȳ=27.3、σ=12.1，99% CI≈[22.89,31.71]（用课程 z≈2.58）。W=.50、σ=.75 的 99% cereal CI planning 需约60 independent boxes；W 是 full width。</p><h3>工程过程与 rat growth</h3><p>工程 right-tail ȳ=553、μ₀=520、σ=124、n=36：z≈1.597&lt;1.645，不能在 α=.05 拒绝。Two-tail 用 ȳ=500 得 z≈−.968。Notes rat growth 也是由标准化距离判断，而不是把 sample mean 高于标准直接称显著。</p><h3>城市垃圾与 encyclopedia power</h3><p>Notes 城市垃圾量比较 μ₀=380 与多个 μₐ，保留固定 rejection threshold 来计算 β。Encyclopedia μ₀=33、σ=8.4、n=35 的 right-tail test，true μₐ=38 时 power≈.970；这是 planning 假设下的 repeated-sampling probability，不能从 observed mean35 当作已知 truth。</p><h3>Warehouse、pilots 与 median garbage</h3><p>Warehouse n=15、ȳ=28.2、s≈11.44：t≈1.083，df14，right-tail P≈.148；pilots n=14、ȳ=2.26、s=.28 的95% CI≈[2.098,2.422]m。Skewed garbage/recycling 数据若目标为 typical household median，可用 sign test 与 order-statistic CI，不把 mean 与 median 混为一谈。</p>"
+      }
+    ]
+  }
+]

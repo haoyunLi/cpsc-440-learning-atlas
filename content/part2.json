@@ -1,0 +1,152 @@
+[
+  {
+    "id": "06",
+    "title": "比较两个总体，先辨认实验结构",
+    "en": "Two-sample & paired inference",
+    "question": "两种肥料的差异，应该比较两组 mean，还是每块地内的差？",
+    "bridge": "相同的两个平均值，在 independent 与 paired designs 中有不同的 SE。",
+    "sim": "paired",
+    "lessons": [
+      {
+        "id": "difference",
+        "title": "独立 random variables 的 variance 会相加",
+        "body": "<div class=\"equation\">E(ȳ₁−ȳ₂)=μ₁−μ₂<br>Var(ȳ₁−ȳ₂)=σ₁²/n₁+σ₂²/n₂（independent samples）</div><p>减法改变 mean 的方向，但 independent fluctuations 不会相互抵消，所以 variance 仍相加。若样本有相关性，应额外减去 2Cov(ȳ₁,ȳ₂)，不能继续使用 independent formula。</p><p>先决定 estimand 是 μ₁−μ₂、median difference 还是 paired mean difference，再选模型。Drug potency 课程例比较 fresh 与 stored samples，两个独立样本的设计决定后面的 denominator。</p>"
+      },
+      {
+        "id": "pooled",
+        "title": "Pooled t-test 假定共同的 population variance",
+        "body": "<div class=\"equation\">sₚ²=[(n₁−1)s₁²+(n₂−1)s₂²]/(n₁+n₂−2)<br>SE=sₚ√(1/n₁+1/n₂)<br>t=[(ȳ₁−ȳ₂)−D₀]/SE，df=n₁+n₂−2</div><p>每个 sample variance 都估计相同 σ²，因此按 degrees of freedom 合并。不是对 SD 直接取平均。假设 independent observations、正常或足够 robust 的 sampling distributions、equal population variances。</p><p>原创例：n₁=n₂=5，means=12 与 10，s₁²=s₂²=4。Pooled variance=4，SE=√1.6≈1.265；H₀ difference=0 时 t≈1.581、df=8，95% CI=2±2.306×1.265≈[−.917,4.917]。估计为正，证据仍可能不足。</p>"
+      },
+      {
+        "id": "welch",
+        "title": "Welch t-test 不必强行共享 variance",
+        "body": "<div class=\"equation\">SE=√(s₁²/n₁+s₂²/n₂)<br>ν≈(s₁²/n₁+s₂²/n₂)² / [(s₁²/n₁)²/(n₁−1)+(s₂²/n₂)²/(n₂−1)]</div><p><b>Welch / Satterthwaite approximation</b> 用两组各自 variance 估计 uncertainty，df 可为非整数。Statistic 仍是 effect-minus-null 除以 SE，CI 使用对应 t critical value。尤其在 unequal n 与 unequal variances 同时出现时，pooled t 的 Type I error 可能偏离 α。</p><p>课程模拟改变 sample size 与 variance ratio，强调检验误差率取决于假设。不要先用小样本 F-test 未显著就宣称 equal variances 得到证明。R 的 t.test 默认 Welch；要 pooled 必须明确 var.equal=TRUE。</p><pre><code>t.test(x,y,alternative='two.sided') # Welch\n t.test(x,y,var.equal=TRUE)           # pooled，仅在有依据时\n# SAS PROC TTEST 的 Pooled 与 Satterthwaite 行要选对</code></pre>"
+      },
+      {
+        "id": "pvalue",
+        "title": "读 one-sided 和 two-sided output 要与 Hₐ 对齐",
+        "body": "<p>软件往往同时给 Pr&gt;t、Pr&lt;t 与 Pr&gt;|t|。Right-tail alternative 使用右尾；left-tail 使用左尾；two-sided 使用两尾。在 symmetric t distribution 下，two-sided P = 2 × 较小的单尾 P，而不是随意把任意单尾 P 乘 2。</p><p>课程 tapeworm treatment 例以 parasite count 为 response；定义 difference 是 treatment−control 后，改善可能对应负差，Hₐ 的方向要随这个定义写。报告到研究问题，而不是仅粘贴软件表格。</p>"
+      },
+      {
+        "id": "rank-sum",
+        "title": "Wilcoxon rank-sum 使用整体排序比较两组",
+        "body": "<ol><li>合并 independent samples 并排序。</li><li>相同值用 average ranks。</li><li>取第一组 rank sum W，或 U=W−n₁(n₁+1)/2。</li><li>用 null 下的 exact distribution 或带 tie correction 的 asymptotic approximation 求 P。</li></ol><div class=\"equation\">E(W)=n₁(N+1)/2<br>无 ties：Var(W)=n₁n₂(N+1)/12，N=n₁+n₂</div><p><b>Wilcoxon rank-sum / Mann–Whitney</b> 的 basic null 是两组 distributions 相同。若共同形状且只发生 location shift，可以解释为中心位移；不能对任意不同形状宣称这是“检验 median 相等”。它依然需要 independent observations，并非完全没有假设。</p><p>原创例 A=[1,4]、B=[2,3]：ranks A 为 1 和 4，W=5，正好等于 null mean 2×5/2=5。课程 alcohol reaction-time 例示范非正常分布及错误使用 t-test 的风险。</p><pre><code>wilcox.test(x,y,exact=FALSE) # 有 ties 时说明近似与 continuity correction\n# SAS: PROC NPAR1WAY WILCOXON</code></pre><div class=\"equation\">有 tied rank blocks tⱼ：Var(W)=n₁n₂/12 × [N+1−Σ(tⱼ³−tⱼ)/(N(N−1))]</div><p>Large-sample Z=(W−E(W))/√Var(W)。若采用 continuity correction，按 rejection tail 调整 0.5；ties 多或样本小要核对 exact/permutation 条件和软件版本。“每组超过 10”是课程的近似经验，不能保证任何数据的 approximation 都准确。</p>"
+      },
+      {
+        "id": "paired-t",
+        "title": "Paired t-test 先把每对变成一个 difference",
+        "body": "<p>同一辆车在两个维修店得到报价、同一块地对比两个处理，pair 内共享个体背景。令 Dᵢ=Yᵢ₁−Yᵢ₂，将 n 对 differences 当成一个样本。</p><div class=\"equation\">t=(D̄−D₀)/(sᴅ/√n)，df=n−1<br>CI=D̄±t₁₋α/₂,ₙ₋₁ sᴅ/√n<br>Var(D)=σ₁²+σ₂²−2Cov(Y₁,Y₂)</div><p>正相关会让 sᴅ 小于独立组的 uncertainty。课程 wrecked-car quotes 在忽略 pairing 时不能发现差异，而 paired analysis 利用车本身的差异抵消背景。Normality 要检查 <b>differences</b>，不要求每个 marginal distribution 独自 normal；pairs 之间仍须 independent。</p><p>原创 differences=[1,2,3,2,2]：D̄=2、sᴅ²=.5、SE≈.3162、t≈6.325、df=4。把 pair 顺序打乱会改变 sᴅ，说明 pairing 是数据结构。</p><pre><code>t.test(before,after,paired=TRUE)\nt.test(before-after,mu=0) # 等价，保持相同 difference 方向</code></pre>"
+      },
+      {
+        "id": "signed-rank",
+        "title": "Signed-rank 同时使用 direction 和 magnitude ranks",
+        "body": "<p><b>Wilcoxon signed-rank</b> 先删 zero differences，再按 |Dᵢ| 排 rank，ties 用 average rank；将正差 ranks 相加为 W⁺，负差 ranks 为 W⁻。无 ties 时 E(W⁺)=m(m+1)/4，Var(W⁺)=m(m+1)(2m+1)/24。</p><p>它要求 difference distribution 对称，使 null 下 sign 与 absolute magnitude 的关系适合推导。若 differences 极度不对称，sign test 的 median 问题可能更合适。软件可能报告 W⁺、W⁻ 或 min(W⁺,W⁻)，必须核对 definition 及 tail。课程 split-field grass-clipping 例通过 paired fields 排除地块背景。</p><p>原创 differences=[−3,1,2]：|D| ranks 为 3,1,2，W⁺=1+2=3，W⁻=3。总 rank=6；不能先排序 signed differences 再取绝对值。</p><div class=\"equation\">有 |D| ties（各块大小 tⱼ）：Var(W⁺)=m(m+1)(2m+1)/24 − Σ(tⱼ³−tⱼ)/48</div><p>删零之后重新确定 m、ranks 与 tie blocks。无 ties 时 W⁺+W⁻=m(m+1)/2；average ranks 也保持这个总和。可用 <code>wilcox.test(before,after,paired=TRUE)</code>，先确认 differences 的方向；交换 before / after 会反转 one-sided alternative。</p>"
+      },
+      {
+        "id": "sample-size",
+        "title": "预算要分配给真正独立的单位",
+        "body": "<div class=\"equation\">equal n per independent group：n≈2σ²(z₁₋α/₂+z₁₋β)²/Δ²<br>paired：n pairs≈σᴅ²(z₁₋α/₂+z₁₋β)²/Δ²</div><p>Independent formula 的 n 是 <b>每组</b>数量，总数 2n。Paired formula 用 difference variance。若 n₂=r n₁、两组共同 σ²，则 n₁≈σ²(1+1/r)(z sum)²/Δ²，n₂向上取整；unequal variances 时需要对应 variance terms。Course cattle-diet example 区分 equal 与 unequal allocation。Precision-based CI planning 将 z sum 换成 z critical 并以 E 代替 Δ。</p><details><summary>练习：同一植物处理前后测量，能用 independent t-test 吗？</summary><p>设计为 paired，应该分析各植物 differences 或相应 repeated-measures model。Independent formula 忽略 covariance。只有确实不同独立单位才按 independent samples。</p></details><p>Precision planning 的 paired 版本是 n≈(z₁₋α/₂σᴅ/E)²；如果课程用 full width W，应将 E=W/2。已知的两组 σ₁、σ₂ 时 difference variance 为 σ₁²/n₁+σ₂²/n₂，equal n planning 为 n≈(σ₁²+σ₂²)(z sum)²/Δ²。Real t planning 需 iteration，因为 t critical 与 df 随 n 改变。</p>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>Fresh / stored drug potency</h3><p>这是两个 independent groups：估计 μFresh−μStored，先看 difference SE 与 variances 的条件。相同数据同时显示 pooled / Satterthwaite output 时，按模型假设选择行；显著性不能用“哪行 P 更小”决定。</p><h3>Sheep tapeworm treatment（notes）</h3><p>独有的 tapeworm case 比较 drug-treated 与 control sheep。先按定义设置 subtraction 和 Hₐ：虫数降低对应 treated−control&lt;0。Same t statistic 的 left、right、two-tail P 分别是 CDF、1−CDF、2×smaller-tail。</p><h3>Alcohol reaction time、repair estimates、grass clippings</h3><p>Alcohol 的独立参与者用整体 ranks；repair estimates 在同一辆车上 paired，先求 garage1−garage2；fertilizer 在每个 field 分半处理，signed-rank 分析 field differences。它们分别对应 independent skewed observations、paired mean、paired symmetric location。</p><h3>Cattle diets 与 unequal allocation</h3><p>固定最小有意义 weight-gain difference，再估计共同 planning variance；equal n 是每组数量。n₂=m n₁ 时 SE²=σ²(1+1/m)/n₁。不能把 more observations 自动当 more independent animals。</p>"
+      }
+    ]
+  },
+  {
+    "id": "07",
+    "title": "把稳定性作为研究目标",
+    "en": "Inference on variances",
+    "question": "两个处理 mean 接近，但哪一个更稳定？",
+    "bridge": "平均中心不是唯一目标；本章直接量化 variance，并检查这些推断对 normality 的敏感性。",
+    "sim": "variance",
+    "lessons": [
+      {
+        "id": "chisquare",
+        "title": "χ² 从 normal deviations 的平方和出现",
+        "body": "<div class=\"equation\">normal independent Yᵢ：Q=(n−1)s²/σ² ~ χ²(ν=n−1)</div><p><b>Chi-square distribution</b> 支持非负值，通常右偏，df 控制形状。E(Q)=ν、Var(Q)=2ν。估计 μ 消耗一项 df。制造质控、药物稳定性和产量风险都可能将 σ² 而非 μ 作为 parameter。</p><p>CLT 对 sample mean 的近似不会自动让 Q 成为 χ²。Variance inference 对 nonnormality，特别是 kurtosis 与 extreme observations，往往比 mean inference 更敏感。课程的多种 population simulations 说明 nominal α=.05 的 variance test 可能出现明显错误率偏离。</p>"
+      },
+      {
+        "id": "variance-ci",
+        "title": "Variance CI 不以 estimate 为对称中心",
+        "body": "<div class=\"equation\">CI for σ² = [(n−1)s²/χ²₁₋α/₂,ν, (n−1)s²/χ²α/₂,ν]</div><p>这里 χ²ₚ,ν 表示 <b>左尾累计概率 p 的 quantile</b>。课程教材表常用右尾 notation；转换时明确尾方向。对 σ² 的上下界开平方即可得到 σ 的 CI，不能将 variance interval width 开平方。</p><p>原创例 n=10、s²=4、ν=9，95% quantiles 2.7004 与 19.0228：σ² CI≈[36/19.0228,36/2.7004]=[1.8925,13.331]，SD CI≈[1.376,3.651]。区间不对称，是 reference distribution 与倒数变换的结果。</p><p>H₀:σ²=σ₀² 时用 Q₀=(n−1)s²/σ₀²。Right-tail 检验更大的 variance；left-tail 更小；two-sided 比较两尾，各 α/2。Variance 和 SD 的 null 必须先平方换成同一个尺度。</p><pre><code>df &lt;- length(y)-1\n(df*var(y))/qchisq(c(.975,.025),df)\npchisq(df*var(y)/sigma0^2,df,lower.tail=FALSE)</code></pre>"
+      },
+      {
+        "id": "f-distribution",
+        "title": "F 是两个独立 variance estimates 的比",
+        "body": "<div class=\"equation\">(s₁²/σ₁²)/(s₂²/σ₂²) ~ F(n₁−1,n₂−1)<br>H₀:σ₁²=σ₂² → Fcalc=s₁²/s₂²</div><p><b>F distribution</b> 非负，形状由 numerator df、denominator df 分别控制，顺序不能交换后保留相同临界值。独立 normal samples 下成立。两组平均不同不妨碍 variance 比较，但两个样本不能 paired 后还假装 independent。</p><p>双尾 test 若保持固定组顺序，则 reject 当 Fcalc&lt;Fα/₂,ν₁,ν₂ 或 Fcalc&gt;F₁₋α/₂,ν₁,ν₂。若将 larger sample variance 放 numerator，也必须相应交换 df；lower quantile 可用 Fₚ(a,b)=1/F₁₋ₚ(b,a) 获得，P-value 仍需处理两尾。</p><div class=\"equation\">R=s₁²/s₂²<br>CI for σ₁²/σ₂² = [R/F₁₋α/₂,ν₁,ν₂, R/Fα/₂,ν₁,ν₂]</div><p>对 population SD ratio 开平方。课程 electrical component lifetime 示例比较两个 voltages 的 variation；不要从 mean lifetime 的差异推导 variance 相等。</p><pre><code>var.test(x,y) # normal samples 下的 F test 与 ratio CI\nqf(.025,7,10) == 1/qf(.975,10,7)</code></pre>"
+      },
+      {
+        "id": "hartley",
+        "title": "Hartley Fmax 依靠更强的平衡与 normality",
+        "body": "<div class=\"equation\">Fmax=max(sᵢ²)/min(sᵢ²)</div><p>比较 t 个 populations 的 equal variances。课程 <b>Hartley's Fmax</b> 需要独立 normal groups，通常使用 equal n、相同 within-group df 的表。Fmax 不是普通两组 F 分布，不能把 max/min 塞进 qf 就当其精确 test。它对 nonnormality 不 robust。</p><p>若最大 variance=16、最小=4，则 Fmax=4；还需 t、replicates 与正确 Fmax quantile 才能作决定。只看“ratio 大”没有错误率依据。</p>"
+      },
+      {
+        "id": "brown-forsythe",
+        "title": "Brown–Forsythe 把分散问题转成 absolute deviations",
+        "body": "<ol><li>在每组计算 sample median Mᵢ。</li><li>形成 Zᵢⱼ=|Yᵢⱼ−Mᵢ|。</li><li>对 Z 做 one-way ANOVA，检测各组平均绝对偏差是否不同。</li></ol><p><b>Brown–Forsythe</b> 是 median-centered Levene variation，比 classical variance F-test 对 nonnormality 更 robust。仍需 independent observations 和合理 sample sizes；它不是证明 variance 相等的工具。课程 fuel-efficiency additive 例用 raw response 检查分散，再用 residual diagnostic 理解各组 variation。</p><p>原创例 A=[2,3,4]，B=[1,3,5]，medians 均为 3；absolute deviations A=[1,0,1]、B=[2,0,2]。这将“哪组更散”转成可比较的 response。</p><pre><code># R base 实现 median-centered deviation ANOVA\nz &lt;- abs(y - ave(y,group,FUN=median))\nsummary(aov(z ~ group))\n# SAS: MEANS group / HOVTEST=BF;</code></pre>"
+      },
+      {
+        "id": "practice",
+        "title": "Variance inference 的证据边界",
+        "body": "<details><summary>练习：数据很偏，但 n=50，可以直接说 variance test 因 CLT 有效吗？</summary><p>不能。Mean 的 CLT 不保证 normal-population variance pivot 的 χ² distribution。检查分布与 tails，考虑 Brown–Forsythe、bootstrap 或其他适用方法，并说明目标与假设。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>Coffee-container stability</h3><p>Coffee n=30、s≈3.433、s²≈11.789；99% variance CI≈[6.53,26.06]，SD CI≈[2.556,5.104]。包含16只意味着资料不足以拒绝相应 null，不能据此证明生产线达标；须先检查单位与 σ / σ²。</p><h3>Pesticide potency loss</h3><p>n=20、s²=5.45，检验 σ²&gt;4：χ²calc=19×5.45/4=25.8875，right-tail χ²19 P≈.133；α=.05 不拒绝。Notes 用“0%到8%的range”动机推测 SD，但 population range 不能精确确定 variance。</p><h3>Sewing voltages 与三组稳定性</h3><p>110V s=.474、n=10；220V s=.233、n=16，ratio estimate≈4.139；90% CI用df9,15的两个 F quantiles。Hartley 例80.22/6.89≈11.64，需要三组均 n=9 和 normality；fuel案例用 group-median absolute deviations 作 BF。PPT 为 car brands，notes 为 additives，目标都是 spread，不当作同一个科学 experiment。</p>"
+      }
+    ]
+  },
+  {
+    "id": "08",
+    "title": "ANOVA：分解变异来比较多个 mean",
+    "en": "One-way ANOVA & diagnostics",
+    "question": "三种肥料是否有相同的总体平均产量？",
+    "bridge": "逐对比较会引入多重检验；ANOVA 先回答整体 mean 是否一致。",
+    "sim": "anova",
+    "lessons": [
+      {
+        "id": "model",
+        "title": "把每个观测写成背景、处理与误差",
+        "body": "<div class=\"equation\">Yᵢⱼ=μ+τᵢ+εᵢⱼ　　Στᵢ=0（等权参数约束）<br>εᵢⱼ independent Normal(0,σ²)</div><p><b>Completely Randomized Design (CRD)</b> 在适合的 experimental units 中随机分配 treatments。μ 是 model 的 baseline / grand mean（平衡时等于总体组均值平均）；τᵢ 是 treatment effect；εᵢⱼ 是同 treatment 内仍无法解释的 variation。</p><p>H₀:μ₁=…=μₜ，Hₐ:至少一个 mean 不同。Alternative 不是“所有组都不同”。One-way ANOVA 假定 independent errors、constant variance 及用于 exact F-test 的 normality。随机化减少系统性 assignment bias，但不会把十片同盆叶子变成 independent EUs。</p>"
+      },
+      {
+        "id": "ss",
+        "title": "一项偏差拆成 treatment signal 与 residual",
+        "body": "<div class=\"equation\">Yᵢⱼ−ȳ.. = (ȳᵢ.−ȳ..) + (Yᵢⱼ−ȳᵢ.)<br>SST = ΣᵢΣⱼ(Yᵢⱼ−ȳ..)²<br>SStrt = Σᵢ nᵢ(ȳᵢ.−ȳ..)²<br>SSE = ΣᵢΣⱼ(Yᵢⱼ−ȳᵢ.)²<br>SST = SStrt + SSE</div><p>Within each group residuals 总和 0，所以平方展开中的 cross-term 加总消失。这不是任意拆分平方都可相加，而是 least-squares projection 的性质。Grand mean ȳ.. = Σnᵢȳᵢ./N，unequal n 时按样本数加权。</p><p><b>Degrees of freedom</b>：total N−1；treatment t−1；error N−t。Mean square = SS/df；F=MStrt/MSE。在 H₀ 下二者估计相同 σ²；处理 mean 有差异会将 numerator 拉大。</p><table><thead><tr><th>Source</th><th>SS</th><th>df</th><th>MS</th></tr></thead><tbody><tr><td>Treatment</td><td>Σnᵢ(ȳᵢ−ȳ)²</td><td>t−1</td><td>SStrt/(t−1)</td></tr><tr><td>Error</td><td>Σ(Y−ȳᵢ)²</td><td>N−t</td><td>SSE/(N−t)</td></tr><tr><td>Total</td><td>Σ(Y−ȳ)²</td><td>N−1</td><td>—</td></tr></tbody></table>"
+      },
+      {
+        "id": "worked",
+        "title": "一个完整的小型 ANOVA 计算",
+        "body": "<p>原创数据 A=[4,5,6]、B=[7,8,9]、C=[10,11,12]。Group means 5、8、11；grand mean=8；N=9、t=3。</p><ol><li>SStrt=3[(5−8)²+0+(11−8)²]=54。</li><li>每组 SSE=1+0+1=2，总 SSE=6；SST=60。</li><li>df treatment=2、error=6、total=8。</li><li>MStrt=27、MSE=1，F=27，reference F(2,6)，P=.001。</li><li>α=.05 时 reject equal means；再设计 follow-up comparisons，不能凭整体 F 说所有 pair 显著。</li></ol><p>如果保持 group means 而增加 within-group variation，MSE 增加、F 减小。同样的 mean separation 在嘈杂实验中提供更弱证据，interactive 图会同时显示 signal、noise 和 SS。</p>"
+      },
+      {
+        "id": "diagnostics",
+        "title": "用 residuals 检查模型的条件，而非混合 raw data",
+        "body": "<p>Residual eᵢⱼ=Yᵢⱼ−ŷᵢⱼ；one-way fitted value 是 group mean。各组 raw values 混合后可能多峰，即使各组 errors normal；所以 pooled raw QQ plot 不是 model-error normality 的合适检查。</p><p><b>QQ plot</b> 比较 residual quantiles 与 normal theoretical quantiles；弯曲和 tails 偏离提示不匹配。Residual vs fitted 图若呈 funnel 提示 variance 随 mean 改变；group-specific plots 和 Brown–Forsythe 补充检查。Shapiro–Wilk 对小样本 power 低、大样本可能发现微小偏离，结合图与设计判断。</p><p>课程 leaf phosphorus、psychology students 例将 model output、QQ、Shapiro–Wilk 与 variance diagnostics 连起来。统计检验不替代科学问题；报告 treatment effect、样本结构和 uncertainty。</p><pre><code>fit &lt;- aov(y ~ treatment,data=d)\nsummary(fit)\nplot(fitted(fit),residuals(fit)); abline(h=0)\nqqnorm(residuals(fit)); qqline(residuals(fit))\n# SAS: PROC GLM; MODEL y=treatment; OUTPUT OUT=r R=resid;</code></pre>"
+      },
+      {
+        "id": "kruskal",
+        "title": "Kruskal–Wallis 通过 ranks 比较多个 distributions",
+        "body": "<div class=\"equation\">H = [12/(N(N+1))]Σ(Rᵢ²/nᵢ) − 3(N+1)</div><p>Rᵢ 为合并排序后第 i 组 rank sum。Large-sample H 近似 χ²(t−1)。有 ties 时除以 correction C=1−Σ(tⱼ³−tⱼ)/(N³−N)。小样本使用合适 exact/permutation methods。</p><p><b>Kruskal–Wallis</b> 是 rank-sum 的多组扩展，basic null 为相同 distributions；共同形状、location-shift assumptions 才允许仅解释为中心差异。它不自动解决 unequal variances。若目标仍是 means 且 variance 不等，可考虑 <b>Welch ANOVA</b>；不要只因 normality 不好就改变 estimand 而不说明。</p><pre><code>kruskal.test(y ~ treatment,data=d)\noneway.test(y ~ treatment,data=d,var.equal=FALSE)</code></pre>"
+      },
+      {
+        "id": "transform",
+        "title": "Transformation 改变分析尺度，也改变问题",
+        "body": "<p>若 spread 随 mean 系统变化，可以尝试有科学依据的 transformation，随后重新检查 residuals。课程 Gulf oxygen consumption 和 laughing-gas examples 比较不同 scales；不能只挑产生最小 P 的 transformation。</p><table><thead><tr><th>mean–variance pattern</th><th>候选 scale</th><th>条件与解释</th></tr></thead><tbody><tr><td>Var(Y)≈kμ</td><td>√Y</td><td>非负 counts，低值与 zeros 需谨慎</td></tr><tr><td>Var(Y)≈kμ²</td><td>log Y</td><td>Y&gt;0；差异对应 multiplicative ratios</td></tr><tr><td>Var(Y)≈kμ⁴</td><td>1/Y</td><td>不能有 0；变换会反转数值顺序</td></tr></tbody></table><p>Approximate delta method：Var[g(Y)]≈[g′(μ)]²Var(Y)，说明为什么这些 transforms 可以 stabilize variance。<b>Box–Cox</b> gλ(y)=(yλ−1)/λ，λ=0 时 log y，要求正数；选择 λ 后要保留解释和模型检查。现代 count 或 proportional data 有适合的 generalized models，transformation 并非唯一选择。</p><p>Notes 的表还包括 <b>proportion</b> p 的 arcsine-square-root transform g(p)=arcsin√p：若 fixed denominator m 下 Var(p)=p(1−p)/m，g′(p)=1/[2√p(1−p)]，delta method 给近似 variance 1/(4m)。Near 0/1 或不同 denominators 时该近似不能随意推广；binomial model 能直接表达 denominator。</p>"
+      },
+      {
+        "id": "practice",
+        "title": "整体问题与 follow-up 问题需要分开",
+        "body": "<details><summary>练习：F 很大，就说明 effect 在实际生产中很大吗？</summary><p>不一定。F 比较 signal 与 noise 并受 sample size 影响。报告原单位 mean differences、CI 和科学意义；非常稳定的小差异也可能显著。</p></details><details><summary>练习：为何 SSE 的 df 是 N−t？</summary><p>每组估计一个 mean，使该组 residuals 有一个和为零的约束。t 个 groups 共消耗 t 项独立信息，剩 N−t。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>原始 greenhouses / CRD</h3><p>四组 greenhouse 数据的总偏差分成 fitted treatment deviations 与 within-treatment residuals；notes 实算表提醒每一项 SS 对应 df。本站的小型原创例子重做完整步骤，避免只记一个软件 F 值。</p><h3>Apple leaf phosphorus 与 psychology students</h3><p>Leaf P 比较多个 treatment means，omnibus F 拒绝后仍需指定 comparisons；psychology groups 的 nonnormal residuals 引出 Kruskal–Wallis，并有 tie correction。Group labels 不是连续 predictor。</p><h3>Gulf pollution / oxygen consumption</h3><p>不同距 shore 的 sampling groups 出现 mean–variance relationship；√Y scale 可能降低 heteroscedasticity，必须重看 residuals。变换后的 ANOVA 结论针对 E(√Y) 的差异，不能直接写成 original mean 的同一检验。</p><h3>Laughing-gas 与 IBS scores（notes）</h3><p>Laughing-gas剂量 / IBS 的三个气体组案例比较 raw、sqrt 与 log scales；notes 明确症状 score 的科学含义。Raw residual normality 与 variance 检查不同，改变 scale 后要同时复查。不能依据 P 值择优而忽略测量与零值。</p>"
+      }
+    ]
+  }
+]

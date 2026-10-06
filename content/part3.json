@@ -1,0 +1,197 @@
+[
+  {
+    "id": "09",
+    "title": "ANOVA 之后，精确回答比较问题",
+    "en": "Contrasts & multiple comparisons",
+    "question": "“至少一个 mean 不同”之后，哪些差异值得相信？",
+    "bridge": "整体检验没有定位差异；先写科学比较，再控制这一组决策的错误率。",
+    "sim": "multiple",
+    "lessons": [
+      {
+        "id": "multiplicity",
+        "title": "比较越多，至少一次 Type I error 越常见",
+        "body": "<p><b>Comparisonwise error rate</b> αᵢ 是单个检验错误率；<b>Familywise / experimentwise error rate (FWER)</b> 是同一 family 中至少错误拒绝一次的概率。t 个 treatments 有 t(t−1)/2 个 pairwise comparisons。</p><div class=\"equation\">independent null tests：FWER = 1−(1−αᵢ)ᵐ<br>Bonferroni：每个 test 用 α/m，或 adjusted P=min(1,mP)</div><p>m=20、αᵢ=.05 时 independent FWER≈.6415。实际 pairwise tests 共享组，通常相关；该公式仅是独立示例，不能当它们的精确 FWER。Bonferroni 由 union bound 保证 FWER≤α，不要求独立，但可能 conservative。</p><p>Family 由研究决策定义，应在看结果前规划。只汇报显著 comparisons 会隐藏搜索成本。课程 weed-control example 用四个预设问题，并对 m=4 应用 Bonferroni。</p>"
+      },
+      {
+        "id": "contrast",
+        "title": "Linear combination 先把研究问题写成 coefficients",
+        "body": "<div class=\"equation\">L=Σaᵢμᵢ，L̂=Σaᵢȳᵢ<br>Contrast：Σaᵢ=0<br>SE(L̂)=√[MSE Σ(aᵢ²/nᵢ)]</div><p>任意 linear combination 可以比较均值、平均或总和；只有系数和为零才是 <b>contrast</b>，对共同 baseline shift 不敏感。原创 treatments control、A、B、C：比较 control 与三种处理平均，可用 [1,−1/3,−1/3,−1/3]；平均 A、B、C 是否为 0 用 [0,1/3,1/3,1/3]，这不是 contrast。</p><p>Equal n 时 SE=√[(MSE/n)Σaᵢ²]。模型内 common variance、independent groups 下成立。t=(L̂−L₀)/SE，df=error df；1-df F test 在 L₀=0 时 F=t²，SScontrast=L̂²/Σ(aᵢ²/nᵢ)。同时置信区间的 critical value 需与所选 multiplicity 方法一致。</p><p>原创 means=[10,12,14,16]、每组 n=4、MSE=4，control minus average =10−14=−4；Σa²=4/3，SE=√(4/3)≈1.1547，t≈−3.464。改变全部 coefficients 的共同倍数，会改变 estimate 和 SE，却不改变 t 的绝对值。</p>"
+      },
+      {
+        "id": "orthogonal",
+        "title": "Orthogonality 连接设计的独立信息",
+        "body": "<div class=\"equation\">Cov(L̂ₐ,L̂ᵦ)=σ²Σ(aᵢbᵢ/nᵢ)<br>orthogonal：Σ(aᵢbᵢ/nᵢ)=0</div><p>Equal n 时简化为 Σaᵢbᵢ=0。t 个 mean 有 t−1 个独立 contrast dimensions，完整 orthogonal set 可将 treatment SS 分解。Normal model 下 uncorrelated linear combinations 独立；不要把“coefficients 看起来不同”当成 orthogonal。</p><p>原创三个 groups，contrast a=[−2,1,1] 比较第一组与后两组，b=[0,1,−1] 比较后两组；equal n 下 inner product=0。Unequal n 时必须使用 weighted condition，而非直接沿用等样本规则。</p>"
+      },
+      {
+        "id": "sas",
+        "title": "从 cell means 转换到 SAS model coefficients",
+        "body": "<p>课程 wood-treatment 例用 μᵢ=μ+τᵢ 改写 linear combinations。模型 parametrization 决定 ESTIMATE 的 intercept coefficient；若 Σaᵢ≠0，intercept coefficient 就是 Σaᵢ，不能漏掉。</p><pre><code>/* 确认 CLASS levels 的输出顺序后填写 coefficients */\nproc glm data=d;\n class treatment;\n model y=treatment;\n contrast 'Control vs active average' treatment 3 -1 -1 -1;\n estimate 'Mean of active treatments' intercept 3\n          treatment 0 1 1 1 / divisor=3;\nrun;</code></pre><p>R 中用同一个已拟合 model 的 covariance matrix 或 emmeans comparisons，而不是分别重新拟合每一对而丢失 pooled MSE。打印 estimated contrast、SE、df、CI 与 adjusted P；labels 应说清 comparison。</p>"
+      },
+      {
+        "id": "lsd",
+        "title": "Fisher’s LSD 为什么可能过度发现差异",
+        "body": "<div class=\"equation\">equal n：LSD=t₁₋α/₂,ν √(2MSE/n)</div><p>每一对 |ȳᵢ−ȳⱼ| 超过 LSD 就 reject。Unprotected LSD 直接做全部 pairwise t-tests，控制的是单个 comparison error，不保证 FWER。<b>Protected LSD</b> 先通过整体 ANOVA 再比较，提供有限 protection，不能一般地宣称对任何配置都强控制 FWER；课程多组 null simulation 说明 false positives 的风险。</p><p>Mean separation letters：没有共有字母表示对应 method 下拒绝 equal means；共有字母只表示未拒绝，不能说两组 biologically identical。字母也不是可传递关系：A 与 B 未拒绝，B 与 C 未拒绝，不保证 A 与 C 未拒绝。</p>"
+      },
+      {
+        "id": "procedures",
+        "title": "让 correction 匹配你真正做的比较",
+        "body": "<table><thead><tr><th>Method</th><th>family</th><th>equal-n threshold</th></tr></thead><tbody><tr><td>Tukey’s W / HSD</td><td>全部 pairwise</td><td>q₁₋α(t,ν)√(MSE/n)</td></tr><tr><td>Dunnett’s D</td><td>每处理对一个 control</td><td>dα(t−1,ν)√(2MSE/n)</td></tr><tr><td>Scheffé’s S</td><td>全部 possible contrasts</td><td>√[(t−1)F₁₋α(t−1,ν)] × SE(L̂)</td></tr><tr><td>Bonferroni</td><td>事先定义的 m tests</td><td>t₁₋α/(2m),ν × SE(L̂)</td></tr></tbody></table><p><b>Studentized range</b> q 不是 ordinary t。Unequal n 的 Tukey–Kramer pairwise threshold 为 q√[(MSE/2)(1/nᵢ+1/nⱼ)]；Dunnett 需相应 correlation structure。Scheffé 覆盖任意 post-hoc contrast，范围大，pairwise power 可能低。</p><p>课程 hardwood-floor heat example 用同一 MSE 比较 LSD、Tukey、Dunnett、Scheffé 的 conclusions；不能仅因 method 更严格，就说其科学结论更“真实”。先根据 family 选 method，再判断 evidence。</p><pre><code>fit &lt;- aov(y~treatment,data=d)\nTukeyHSD(fit)\np.adjust(c(.008,.02,.04,.12),method='bonferroni')\n# SAS: MEANS treatment / TUKEY DUNNETT('control') SCHEFFE;</code></pre>"
+      },
+      {
+        "id": "practice",
+        "title": "先写 comparison，再看显著性",
+        "body": "<details><summary>练习：五个 treatments 只关心各 treatment 与 control，应选哪一种 family？</summary><p>有 4 个 control comparisons，而非全部 10 pairs。Dunnett 专门使用这些共享 control 的相关 comparisons；Bonferroni 也能对预定 4 tests 控制 FWER，但可能更保守。</p></details><details><summary>练习：[1,1,−2] 与 [2,−1,−1] 是 orthogonal 吗？</summary><p>Equal n 下乘积和=2−1+2=3，非 0；二者均是 contrast，却不 orthogonal。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>Wood treatment 与 weed methods</h3><p>Wood 四品牌的 planned coefficients 经 cell mean→μ+τ→SAS语法转换；weed methods 的 control、Bio1、Bio2、Chem1、Chem2 能写 control vs all agents [−1,.25,.25,.25,.25]，bio vs chem [0,.5,.5,−.5,−.5]。第二个 contrast 不回答每个药物相对 control 的问题。</p><h3>Heat loss / flooring 与 null simulation</h3><p>同一四组 floor数据用于 LSD、Tukey、Dunnett、Scheffé，差别来自 comparison family 与 critical value。20个真实相同 normal treatments 的 unprotected-LSD 模拟仍可能产生很多显著 pairs：有190pairs，不能拿 nominal .05 当作 family error。</p><h3>Mean-separation letters</h3><p>Sharing a letter 表示该 procedure 与 α 下未检出 pair difference，不能声称 means 相等。A组和B组不显著、B组和C组不显著，并不推出 A 与C 不显著；letters 本身不是排定实质效应大小的证据。</p>"
+      }
+    ]
+  },
+  {
+    "id": "14",
+    "title": "同时改变多个因素，寻找 interaction",
+    "en": "Factorial designs & unbalanced data",
+    "question": "肥料的作用，会随品种而改变吗？",
+    "bridge": "单因素只给平均作用；factorial design 能区分 main effects 与 effect modification。",
+    "sim": "factorial",
+    "lessons": [
+      {
+        "id": "factorial",
+        "title": "Treatment structure 与 experimental design 是两层",
+        "body": "<p><b>Factor</b> 是实验中改变的一个变量；<b>Level</b> 是其取值；factorial treatment 是各因素 levels 的组合。A 有 a levels、B 有 b levels，共 ab treatment combinations，每 cell r 个 independent replicates，N=abr。</p><p>Factorial describes treatment structure；CRD 与 RCBD describe assignment / design。两因素实验可以用 CRD，也可以在每个 block 内包含所有 combinations。不能把“factorial”当成一种可以替代 randomization 的分配方法。</p><div class=\"equation\">Yᵢⱼₖ=μ+αᵢ+βⱼ+(αβ)ᵢⱼ+εᵢⱼₖ</div><p>Response 表示第 k 个接受 Aᵢ、Bⱼ 的 EU。Mean model 包括 baseline、A、B 与 A×B；独立 normal equal-variance errors 的条件沿用 ANOVA。</p>"
+      },
+      {
+        "id": "interaction",
+        "title": "Interaction 是 simple effects 之间的差",
+        "body": "<p><b>Simple effect</b> 比较某一个固定 B level 下的 A；<b>Main effect</b> 将 A 的效果跨 B levels 平均；<b>Interaction</b> 表示一个因素的效果依赖另一个因素。</p><div class=\"equation\">2×2 difference-of-differences:<br>I=(μ₂₂−μ₁₂)−(μ₂₁−μ₁₁)</div><p>原创 cell means：低肥时 V1=10、V2=12；高肥时 V1=14、V2=20。Variety simple effect 分别 2 和 6；I=4；variety main effect=(2+6)/2=4。平均效果掩盖了不同肥料环境下的 response。</p><p>Interaction plot 横轴一个 factor，线代表另一 factor。Parallel lines 对应 additive means；nonparallel lines 提示 interaction，<b>无需交叉</b>。视觉形态只是 estimate，显著性仍依赖 replication 和 error。Course paving 与 car/transmission examples 说明同样 main effects 可有不同 interaction。</p><p>术语 conventions 要区分：某些 2-level factorial “interaction effect” 取 difference-of-differences 的一半；model cell interaction deviation 是 μᵢⱼ−μᵢ.−μ.ⱼ+μ..。必须注明定义，不能将不同尺度的数值互相替代。</p>"
+      },
+      {
+        "id": "factorial-ss",
+        "title": "Balanced design 让 A、B 与 interaction SS 分开",
+        "body": "<div class=\"equation\">SSA=brΣ(ȳᵢ..−ȳ...)²　　SSB=arΣ(ȳ.ⱼ.−ȳ...)²<br>SSAB=rΣᵢΣⱼ(ȳᵢⱼ.−ȳᵢ..−ȳ.ⱼ.+ȳ...)²<br>SSE=ΣᵢΣⱼΣₖ(Yᵢⱼₖ−ȳᵢⱼ.)²</div><table><thead><tr><th>Source</th><th>df</th><th>F denominator（fixed effects）</th></tr></thead><tbody><tr><td>A</td><td>a−1</td><td>MSE</td></tr><tr><td>B</td><td>b−1</td><td>MSE</td></tr><tr><td>A×B</td><td>(a−1)(b−1)</td><td>MSE</td></tr><tr><td>Error</td><td>ab(r−1)</td><td>—</td></tr></tbody></table><p>SST=SSA+SSB+SSAB+SSE 在 balanced complete design 下有这组直接分解。Course 3×4 variety×pesticide，r=2、N=24，df 2、3、6、12，总 23；检验从 interaction 开始解释，再对有意义的 simple 或 marginal comparisons 做 correction。</p><p>Course example SSA=3996.08、MSE≈42.2917，MSA≈1998.04，F≈47.24。其三个 variety marginal means 46.875、59.25、78.25 表示跨 pesticides 的平均，并非每种 pesticide 下都具有相同排序差距。</p>"
+      },
+      {
+        "id": "three-way",
+        "title": "Three-way interaction 问的是“二阶关系是否再次改变”",
+        "body": "<div class=\"equation\">Y=μ+A+B+C+AB+AC+BC+ABC+ε</div><p>AB interaction 随 C levels 改变就是 <b>three-way interaction</b>。a×b×c treatment structure，r replicates 时 df：A=a−1，B=b−1，C=c−1；AB=(a−1)(b−1)，AC、BC 同理；ABC=(a−1)(b−1)(c−1)；error=abc(r−1)。</p><p>Course noise×group×experience 为 3×2×3、r=3、N=54，df main 2,1,2；two-way 2,4,2；three-way 4；error 36。先判断 higher-order interactions 是否改变所关心效应，再看 conditional profiles。不能在有明显 interaction 时只展示一个 marginal mean 排名。</p><p>Group 是属性分类时，不能自动把差异解读为随机处理的因果效应。Residual QQ、variance 与 group cell 检查仍须进行。Software 的 cell grouping 必须包括 <b>全部 factors</b>，用最高阶 combination 形成 cell residual diagnostic 可以避免误把 omitted interaction 当成 noise。</p>"
+      },
+      {
+        "id": "unbalanced",
+        "title": "Missing data 会让 averaging 与 adjustment 分叉",
+        "body": "<p>Unequal replication 时，不同 factor 的样本构成不再相同，simple equal-n SS formulas 失效，effect SS 一般不再自动相加。<b>Type I SS</b> 是按加入顺序的 sequential sums；<b>Type III SS</b> 针对特定 adjusted hypotheses，其含义依赖 coding、model 和 estimability，不能一概称为“更正确”。</p><p><b>Raw marginal mean</b> 按实际 nᵢⱼ 加权；<b>Least-squares mean / estimated marginal mean</b> 通过 fitted model 在指定 reference grid 上平均，常等权跨另一 factor。二者回答不同目标。</p><p>原创例 V1 在低肥 cell n=9、mean=10，在高肥 n=1、mean=20：raw mean=11，equal-cell marginal mean=15。V2 每 cell 等量且 means=12、18，两种 marginal mean 都是 15。Raw means 的 11 vs 15 不等于 adjusted 比较有差异。</p><p>Missing cell 不同于 cell 少几个 observations：某些 interactions 或 marginal contrasts 会 <b>non-estimable</b>。不能补 0、把 missing 当真实观测，或默认为 missing completely at random。报告 missing mechanism、model、weighting 与 estimable questions。</p><pre><code>fit &lt;- lm(y ~ A*B,data=d)\n# SAS：MODEL y=A B A*B; LSMEANS A B A*B / PDIFF ADJUST=TUKEY;\n# R emmeans（已安装时）：emmeans(fit,~A|B)</code></pre>"
+      },
+      {
+        "id": "practice",
+        "title": "用实验结构读 interaction",
+        "body": "<details><summary>练习：两条线不平行但没有交叉，能有 interaction 吗？</summary><p>可以。Interaction 检测 simple effects 的差，交叉不是必要条件。线是否“显著”不平行还要由 error 与 replication 决定。</p></details><details><summary>练习：没有每 cell replication，能按普通 fixed-effects two-way ANOVA 独立估计 interaction 与 error 吗？</summary><p>完整模型 r=1 时 error df=ab(r−1)=0，无法从 cell 内估计误差。需要额外假设、独立 replication 或合适设计，不能随意把 interaction 当作 error 而不说明。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>Car × transmission 与 asphalt（notes）</h3><p>PPT 用车型×变速箱的 quarter-mile response；notes 用 aggregate type×compaction method 的 asphalt tensile strength。各自固定一个 factor 看 simple effects，再比较 simple effects 判 interaction。这两种响应不能互换，也不把曲线交叉作为必要条件。</p><h3>3×4 variety × pesticide</h3><p>a=3、b=4、每cell r=2，因此N24，A df2、B df3、AB df6、error df12。Notes 输出MSE42.29167，variety F47.24。先看 interaction，再决定 averaged main effects 是否能清楚回答问题；同一 cell 的两次重复必须是 independent EUs。</p><h3>3×2×3 worker performance</h3><p>Noise×gender×experience 有18 cells、r3，N54：main df2,1,2；two-way df2,4,2；three-way df4；error df36。若 high-order interaction 未检出，也不证明所有 lower-order effects 为零。Simple-effect summaries 解释哪种条件下 performance 改变。</p><h3>Missing-cell weighting</h3><p>PPT loud-car 与 notes missing-value examples 显示 raw means 因 cell counts 改变而改变 weighting；LSMeans 以模型及指定参考网格做 equal-weighted averaging。缺失 cell 引起 nonestimability 时，软件 adjusted mean 也不能凭空恢复信息。</p>"
+      }
+    ]
+  },
+  {
+    "id": "15",
+    "title": "设计实验来分离 nuisance variation",
+    "en": "RCBD, random effects & Latin squares",
+    "question": "温室光照梯度，怎样避免被误认为品种差异？",
+    "bridge": "分析无法修复完全 confounded 的设计；blocking 在收集数据前创造可比较的条件。",
+    "sim": "design",
+    "lessons": [
+      {
+        "id": "blocking",
+        "title": "每个 block 内都有所有 treatments",
+        "body": "<p><b>Randomized Complete Block Design (RCBD)</b> 把类似 EUs 组成 block，每个 block 包含每种 treatment，block 内 random assignment。Course greenhouse example：3 varieties、5 light-gradient blocks，N=15。Blocks 沿 nuisance 梯度的相近区域划分，而 treatment 在各 block 都出现，避免处理只落在某一光照区域。</p><p>Randomization 是分配规则，不是把结果排序。Blocking 减少已知 nuisance variation 对 error 的贡献，提高 treatment comparisons 的 precision。它只控制一种 block source，block 内仍需近似 homogeneity；若 block 差异很小，估计 block effects 消耗 df 而未减少足够 MSE，power 可能下降。</p><div class=\"equation\">Yᵢⱼ=μ+τᵢ+βⱼ+εᵢⱼ</div><p>τ 为 treatment，β 为 block。每 treatment×block 一个 EU 时，additive model 无法独立估计 treatment×block interaction；这是假设，需要科学依据。</p>"
+      },
+      {
+        "id": "rcbd-anova",
+        "title": "分解 treatment、block 与 error",
+        "body": "<div class=\"equation\">SStrt=bΣᵢ(ȳᵢ.−ȳ..)²<br>SSblock=tΣⱼ(ȳ.ⱼ−ȳ..)²<br>SSE=ΣᵢΣⱼ(Yᵢⱼ−ȳᵢ.−ȳ.ⱼ+ȳ..)²</div><p>Complete balanced additive RCBD 下 SST=SStrt+SSblock+SSE。df treatment=t−1，block=b−1，error=(t−1)(b−1)，total=tb−1。Fixed-effects treatment test F=MStrt/MSE。</p><p>Course greenhouse t=3、b=5，所以 error df=8。Ignoring blocks 的 CRD error df=12，但 residual error 会混入 block variation；不能只因为 df 更大就选 CRD。Course insecticide example 同时比较 treatment F 和 relative efficiency，阐明 blocking 的价值取决于 nuisance 是否真的造成 variation。</p>"
+      },
+      {
+        "id": "efficiency",
+        "title": "Relative efficiency 要同时考虑 residual reduction 与 df",
+        "body": "<p>把同一 complete block data 当 CRD 时，residual SS=SSblock+SSE，df=b(t−1)。课程使用</p><div class=\"equation\">RE(RCBD,CRD) = MSE_CRD / MSE_RCBD<br>= [(b−1)MSblock + (b−1)(t−1)MSE_RCBD] / [b(t−1)MSE_RCBD]</div><p>这是比较 precision 的 residual-variance ratio（在指定比较和教材定义下），不是 actual power 的精确倍数；不同版本可加 small-sample df adjustments。RE&gt;1 表示 RCBD 更有效率，RE&lt;1 表示 blocking 在这一评价上未获益。仍须尊重实际 randomization structure，不能单凭观察到 RE 决定抹掉设计。</p><p>在 complete RCBD，treatment means 每个含相同 blocks，任意 treatment difference 中 block effects 抵消。若某 cell missing，各 treatment 平均的 block 权重不同，confounding 重新进入；需要 model-based adjusted comparisons，而非简单 raw means。</p>"
+      },
+      {
+        "id": "random-effects",
+        "title": "Fixed 与 random 的区别是推断目标",
+        "body": "<p><b>Fixed effect</b> 关注指定 levels 的 mean differences；<b>Random effect</b> 将 levels 看作从更大 population 抽出的样本，关注 variance component 并向该 population 推断。不是“处理随机分配就叫 random effect”；fixed treatments 也应 randomize。</p><div class=\"equation\">random blocks：βⱼ ~ Normal(0,σᵦ²)，εᵢⱼ ~ Normal(0,σₑ²)<br>same-block Cov(Yᵢⱼ,Yᵢ′ⱼ)=σᵦ²</div><p>指定 greenhouse positions 可以 fixed；若 blocks 代表目标 environmental population 的 random sample，可以 random。Balanced additive fixed-treatments/random-block RCBD 中 E(MSE)=σₑ²，E(MSblock)=σₑ²+tσᵦ²；method-of-moments estimate σᵦ²=(MSblock−MSE)/t，可能为负，约束估计需说明。</p><p>Complete balanced设计中 treatment comparison 抵消 shared block contribution，fixed treatment test 仍以 MSE 为 denominator；不能将这个结果任意扩展到所有 mixed/factorial models。Expected mean squares 与 design 决定其他 tests 的 denominator，mixed-model software 估计 covariance 及 df。</p><pre><code>proc mixed data=d;\n class treatment block;\n model y=treatment;\n random block;\n lsmeans treatment / diff adjust=tukey;\nrun;</code></pre>"
+      },
+      {
+        "id": "factorial-blocks",
+        "title": "Factorial treatments 可以放进 RCBD",
+        "body": "<div class=\"equation\">Yᵢⱼₖ=μ+Aᵢ+Bⱼ+ABᵢⱼ+Blockₖ+εᵢⱼₖ</div><p>每个 block 包含 ab combinations。每 cell 在 b₀ blocks 各一个 EU 时 N=ab b₀；df block=b₀−1、A=a−1、B=b−1、AB=(a−1)(b−1)、error=(ab−1)(b₀−1)。Course flour×oven-temperature×day example 将 day 用作 block，flour 与 temperature 是 treatment factors。</p><p>3×3 combinations、3 days：N=27，block df=2，treatment components 2+2+4=8，error=16。Residual diagnostics 及 follow-up comparisons 依然必要；blocking 不保证 normality 或 equal variance。</p>"
+      },
+      {
+        "id": "latin-square",
+        "title": "Latin square 控制两个 nuisance factors",
+        "body": "<p>一个 t×t <b>Latin square</b> 中 t treatments 每 row、每 column 各出现一次，两个 blocking factors 的 levels 数都为 t。随机化应在允许的 square structure 下执行，例如合法 row、column 和 treatment permutations；不是每个 cell 独立随机填字母。</p><div class=\"equation\">Yᵢⱼₖ=μ+Treatmentₖ+Rowᵢ+Columnⱼ+εᵢⱼₖ<br>df：treatment=t−1，row=t−1，column=t−1<br>error=(t−1)(t−2)，total=t²−1</div><p>每 cell 一个观测，assumption 是 additive effects，没有需要单独估计的 treatment×row、treatment×column 或 row×column interaction。t 小时 error df 很少。Missing observations 破坏 orthogonality，需合适 model analysis。</p><p>Course spreadsheet example：4 software treatments、4 secretaries、4 problem types，N=16。每人每类问题只用一个 software，software 每 row/column 一次。df 三个 factors 各 3，error 6；SST=SStrt+SSrow+SScol+SSE。软件 mean 的 adjusted comparisons 解释为控制两种 nuisance 后的表现，不等于适用于任意人员或任务。</p>"
+      },
+      {
+        "id": "practice",
+        "title": "在测量前检查设计是否能回答问题",
+        "body": "<details><summary>练习：所有 V1 放强光区，所有 V2 放弱光区，测量 1000 株能分离品种与光照吗？</summary><p>不能。两因素完全 confounded，更多重复提高了混合差异的 precision，却没有识别单独 variety effect。需要在相同光照区域中都包含 varieties 或其他可识别设计。</p></details><details><summary>练习：3×3 Latin square 有多少 error df？</summary><p>(3−1)(3−2)=2。9 个 observations 中，baseline 与三个 factors 共消耗 1+2+2+2=7 个 model parameters，只剩 2。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>Greenhouse 与 insecticides</h3><p>Greenhouse 15EUs被分成5blocks，每block3varieties；RCBD error df8，忽略block的CRD error df12。利用 reduction in SSE 与df来比较MSE和efficiency；missing EU 会使 treatment 的 block-weight composition 不同。Insecticide × bean variety 案例同样检验 treatment，并单独解释 block variation。</p><h3>Fixed / random block source</h3><p>固定block推断只针对这些levels；random block model εij与Bj独立，Var(B)=σb²，E(MSblock)=σe²+tσb²，E(MSE)=σe²。Moment estimate (MSblock−MSE)/t 可能为负；variance不能为负，现代 mixed-model估计需对应 constraints。Treatment test 的 denominator 依据 expected MS 推导。</p><h3>Bread factorial within days</h3><p>Flour3levels×temperature3levels，3days作为blocks，N27；flourdf2、temperaturedf2、interactiondf4、daydf2、error df16。Blocked design 与factorial treatment structure同时存在；不要把 day 当一个感兴趣 treatment factor。</p><h3>Secretaries × task × spreadsheet</h3><p>四 spreadsheet treatments 在4secretaries×4task rows/columns各出现一次；N16，treatment/row/column各df3，error df6。设计假设不包含重要 treatment×row / treatment×column interactions；它们无法由每格一个obs独立估计。</p>"
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "title": "从解释差异到连续关系与预测",
+    "en": "Regression & correlation",
+    "question": "温度每变一度，response 怎样变？能预测下一次观测吗？",
+    "bridge": "ANOVA 比较分类组；regression 把连续 explanatory variable 写进同一套 linear-model 思路。",
+    "sim": "regression",
+    "lessons": [
+      {
+        "id": "slr",
+        "title": "Simple linear regression 描述 conditional mean",
+        "body": "<div class=\"equation\">Yᵢ=β₀+β₁xᵢ+εᵢ<br>E(Y|x)=β₀+β₁x，Var(Y|x)=σₑ²</div><p><b>Response variable</b> Y 随 <b>explanatory variable</b> x 改变。β₀ 是 x=0 时的 model mean；β₁ 是 x 增 1 unit 时 mean Y 的变化量。Intercept 若 x=0 不在数据或科学范围中，可能只承担数学定位作用。</p><p>假设 mean relationship linear、errors independent、mean zero、constant variance；normal errors 用于 exact t/F/interval inference，least-squares fitting 本身无需 normality。每个 x 上有 Y 的 conditional distribution，不是所有观测必须落在线上。</p><p>Course pharmacy profit 与 absence/work-experience examples 展示正负 slopes。Observational association 不自动证明 causation；randomization、confounding 与 design 仍决定因果解释。</p>"
+      },
+      {
+        "id": "least-squares",
+        "title": "Least squares 最小化 vertical residual squares",
+        "body": "<div class=\"equation\">Sxx=Σ(xᵢ−x̄)²，Sxy=Σ(xᵢ−x̄)(Yᵢ−ȳ)<br>b₁=Sxy/Sxx，b₀=ȳ−b₁x̄<br>ŷᵢ=b₀+b₁xᵢ，eᵢ=Yᵢ−ŷᵢ</div><p>选择 b₀、b₁ 使 SSE=Σeᵢ² 最小。Residual 是 vertical difference，不是点到直线的最短距离。要求 x 有 variation，Sxx&gt;0。With intercept，Σe=0，fitted line 穿过 (x̄,ȳ)。</p><p>Course road resurfacing data x=[1,3,4,5,7]，Y=[6,14,10,14,26]：x̄=4、ȳ=14、Sxx=20、Sxy=60，所以 b₁=3、b₀=2。Predictions=[5,11,14,17,23]，residuals=[1,3,−4,−3,3]，SSE=44。Interactive 允许调整最后一点，直接观察 outlier / leverage 怎样影响 line。</p><p>Extreme x 可有 high leverage；large residual 是 outlier。Influence 同时依赖两者。不要机械删除异常点，先核对测量与研究场景，比较 sensitivity。</p>"
+      },
+      {
+        "id": "regression-anova",
+        "title": "Regression 也能分解 SS 并检验 slope",
+        "body": "<div class=\"equation\">SST=Syy=Σ(Yᵢ−ȳ)²<br>SSR=Σ(ŷᵢ−ȳ)²=b₁²Sxx　　SSE=SST−SSR<br>MSE=SSE/(n−2)，F=(SSR/1)/MSE ~ F(1,n−2) under H₀:β₁=0</div><p>Road example SST=224、SSR=180、SSE=44、MSE≈14.6667、F≈12.2727、df=(1,3)，P≈.0394。在同一个 SLR model 中 slope two-sided t test 的 t²=F，结论一致。</p><div class=\"equation\">SE(b₁)=√(MSE/Sxx)<br>SE(b₀)=√[MSE(1/n+x̄²/Sxx)]<br>t=(bⱼ−βⱼ,₀)/SE(bⱼ)，df=n−2</div><p>CI=bⱼ±t critical×SE。Road slope SE≈.85635，t≈3.50325；估计两个 coefficients 消耗 2 df。β₀、β₁ 的 sampling variance depends on x distribution；更广 x range 可提高 slope precision，但应在科学可比范围中设计。</p>"
+      },
+      {
+        "id": "prediction",
+        "title": "Mean confidence interval 与 prediction interval 不同",
+        "body": "<div class=\"equation\">ŷ₀=b₀+b₁x₀<br>mean CI：ŷ₀ ± t₁₋α/₂,n₋₂ √[MSE(1/n+(x₀−x̄)²/Sxx)]<br>new individual PI：ŷ₀ ± t₁₋α/₂,n₋₂ √[MSE(1+1/n+(x₀−x̄)²/Sxx)]</div><p>CI 为 E(Y|x₀) 的 estimation uncertainty；PI 还包含新个体自己的 error，所以多一个 1，通常更宽。两个区间都在 x̄ 最窄，离 x̄ 越远越宽。Course absence example 对不同 work-experience values 比较两种区间。</p><p>Road example x₀=4：ŷ=14，t₀.₉₇₅,₃≈3.18245。Mean CI half-width≈5.4506；PI half-width≈13.3511。这两个范围不能互换。Extrapolation 到未观测范围可能因 mean model 错误失效，数学上计算得出区间不代表科学上可信。</p>"
+      },
+      {
+        "id": "lack-fit",
+        "title": "显著 slope 不保证 linear model 适合",
+        "body": "<p>Residual vs fitted / x 出现弯曲可能表示 nonlinear mean；funnel 提示 variance pattern；QQ 检查 error normality；独立性依赖 sampling、randomization 与时间/空间结构。</p><p>若有 g 个 distinct x levels 且各有 independent replicate measurements，可以将 SSE 拆为 <b>Pure error</b> 与 <b>Lack of fit</b>。</p><div class=\"equation\">SSPE=ΣⱼΣₖ(Yⱼₖ−ȳⱼ)²，dfPE=n−g<br>SSLOF=SSE−SSPE，dfLOF=g−p<br>FLOF=[SSLOF/(g−p)]/[SSPE/(n−g)]</div><p>p 是 fitted mean parameters 的数目，SLR p=2，quadratic p=3。Null 是 mean model 在所测 x levels 适合。重复同一数据记录不等于 independent replicates；without replication，不能凭此公式独立估计 pure error。</p><p>Course heat-loss vs temperature example：SLR SSLOF≈858.91、dfLOF=2，MSPE≈20.833，F≈20.61，发现不适合；加入 x² 后继续检验与诊断，而不是仅因 R² 升高就宣称 quadratic 正确。</p><pre><code>fit &lt;- lm(y ~ x,data=d)\nsummary(fit); plot(fit)\npredict(fit,data.frame(x=4),interval='confidence')\npredict(fit,data.frame(x=4),interval='prediction')\nanova(fit,lm(y~factor(x),data=d)) # 有重复 x 且条件成立时 LOF\nlm(y ~ x + I(x^2),data=d)</code></pre>"
+      },
+      {
+        "id": "correlation",
+        "title": "Correlation 衡量 linear association，不替代机制",
+        "body": "<div class=\"equation\">r=Sxy/√(Sxx Syy)，−1≤r≤1<br>R²=SSR/SST；SLR with intercept 下 R²=r²<br>H₀:ρ=0，t=r√[(n−2)/(1−r²)]，df=n−2</div><p><b>Pearson correlation</b> unitless，交换 x 与 Y 不变；slope 有单位且交换变量通常改变值。r=0 表示没有 linear association，不表示 independent，也不排除 U-shaped relationship。R² 是此 model 解释 sample variation 的比例，不是预测成功概率。</p><p>Road data r≈.89642、R²≈.80357。ρ test 的常用 exact reference 依赖 independent bivariate normal observations；它和 SLR slope test 在这一设置下相同。Perfect |r|=1 时 denominator 为零，对退化情况不能普通代入有限 t。</p>"
+      },
+      {
+        "id": "correlation-bias",
+        "title": "Estimator 的 sampling distribution 可以有偏",
+        "body": "<div class=\"equation\">Bias(r)=E(r)−ρ</div><p>r 是 population correlation ρ 的 estimator，但 finite samples 下通常有 bias，sampling distribution 也可能 highly nonnormal。Course simulations 比较 ρ=.8、n=3 与 n=50，以及 ρ=0：small n 下 r 分布可贴近边界，estimate 不稳定；n 增大通常减少 bias 和 variation。</p><p>ρ=0 的 symmetric setting 可给 E(r)=0，但不能把它推广到所有 ρ。Simulation 验证模型设定的 repeated-sampling behavior，不等于实测科学结果。合理 simulation 要记录 true ρ、n、replicate count 与 seed，并区分 Monte Carlo variability 与 estimator bias。</p><details><summary>练习：r=.9，能说 x 造成 Y 增加吗？</summary><p>不能。可能存在 confounder、reverse causality、selection 或测量结构。Correlation 描述数据关系，因果推断需要可识别的设计和假设。</p></details><details><summary>练习：why is PI wider than mean CI？</summary><p>Mean CI 只包含估计 conditional mean 的 uncertainty；new observation 还带独立 residual noise，其 variance 多 σₑ²，因此公式里多 1。</p></details>"
+      },
+      {
+        "id": "course-cases",
+        "title": "把课程案例连回方法与结论",
+        "body": "<p>下面将课程中的不同场景连回明确的 statistical question。数字来自教学例子；不是个人提交作业或考试答案。重复的逐行软件输出归并为机制与读取方法。</p><h3>Road resurfacing与 influential points</h3><p>x=[1,3,4,5,7]，Y=[6,14,10,14,26]：ŷ=2+3x，SSE44，MSE44/3，F≈12.273，P≈.03939。改最后点的交互显示 slope、r²、interval为何一起变化。Residual大的点与 high-leverage极端x不是同一概念；Cook distance结合二者影响。</p><h3>Pharmacy wording需要分开</h3><p>PPT 将x定义为非brand-name药物比例、Y为profits；notes 将问题写成处方销售volume与从manufacturer直接购买ingredients的比例。二者作为不同业务例子：解释 slope 必须沿用各自x/Y单位，不能把一份数据的结论直接改写成另一个指标的效果。</p><h3>Absence、parameter tests 与 earnings per share（notes）</h3><p>Absence随experience下降：b₁的单位是每单位experience对应的absence变化，b₀是x=0的预测值，可能在观察范围外。Notes 另外用executive mean age与前一年 earnings-per-share percentage change进行slope inference，不能用correlation直接声称年龄造成earnings变化。Code中 predict(newdata=data.frame(x=...)) 的column name须与 fitted predictor一致。</p><h3>Heat loss、pure error 与 bias simulation</h3><p>Heat loss在4个temperature各3obs，N12、unique x t4：SLR residualdf10、pure-error df8、lack-of-fit df2。比较 linear fit SSE 与同温度 within-group SSE；显著LOF后考虑quadratic并重新diagnose。Correlation simulationρ=.8,n3 的500r平均约.70；n50约.796，有限模拟的mean只是E(r)的estimate，不是解析定理。</p>"
+      }
+    ]
+  }
+]

@@ -70,5 +70,10 @@
   "p14-05": "unbalanced-ss-hypotheses",
   "p15-07": "efficiency",
   "p04-12": "exact-binomial-test",
-  "p07-07": "variance-ci"
+  "p07-07": "variance-ci",
+  "p15-08": "factorial-rcbd-worked",
+  "p15-09": "missing-block-cell-worked",
+  "p06-07": "rank-sum-ties-exact",
+  "p06-08": "signed-rank-zero-ties",
+  "p09-05": "unequal-n-pairwise"
 }

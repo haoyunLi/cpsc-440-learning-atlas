@@ -3778,5 +3778,310 @@
     "pitfall": "同为95%的单侧上界与双侧区间不是同一个置信集合。双侧χ²检验这里明确采用等尾约定，不采用binom.test默认的概率排序规则。",
     "rCode": "n <- 16\nsample_sd <- 2\nnull_sd <- 3\nalpha <- .05\ndf <- n-1\nQ <- df*sample_sd^2/null_sd^2\np_left <- pchisq(Q,df=df)\np_right <- pchisq(Q,df=df,lower.tail=FALSE)\np_two <- min(1,2*min(p_left,p_right))\n# Keep the pre-specified alternatives separate.\nprint(data.frame(plan=c(\"A: left\",\"B: equal-tail two-sided\"),\n                 p=c(p_left,p_two),reject=c(p_left,p_two)<alpha))\nupper_one <- df*sample_sd^2/qchisq(alpha,df=df)\nci_two <- df*sample_sd^2/qchisq(c(1-alpha/2,alpha/2),df=df)\nprint(c(Q=Q,df=df,upper_95_one_sided=upper_one))\nprint(ci_two)\nstopifnot(p_left<alpha,p_two>alpha,upper_one<null_sd^2,\n          ci_two[1]<null_sd^2,ci_two[2]>null_sd^2)",
     "unit": ""
+  },
+  {
+    "id": "p15-08",
+    "chapter": "15",
+    "title": "Blocked factorial的interaction应除以哪个MS",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "factorial RCBD",
+      "interaction",
+      "F denominator"
+    ],
+    "source": {
+      "file": "PPT/Chapter_15.pptx",
+      "locator": "31–33；class notes 24–26",
+      "note": "原创汇总统计练习；设计规模与平方和重新设置。"
+    },
+    "prompt": "完整RCBD包含2×3个fixed treatment combinations和4个独立random blocks，每个block内每种组合恰好有一个观测，总N=24。采用共同正态误差的additive block模型，不含treatment×block interaction。已知SS(A×B)=30、SS(block)=96、SSE=45。检验H₀:全部A×B interaction effects为0，正确的F统计量是多少？",
+    "unit": "F",
+    "answer": 5.0,
+    "tolerance": 0.0001,
+    "hint": "这里各fixed treatment检验的分母是完整block模型的MSE。Interaction df=(2−1)(3−1)；error df=(2×3−1)(4−1)。",
+    "steps": [
+      {
+        "title": "核对完整模型的自由度",
+        "body": "A、B、AB、block的df分别为1、2、2、3，error df=24−1−1−2−2−3=15，也等于(6−1)(4−1)。"
+      },
+      {
+        "title": "分别计算分子和分母MS",
+        "body": "MSAB=30/2=15；MSE=45/15=3。随机block不意味着把MSblock当作固定处理检验的分母；本题完整平衡加性模型下，AB null使E(MSAB)=E(MSE)=σe²。"
+      },
+      {
+        "title": "形成F并保留两个df",
+        "body": "F=15/3=5，参考分布为F(2,15)。分母来自包含block的完整模型，而不是忽略block后的CRD残差。"
+      }
+    ],
+    "conclusion": "F=5，numerator df=2、denominator df=15。",
+    "pitfall": "忽略block、漏除interaction df，或者看到random block便机械使用MSblock，都会改变检验。正确误差项由本题模型的expected mean squares确定。",
+    "rCode": "a <- 2\nb <- 3\nblocks <- 4\nss_ab <- 30\nss_block <- 96\nsse <- 45\nN <- a*b*blocks\ninteraction_df <- (a-1)*(b-1)\nerror_df <- (a*b-1)*(blocks-1)\nms_ab <- ss_ab/interaction_df\nmse <- sse/error_df\nanswer <- ms_ab/mse\nprint(c(N=N,interaction_df=interaction_df,error_df=error_df,\n        MS_interaction=ms_ab,MSE=mse,F=answer,\n        p=pf(answer,interaction_df,error_df,lower.tail=FALSE)))\n# The block mean square is not this fixed interaction test's denominator.\nprint(c(MS_block=ss_block/(blocks-1)))\nstopifnot(N==24,error_df==15,answer==5)",
+    "commonMistakes": [
+      {
+        "value": 10,
+        "tolerance": 0.0001,
+        "feedback": "这个值与直接把interaction SS=30除以MSE=3一致。分子应先除以interaction df=2，得到MSAB=15。"
+      },
+      {
+        "value": 6,
+        "tolerance": 0.0001,
+        "feedback": "这个值与保留SSE=45却把error df改成CRD的18一致。完整RCBD还估计3个block df，正确error df=15。"
+      },
+      {
+        "value": 0.46875,
+        "tolerance": 0.0001,
+        "feedback": "这个值是MSAB/MSblock=15/32。本题完整平衡加性random-block模型中，固定AB检验使用MSE=3作为分母。"
+      }
+    ]
+  },
+  {
+    "id": "p15-09",
+    "chapter": "15",
+    "title": "缺失一个block单元后用模型covariance计算SE",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "missing block cell",
+      "adjusted contrast",
+      "estimability",
+      "standard error"
+    ],
+    "source": {
+      "file": "PPT/Chapter_15.pptx",
+      "locator": "23–24；class notes 17–18",
+      "note": "延续本站原创观测的缺失单元练习，不使用课程私有数据。"
+    },
+    "prompt": "三种treatments在blocks 1、2、3、4中的观测分别是：treatment1=[7,10,13,14]；treatment2=[14,17,17,缺失]；treatment3=[9,9,12,14]。采用fixed-block additive model Y~treatment+block，假定已观察误差独立、正态、共同variance，缺失机制可忽略。对每个treatment都在相同四个blocks上等权平均后，计算adjusted contrast treatment2−treatment1的SE。输入SE，不是variance；至少保留三位小数。",
+    "unit": "SE",
+    "answer": 0.8660254037844386,
+    "tolerance": 0.001,
+    "hint": "实际模型N=11、rank=6、error df=5，SSE=6。先构造contrast L，再算Lᵀvcov(fit)L；不能继续套完整平衡设计的2MSE/4。",
+    "steps": [
+      {
+        "title": "用实际观测拟合加性模型",
+        "body": "三个treatments和四个blocks仍相互连接；参考编码的X有6个独立列，error df=11−6=5，MSE=6/5=1.2。"
+      },
+      {
+        "title": "明确调整比较的向量",
+        "body": "在相同四个blocks上等权平均后，block系数抵消。若系数顺序为intercept、treatment2、treatment3、block2、block3、block4，则L=[0,1,0,0,0,0]ᵀ。"
+      },
+      {
+        "title": "从完整covariance求SE",
+        "body": "实际11行设计矩阵给Lᵀ(XᵀX)⁻¹L=5/8。因此variance=1.2×5/8=.75，SE=√.75≈.866025。"
+      },
+      {
+        "title": "区分估计、标准误与原始均值",
+        "body": "adjusted difference为6，raw difference为5；本题只问调整比较的SE。缺失单元的拟合值不是额外观测，不能补回后增加df。"
+      }
+    ],
+    "conclusion": "调整后treatment2−1的SE≈.866025；variance=.75。",
+    "pitfall": "本题是fixed-block加性OLS模型。Rank足够不证明缺失机制可忽略，也不允许把这些SE自动用于random-block或含interaction的另一模型。",
+    "rCode": "# Only the 11 observed responses enter this fixed-block additive model.\nd <- data.frame(treatment=factor(c(rep(1,4),rep(2,3),rep(3,4))),\n                block=factor(c(1:4,1:3,1:4)),\n                y=c(7,10,13,14,14,17,17,9,9,12,14))\nfit <- lm(y ~ treatment+block,data=d)\nX <- model.matrix(fit)\nmse <- deviance(fit)/df.residual(fit)\n# Equal block weights cancel the block coefficients in this additive contrast.\nL <- setNames(rep(0,length(coef(fit))),names(coef(fit)))\nL[\"treatment2\"] <- 1\nvariance <- as.numeric(t(L)%*%vcov(fit)%*%L)\nanswer <- sqrt(variance)\nvariance_factor <- as.numeric(t(L)%*%solve(crossprod(X),L))\nprint(c(N=nrow(d),rank=qr(X)$rank,error_df=df.residual(fit),MSE=mse,\n        adjusted_difference=as.numeric(L%*%coef(fit)),\n        variance_factor=variance_factor,variance=variance,SE=answer))\nstopifnot(nrow(d)==11,qr(X)$rank==6,df.residual(fit)==5,\n          abs(variance_factor-5/8)<1e-10,abs(variance-.75)<1e-10)",
+    "commonMistakes": [
+      {
+        "value": 0.75,
+        "tolerance": 0.001,
+        "feedback": "这是contrast的variance。题目要求SE，需要再开平方：√.75≈.866025。"
+      },
+      {
+        "value": 0.7745966692414834,
+        "tolerance": 0.001,
+        "feedback": "这个结果与套用完整平衡设计的√(2MSE/4)一致。缺失单元后应使用实际设计矩阵与covariance，不能继续采用该简化公式。"
+      },
+      {
+        "value": 0.8366600265340756,
+        "tolerance": 0.001,
+        "feedback": "这个结果与把两个raw means当独立、用√[1.2(1/3+1/4)]计算一致；它没有完成不平衡block结构下的调整比较。"
+      }
+    ]
+  },
+  {
+    "id": "p06-07",
+    "chapter": "06",
+    "title": "带ties的标签排列需要保留重数",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "Wilcoxon rank-sum",
+      "ties",
+      "exact permutation",
+      "left tail"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 6 - 2022 Fall.pdf",
+      "locator": "25、31–35；PPT Chapter 6，35–39",
+      "note": "原创改编，非原题答案。"
+    },
+    "prompt": "独立组A=[2,2,6]、B=[3,7,8]。预先指定左侧alternative：A的分布相对B向左移动。H₀下两组分布相同，固定合并观测后组标签可交换。使用平均秩，并将6条记录中选3条归A的全部标签分配等概率枚举。计算observed rank sum至少同样小的conditional exact左尾P。输入0到1的概率，不是百分数；不要使用正态近似。",
+    "answer": 0.1,
+    "tolerance": 0.0005,
+    "unit": "概率",
+    "hint": "合并排序为2,2,3,6,7,8，秩为1.5,1.5,3,4,5,6。两个值为2的观测仍是不同记录，共C(6,3)=20种分配。",
+    "steps": [
+      {
+        "title": "先取得observed statistic",
+        "body": "A使用秩1.5、1.5、4，raw rank sum T_A=7。R双样本统计量的平移版本U=7−3×4/2=1。左侧alternative由较小的T或U支持。"
+      },
+      {
+        "title": "固定数据并枚举标签",
+        "body": "在null下，从6条记录中选3条归A，共20种等可能分配。相同值的记录仍各自可以获得不同标签，不能合并掉其出现机会。"
+      },
+      {
+        "title": "数包含边界的左尾",
+        "body": "T_A≤7只有两种记录组合：两个1.5秩加rank 3，T=6；两个1.5秩加rank 4，T=7。Exact左尾P=2/20=.10。"
+      },
+      {
+        "title": "辨认不同参考结果",
+        "body": "无连续性校正的normal近似约.060592，加R的.5连续性校正约.092019，均不是此题要求的枚举概率。不同的统计量取值也并非等概率，不能只对unique(T)计数。"
+      }
+    ],
+    "conclusion": "Conditional exact左尾P=.10；在预定α=.05下不拒绝相同分布null。",
+    "pitfall": "Exact排列依据观测记录的可交换性。把相同统计量去重或事后改成右尾都会改变检验；不拒绝不证明两组相同。",
+    "rCode": "a <- c(2,2,6)\nb <- c(3,7,8)\nn_a <- length(a)\npooled_ranks <- rank(c(a,b),ties.method=\"average\")\nobserved <- sum(pooled_ranks[seq_along(a)])\n# Enumerate record indices; equal-valued records remain distinct.\nassignments <- combn(seq_along(pooled_ranks),n_a)\nnull_T <- apply(assignments,2,function(i) sum(pooled_ranks[i]))\nanswer <- mean(null_T<=observed)\nprint(c(observed_T=observed,U=observed-n_a*(n_a+1)/2,\n        assignments=ncol(assignments),left_extreme=sum(null_T<=observed),\n        answer=answer))\nprint(as.data.frame(table(null_T)))\n# Diagnostic alternatives use the same observed data but a different reference.\nno_cc <- wilcox.test(a,b,alternative=\"less\",exact=FALSE,correct=FALSE)$p.value\nwith_cc <- wilcox.test(a,b,alternative=\"less\",exact=FALSE,correct=TRUE)$p.value\nprint(c(normal_no_cc=no_cc,normal_with_cc=with_cc,\n        wrong_unique_statistics=mean(unique(null_T)<=observed),\n        two_sided=2*answer))\nstopifnot(observed==7,ncol(assignments)==20,sum(null_T<=observed)==2,\n          abs(answer-.1)<1e-12)",
+    "commonMistakes": [
+      {
+        "value": 0.060591636418732,
+        "tolerance": 0.0005,
+        "feedback": "这个数值与无continuity correction的normal近似一致。题目要求枚举20种等可能标签分配，左尾应为2/20=.10。"
+      },
+      {
+        "value": 0.092019313598213,
+        "tolerance": 0.0005,
+        "feedback": "这个数值与R的continuity-corrected normal近似一致。它接近但不等于有限样本conditional exact P。"
+      },
+      {
+        "value": 0.153846153846154,
+        "tolerance": 0.0005,
+        "feedback": "这个数值与对不同的rank-sum取值去重后计数一致。不同统计量值出现的标签分配数不同，需要保留重数，不能一律等概率。"
+      },
+      {
+        "value": 0.2,
+        "tolerance": 0.0005,
+        "feedback": "这个数值是本例双倍较小尾部的双侧P。题目在分析前指定左侧alternative，只需要包含观测边界的左尾概率。"
+      }
+    ]
+  },
+  {
+    "id": "p06-08",
+    "chapter": "06",
+    "title": "删零并保留重复秩后计算signed-rank exact右尾",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "signed-rank",
+      "zeros",
+      "ties",
+      "exact signs"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 6 - 2022 Fall.pdf",
+      "locator": "46–51、54–55；PPT Chapter 6，62–67",
+      "note": "原创改编，非原题答案。"
+    },
+    "prompt": "按预定方向after−before，7个独立pairs得到d=[0,−1,1,2,−2,4,5]。H₀下差分布关于0对称，给定非零绝对大小后符号独立且正负等概率。采用Wilcoxon删零约定，再给重复绝对值平均秩。针对预先指定的正向alternative，枚举所有非零差的符号分配，计算P(W⁺≥observed W⁺)。输入0到1的exact右尾概率。",
+    "answer": 0.171875,
+    "tolerance": 0.0005,
+    "unit": "概率",
+    "hint": "删去0后m=6；绝对秩为1.5,1.5,3.5,3.5,5,6。枚举的是2^6=64个符号分配，重复秩仍属于不同pairs。",
+    "steps": [
+      {
+        "title": "按删零约定取得有效样本",
+        "body": "原来7对中有1个零差，先删零再排名，m=6。|d|中的两个1平均秩1.5，两个2平均秩3.5，4和5的秩分别为5、6。"
+      },
+      {
+        "title": "核对三种统计量",
+        "body": "正差1、2、4、5贡献W⁺=1.5+3.5+5+6=16；负差贡献W⁻=1.5+3.5=5，总和21=6×7/2。SAS中心化S=16−6×7/4=5.5。"
+      },
+      {
+        "title": "枚举对称null的符号",
+        "body": "六个非零观测各有±两种符号，共64种等可能分配。按实际平均秩重新求W⁺，其中11种满足W⁺≥16，故exact右尾P=11/64=.171875。"
+      },
+      {
+        "title": "与近似及双侧区分",
+        "body": "两个大小为2的tie blocks使Var(W⁺)=6×7×13/24−2×(2³−2)/48=22.5。无修正normal右尾约.123126，加.5修正约.145920；双侧exact P=.34375。它们都不是题目指定的exact右尾。"
+      }
+    ],
+    "conclusion": "Exact右尾P=.171875；在预定α=.05下不拒绝对称null。",
+    "pitfall": "先给零差排名再删除、将两个相同秩合并成一个符号，或者使用原始7对的2^7作为分母，都会换掉参考分布。",
+    "rCode": "d <- c(0,-1,1,2,-2,4,5)\nnz <- d[d!=0]\nm <- length(nz)\nr <- rank(abs(nz),ties.method=\"average\")\nw_plus <- sum(r[nz>0])\nw_minus <- sum(r[nz<0])\n# The zero difference has no rank or random sign under this convention.\nsigns <- as.matrix(expand.grid(rep(list(c(-1,1)),m)))\nnull_w <- as.vector((signs>0) %*% r)\nanswer <- mean(null_w>=w_plus)\nexpected <- m*(m+1)/4\nvariance <- sum(r^2)/4\nprint(data.frame(difference=nz,rank=r))\nprint(c(m=m,W_positive=w_plus,W_negative=w_minus,S=w_plus-expected,\n        variance=variance,assignments=nrow(signs),\n        right_extreme=sum(null_w>=w_plus),answer=answer))\n# These diagnostic values are approximations, not the requested exact probability.\nprint(c(normal_no_cc=pnorm((w_plus-expected)/sqrt(variance),lower.tail=FALSE),\n        normal_with_cc=pnorm((w_plus-expected-.5)/sqrt(variance),lower.tail=FALSE),\n        exact_two_sided=2*answer))\nstopifnot(m==6,w_plus==16,w_minus==5,nrow(signs)==64,\n          sum(null_w>=w_plus)==11,abs(answer-.171875)<1e-12)",
+    "commonMistakes": [
+      {
+        "value": 0.12312584984626,
+        "tolerance": 0.0005,
+        "feedback": "这个数值与tie-corrected、但无continuity correction的normal近似一致。题目要求对64个符号分配计数，右尾有11个。"
+      },
+      {
+        "value": 0.14592027257189,
+        "tolerance": 0.0005,
+        "feedback": "这个数值与带.5 continuity correction的normal右尾一致。它不是本题有限样本符号枚举的exact概率。"
+      },
+      {
+        "value": 0.34375,
+        "tolerance": 0.0005,
+        "feedback": "这与将右尾11/64加倍得到的双侧P一致。本题的正向alternative已经事先确定，不需要加倍。"
+      }
+    ]
+  },
+  {
+    "id": "p09-05",
+    "chapter": "09",
+    "title": "Tukey–Kramer半宽使用本pair的两个样本量",
+    "level": "应用",
+    "type": "numeric",
+    "tags": [
+      "Tukey-Kramer",
+      "unequal n",
+      "simultaneous CI",
+      "all-pairs family"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 9 - 2022 Fall.pdf",
+      "locator": "23–25、29–32；PPT Chapter 9，58–60",
+      "note": "原创改编，非原题答案。"
+    },
+    "prompt": "一元独立正态、共同variance实验有A、B、C三组，n=(4,6,8)，means=(20,23,25)，完整ANOVA给MSE=9。预先保护三组的全部两两比较。计算C−A的名义95% Tukey–Kramer同时区间半宽：q_.95(g,ν)×√[(MSE/2)(1/n_A+1/n_C)]。可用R的qtukey；保留至少两位小数。",
+    "answer": 4.7718575113818,
+    "tolerance": 0.005,
+    "unit": "响应单位",
+    "hint": "总N=18、组数g=3，所以error df=15。此pair使用n_A=4与n_C=8；中间B组仍影响共同MSE、df和family组数。",
+    "steps": [
+      {
+        "title": "确定完整模型与family参数",
+        "body": "N=4+6+8=18，g=3，ν=N−g=15。Family为全部三对，studentized-range critical使用q_.95(3,15)≈3.673377625。"
+      },
+      {
+        "title": "算本pair的尺度",
+        "body": "普通difference SE=√[9(1/4+1/8)]=√3.375≈1.837117307。Tukey–Kramer使用SE/√2=√1.6875，而不是直接把q乘普通SE。"
+      },
+      {
+        "title": "得到半宽和区间",
+        "body": "半宽=3.673377625×√1.6875≈4.771857511。C−A estimate=25−20=5，所以区间约[.228142489,9.771857511]。"
+      },
+      {
+        "title": "说明不等n的影响",
+        "body": "本pair半宽不能用平均n=6代入平衡公式。其他pairs应各用自己的1/nᵢ+1/nⱼ；所有pairs仍共享完整模型MSE与15个error df。"
+      }
+    ],
+    "conclusion": "C−A的Tukey–Kramer半宽约4.77186，名义95%同时区间约[.22814,9.77186]。",
+    "pitfall": "普通LSD/t区间、q×普通SE、用平均n的平衡公式是不同计算。Tukey–Kramer仍依赖独立、共同方差模型；不等n的名义覆盖不能写成处处恰好95%。",
+    "rCode": "ni <- c(A=4,B=6,C=8)\nmu <- c(A=20,B=23,C=25)\n# Generate complete synthetic groups with the stated means and sample variance 9.\nmake_group <- function(n,center) {\n  base <- seq_len(n)\n  center+3*(base-mean(base))/sd(base)\n}\ny <- unlist(Map(make_group,ni,mu),use.names=FALSE)\ngroup <- factor(rep(names(ni),ni),levels=names(ni))\nfit <- aov(y ~ group)\nmse <- deviance(fit)/df.residual(fit)\ndf <- df.residual(fit)\ng <- nlevels(group)\nse <- sqrt(mse*(1/ni[\"A\"]+1/ni[\"C\"]))\nqcrit <- qtukey(.95,nmeans=g,df=df)\nanswer <- unname(qcrit*se/sqrt(2))\nestimate <- mu[\"C\"]-mu[\"A\"]\nprint(c(MSE=mse,error_df=df,qcrit=qcrit,SE=se,answer=answer,\n        lower=estimate-answer,upper=estimate+answer))\ntk <- TukeyHSD(fit,which=\"group\")$group\nprint(tk)\nprint(c(ordinary_LSD_half=qt(.975,df)*se,\n        wrong_no_sqrt2=qcrit*se,wrong_average_n=qcrit*sqrt(mse/mean(ni))))\nstopifnot(df==15,abs(mse-9)<1e-10,\n          abs(answer-4.7718575113818)<1e-10,\n          abs(tk[\"C-A\",\"upr\"]-tk[\"C-A\",\"diff\"]-answer)<1e-10)",
+    "commonMistakes": [
+      {
+        "value": 3.9157228493314,
+        "tolerance": 0.005,
+        "feedback": "这个半宽与ordinary LSD/t区间一致。题目保护全部pairwise family，使用studentized-range q和Tukey–Kramer尺度。"
+      },
+      {
+        "value": 6.7484256103081,
+        "tolerance": 0.005,
+        "feedback": "这个数值与q直接乘普通difference SE一致。Tukey–Kramer的尺度为SE/√2，所以公式中有MSE/2。"
+      },
+      {
+        "value": 4.4989504068721,
+        "tolerance": 0.005,
+        "feedback": "这个数值与把三组平均n=6代入平衡Tukey公式一致。本pair应明确使用n_A=4和n_C=8。"
+      }
+    ]
   }
 ]

@@ -113,6 +113,34 @@ export function twoSample(a, b, method = 'welch', confidence = .95) {
   return { n1, n2, meanA, meanB, varA, varB, estimate, se, df, t, p, low: estimate - critical * se, high: estimate + critical * se, critical };
 }
 
+// Use relative coordinates so changing units or adding a common baseline does
+// not flatten the observations. Tick labels describe the display scale only.
+export function twoSampleAxis(values) {
+  if (!values.length || values.some(value => !Number.isFinite(value))) throw Error('绘图需要有限观测值。');
+  const min = Math.min(...values), max = Math.max(...values), range = max - min;
+  if (!Number.isFinite(range)) throw Error('数据范围超出可绘制的数值范围。');
+  const span = range || Math.max(Math.abs(min) * .2, min === 0 ? 2 : Number.MIN_VALUE);
+  const constantShift = range ? 0 : .5;
+  const offset = Math.abs(min) / span >= 10 ? min : 0;
+  const low = min - offset + (-.12 - constantShift) * span;
+  const high = min - offset + (1.12 - constantShift) * span;
+  const magnitude = Math.max(Math.abs(low), Math.abs(high));
+  const exponent = magnitude >= 100 || magnitude < 1 ? Math.max(-323, Math.floor(Math.log10(magnitude))) : 0;
+  const unit = 10 ** exponent, scaledSpan = span / unit, scaledBase = (min - offset) / unit;
+  const step = scaledSpan * 1.24 / 4;
+  const decimals = Math.max(0, 2 - Math.floor(Math.log10(step)));
+  const ticks = Array.from({ length: 5 }, (_, i) => {
+    const value = scaledBase + (i * 1.24 / 4 - .12 - constantShift) * scaledSpan;
+    return { position: i / 4, label: String(Number(value.toFixed(decimals))) };
+  });
+  const scaleNote = offset || exponent
+    ? `纵轴实际响应 Y = ${offset ? `${String(offset)} + ` : ''}刻度${exponent ? ` × 1e${exponent}` : ''}。平移与缩放仅用于显示；统计量和 R 代码仍使用原始输入单位。`
+    : '纵轴使用原始响应单位；绘图区按当前数据范围自动缩放。';
+  return { position: value => ((value - min) / span + constantShift + .12) / 1.24, ticks, offset, exponent,
+    label: offset || exponent ? 'Y（局部刻度）' : 'Response Y',
+    scaleNote: scaleNote + (range ? '' : '所有观测相同；轴上留白不代表数据有变异。') };
+}
+
 export function diagnosticData(mode = 'normal') {
   if (!['normal', 'skew', 'outlier', 'unequal'].includes(mode)) throw Error('未知诊断场景');
   const rng = M.seeded(440);
@@ -133,7 +161,7 @@ export function diagnosticData(mode = 'normal') {
 
 const ns = 'http://www.w3.org/2000/svg';
 function add(svg, name, attrs, text = '') { const node = document.createElementNS(ns, name); for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value); node.textContent = text; svg.append(node); return node; }
-function frame(svg, xMin, xMax, yMin, yMax, xLabel, yLabel) {
+function frame(svg, xMin, xMax, yMin, yMax, xLabel, yLabel, yTickFormat = null) {
   svg.replaceChildren();
   const x = value => 72 + (value - xMin) / (xMax - xMin) * 518;
   const y = value => 258 - (value - yMin) / (yMax - yMin) * 207;
@@ -142,7 +170,7 @@ function frame(svg, xMin, xMax, yMin, yMax, xLabel, yLabel) {
   for (let i = 0; i <= 4; i++) {
     const xv = xMin + (xMax - xMin) * i / 4, yv = yMin + (yMax - yMin) * i / 4;
     add(svg, 'text', { x: x(xv), y: 281, 'text-anchor': 'middle', class: 'wbench-tick' }, format(xv, 1));
-    add(svg, 'text', { x: 62, y: y(yv) + 5, 'text-anchor': 'end', class: 'wbench-tick' }, format(yv, yMax - yMin < 2 ? 2 : 1));
+    add(svg, 'text', { x: 62, y: y(yv) + 5, 'text-anchor': 'end', class: 'wbench-tick' }, yTickFormat ? yTickFormat(yv) : format(yv, yMax - yMin < 2 ? 2 : 1));
   }
   add(svg, 'text', { x: 330, y: 311, 'text-anchor': 'middle', class: 'wbench-label' }, xLabel);
   add(svg, 'text', { x: 72, y: 25, class: 'wbench-label' }, yLabel);
@@ -188,7 +216,7 @@ function mountDistribution(root) {
 }
 
 function mountTwoSample(root) {
-  root.innerHTML = `<h2>从数据走到两样本结论</h2><p>默认是原创示例数据。估计方向始终是 <strong>A − B</strong>，检验 H₀: μA − μB = 0。切换方法前，先确认实验单位是否独立或配对。</p><div class="wbench-controls">${label('A 组（按观测顺序）', '<textarea data-field="a">8, 10, 13, 14, 18, 20</textarea>')}${label('B 组（按观测顺序）', '<textarea data-field="b">7, 8, 10, 12, 12, 13</textarea>')}${label('分析方法', field('method', [['welch', 'Welch：独立，不要求等方差'], ['pooled', 'Pooled：独立且总体方差相等'], ['paired', 'Paired：同一单位内比较']]))}${label('双侧置信水平', field('confidence', [['0.95', '95%'], ['0.90', '90%'], ['0.99', '99%']]))}</div><p class="wbench-error" role="alert"></p><div class="wbench-result" aria-live="polite"></div><p class="wbench-assumptions"></p>${plot('A、B 两组观测；配对模式中连线表示同一实验单位')}<details><summary>对照 R：把同样的数据带进软件</summary><pre class="wbench-code"></pre></details><p class="wbench-note">不应先做一次 variance test 再按 P 值机械选择 pooled / Welch。研究设计决定 paired 与 independent；样本方差相似不能证明总体方差相等。这里没有自动删除任何观测。</p>`;
+  root.innerHTML = `<h2>从数据走到两样本结论</h2><p>默认是原创示例数据。估计方向始终是 <strong>A − B</strong>，检验 H₀: μA − μB = 0。切换方法前，先确认实验单位是否独立或配对。</p><div class="wbench-controls">${label('A 组（按观测顺序）', '<textarea data-field="a">8, 10, 13, 14, 18, 20</textarea>')}${label('B 组（按观测顺序）', '<textarea data-field="b">7, 8, 10, 12, 12, 13</textarea>')}${label('分析方法', field('method', [['welch', 'Welch：独立，不要求等方差'], ['pooled', 'Pooled：独立且总体方差相等'], ['paired', 'Paired：同一单位内比较']]))}${label('双侧置信水平', field('confidence', [['0.95', '95%'], ['0.90', '90%'], ['0.99', '99%']]))}</div><p class="wbench-error" role="alert"></p><div class="wbench-result" aria-live="polite"></div><p class="wbench-assumptions"></p>${plot('A、B 两组观测；配对模式中连线表示同一实验单位')}<p class="wbench-note" data-two-sample-scale></p><details><summary>对照 R：把同样的数据带进软件</summary><pre class="wbench-code"></pre></details><p class="wbench-note">不应先做一次 variance test 再按 P 值机械选择 pooled / Welch。研究设计决定 paired 与 independent；样本方差相似不能证明总体方差相等。这里没有自动删除任何观测。</p>`;
   listen(root, () => {
     const out = root.querySelector('.wbench-result'), svg = root.querySelector('svg');
     try {
@@ -196,11 +224,14 @@ function mountTwoSample(root) {
       errorBox(root);
       out.innerHTML = `<strong>差值 ${format(r.estimate)} · ${confidence * 100}% CI [${format(r.low)}, ${format(r.high)}]</strong><span>SE = ${format(r.se)} · t = ${format(r.t)} · df = ${format(r.df)} · 双侧 P = ${format(r.p, 6)}</span><span>A：n=${r.n1}，mean=${format(r.meanA)}，s²=${format(r.varA)}；B：n=${r.n2}，mean=${format(r.meanB)}，s²=${format(r.varB)}</span><span>α=${format(1 - confidence, 2)}：${r.p <= 1 - confidence ? '有证据认为总体平均差异不为 0' : '目前证据不足以认定总体平均差异不为 0'}。</span>`;
       root.querySelector('.wbench-assumptions').textContent = method === 'paired' ? '前提：各 pair 之间独立；A[i] 与 B[i] 必须来自同一单位。小样本正态性应检查配对差值，不是分别检查 A、B。连接线仅按输入顺序绘制，软件不能验证配对来源。' : method === 'pooled' ? '前提：单位与组间独立；小样本各组近似 normal；两个总体具有相同 variance。pooled df = nA + nB − 2。' : '前提：单位与组间独立；小样本各组近似 normal 且无严重极端值。Welch 调整 SE 与 df，不会修复非独立、强偏态或错误配对。';
-      const values = [...a, ...b], lo = Math.min(...values), hi = Math.max(...values), pad = Math.max((hi - lo) * .12, .5), map = frame(svg, 0, 1, lo - pad, hi + pad, 'Group A → Group B', 'Response');
-      if (method === 'paired') a.forEach((v, i) => add(svg, 'line', { x1: map.x(.2), x2: map.x(.8), y1: map.y(v), y2: map.y(b[i]), stroke: '#adc5b9', 'stroke-width': 1.5 }));
-      [a, b].forEach((g, j) => { g.forEach((v, i) => add(svg, 'circle', { cx: map.x((j ? .8 : .2) + (method === 'paired' ? 0 : ((i % 5) - 2) * .012)), cy: map.y(v), r: g.length > 100 ? 2.5 : 4.5, fill: j ? '#9a472e' : '#086f68' })); add(svg, 'text', { x: map.x(j ? .8 : .2), y: 43, 'text-anchor': 'middle', class: 'wbench-label' }, j ? 'B' : 'A'); });
+      const axis = twoSampleAxis([...a, ...b]), map = frame(svg, 0, 1, 0, 1, 'Group A → Group B', axis.label, value => axis.ticks[Math.round(value * 4)].label);
+      const y = value => map.y(axis.position(value));
+      root.querySelector('[data-two-sample-scale]').textContent = axis.scaleNote;
+      svg.setAttribute('aria-label', `A、B 两组观测；${method === 'paired' ? '连线按输入顺序表示同一实验单位。' : '横向错开仅为显示重叠点。'}${axis.scaleNote}`);
+      if (method === 'paired') a.forEach((v, i) => add(svg, 'line', { x1: map.x(.2), x2: map.x(.8), y1: y(v), y2: y(b[i]), stroke: '#adc5b9', 'stroke-width': 1.5 }));
+      [a, b].forEach((g, j) => { g.forEach((v, i) => add(svg, 'circle', { cx: map.x((j ? .8 : .2) + (method === 'paired' ? 0 : ((i % 5) - 2) * .012)), cy: y(v), r: g.length > 100 ? 2.5 : 4.5, fill: j ? '#9a472e' : '#086f68' })); add(svg, 'text', { x: map.x(j ? .8 : .2), y: 43, 'text-anchor': 'middle', class: 'wbench-label' }, j ? 'B' : 'A'); });
       root.querySelector('.wbench-code').textContent = `# Synthetic or user-supplied observations\na <- c(${a.join(', ')})\nb <- c(${b.join(', ')})\n# Direction: A minus B; two-sided inference\nt.test(a, b, paired = ${method === 'paired' ? 'TRUE' : 'FALSE'},\n       var.equal = ${method === 'pooled' ? 'TRUE' : 'FALSE'}, conf.level = ${confidence})`;
-    } catch (error) { errorBox(root, error); svg.replaceChildren(); out.textContent = '等待有效数据。'; root.querySelector('.wbench-code').textContent = ''; root.querySelector('.wbench-assumptions').textContent = ''; }
+    } catch (error) { errorBox(root, error); svg.replaceChildren(); out.textContent = '等待有效数据。'; root.querySelector('.wbench-code').textContent = ''; root.querySelector('.wbench-assumptions').textContent = ''; root.querySelector('[data-two-sample-scale]').textContent = ''; svg.setAttribute('aria-label', '等待有效的 A、B 两组观测。'); }
   });
 }
 

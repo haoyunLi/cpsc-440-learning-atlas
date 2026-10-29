@@ -44,6 +44,8 @@ def doc(title,body,prefix='./'):
   extra+=f'<link rel="stylesheet" href="{prefix}assets/student.css?v={version("assets/student.css")}"><script type="module" src="{prefix}assets/student.mjs?v={version("assets/student.mjs")}"></script>'
  if 'data-kruskal' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/kruskal.css?v={version("assets/kruskal.css")}"><script type="module" src="{prefix}assets/kruskal.mjs?v={version("assets/kruskal.mjs")}"></script>'
+ if 'data-lab="anova"' in body:
+  extra+=f'<link rel="stylesheet" href="{prefix}assets/anova.css?v={version("assets/anova.css")}">'
  if 'data-lab="paired"' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/paired.css?v={version("assets/paired.css")}">'
  if 'data-lab="factorial"' in body:

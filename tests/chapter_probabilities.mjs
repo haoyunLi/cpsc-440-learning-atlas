@@ -17,10 +17,10 @@ for (const df1 of [1, 2, 4]) for (const df2 of [3, 12, 99]) for (const f of [0, 
   add(`F upper ${f},${df1},${df2}`, fSurvival(f, df1, df2), `pf(${f},${df1},${df2},lower.tail=FALSE)`);
 }
 for (const gap of [0, .25, 3, 6]) for (const noise of [.25, 1, 5]) {
-  const groups = [0,1,2].map(i => [-2,-1,0,1,2].map(e => 10 + i * gap + e * noise));
+  const groups = [0,1,2].map(i => [-1,0,1].map(e => 5 + i * gap + e * noise));
   const r = anova(groups);
   add(`ANOVA gap=${gap} noise=${noise}`, r.p,
-    `{y<-c(${groups.flat().join(',')});g<-factor(rep(1:3,each=5));anova(lm(y~g))[1,"Pr(>F)"]}`);
+    `{y<-c(${groups.flat().join(',')});g<-factor(rep(1:3,each=3));anova(lm(y~g))[1,"Pr(>F)"]}`);
 }
 const refs = execFileSync(process.env.RSCRIPT || 'Rscript', ['--vanilla','-e',
   `cat(sprintf('%.17g\\n',c(${cases.map(c=>c.reference).join(',')})))`], {encoding:'utf8'}).trim().split(/\s+/).map(Number);

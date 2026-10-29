@@ -37,7 +37,7 @@ python3 -m http.server 4400
 python3 tools/build.py
 ```
 
-补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 76 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
+补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 77 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
 
 Ch04 通过完整列联表区分两种条件方向、joint 与 marginals，以及固定清单概率和样本频率；Ch05 对照 PPT 的 σ 与 notes 的样本 s 设定，分别说明精确 z、正态模型 t 与大样本 z 近似。方法向导保留配对 / 重复 / block 结构与 variance 条件，推荐对应知识点；Ch08 追加三项 Welch 检验、Bonferroni P 与近似同时区间的完整复算。
 
@@ -66,6 +66,7 @@ node tests/latin.mjs
 node tests/randomization.mjs
 node tests/student.mjs
 node tests/paired.mjs
+node tests/anova.mjs
 node tests/ci_geometry.mjs
 node tests/distribution_display.mjs
 node tests/search.mjs
@@ -92,7 +93,7 @@ python3 tests/practice_paths.py
 python3 tests/r_examples.py
 ```
 
-工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、76 个章节示例及 R 入门脚本，共 168 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
+工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、77 个章节示例及 R 入门脚本，共 169 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
 
 Ch08 的 Kruskal–Wallis 实验可编辑三组各3个观测，追踪 pooled ranks、ties correction 与全部1680种固定组规模标签分配；逐项浏览保留观测身份和重复统计量的分配重数，比较χ²近似与条件exact P。正文与新练习包含完整独立R枚举。Ch15 区分block内随机化、全场CRD分配和对既有RCBD数据省略block的分析，并核对两个随机化空间的大小。
 
@@ -148,4 +149,8 @@ Ch01 用40名志愿者的完整情景区分目标总体、样本、实验单位�
 
 Ch06 明确 paired 可以是同一个体的重复观测，也可以是设计中预先匹配的不同单位；用课程 split-field 案例区分 field 作为 pair/block 与 half-field 作为处理随机化实验单位。配对实验与正文共用五对原始值，逐项显示差值、sample covariance 和差值方差贡献；整行反序保持推断，单独反转 B 显示错配身份及算术后果，不输出该映射的正式 P/CI。方法向导、手册与两道练习的设计解释同步修正。
 
-配对实验对三种映射与五个选中 ID 逐一执行独立 R 核验及导出代码；检查原始点坐标固定、身份追踪、整行排序不变量、错配中的单个保留 pair、稳定焦点、错误恢复与复制生命周期。桌面与390px手机验证全部模式、行追踪、放大图及横向表格；168 个独立 R 下载脚本仍全部通过。
+配对实验对三种映射与五个选中 ID 逐一执行独立 R 核验及导出代码；检查原始点坐标固定、身份追踪、整行排序不变量、错配中的单个保留 pair、稳定焦点、错误恢复与复制生命周期。桌面与390px手机验证全部模式、行追踪、放大图及横向表格；169 个独立 R 下载脚本仍全部通过。
+
+Ch08 从“每组 sample variance 的加权合并”推导 MSE，并在等 n 时用 n×组均值的 sample variance 解释 MStrt；明确零假设约束总体 means，不能要求每次样本 means 完全相等。正文区分真实 error 与 fitted residual，以及零和参数化的等权 baseline 和总SS的加权 grand mean。ANOVA 实验与正文共用 A=[4,5,6]、B=[7,8,9]、C=[10,11,12]，逐个观测展示带方向的偏差、交叉项、平方和与完整 ANOVA 表；滑块调整构造样本，不声称进行零假设下的随机模拟。
+
+ANOVA 实验独立对照 R 核验全部500组合法滑块设置，逐点验证总偏差、组间偏差、残差、平方与交叉项；对小 P 使用相对误差。500×9 个选中状态核对坐标与有向箭头，短段箭头不超出本段；14份实际导出R也执行检查。全部169个独立R下载脚本（77个章节示例）通过。

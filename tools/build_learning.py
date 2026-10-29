@@ -6,6 +6,10 @@ import re
 def build_learning(root, chapters, doc, esc):
     by_id = {c['id']: c for c in chapters}
     questions = json.loads((root / 'content/practice.json').read_text()) if (root / 'content/practice.json').exists() else []
+    lesson_links = json.loads((root / 'content/practice-links.json').read_text())
+    if set(lesson_links) != {q['id'] for q in questions}:
+        raise ValueError('Every practice question needs exactly one knowledge-point link in practice-links.json.')
+    lesson_titles = {c['id']: {lesson['id']: lesson['title'] for lesson in c['lessons']} for c in chapters}
     chapter_order = {c['id']: i for i, c in enumerate(chapters)}
     questions.sort(key=lambda q: (chapter_order[q['chapter']], q['id']))
     resources = json.loads((root / 'content/resources.json').read_text())
@@ -14,12 +18,19 @@ def build_learning(root, chapters, doc, esc):
     cards = []
     for n, q in enumerate(questions, 1):
         qid = q['id']
+        anchor = lesson_links[qid]
+        if anchor not in lesson_titles[q['chapter']]:
+            raise ValueError(f'Unknown knowledge-point link for {qid}: {anchor}')
+        lesson_title = lesson_titles[q['chapter']][anchor]
         if q['type'] == 'choice':
             inputs = '<fieldset><legend>选择一个答案</legend>' + ''.join(f'<label class="answer-option"><input type="radio" name="answer" value="{i}"><span>{esc(option)}</span></label>' for i, option in enumerate(q['options'])) + '</fieldset>'
         else:
             inputs = f'<label for="answer-{qid}">填写数值{(" · " + esc(q.get("unit", ""))) if q.get("unit") else ""}</label><input id="answer-{qid}" name="answer" type="text" inputmode="decimal" autocomplete="off" class="study-input" placeholder="按下方误差要求填写数值"><p class="status">允许绝对误差 ±{esc(str(q.get("tolerance", 0.001)))}。</p>'
         if q.get('integer'):
             inputs = inputs.replace('按下方误差要求填写数值', '请输入整数').replace(f'允许绝对误差 ±{q.get("tolerance", 0.001)}。', '答案必须是整数。')
+        # Enable answering only after the client has installed its handlers.
+        # A missing/failed script must never turn checking into a GET reload.
+        inputs = inputs.replace('<input ', '<input disabled ')
         steps = ''.join(f'<li><h4>{esc(s["title"])}</h4>{s["body"]}</li>' for s in q['steps'])
         source = q['source']
         rcode = q.get('rCode', '').replace('\\n', '\n')
@@ -33,22 +44,23 @@ def build_learning(root, chapters, doc, esc):
         cards.append(f'''<article class="exercise" id="{qid}" data-question="{qid}" data-chapter="{q['chapter']}" data-level="{q['level']}">
 <div class="exercise-meta"><span>{n:02d} / Ch {"1–3" if q['chapter'] == '01' else int(q['chapter'])} · {esc(q['level'])}</span><span class="exercise-state">尚未作答</span></div>
 <h2>{esc(q['title'])}</h2><div class="exercise-prompt">{q['prompt']}</div><p class="status">{' · '.join(esc(t) for t in q['tags'])}</p>
-<form class="answer-form">{inputs}<div class="study-actions"><button type="submit">检查答案</button><button type="button" class="secondary bookmark" aria-pressed="false">加入复习</button></div><p class="answer-feedback" role="status" aria-live="polite"></p></form>
+<form class="answer-form"><p class="answer-availability status">自动判题需要 JavaScript；按钮未启用时，可直接阅读下方提示、完整解析与 R。</p>{inputs}<div class="study-actions"><button type="submit" disabled>检查答案</button><button type="button" class="secondary bookmark" aria-pressed="false" disabled>加入复习</button></div><p class="answer-feedback" role="status" aria-live="polite"></p></form>
 <details class="exercise-hint"><summary>先给我一个提示</summary><p>{esc(q['hint'])}</p></details>
 <details class="exercise-solution"><summary>展开完整解题过程</summary><ol class="solution-steps">{steps}</ol><div class="solution-tail"><p class="solution-conclusion"><b>结论：</b>{q['conclusion']}</p><p class="pitfall"><b>易错点：</b>{q['pitfall']}</p>{alternatives}{code}</div></details>
-<p class="exercise-source">题型参考：{esc(source['file'])} · {esc(source['locator'])}。{esc(source['note'])}。<a href="chapters/{q['chapter']}.html">回到这一章</a></p></article>''')
+<p class="exercise-source">题型参考：{esc(source['file'])} · {esc(source['locator'])}。{esc(source['note'].rstrip('。'))}。<a href="chapters/{q['chapter']}.html#{esc(anchor)}">回到对应知识点：{esc(lesson_title)}</a></p></article>''')
         searches.append({'chapter': '练习工坊', 'title': q['title'], 'text': re.sub('<[^>]+>', ' ', q['prompt'] + ' ' + ' '.join(q['tags'])), 'url': f'practice.html#{qid}'})
     grading = {q['id']: {k: q[k] for k in ('type', 'answer', 'tolerance', 'integer', 'optionExplanations', 'commonMistakes') if k in q} for q in questions}
     practice = f'''<main id="main" class="wrap study-page"><div class="study-heading"><h1>把“看懂了”变成“会做了”。</h1><p class="study-lead">{len(questions)} 道分层练习，从方法选择到完整推断。先独立作答，再按需打开提示、逐步解析和 R 复现。</p><p class="status">根据 Homework 0–8、Quiz 1–9 的题型及后续课件原创改编。数值和情境已重写；不作为课程原题答案。</p></div>
 <div id="practice-app"><div class="study-toolbar"><label>章节<select id="practice-chapter"><option value="all">全部章节</option>{options}</select></label><label>难度<select id="practice-level"><option value="all">全部难度</option><option>基础</option><option>应用</option><option>综合</option></select></label><label>练习状态<select id="practice-status"><option value="all">全部题目</option><option value="unanswered">尚未作答</option><option value="review">待复习</option><option value="correct">已答对</option></select></label><label>搜索题型<input id="practice-search" type="search" placeholder="例如：power、配对"></label></div>
-<p class="status">也可搜索 Homework_6、Quiz_9 等材料编号，定位对应题型。</p><div class="practice-dashboard"><p id="practice-progress" aria-live="polite">进度仅保存在此浏览器。</p><progress id="practice-meter" max="{len(questions)}" value="0" aria-label="已答对的题目比例"></progress><div class="study-actions"><button id="mixed-practice" class="secondary">综合自测 · 每章抽一题</button><button id="all-practice" class="secondary">显示全部题目</button></div><p class="status" id="practice-storage" aria-live="polite"></p></div><p id="practice-result-count" role="status"></p><p id="practice-empty" hidden>没有符合条件的题目。调整筛选，或点击“显示全部题目”。</p><noscript><p class="notice">当前未启用 JavaScript，自动判题与筛选不可用；所有题目、提示、解析与 R 代码仍可阅读。</p></noscript><div class="exercise-list">{''.join(cards)}</div></div>
+<p class="status">也可搜索 Homework_6、Quiz_9 等材料编号，定位对应题型。</p><div class="practice-dashboard"><p id="practice-progress" aria-live="polite">进度仅保存在此浏览器。</p><progress id="practice-meter" max="{len(questions)}" value="0" aria-label="已答对的题目比例"></progress><div class="study-actions"><button id="mixed-practice" class="secondary">综合自测 · 每章抽一题</button><button id="all-practice" class="secondary">显示全部题目</button></div><p class="status">刷新综合自测会开始新一轮；累计记录与本轮得分分开计算。</p><p class="status" id="practice-storage" aria-live="polite"></p></div><p id="practice-result-count" role="status"></p><p id="practice-empty" hidden>没有符合条件的题目。调整筛选，或点击“显示全部题目”。</p><noscript><p class="notice">当前未启用 JavaScript，自动判题与筛选不可用；所有题目、提示、解析与 R 代码仍可阅读。</p></noscript><div class="exercise-list">{''.join(cards)}</div></div>
 <script type="application/json" id="practice-grading">{json.dumps(grading, ensure_ascii=False).replace('<', chr(92)+'u003c')}</script></main>'''
     (root / 'practice.html').write_text(doc('练习工坊', practice))
-    labs = '''<main id="main" class="wrap study-page"><div class="study-heading"><h1>让公式动起来。</h1><p class="study-lead">先做预测，再调整一个参数，最后解释变化。四个工作台连接分布、研究设计、数据与推断；十个章节实验继续留在正文中。</p></div><nav class="study-jumps" aria-label="实验目录"><a href="#chooser">方法选择</a><a href="#distribution">分布与尾概率</a><a href="#two-sample">两样本分析</a><a href="#diagnostics">模型诊断</a><a href="#chapter-labs">章节实验</a></nav>
+    labs = '''<main id="main" class="wrap study-page"><div class="study-heading"><h1>让公式动起来。</h1><p class="study-lead">先做预测，再调整一个参数，最后解释变化。五个工作台连接分布、研究设计、数据与推断；十个章节实验继续留在正文中。</p></div><nav class="study-jumps" aria-label="实验目录"><a href="#chooser">方法选择</a><a href="#distribution">分布与尾概率</a><a href="#two-sample">两样本分析</a><a href="#diagnostics">模型诊断</a><a href="#contrasts">线性对比</a><a href="#chapter-labs">章节实验</a></nav>
 <section id="chooser" class="workbench-section"><h2>01 · 从研究问题选择方法</h2><p>先确定目标、设计和独立单位。向导提供学习入口；最终分析还需要研究背景与模型诊断。</p><div data-workbench="chooser"><p>启用 JavaScript 使用向导，或查阅<a href="handbook.html#method-map">静态方法速查表</a>。</p></div></section>
 <section id="distribution" class="workbench-section"><h2>02 · 临界值、尾概率与 P-value</h2><p>挑战：保持 statistic 不变，把 normal 换成 df=5 的 t。尾部发生什么变化？接着改变 α，判断 rejection rule 如何移动。</p><div data-workbench="distribution"><p>启用 JavaScript 操作。分布与尾概率的完整解释在<a href="chapters/05.html#testing">假设检验</a>。</p></div></section>
 <section id="two-sample" class="workbench-section"><h2>03 · 同样的数据，不同的实验结构</h2><p>挑战：保持两列数值不变，比较 Welch、pooled 与 paired。SE 为什么不同？只有研究本身存在一一配对时，paired 才合法。</p><div data-workbench="two-sample"><p>启用 JavaScript 输入数据，或阅读<a href="chapters/06.html">两样本推断的完整手算例子</a>。</p></div></section>
 <section id="diagnostics" class="workbench-section"><h2>04 · 用残差诊断模型</h2><p>挑战：先观察 Q–Q，再观察 residual vs fitted。一个图接近直线，能否保证另一个条件也成立？不同图回答不同问题。</p><div data-workbench="diagnostics"><p>启用 JavaScript 切换场景，或阅读<a href="chapters/08.html#diagnostics">诊断讲解</a>。</p></div></section>
+<section id="contrasts" class="workbench-section"><h2>05 · 从 coefficients 到 simultaneous intervals</h2><p>挑战：全部均值一起平移，为什么 contrast 不变？改变样本量后，为什么两个原本正交的比较不再正交？</p><div data-contrast-lab><p>启用 JavaScript 编辑四组均值、样本量和系数；完整计算与可运行 R 示例见<a href="chapters/09.html#contrast">线性组合与 contrast</a>、<a href="chapters/09.html#procedures">比较方法</a>。</p></div></section>
 <section class="lesson" id="chapter-labs"><h2>继续进入十个章节实验</h2><div class="lab-directory">'''
     lab_names = [('01', 'summary', '数据、分箱与异常值'), ('04', 'probability', 'Binomial 与反复抽样的 CLT'), ('05', 'inference', 'α / β / power 与 CI 重复覆盖'), ('06', 'paired', 'Pairing 与 covariance'), ('07', 'variance', 'χ² 与不对称的 variance CI'), ('08', 'anova', '组间信号与组内 noise'), ('09', 'multiple', '比较次数与 FWER'), ('14', 'factorial', 'Simple effects 与 interaction'), ('15', 'design', 'Blocking 与 Latin square'), ('11', 'regression', 'Least squares、CI 与 PI')]
     labs += ''.join(f'<a href="chapters/{cid}.html#lab-{key}"><span>Ch {"1–3" if cid == "01" else int(cid)}</span>{title} →</a>' for cid, key, title in lab_names)

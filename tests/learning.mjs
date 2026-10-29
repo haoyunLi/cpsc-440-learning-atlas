@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {gradeAnswer, answerFeedback} from '../assets/learning.mjs';
+import {gradeAnswer, answerFeedback, practiceLocation} from '../assets/learning.mjs';
 
 const questions = JSON.parse(readFileSync(new URL('../content/practice.json', import.meta.url), 'utf8'));
 assert.ok(questions.length >= 40, 'The course bank must cover the planned problem families.');
@@ -31,4 +31,18 @@ assert.ok(questions.filter(q => q.commonMistakes?.length).length >= 15);
 assert.equal(gradeAnswer({type:'numeric',answer:-2,tolerance:.001}, '−2').correct, true);
 assert.equal(gradeAnswer({type:'numeric',answer:.002,tolerance:.00001}, '2e-3').correct, true);
 assert.equal(gradeAnswer({type:'numeric',answer:62,tolerance:.01,integer:true}, '61.995').correct, false);
+const previousLocation = 'https://example.org/cpsc-440-learning-atlas/practice.html?chapter=07&q=variance&answer=16#p11-04';
+assert.equal(practiceLocation(previousLocation, {mixed:true}), 'https://example.org/cpsc-440-learning-atlas/practice.html?mode=mixed');
+assert.equal(practiceLocation(previousLocation), 'https://example.org/cpsc-440-learning-atlas/practice.html');
+const filtered = new URL(practiceLocation(previousLocation, {chapter:'05', level:'综合', status:'review', query:' power '}));
+assert.equal(filtered.searchParams.get('chapter'), '05');
+assert.equal(filtered.searchParams.get('level'), '综合');
+assert.equal(filtered.searchParams.get('status'), 'review');
+assert.equal(filtered.searchParams.get('q'), 'power');
+assert.equal(filtered.searchParams.has('answer'), false);
+assert.equal(filtered.hash, '');
+const revealed = new URL(practiceLocation(previousLocation, {chapter:'11', mixed:true, question:'p11-04'}));
+assert.equal(revealed.searchParams.get('chapter'), '11');
+assert.equal(revealed.searchParams.has('mode'), false);
+assert.equal(revealed.hash, '#p11-04');
 console.log(`${questions.length} practice records validated; grading accepts signed/scientific numbers and rejects invalid answers.`);

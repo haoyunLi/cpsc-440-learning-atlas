@@ -2,6 +2,16 @@ const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const key = 'cpsc440-practice-v1';
 
+export function practiceLocation(href, { chapter = 'all', level = 'all', status = 'all', query = '', mixed = false, question = '' } = {}) {
+  const url = new URL(href);
+  for (const name of ['chapter', 'level', 'status', 'q', 'mode', 'answer']) url.searchParams.delete(name);
+  for (const [name, value] of Object.entries({ chapter, level, status })) if (value !== 'all') url.searchParams.set(name, value);
+  if (query.trim()) url.searchParams.set('q', query.trim());
+  if (mixed && !question) url.searchParams.set('mode', 'mixed');
+  url.hash = question ? '#' + question : '';
+  return url.href;
+}
+
 export function gradeAnswer(question, raw) {
   if (raw == null || String(raw).trim() === '') return {valid: false, correct: false};
   const normalized = String(raw).trim().replace(/−/g, '-');
@@ -94,6 +104,14 @@ if (typeof document !== 'undefined') {
       $('#practice-empty').hidden = count > 0;
     }
     function resetFilters() { ['chapter', 'level', 'status'].forEach(k => $('#practice-'+k).value = 'all'); $('#practice-search').value = ''; }
+    function syncLocation(question = '') {
+      const href = practiceLocation(location.href, {
+        chapter: $('#practice-chapter').value, level: $('#practice-level').value, status: $('#practice-status').value,
+        query: $('#practice-search').value, mixed: !!session, question
+      });
+      // Replace the current entry so typing a search does not flood history.
+      if (href !== location.href) history.replaceState(null, '', href);
+    }
     cards.forEach(c => {
       $('.answer-form', c).addEventListener('submit', event => {
         event.preventDefault();
@@ -110,9 +128,10 @@ if (typeof document !== 'undefined') {
       });
       $('.bookmark', c).addEventListener('click', () => { records[c.id] = {...record(c.id), bookmark: !record(c.id).bookmark}; save(); updateDashboard(); });
     });
-    $$('.study-toolbar input, .study-toolbar select', app).forEach(el => el.addEventListener('input', filter));
-    function mixed() {
-      resetFilters(); session = new Set(); sessionRecords = {};
+    $$('.study-toolbar input, .study-toolbar select', app).forEach(el => el.addEventListener('input', () => { filter(); syncLocation(); }));
+    function mixed(reset = true, sync = true) {
+      if (reset) resetFilters();
+      session = new Set(); sessionRecords = {};
       [...new Set(cards.map(c => c.dataset.chapter))].forEach(ch => { const pool = cards.filter(c => c.dataset.chapter === ch); session.add(pool[Math.floor(Math.random() * pool.length)].id); });
       cards.filter(c => session.has(c.id)).forEach(c => {
         $('.answer-form', c).reset();
@@ -121,16 +140,34 @@ if (typeof document !== 'undefined') {
         $$('details', c).forEach(d => d.open = false);
       });
       updateDashboard(); filter();
+      if (sync) syncLocation();
     }
-    $('#mixed-practice').addEventListener('click', mixed);
-    $('#all-practice').addEventListener('click', () => { session = null; resetFilters(); updateDashboard(); filter(); });
+    $('#mixed-practice').addEventListener('click', () => mixed());
+    $('#all-practice').addEventListener('click', () => { session = null; resetFilters(); updateDashboard(); filter(); syncLocation(); });
     const params = new URLSearchParams(location.search);
-    if ([...$('#practice-chapter').options].some(o => o.value === params.get('chapter'))) $('#practice-chapter').value = params.get('chapter');
+    for (const name of ['chapter', 'level', 'status']) {
+      const select = $('#practice-' + name);
+      if ([...select.options].some(o => o.value === params.get(name))) select.value = params.get(name);
+    }
     if (params.get('q')) $('#practice-search').value = params.get('q');
     updateDashboard(); filter();
-    if (params.get('mode') === 'mixed') mixed();
-    function revealHash() { const card = cards.find(c => '#'+c.id === location.hash); if (card) { session = null; resetFilters(); $('#practice-chapter').value = card.dataset.chapter; filter(); updateDashboard(); card.scrollIntoView({block: 'start'}); } }
-    revealHash(); window.addEventListener('hashchange', revealHash);
+    if (params.get('mode') === 'mixed') mixed(false, false);
+    function revealHash() {
+      const card = cards.find(c => '#' + c.id === location.hash);
+      if (card) {
+        session = null; resetFilters(); $('#practice-chapter').value = card.dataset.chapter;
+        filter(); updateDashboard(); syncLocation(card.id); card.scrollIntoView({block: 'start'});
+        return true;
+      }
+      return false;
+    }
+    if (!revealHash()) syncLocation();
+    window.addEventListener('hashchange', revealHash);
+    // Static HTML stays readable and safe if the module fails to load or start.
+    cards.forEach(card => {
+      $$('.answer-form input, .answer-form button', card).forEach(control => control.disabled = false);
+      $('.answer-availability', card).hidden = true;
+    });
   }
   const glossary = $('#glossary-search');
   if (glossary) glossary.addEventListener('input', () => { let n = 0; $$('.glossary > div').forEach(el => { el.hidden = !el.textContent.toLowerCase().includes(glossary.value.trim().toLowerCase()); if (!el.hidden) n++; }); $('#glossary-count').textContent = `找到 ${n} 个术语`; });

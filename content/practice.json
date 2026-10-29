@@ -3044,5 +3044,251 @@
         "feedback": "45与power.t.test默认双样本双侧设计的每组样本量一致。本题必须显式指定one.sample与one.sided，目标是总计19个独立观测。"
       }
     ]
+  },
+  {
+    "id": "p09-04",
+    "chapter": "09",
+    "title": "t²=F 保留双侧证据，却丢失比较方向",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "contrast",
+      "t squared equals F",
+      "one-sided inference"
+    ],
+    "source": {
+      "file": "PPT/Chapter_9.pptx",
+      "locator": "slides 14–18（contrast 的 t 与 1-df F 检验）",
+      "note": "原创改编，非原题答案；估计值、SE 与自由度重新设计。"
+    },
+    "prompt": "一个事先选定的 contrast 为 L=μA−μB，原 ANOVA 模型给出 L̂=−3、SE(L̂)=1.25、error df=16。研究预先指定 H₀:L≤0 对 Hₐ:L>0，α=.05。关于 t=−2.4 与 F=t²=5.76，哪个判断正确？假定共同方差、独立正态误差模型成立。",
+    "options": [
+      "F 的右尾 P≈.02892，所以预定的 L>0 单侧检验也在 .05 下拒绝。",
+      "F 的右尾 P≈.02892 等于双侧 t 的 P；预定右侧 t 的 P≈.98554，不能据此支持 L>0。",
+      "t 为负，所以它不能平方为有效的 F 统计量；应该把 F 改成 −5.76。",
+      "看到 t<0 后可改检验 L<0，并仍声称这是原先规定的 α=.05 单侧检验。"
+    ],
+    "answer": 1,
+    "unit": "",
+    "hint": "F 只记录离 0 多远。右侧 t 检验还需要保留 L̂ 的符号，并对预先规定的方向取尾概率。",
+    "steps": [
+      {
+        "title": "保留 contrast 的定义与方向",
+        "body": "L=μA−μB，因此 L̂=−3 表示样本中 A 比 B 低。t=(−3−0)/1.25=−2.4，与预设 Hₐ:L>0 的方向相反。"
+      },
+      {
+        "title": "辨认平方所对应的零假设比较",
+        "body": "F=t²=5.76，df=(1,16)。平方将 t=−2.4 与 +2.4 合为同一个 F，所以 F 右尾覆盖两种方向；P(F₁,₁₆≥5.76)=2P(t₁₆≥2.4)≈.0289193。"
+      },
+      {
+        "title": "按原先规定的 alternative 取尾",
+        "body": "本题右侧 P=P(t₁₆≥−2.4)≈.9855404，而不是 .0289193 或它的一半。在 α=.05 下不拒绝 H₀，数据不支持预设的正向差异。"
+      },
+      {
+        "title": "解释等价关系的边界",
+        "body": "若问题原先是 H₀:L=0 对 Hₐ:L≠0，双侧 t 与 1-df F 的决策一致。左侧 P≈.0144596 是另一个方向的问题；不能看完估计符号后换方向，再沿用原单侧检验的错误率声明。"
+      }
+    ],
+    "conclusion": "1-df F 与对应的双侧 t 检验等价；本题预定右侧检验 P≈.98554，不能支持 L>0。",
+    "pitfall": "“F 总取右尾”描述 F 统计量的参考分布，不表示 contrast 的科学问题是正方向单侧。估计方向需要从 L̂ 或 t 的符号读取。",
+    "rCode": "estimate <- -3\nse <- 1.25\nerror_df <- 16\nt_observed <- estimate/se\nF_observed <- t_observed^2\np_two <- 2*pt(-abs(t_observed), df=error_df)\np_F <- pf(F_observed, df1=1, df2=error_df, lower.tail=FALSE)\n# The alternative was fixed as L > 0 before observing the estimate.\np_right <- pt(t_observed, df=error_df, lower.tail=FALSE)\np_left <- pt(t_observed, df=error_df)\nprint(c(t=t_observed, F=F_observed, p_two_sided=p_two,\n        p_F=p_F, p_prespecified_right=p_right, p_left=p_left))\nstopifnot(isTRUE(all.equal(p_two,p_F)), p_right>.05)",
+    "optionExplanations": [
+      "这个 P 的数值是双侧证据：F 把负、正两个方向的极端 t 都算进去。它不能替代预定 L>0 的右侧概率；当前负估计恰好指向相反方向。",
+      "正确。F 的右尾等于双侧 t 概率；预定的右侧 t 应从 −2.4 积到正无穷，概率约 .98554，所以没有支持正向差异的证据。",
+      "平方后的统计量非负，负 t 完全可以得到有效的正 F。F=5.76 丢掉的是符号，而不是有效性；负 F 不是这里的参考统计量。",
+      "方向由研究问题预先规定。根据观测结果把右侧改成左侧会改变检验规则，不能把改后的结论说成原先单侧方案的结果。"
+    ]
+  },
+  {
+    "id": "p14-04",
+    "chapter": "14",
+    "title": "三因素 Brown–Forsythe 应把哪些观测分为一组",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "factorial",
+      "Brown–Forsythe",
+      "cell grouping",
+      "degrees of freedom"
+    ],
+    "source": {
+      "file": "PPT/Chapter_14.pptx",
+      "locator": "slides 37–39；class notes pp.31–34",
+      "note": "原创改编，非原题答案；改为3×2×2、每cell五个独立单位。"
+    },
+    "prompt": "完整 3×2×2 factorial CRD，每个 A×B×C cell 有5个独立观测，总 N=60。为了检查所有完整 cells 的 spread，先令 Z 为观测到本 cell median 的绝对偏差，再对 Z 做 Brown–Forsythe 的整体组间 ANOVA。正确的分组方式和（numerator df, error df）是哪项？",
+    "options": [
+      "只按 A 的3个水平分组；df=(2,57)。",
+      "按 A×B×C 的12个完整 combinations 分组；df=(11,48)。",
+      "直接使用原始 factorial ANOVA 的 ABC 单项；df=(2,48)。",
+      "把60个独立观测各作为一个组；df=(59,0)，仍可直接计算普通 F 检验。"
+    ],
+    "answer": 1,
+    "unit": "",
+    "hint": "要检查多少种完整实验条件的 spread，就需要多少个 cell 标签。组间检验的 df 是“完整cell数−1”，不是最高阶 interaction 单项的 df。",
+    "steps": [
+      {
+        "title": "明确诊断所比较的组",
+        "body": "条件由三个因素共同定义，完整 cell 数 k=3×2×2=12。每一组是固定一个 A、一个 B、一个 C 的五个独立观测。"
+      },
+      {
+        "title": "先去掉每个 cell 自己的中心",
+        "body": "构造 Z=|Y−本cell的median|。只按 A 分组会把不同 B/C 条件下的中心变化混入 spread，不能代替完整12格的诊断。"
+      },
+      {
+        "title": "计算两项自由度",
+        "body": "整体比较12个 Z means，numerator df=k−1=11。各cell内剩余 df=12×(5−1)=48，也等于60−12；两项相加为总df=59。"
+      },
+      {
+        "title": "与 ABC interaction 检验区分",
+        "body": "ABC 单项 df=(3−1)(2−1)(2−1)=2，检验的是均值模型中特定的高阶 interaction；它不是12个 cell spread 的整体比较。F参考在 Brown–Forsythe 中是近似，分组正确也不能证明其他模型条件。"
+      }
+    ],
+    "conclusion": "使用12个完整 cell labels，转换后整体 F 的自由度为(11,48)。",
+    "pitfall": "不是把 factorial 表的每一行都各做一次“方差检验”；也不是直接比较 residual 的组均值。应对 median-centered absolute deviations 作对应的整体比较。",
+    "rCode": "# Complete original 3-by-2-by-2 design with five independent units per cell.\nd <- expand.grid(A=factor(1:3), B=factor(1:2), C=factor(1:2),\n                 replicate=1:5)\nd$cell <- interaction(d$A,d$B,d$C,drop=TRUE)\nscales <- c(1,1,1,1,1,1,2,2,2,3,3,3)\nd$y <- 2*as.integer(d$cell) +\n       rep(scales,times=5)*rep(c(-2,-1,0,1,2),each=12)\nd$z <- abs(d$y-ave(d$y,d$cell,FUN=median))\nprint(table(d$cell))\nfit <- aov(z~cell,data=d)\nprint(summary(fit))\nprint(c(cells=nlevels(d$cell), numerator_df=nlevels(d$cell)-1,\n        error_df=df.residual(fit), pure_ABC_df=(3-1)*(2-1)*(2-1)))\nstopifnot(nlevels(d$cell)==12,df.residual(fit)==48)",
+    "optionExplanations": [
+      "这会把每个 A 下的四种 B/C 条件混在一起。虽然三组的普通 one-way df 确为(2,57)，它对应的分组目标与本题的12个完整cells不同。",
+      "正确。十二个完整cells各保留五个观测，转换后比较十二个Z均值：组间11df、组内12×4=48df。",
+      "2是纯ABC interaction的df，但整体cell比较需要11df。原始响应的ABC行检验均值交互，既没有使用正确转换后的响应，也没有覆盖整个spread比较。",
+      "每个观测单独分组会使组内没有重复，error df为0、MSE无法估计；观测彼此独立并不意味着每个观测应成为单独treatment group。"
+    ]
+  },
+  {
+    "id": "p15-05",
+    "chapter": "15",
+    "title": "同一组 random blocks 让差值中的环境误差抵消",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "random block",
+      "covariance",
+      "standard error",
+      "RCBD"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 15 - 2022 Fall.pdf",
+      "locator": "pp.21–23（variance components、means 与 differences 的 SE）",
+      "note": "原创改编，非原题答案；改用六个blocks及新的方差分量。"
+    },
+    "prompt": "平衡 RCBD 有4个固定 treatments 和6个独立随机 blocks，每个 treatment 在每个 block 出现一次。加性模型给出 σ̂B²=20、σ̂e²=9，各实验误差彼此独立，且与random blocks独立。A与B使用完全相同的6个blocks。估计 treatment mean difference ȲB−ȲA 的 SE 是多少？输入SE，不是variance；可保留至少两位小数。",
+    "answer": 1.7320508075688772,
+    "tolerance": 0.005,
+    "unit": "SE（响应单位）",
+    "hint": "两个 treatment means 含有同一个 block 平均效应，因此有正 covariance。Var(B−A)=Var(B)+Var(A)−2Cov(A,B)。",
+    "steps": [
+      {
+        "title": "先算单个均值的方差",
+        "body": "每个 treatment mean 都平均了6个blocks。其估计方差为(σ̂B²+σ̂e²)/6=(20+9)/6=29/6；这还不是差值的方差。"
+      },
+      {
+        "title": "保留共享背景形成的 covariance",
+        "body": "A与B经历同一组blocks，Cov(ȲA,ȲB)=σ̂B²/6=20/6。不能把两个均值当独立而删掉这项。"
+      },
+      {
+        "title": "相减后取平方根",
+        "body": "Var(ȲB−ȲA)=2×29/6−2×20/6=18/6=3；因此SE=√3≈1.732051。等价简式为√(2σ̂e²/b)。"
+      },
+      {
+        "title": "解释公式的适用范围",
+        "body": "block项抵消依靠相同且同权的完整blocks，以及additivity。若两处理在不同blocks或存在缺失cell，就不能不经重新推导直接沿用这一SE；4个treatments的总N=24也不是这里平均每个处理的6个独立blocks。"
+      }
+    ],
+    "conclusion": "同blocks的A/B均值差SE≈1.73205；环境总体的共同起伏在差中抵消，但实验误差仍保留。",
+    "pitfall": "单个 treatment mean 的SE约2.19848，不能直接当作均值差SE；把两个mean视为独立还会得到约3.10913，遗漏了共享block covariance。",
+    "rCode": "# Supplied ANOVA moment estimates for a balanced, complete random-block model.\nn_treatments <- 4\nn_blocks <- 6\nvariance_block <- 20\nvariance_error <- 9\nvariance_mean <- (variance_block+variance_error)/n_blocks\ncovariance_means <- variance_block/n_blocks\nvariance_difference <- 2*variance_mean-2*covariance_means\nanswer <- sqrt(variance_difference)\nprint(c(variance_mean=variance_mean,covariance_means=covariance_means,\n        variance_difference=variance_difference,answer=answer))\n# Reproduce common alternatives for diagnosis, without using them as the answer.\nprint(c(single_mean_SE=sqrt(variance_mean),\n        incorrectly_independent_means=sqrt(2*variance_mean),\n        one_error_component=sqrt(variance_error/n_blocks),\n        variance_instead_of_SE=variance_difference))\nstopifnot(isTRUE(all.equal(answer,sqrt(2*variance_error/n_blocks))))",
+    "commonMistakes": [
+      {
+        "value": 3.1091263510296048,
+        "tolerance": 0.005,
+        "feedback": "这个值对应把两个mean视为独立，再把各自的方差29/6相加。它漏掉了同一组blocks带来的Cov=20/6；差值方差需要减去2Cov。"
+      },
+      {
+        "value": 2.1984843263788196,
+        "tolerance": 0.005,
+        "feedback": "这个值是单个环境总体treatment mean的SE，包含block抽样项。题目问B−A，两者的共同block项会在差中抵消。"
+      },
+      {
+        "value": 1.224744871391589,
+        "tolerance": 0.005,
+        "feedback": "这个值只保留一个treatment的平均实验误差。B−A仍有两组实验误差贡献，方差为2×9/6，再开平方。"
+      },
+      {
+        "value": 3,
+        "tolerance": 0.005,
+        "feedback": "3是正确的差值variance。题目要求SE，应对3开平方，才能回到响应变量的单位。"
+      }
+    ]
+  },
+  {
+    "id": "p15-06",
+    "chapter": "15",
+    "title": "Latin square 从四份 SS 计算 treatment F",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "Latin square",
+      "sum of squares",
+      "MSE",
+      "F test"
+    ],
+    "source": {
+      "file": "PPT/Chapter_15.pptx",
+      "locator": "slides 42–47；class notes pp.32–36",
+      "note": "原创改编，非原题答案；改为5×5设计并重新设定全部平方和。"
+    },
+    "prompt": "一个完整5×5 Latin square含5个treatments，每种处理在每行、每列各出现一次，共25个独立实验单位。采用additive model，已知corrected total SS=310、row SS=64、column SS=46、treatment SS=128。计算检验treatment均值差异的F统计量。",
+    "answer": 5.333333333333333,
+    "tolerance": 0.01,
+    "unit": "F",
+    "hint": "先用总SS扣除treatment、row、column三项，得到error SS；再分别除以正确df，最后作MS_treatment/MSE。",
+    "steps": [
+      {
+        "title": "完成正交平方和分解",
+        "body": "完整平衡Latin square中，SST=SStrt+SSrow+SScolumn+SSE。所以SSE=310−128−64−46=72；不能只扣treatment。"
+      },
+      {
+        "title": "为三个因素扣除自由度",
+        "body": "总df=25−1=24。treatment、row、column各用5−1=4df，共12df；error df=24−12=12，也等于(5−1)(5−2)。"
+      },
+      {
+        "title": "先求均方，再相除",
+        "body": "MStrt=128/4=32；MSE=72/12=6。因此F=32/6=16/3≈5.333333，参考df=(4,12)。"
+      },
+      {
+        "title": "把统计量解释回研究问题",
+        "body": "在加性、独立正态误差与共同方差等模型条件下，F右尾P≈.0105356；在α=.05下有证据说明至少一个treatment mean不同，但它不识别具体哪些pairs不同，也不检验row或column自身的均值差异。"
+      }
+    ],
+    "conclusion": "正确的treatment F≈5.33333；完整链为SSE=72 → error df=12 → MSE=6 → F=32/6。",
+    "pitfall": "这个F需要同时调整row与column。error df不是CRD的25−5=20；分子是treatment MS，不是未除以4的treatment SS。",
+    "rCode": "# Supplied sums of squares for an original complete five-by-five Latin square.\nt <- 5\nss_total <- 310\nss_row <- 64\nss_column <- 46\nss_treatment <- 128\nss_error <- ss_total-ss_row-ss_column-ss_treatment\ndf_treatment <- t-1\ndf_error <- (t-1)*(t-2)\nms_treatment <- ss_treatment/df_treatment\nmse <- ss_error/df_error\nanswer <- ms_treatment/mse\nprint(c(SS_error=ss_error,df_error=df_error,MS_treatment=ms_treatment,\n        MSE=mse,answer=answer,\n        p_value=pf(answer,df_treatment,df_error,lower.tail=FALSE)))\n# Alternative calculations identify distinct mistakes.\nprint(c(MSE_only=mse,\n        CRD_ignoring_blocks=ms_treatment/((ss_total-ss_treatment)/(t*t-t)),\n        missing_block_SS_subtraction=ms_treatment/((ss_total-ss_treatment)/df_error),\n        numerator_SS_instead_of_MS=ss_treatment/mse,\n        reversed_ratio=mse/ms_treatment))",
+    "commonMistakes": [
+      {
+        "value": 6,
+        "tolerance": 0.01,
+        "feedback": "6是正确的MSE，计算尚未完成。还要把treatment均方128/4=32除以6，得到所求F。"
+      },
+      {
+        "value": 3.5164835164835164,
+        "tolerance": 0.01,
+        "feedback": "这个值与忽略两个区组、按CRD分析一致：error SS变为310−128=182，error df=20。本题要求Latin-square模型，需要单独扣除row与column的SS和df。"
+      },
+      {
+        "value": 2.10989010989011,
+        "tolerance": 0.01,
+        "feedback": "这个值保留了Latin-square的12个error df，却只从总SS扣掉treatment。SSE还应扣除row的64与column的46，得到72。"
+      },
+      {
+        "value": 21.333333333333332,
+        "tolerance": 0.01,
+        "feedback": "这个值用treatment SS=128直接除以MSE。F的分子应是MS_treatment=128/4=32，所以还需要除以treatment df。"
+      },
+      {
+        "value": 0.1875,
+        "tolerance": 0.005,
+        "feedback": "这个值把比值反过来了。用于treatment均值检验的F是MS_treatment/MSE=32/6，分母是误差均方。"
+      }
+    ]
   }
 ]

@@ -87,5 +87,7 @@
   "p14-08": "unbalanced",
   "p11-07": "lack-fit",
   "p15-10": "blocking",
-  "p08-07": "kruskal"
+  "p08-07": "kruskal",
+  "p11-08": "leverage-influence",
+  "p11-09": "leverage-influence"
 }

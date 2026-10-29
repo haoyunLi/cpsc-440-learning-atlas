@@ -4765,5 +4765,126 @@
       }
     ],
     "rCode": "# This teaching function is intentionally limited to three groups of size three.\nkw_three_exact <- function(groups) {\n  stopifnot(is.list(groups),length(groups)==3,\n            all(lengths(groups)==3),all(is.finite(unlist(groups))))\n  y <- unlist(groups,use.names=FALSE)\n  group <- factor(rep(c(\"A\",\"B\",\"C\"),each=3))\n  N <- length(y)\n  ranks <- rank(y,ties.method=\"average\")\n  doubled_ranks <- 2*ranks\n  rank_sums <- as.numeric(tapply(ranks,group,sum))\n  # Count equal numeric values directly, without converting them to labels.\n  tie_sizes <- rle(sort(y))$lengths\n  correction <- 1-sum(tie_sizes^3-tie_sizes)/(N^3-N)\n  if (correction<=0) stop(\"All observations are tied: H/C is undefined.\")\n  raw_H <- 12/(N*(N+1))*sum(rank_sums^2/3)-3*(N+1)\n  corrected_H <- raw_H/correction\n  # With fixed sizes 3,3,3, S=sum((2*R_j)^2) and H=S/90-30.\n  # Integer scores avoid floating-point ambiguity when including an equal boundary.\n  observed_score <- sum((2*rank_sums)^2)\n  expected_allocations <- choose(9,3)*choose(6,3)\n  null_scores <- numeric(expected_allocations)\n  allocation <- 0L\n  for (A in combn(seq_len(N),3,simplify=FALSE)) {\n    remaining <- setdiff(seq_len(N),A)\n    for (B in combn(remaining,3,simplify=FALSE)) {\n      C <- setdiff(remaining,B)\n      allocation <- allocation+1L\n      doubled_sums <- c(sum(doubled_ranks[A]),sum(doubled_ranks[B]),\n                        sum(doubled_ranks[C]))\n      null_scores[allocation] <- sum(doubled_sums^2)\n    }\n  }\n  extreme <- sum(null_scores>=observed_score)\n  exact_P <- extreme/allocation\n  approx_P <- pchisq(corrected_H,df=2,lower.tail=FALSE)\n  # Re-ranking pooled ranks is equivalent and avoids old R decimal-label merging.\n  reference <- kruskal.test(split(ranks,group))\n  stopifnot(allocation==1680,sum(rank_sums)==45,\n            all(doubled_ranks==round(doubled_ranks)),\n            abs(raw_H-(observed_score/90-30))<1e-12,\n            abs(corrected_H-unname(reference$statistic))<1e-12,\n            abs(approx_P-reference$p.value)<1e-12)\n  list(rows=data.frame(record=seq_len(N),group=group,y=y,rank=ranks),\n       summary=data.frame(R_A=rank_sums[1],R_B=rank_sums[2],R_C=rank_sums[3],\n         C=correction,H=raw_H,H_corrected=corrected_H,df=2,\n         chi_square_P=approx_P,extreme=extreme,allocations=allocation,\n         exact_P=exact_P),\n       score_frequency=as.data.frame(table(null_scores)),\n       null_scores=null_scores)\n}\n# A different original tied dataset for transfer practice.\ngroups <- list(A=c(2,2,4),B=c(3,5,5),C=c(4,6,6))\nresult <- kw_three_exact(groups)\nprint(result$rows)\nprint(result$summary,digits=12)\nanswer <- result$summary$H_corrected\n# Verify both the requested statistic and the two reference calculations.\nstopifnot(abs(answer-4.57471264367816)<1e-12,\n          abs(result$summary$H-4.42222222222222)<1e-12,\n          abs(result$summary$C-29/30)<1e-12,\n          result$summary$extreme==204,\n          abs(result$summary$exact_P-17/140)<1e-12,\n          abs(result$summary$chi_square_P-.101534531976956)<1e-12)\n# Incorrect substitutions correspond to specific feedback, not alternative answers.\nprint(c(answer=answer,omitting_correction=result$summary$H,\n        multiplying_correction=result$summary$H*result$summary$C,\n        ignoring_cross_group_tie=result$summary$H/(1-18/(9^3-9))))\n"
+  },
+  {
+    "id": "p11-08",
+    "chapter": "11",
+    "title": "Cook’s distance 用完整模型的 MSE 衡量删除后拟合变化",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "Cook’s distance",
+      "leverage",
+      "residual",
+      "deletion diagnostics"
+    ],
+    "source": {
+      "file": "PPT/Chapter_11.pptx",
+      "locator": "slides 5–11；class notes Chapter 11 pp.8–14",
+      "note": "基于课程线性回归条件、最小二乘及极端观测敏感性的原创练习；Cook公式与删除诊断为本站教学补充，非课程原题答案。"
+    },
+    "prompt": "<p>原创六个观测为 x=[0,1,2,3,4,10]、y=[1,2,5,8,9,5]，用全部数据做含截距的普通最小二乘回归 y=β₀+β₁x+ε。完整模型 n=6、系数个数 p=2（包含截距），error df=n−p=4，MSE=1006/95≈10.5894736842。第6点的 leverage 为 h₆=33/38，原始 residual 为 e₆=−44/19。</p><p>按 <b>Dᵢ=eᵢ²hᵢ/[p·MSE·(1−hᵢ)²]</b> 计算第6点的 Cook’s distance。填写 D₆，保留至少三位小数；本题求诊断量，不是 P-value，也不是要求删除该观测。<a href=\"chapters/11.html#leverage-influence\">先修：leverage、residual 与 influence 的区别</a>。</p>",
+    "answer": 12.701391650099403,
+    "tolerance": 0.001,
+    "unit": "Cook’s D",
+    "hint": "p 是模型估计的系数个数2，不是观测数6或error df=4。平方的是整个(1−h)，MSE来自包含第6点的完整模型。",
+    "steps": [
+      {
+        "title": "先区分位置、偏离与删除后的变化",
+        "body": "h₆≈.868421只由全部x的设计决定；e₆≈−2.315789是第6点到完整拟合线的垂直差。Cook’s distance把残差与leverage结合，衡量删去该点后整条拟合线的变化，不能用其中一个量直接代替。"
+      },
+      {
+        "title": "保留完整模型的误差参照与两个不同自由度角色",
+        "body": "完整模型估计intercept和slope，因此p=2；MSE先以n−p=4为分母求得1006/95。D的公式再除以p，不能把这里的2换成4，也不能改用删除后的MSE。1−h₆=5/38，因此(1−h₆)²=25/1444。"
+      },
+      {
+        "title": "代入并从实际重拟合核对",
+        "body": "D₆=[(44/19)²×(33/38)]/[2×(1006/95)×(5/38)²]=31944/2515≈12.70139165。完整拟合为ŷ≈3.842105+.347368x，删去第6点的敏感性拟合为ŷ₍₋₆₎=.6+2.2x。在原有全部六个x处比较两条线，Σ[ŷⱼ−ŷⱼ₍₋₆₎]²≈269.002105；再除以2×10.589474得到同一个D₆。求和仍包括原第6个x位置。"
+      },
+      {
+        "title": "说明为什么只按残差大小筛点会遗漏影响",
+        "body": "第5点的|e₅|≈3.768421，比第6点的2.315789更大，但D₅≈.170562远小于D₆。第6点的x远离其余点，已将完整拟合线拉向自己；较小的完整模型residual不等于较小的删除影响。该诊断提示核查记录、模型适用范围并报告敏感性，不是证实观测错误或自动删点。"
+      }
+    ],
+    "conclusion": "D₆≈12.701392。第6点的leverage与residual共同造成较大的删除拟合变化；Cook’s distance本身不提供自动删除观测的理由。",
+    "pitfall": "不要把p=2与error df=4混用，不要少平方一个(1−h)，也不要换成删除后的MSE。较大的D不是P-value，也不意味着该点一定测错；所有删除比较应作为透明的敏感性分析。",
+    "commonMistakes": [
+      {
+        "value": 25.4027833001988,
+        "tolerance": 0.001,
+        "feedback": "这个结果与遗漏公式中的系数个数p一致。含截距SLR有两个系数，Cook’s distance的分母还需乘p=2。"
+      },
+      {
+        "value": 1.67123574343413,
+        "tolerance": 0.001,
+        "feedback": "这个结果与分母只保留一次(1−h)一致。本题使用D=e²h/[p·MSE·(1−h)²]，应将整个1−h平方。"
+      },
+      {
+        "value": 6.3506958250497,
+        "tolerance": 0.001,
+        "feedback": "这个结果与把error df=4代入p的位置一致。error df用于SSE/MSE的计算；此处p是包括截距的两个回归系数。"
+      },
+      {
+        "value": 252.189473684211,
+        "tolerance": 0.001,
+        "feedback": "这个结果与把删除后的MSE=.533333代入一致。本题Cook’s distance以完整模型MSE≈10.589474作为共同误差参照。"
+      }
+    ],
+    "rCode": "# Original six-point dataset; fit the same intercept-and-slope model throughout.\nd <- data.frame(x=c(0,1,2,3,4,10),y=c(1,2,5,8,9,5))\nfit <- lm(y ~ x,data=d)\nn <- nrow(d)\np <- fit$rank\nmse <- deviance(fit)/df.residual(fit)\nh <- hatvalues(fit)\ne <- residuals(fit)\ni <- 6L\n# Cook's distance uses the full-model MSE and the number of coefficients.\ncook_formula <- e[i]^2*h[i]/(p*mse*(1-h[i])^2)\ncook_r <- cooks.distance(fit)[i]\n# Evaluate both fitted lines at all six original x values, including the omitted case.\nfit_without <- lm(y ~ x,data=d[-i,])\nfull_fitted <- predict(fit,newdata=d)\nwithout_fitted <- predict(fit_without,newdata=d)\ncook_refit <- sum((full_fitted-without_fitted)^2)/(p*mse)\nprint(c(n=n,p=p,error_df=df.residual(fit),MSE=mse,h=h[i],e=e[i],\n        Cook_formula=cook_formula,Cook_R=cook_r,Cook_refit=cook_refit),digits=12)\nprint(rbind(full=coef(fit),without_case_6=coef(fit_without)),digits=12)\nprint(data.frame(d,residual=e,h=h,Cook=cooks.distance(fit)),digits=10)\nstopifnot(n==6,p==2,df.residual(fit)==4,\n          abs(mse-1006/95)<1e-12,abs(h[i]-33/38)<1e-12,\n          abs(e[i]+44/19)<1e-12,\n          abs(cook_formula-31944/2515)<1e-10,\n          abs(cook_formula-cook_r)<1e-10,\n          abs(cook_formula-cook_refit)<1e-10,\n          which.max(abs(e))==5,which.max(cooks.distance(fit))==6)\n# These incorrect substitutions are diagnostic feedback, not alternative definitions.\nwrong <- c(omitting_p=e[i]^2*h[i]/(mse*(1-h[i])^2),\n           only_one_one_minus_h=e[i]^2*h[i]/(p*mse*(1-h[i])),\n           using_error_df_for_p=e[i]^2*h[i]/(df.residual(fit)*mse*(1-h[i])^2),\n           using_deleted_MSE=e[i]^2*h[i]/\n             (p*(deviance(fit_without)/df.residual(fit_without))*(1-h[i])^2))\nprint(wrong,digits=12)\nstopifnot(max(abs(wrong-c(25.4027833001988,1.67123574343413,\n                          6.3506958250497,252.189473684211)))<1e-9)\n# Deletion is a sensitivity calculation, not permission to discard a valid record.\n"
+  },
+  {
+    "id": "p11-09",
+    "chapter": "11",
+    "title": "高 leverage 但 Cook≈0，仍可能改变估计精度",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "leverage",
+      "zero residual",
+      "Cook’s distance",
+      "slope SE"
+    ],
+    "source": {
+      "file": "PPT/Chapter_11.pptx",
+      "locator": "slides 5–11；class notes Chapter 11 pp.8–14",
+      "note": "基于课程线性回归条件、最小二乘及极端观测敏感性的原创练习；Cook公式与删除诊断为本站教学补充，非课程原题答案。"
+    },
+    "prompt": "<p>原创数据的前五点为 x=[1,2,3,4,5]、y=[2,3,7,7,11]。含截距普通最小二乘拟合得到ŷ=−.6+2.2x；SSE=3.6、Sxx=10。现在加入第六点(x,y)=(9,19.2)，重新拟合同一模型。只有这个新增点恰好落在原拟合线上，前五点并非全部落线。</p><p>为解释模型报告的slope SE，假定固定x下均值关系线性，errors独立正态且具有共同variance。关于本构造例的第6点和拟合结果，哪项正确？<a href=\"chapters/11.html#leverage-influence\">先修：leverage、residual 与 influence 的区别</a>。</p>",
+    "options": [
+      "第6点的leverage很高，因此Cook’s distance必然很大，应直接删除。",
+      "回归系数不变、Cook’s distance为0（数值计算约为0），但leverage仍高；本例模型报告的slope SE由约.346410降为.15。",
+      "第6点的residual为0，因此它的leverage也必为0。",
+      "回归系数不变说明这个点对模型没有任何信息，slope SE也必定不变。"
+    ],
+    "answer": 1,
+    "unit": "",
+    "hint": "Leverage由x计算；Cook衡量删除后拟合值的变化。估计SE还依赖Sxx、误差平方和及error df，不能只看系数是否变动。",
+    "steps": [
+      {
+        "title": "先核对新点确实落在原线，而原样本仍有误差变异",
+        "body": "原线在x=9处给出−.6+2.2×9=19.2，恰好等于新增y。前五点的residuals为[.4,−.8,1,−1.2,.6]，平方和仍为3.6。因此不是所有观测共线导致MSE=0的退化问题。"
+      },
+      {
+        "title": "区分高leverage与零删除影响",
+        "body": "加入后n=6、x̄=4、Sxx=40；h₆=1/6+(9−4)²/40=19/24≈.791667。新增点对原线残差为0，重拟合系数仍为intercept=−.6、slope=2.2，故其e₆=0、D₆=0。R可能给出约10⁻³⁰的浮点结果；这不是实质拟合变化。"
+      },
+      {
+        "title": "使用相同模型重新核算slope SE",
+        "body": "前五点MSE=3.6/(5−2)=1.2，所以SE(b₁)=√(1.2/10)=√.12≈.346410。加入后SSE仍为3.6，但error df=6−2=4、MSE=.9，且Sxx增至40，所以模型报告SE(b₁)=√(.9/40)=.15。系数的点估计不变，不要求它的标准误也不变。"
+      },
+      {
+        "title": "限定结论与下一步行动",
+        "body": "本题只证明这个构造例中，零Cook拟合影响与较高leverage、改变后的SE可以同时发生。不能推广为任何新增观测都会提高精度，也不能仅凭高h自动删点。实际应核查记录、该x是否属于目标范围及直线与共同variance条件是否合理。"
+      }
+    ],
+    "conclusion": "第6点h≈.791667而D=0；本例系数不变，但模型报告的slope SE从约.346410变为.15。拟合影响与精度变化是不同问题。",
+    "pitfall": "Residual=0不意味着h=0；Cook=0只说明相应删除没有改变拟合线，不表示所有误差估计和区间宽度均不变。SE下降是本构造例与所述模型下的计算结果，不是“加点永远更精确”的保证。",
+    "optionExplanations": [
+      "高leverage表示x在设计中较突出，只说明该点有改变拟合的潜力；本例新增点恰好落在原线，系数不变且Cook=0。诊断量也不能自动触发删除。",
+      "正确。h₆=19/24只由x决定；e₆=0使删除该点不改变系数和拟合值。Sxx及error df仍改变，因此本例slope SE从√(1.2/10)变为√(.9/40)。",
+      "Residual衡量y相对拟合值的偏离，leverage由x相对设计中心的位置决定。新增点虽e₆=0，但x=9离其他x较远，h₆仍为19/24。",
+      "回归系数只是点估计。新增点会改变设计的Sxx及残差自由度；本例SSE虽不变，MSE从1.2变为.9，因此标准误改变，不能据Cook=0断言没有任何信息。"
+    ],
+    "rCode": "# Original constructed data: only the sixth point lies exactly on the five-point fit.\nd <- data.frame(x=c(1,2,3,4,5,9),y=c(2,3,7,7,11,19.2))\nfit_five <- lm(y ~ x,data=d[1:5,])\nfit_six <- lm(y ~ x,data=d)\noriginal_sixth_prediction <- predict(fit_five,newdata=d[6,,drop=FALSE])\nh6 <- hatvalues(fit_six)[6]\ne6 <- residuals(fit_six)[6]\nD6 <- cooks.distance(fit_six)[6]\nsummary_row <- function(fit,x) {\n  mse <- deviance(fit)/df.residual(fit)\n  Sxx <- sum((x-mean(x))^2)\n  c(SSE=deviance(fit),error_df=df.residual(fit),MSE=mse,Sxx=Sxx,\n    slope_SE=sqrt(mse/Sxx))\n}\ncomparison <- rbind(five=summary_row(fit_five,d$x[1:5]),\n                    six=summary_row(fit_six,d$x))\nprint(rbind(five=coef(fit_five),six=coef(fit_six)),digits=12)\nprint(comparison,digits=12)\nprint(c(original_prediction_at_9=original_sixth_prediction,\n        h6=h6,e6=e6,Cook6=D6),digits=12)\n# The first five observations retain nonzero residual variation.\nstopifnot(abs(deviance(fit_five)-3.6)<1e-12,\n          abs(deviance(fit_six)-3.6)<1e-12,\n          max(abs(coef(fit_five)-c(-.6,2.2)))<1e-12,\n          max(abs(coef(fit_six)-coef(fit_five)))<1e-12,\n          abs(original_sixth_prediction-19.2)<1e-12,\n          abs(h6-19/24)<1e-12,abs(e6)<1e-12,abs(D6)<1e-20,\n          abs(comparison['five','slope_SE']-sqrt(.12))<1e-12,\n          abs(comparison['six','slope_SE']-.15)<1e-12,\n          abs(summary(fit_six)$coefficients['x','Std. Error']-.15)<1e-12)\n# These SEs describe this constructed dataset under the stated regression model.\n# They do not imply that every added observation reduces the estimated SE.\n"
   }
 ]

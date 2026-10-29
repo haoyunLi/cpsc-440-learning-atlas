@@ -9,10 +9,10 @@ fit <- lm(y ~ x)
 # Compare the full fit with a documented sensitivity fit.
 coef(fit)
 coef(lm(y[-6] ~ x[-6]))
-# Examine predictor leverage, scaled residuals, and influence together.
+# Examine predictor leverage, raw residuals, and influence together.
 data.frame(x=x,y=y,
   leverage=hatvalues(fit),
-  studentized_residual=rstudent(fit),
+  raw_residual=residuals(fit),
   cooks_distance=cooks.distance(fit))
 plot(x,y,pch=16,xlab="x",ylab="y")
 abline(fit,col="firebrick",lwd=2)

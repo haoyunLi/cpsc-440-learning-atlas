@@ -877,25 +877,29 @@
       "locator": "Q2a",
       "note": "原创改编，非原题答案；数值与情境已重新设计。"
     },
-    "prompt": "11 次独立等待时间为 20,21,22,23,24,25,26,27,28,18,19 分钟。检验总体 median 是否大于 20；等于 20 的观测被排除。右尾精确 P-value 是多少？",
+    "prompt": "11 次独立同分布的等待时间为 20,21,22,23,24,25,26,27,28,18,19 分钟。采用删零后的条件符号检验：令 p₊=P(Y>20｜Y≠20)，检验 H₀:p₊=.5 对 Hₐ:p₊>.5。即本题明确假设 H₀ 下，给定非零差后，各符号独立且正负等概率；等于 20 的观测被排除。右尾精确 P-value 是多少？",
     "hint": "排除 tie 后 n=10，正差有 8 个。",
     "steps": [
       {
         "title": "把数据转换为符号",
-        "body": "相对 20，1 个差为 0，8 个正差、2 个负差。只在 sign test 中排除恰好为 0 的差。"
+        "body": "相对 20，1 个差为 0，8 个正差、2 个负差。按本题的条件符号检验规则排除零差，得到 m=10 个非零差；零差不是一个负号。"
       },
       {
         "title": "确定零假设分布",
-        "body": "在连续总体、median=20 的零假设下，正负号概率各 0.5。因此 B~Binomial(10,0.5)，观察到 B=8。"
+        "body": "本题给定 H₀:P(Y>20｜Y≠20)=.5，即非零差的正负号概率对称。给定非零差总数 m=10 后，独立正号计数 B~Binomial(10,.5)，观察到 B=8。这个条件模型允许出现零差；参考分布来自题干明确给定的正负等概率条件，不能仅由任意总体的 median=20 推出。"
       },
       {
         "title": "求同方向更极端概率",
-        "body": "P(B≥8)=P(B=8)+P(B=9)+P(B=10)=56/1024=0.0546875。在 α=0.05 下不拒绝 H₀。"
+        "body": "P(B≥8)=P(B=8)+P(B=9)+P(B=10)=56/1024=0.0546875。在 α=.05 下不拒绝上述条件符号零假设。这里的“精确”指在该模型下直接使用有限样本二项分布，而不是正态近似。"
+      },
+      {
+        "title": "检查为什么 median 条件本身不够",
+        "body": "原创三点分布：Y 取 10、20、30 的概率分别为 .1、.6、.3。因为 P(Y≤20)=.7 且 P(Y≥20)=.9 都至少为 .5，20 是总体 median；但删零后 P(Y>20｜Y≠20)=.3/(.1+.3)=.75，正负号并不等概率。因此不能把本题的 .5 参考分布自动用于所有带质量点的 median 零假设。舍入产生的 ties 也需要检查测量与符号模型。见<a href=\"chapters/05.html#median\">median 正文中的连续总体与 ties 条件</a>。"
       }
     ],
-    "conclusion": "P≈0.0547，证据不足以在 5% 水平支持 median>20。",
-    "pitfall": "使用原始 n=11 或将 tie 自动归为负号都会改变参考分布。",
-    "rCode": "x <- c(20,21,22,23,24,25,26,27,28,18,19)\nd <- x[x != 20] - 20\nn <- length(d); positive <- sum(d > 0)\nanswer <- pbinom(positive-1, n, 0.5, lower.tail = FALSE)\nprint(c(n = n, positive = positive, p_value = answer))",
+    "conclusion": "P≈.0547，在给定的条件符号模型下，5% 水平的证据不足以支持 P(Y>20｜Y≠20)>.5。对带质量点的总体，这不是仅凭 median=20 条件就成立的精确检验。",
+    "pitfall": "使用原始 n=11 或将 tie 自动归为负号都会改变参考分布。更根本的是先核对删零后正负等概率的条件；任意离散总体的 median=20 本身不保证这一点。",
+    "rCode": "x <- c(20,21,22,23,24,25,26,27,28,18,19)\n# Condition on nonzero differences and assume fair, independent signs under H0.\nd <- x[x != 20] - 20\nn <- length(d); positive <- sum(d > 0)\nanswer <- pbinom(positive-1, n, 0.5, lower.tail = FALSE)\nprint(c(n = n, positive = positive, p_value = answer))\nstopifnot(n == 10, positive == 8, abs(answer - 56/1024) < 1e-12)\n# A median with positive point mass need not give fair signs after removing ties.\nvalues <- c(10,20,30)\nprobability <- c(.1,.6,.3)\np_le <- sum(probability[values <= 20])\np_ge <- sum(probability[values >= 20])\np_positive_nonzero <- sum(probability[values > 20])/sum(probability[values != 20])\nprint(c(p_le_20 = p_le, p_ge_20 = p_ge,\n        p_positive_given_nonzero = p_positive_nonzero))\nstopifnot(p_le >= .5, p_ge >= .5,\n          abs(p_positive_nonzero - .75) < 1e-12)",
     "unit": "P-value",
     "answer": 0.05468749999999997,
     "tolerance": 0.001,
@@ -903,7 +907,7 @@
       {
         "value": 0.11328124999999996,
         "tolerance": 0.0002,
-        "feedback": "这个结果与仍使用原始 n=11 一致。按题目规则应先排除恰好等于 20 的 tie，二项参考分布的试验数是 10。"
+        "feedback": "这个结果与仍使用原始 n=11 一致。在题目给定的条件符号模型下，应先排除恰好等于 20 的 tie，再给定非零差数量；二项参考分布的试验数是 10。"
       },
       {
         "value": 0.010742187500000007,
@@ -4192,6 +4196,62 @@
       "正确。两项的代入 SE 都是 .8，但甲的已知 σ 使用 z critical，乙的样本 s 使用 t₉₉ critical；t₉₉ 更大，所以乙略宽。",
       "是否使用 t 取决于是否需要由样本估计 σ，而不是是否抽了样本。甲的 σ 已知，在独立正态模型下应使用精确 z 区间。",
       "8 这个数值相同，只保证代入 SE 相同。甲知道总体参数，乙用随机的样本 SD 估计它，有限样本参考分布与 critical value 不同。"
+    ]
+  },
+  {
+    "id": "p11-06",
+    "chapter": "11",
+    "title": "从回归输出求预先指定的右尾P",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "regression",
+      "slope test",
+      "one-sided P",
+      "coefficient output"
+    ],
+    "source": {
+      "file": "PPT/Chapter_11.pptx",
+      "locator": "slides 24–29；coefficient inference与output",
+      "note": "针对课程解题链的原创练习；与正文使用不同的花盆数据。"
+    },
+    "prompt": "研究者在收集数据前决定检验剂量增加是否对应更高的总体平均幼苗dry biomass：H₀:β₁≤0，Hₐ:β₁>0，预定 α=.05。七个独立花盆的剂量x（g/盆）为(1,2,3,4,5,6,7)，biomass Y（g）为(16,14,17,12,14,13,10)。假定含截距SLR的线性均值、独立正态errors与共同variance。lm输出dose行：Estimate=−.821428571，Std. Error=.322221245，t=−2.549268816，Pr(>|t|)=.051311671。与预定alternative对应的P是多少？填写0到1之间的概率。",
+    "unit": "P（0–1）",
+    "answer": 0.974344164260919,
+    "tolerance": 0.0005,
+    "hint": "估计两个regression coefficients，所以df=n−2。保留t的负号，按预定右侧方向求pt(t,df,lower.tail=FALSE)。",
+    "steps": [
+      {
+        "title": "参数与方向先于观测结果",
+        "body": "β₁表示每增加1 g/盆剂量时，conditional mean biomass的变化，单位g biomass/(g/盆 dose)。预设Ha:β₁>0决定使用右尾；完整null为β₁≤0，在边界β₁=0计算参考尾概率。"
+      },
+      {
+        "title": "从正确行计算t与df",
+        "body": "t=(−.821428571−0)/.322221245≈−2.549268816，error df=7−2=5。独立正态、共同variance的SLR在零slope边界给出中心t₅参考。"
+      },
+      {
+        "title": "保留符号求右尾",
+        "body": "P=P(t₅≥−2.549268816)≈.974344164。输出Pr(>|t|)=.051311671是双侧P；本例t为负，所以右尾P=1−.051311671/2，而非直接除以2。"
+      },
+      {
+        "title": "作出与预定问题一致的结论",
+        "body": "在α=.05下不拒绝H₀，数据没有支持正slope。左尾P≈.025655836属于相反方向的检验，不能观察负估计后再换用该小P来支持原来的正向研究目标。"
+      }
+    ],
+    "conclusion": "预定右尾P≈.974344；双侧P≈.051312，左尾P≈.025656，三者回答不同的问题。",
+    "pitfall": "Pr(>|t|)是双侧输出。只有估计方向与预定单侧alternative一致时，零slope t检验的单侧P才等于双侧P/2；方向相反时应取1−双侧P/2。F=t²也无法保留方向。",
+    "rCode": "# Original seven-pot data; the positive direction was prespecified.\nd <- data.frame(dose=1:7, biomass=c(16,14,17,12,14,13,10))\nfit <- lm(biomass ~ dose, data=d)\nout <- summary(fit)\nerror_df <- df.residual(fit)\nt_value <- unname(out$coefficients[\"dose\", \"t value\"])\nanswer <- pt(t_value, df=error_df, lower.tail=FALSE)\np_two <- unname(out$coefficients[\"dose\", \"Pr(>|t|)\"])\np_left <- pt(t_value, df=error_df)\nprint(out$coefficients)\nprint(c(error_df=error_df, t=t_value, answer=answer,\n        P_two_sided=p_two, P_left=p_left))\n# Cross-check the two-sided F relation and the sign-dependent tail conversion.\nf_value <- unname(out$fstatistic[\"value\"])\nstopifnot(abs(f_value-t_value^2)<1e-10,\n          abs(pf(f_value,1,error_df,lower.tail=FALSE)-p_two)<1e-10,\n          abs(answer-(1-p_two/2))<1e-10,\n          abs(answer-0.974344164260919)<1e-10)\n",
+    "commonMistakes": [
+      {
+        "value": 0.02565583573908105,
+        "tolerance": 0.0003,
+        "feedback": "这是本例的左尾P，也等于双侧P/2。由于观测t为负而预定alternative是正向，右尾应覆盖大部分t分布：1−.025655836≈.974344。"
+      },
+      {
+        "value": 0.0513116714781621,
+        "tolerance": 0.0003,
+        "feedback": "这是lm输出Pr(>|t|)给出的双侧P，对应Ha:β₁≠0。题目在收集数据前已规定Ha:β₁>0，应使用有符号t的右尾概率。"
+      }
     ]
   }
 ]

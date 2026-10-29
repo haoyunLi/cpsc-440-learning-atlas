@@ -77,5 +77,6 @@
   "p06-08": "signed-rank-zero-ties",
   "p09-05": "unequal-n-pairwise",
   "p04-13": "conditional",
-  "p05-15": "ci"
+  "p05-15": "ci",
+  "p11-06": "regression-anova"
 }

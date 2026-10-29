@@ -1,0 +1,5 @@
+x <- 1:5; y <- c(2,4,5,4,5)
+fit <- lm(y ~ x)
+answer <- unname(coef(fit)["x"])
+print(coef(fit))
+print(sum((x-mean(x))*(y-mean(y)))/sum((x-mean(x))^2))

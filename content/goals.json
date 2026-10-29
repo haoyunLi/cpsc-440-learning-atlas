@@ -1,0 +1,12 @@
+{
+ "01":["用具体研究说明 population、sample、parameter 与 experimental unit。","手算 mean、median、variance，并说明异常值对它们的影响。","根据变量类型选择图形，区分 histogram、box plot 和 bar chart。"],
+ "04":["区分独立与互斥，并正确选择条件概率的分母。","说明何时可以使用 Binomial，计算包含边界的尾概率。","区分 raw data 与 sample mean 的分布，解释 SE 为什么随 n 改变。"],
+ "05":["从问题写出 H₀、Hₐ、tail 和 reference distribution。","手算 CI、test statistic 与 P-value，并解释它们不代表什么。","给定真实效应解释 β 与 power，区分全宽、半宽及样本量向上取整。"],
+ "06":["从数据产生方式区分 independent 与 paired。","计算 Welch、pooled、paired 的 SE、df 与结论，说明各自的条件。","区分 mean、median 与秩检验的目标，不把所有非参数方法当成 mean test。"],
+ "07":["解释 variance 与 SD 的单位，构造不对称 χ² 区间。","判断 F ratio 分子分母、df 与 tail 的对应关系。","手算 median-centered absolute deviations，理解 Brown–Forsythe 的目标。"],
+ "08":["由小数据集手算 SS、df、MS、F，并读懂 ANOVA 表。","用 residual 图分别检查模型形状、variance 和极端值。","解释变换、Welch ANOVA 与 Kruskal–Wallis 改变了哪些条件或推断目标。"],
+ "09":["把科学问题写成系数和为零的 contrast，并算 SE。","区分单次 Type I error 与一个 family 的 FWER。","按比较目的选择校正，解释不显著与字母分组的边界。"],
+ "14":["从 cell means 算 main effects、simple effects 和 difference-of-differences。","解释为什么 interaction 不需要线条交叉。","说明 unbalanced data 中 raw means、LSMeans 与 sums of squares 依赖的问题。"],
+ "15":["画出 RCBD 或 Latin square，指出 treatment 分配和随机化位置。","计算 treatment、block 与 error 的 df，解释 nuisance variation 去向。","根据推断目标区分 fixed 与 random，并说明没有 cell replication 的限制。"],
+ "11":["由 Sxx、Sxy 算回归线，并从 residual 得到 SSE。","分别解释 slope、R²、correlation 及其推断条件。","区分 mean CI 与 new-observation PI，识别外推与缺拟合风险。"]
+}

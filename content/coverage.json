@@ -1,0 +1,360 @@
+[
+  {
+    "chapter": "01",
+    "topic": "描述统计与分布",
+    "sources": [
+      {
+        "file": "PPT/Chapters_1_2_3.pptx",
+        "pages": "1–64",
+        "pageCount": 64,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–18",
+            "topic": "总体、样本、变量、直方图"
+          },
+          {
+            "pages": "19–48",
+            "topic": "中心、分散、偏态、分位数、经验法则"
+          },
+          {
+            "pages": "49–63",
+            "topic": "箱线图与综合案例"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 1, 2, & 3 - 2022 Fall.pdf",
+        "pages": "1–45",
+        "pageCount": 45,
+        "kind": "notes",
+        "topic": "描述统计与分布"
+      }
+    ]
+  },
+  {
+    "chapter": "04",
+    "topic": "概率与抽样分布",
+    "sources": [
+      {
+        "file": "PPT/Chapter_4.pptx",
+        "pages": "1–93",
+        "pageCount": 93,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–41",
+            "topic": "事件运算、条件概率、独立与不放回抽样"
+          },
+          {
+            "pages": "42–64",
+            "topic": "二项模型与概率"
+          },
+          {
+            "pages": "65–85",
+            "topic": "正态分布、尾概率与分位数"
+          },
+          {
+            "pages": "86–92",
+            "topic": "抽样分布、CLT、SD与SE"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 4 - 2022 Fall.pdf",
+        "pages": "1–63",
+        "pageCount": 63,
+        "kind": "notes",
+        "topic": "概率与抽样分布"
+      }
+    ]
+  },
+  {
+    "chapter": "05",
+    "topic": "单总体中心推断",
+    "sources": [
+      {
+        "file": "PPT/Chapter_5.pptx",
+        "pages": "1–95",
+        "pageCount": 95,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–28",
+            "topic": "均值CI、样本量与检验步骤"
+          },
+          {
+            "pages": "29–63",
+            "topic": "错误类型、功效与样本量规划"
+          },
+          {
+            "pages": "64–81",
+            "topic": "单样本t检验与CI"
+          },
+          {
+            "pages": "82–94",
+            "topic": "总体中位数CI与符号检验"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 5 - 2022 Fall.pdf",
+        "pages": "1–58",
+        "pageCount": 58,
+        "kind": "notes",
+        "topic": "单总体中心推断"
+      }
+    ]
+  },
+  {
+    "chapter": "06",
+    "topic": "两总体与配对推断",
+    "sources": [
+      {
+        "file": "PPT/Chapter_6.pptx",
+        "pages": "1–79",
+        "pageCount": 79,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–32",
+            "topic": "独立均值差、pooled与Welch、p-value"
+          },
+          {
+            "pages": "33–51",
+            "topic": "Wilcoxon rank-sum与ties"
+          },
+          {
+            "pages": "52–71",
+            "topic": "配对t与signed-rank"
+          },
+          {
+            "pages": "72–78",
+            "topic": "两组样本量及分配比例"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 6 - 2022 Fall.pdf",
+        "pages": "1–61",
+        "pageCount": 61,
+        "kind": "notes",
+        "topic": "两总体与配对推断"
+      }
+    ]
+  },
+  {
+    "chapter": "07",
+    "topic": "方差推断",
+    "sources": [
+      {
+        "file": "PPT/Chapter_7.pptx",
+        "pages": "1–62",
+        "pageCount": 62,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–25",
+            "topic": "χ²方差检验、CI与正态性"
+          },
+          {
+            "pages": "26–47",
+            "topic": "F方差比检验与CI"
+          },
+          {
+            "pages": "48–61",
+            "topic": "Hartley与Brown–Forsythe"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 7 - 2022 Fall.pdf",
+        "pages": "1–38",
+        "pageCount": 38,
+        "kind": "notes",
+        "topic": "方差推断"
+      }
+    ]
+  },
+  {
+    "chapter": "08",
+    "topic": "单因素ANOVA与诊断",
+    "sources": [
+      {
+        "file": "PPT/Chapter_8.pptx",
+        "pages": "1–97",
+        "pageCount": 97,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–26",
+            "topic": "CRD模型、SS、df与F检验"
+          },
+          {
+            "pages": "27–45",
+            "topic": "残差与模型诊断"
+          },
+          {
+            "pages": "46–55",
+            "topic": "Kruskal–Wallis与Welch ANOVA"
+          },
+          {
+            "pages": "56–96",
+            "topic": "变换、重新拟合与解释"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 8 - 2022 Fall.pdf",
+        "pages": "1–50",
+        "pageCount": 50,
+        "kind": "notes",
+        "topic": "单因素ANOVA与诊断"
+      }
+    ]
+  },
+  {
+    "chapter": "09",
+    "topic": "对比与多重比较",
+    "sources": [
+      {
+        "file": "PPT/Chapter_9.pptx",
+        "pages": "1–70",
+        "pageCount": 70,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–6",
+            "topic": "comparisonwise、FWER与Bonferroni"
+          },
+          {
+            "pages": "7–44",
+            "topic": "线性对比、正交、t/F与SAS输出"
+          },
+          {
+            "pages": "45–69",
+            "topic": "LSD、Tukey、Dunnett与Scheffé"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 9 - 2022 Fall.pdf",
+        "pages": "1–41",
+        "pageCount": 41,
+        "kind": "notes",
+        "topic": "对比与多重比较"
+      }
+    ]
+  },
+  {
+    "chapter": "14",
+    "topic": "析因处理与交互",
+    "sources": [
+      {
+        "file": "PPT/Chapter_14.pptx",
+        "pages": "1–52",
+        "pageCount": 52,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "8–15",
+            "topic": "factorial、simple/main/interaction effects"
+          },
+          {
+            "pages": "16–29",
+            "topic": "双因素ANOVA与后续比较"
+          },
+          {
+            "pages": "30–46",
+            "topic": "三因素、诊断与高阶交互"
+          },
+          {
+            "pages": "47–51",
+            "topic": "非平衡数据、缺失与LSMeans"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 14 - 2022 Fall.pdf",
+        "pages": "1–49",
+        "pageCount": 49,
+        "kind": "notes",
+        "topic": "析因处理与交互"
+      }
+    ]
+  },
+  {
+    "chapter": "15",
+    "topic": "区组与实验设计",
+    "sources": [
+      {
+        "file": "PPT/Chapter_15.pptx",
+        "pages": "1–53",
+        "pageCount": 53,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–24",
+            "topic": "RCBD、df、效率与缺失"
+          },
+          {
+            "pages": "25–30",
+            "topic": "固定与随机效应"
+          },
+          {
+            "pages": "31–40",
+            "topic": "区组内析因处理"
+          },
+          {
+            "pages": "41–52",
+            "topic": "Latin square"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 15 - 2022 Fall.pdf",
+        "pages": "1–37",
+        "pageCount": 37,
+        "kind": "notes",
+        "topic": "区组与实验设计"
+      }
+    ]
+  },
+  {
+    "chapter": "11",
+    "topic": "回归与相关",
+    "sources": [
+      {
+        "file": "PPT/Chapter_11.pptx",
+        "pages": "1–78",
+        "pageCount": 78,
+        "kind": "slides",
+        "topics": [
+          {
+            "pages": "3–23",
+            "topic": "SLR、least squares、回归ANOVA与诊断"
+          },
+          {
+            "pages": "24–41",
+            "topic": "系数检验、mean CI与prediction interval"
+          },
+          {
+            "pages": "42–62",
+            "topic": "lack of fit与pure error"
+          },
+          {
+            "pages": "63–77",
+            "topic": "r、R²、相关检验与估计偏差"
+          }
+        ]
+      },
+      {
+        "file": "classnote/440 - Chapter 11 - 2022 Fall.pdf",
+        "pages": "1–53",
+        "pageCount": 53,
+        "kind": "notes",
+        "topic": "回归与相关"
+      }
+    ]
+  }
+]

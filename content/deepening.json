@@ -1,0 +1,162 @@
+[
+  {
+    "chapter": "01",
+    "id": "read-summary-output",
+    "title": "从一张 summary 表追查数据：单位、分位数与离群点",
+    "body": "<p>统计软件把一整组数据压成几行数字。会读 summary，并不是逐行翻译名称，而是能解释这些数字对应什么观测、什么单位，以及它们没有告诉你什么。</p>\n<p>原创例：八株植物的高度为 <b>8, 9, 10, 10, 11, 12, 14, 30 cm</b>。先排序、数样本量，再计算。总和为 104，所以 mean=13 cm；中间两值为 10 与 11，所以 median=10.5 cm。这里 mean 大于 median，提示右侧的较大值可能正在拉动均值，但仅凭这两个数字不能完整确定分布形状。</p>\n<table><caption>同一组高度的不同摘要回答不同问题</caption><thead><tr><th>输出项</th><th>本例数值</th><th>应怎样读</th></tr></thead><tbody><tr><td>N</td><td>8</td><td>真正观测了八株；重复测量同一株不能自动算成更多独立植株。</td></tr><tr><td>Mean</td><td>13 cm</td><td>全部高度总和平均分配后的高度。</td></tr><tr><td>Median</td><td>10.5 cm</td><td>排序后中间位置，受单个极大值的影响较小。</td></tr><tr><td>Sample variance</td><td>354/7≈50.571 cm²</td><td>平方偏差的平均尺度；不能把它解释成“相差约50.6 cm”。</td></tr><tr><td>SD</td><td>√(354/7)≈7.111 cm</td><td>个体高度的分散，与均值使用相同单位。</td></tr><tr><td>Estimated SE of mean</td><td>7.111/√8≈2.514 cm</td><td>在独立同分布抽样模型下，均值估计的重复抽样波动。</td></tr></tbody></table>\n<p><b>分位数规则必须写出来。</b> 按“下半组和上半组各取中位数”，Q1=(9+10)/2=9.5，Q3=(12+14)/2=13；IQR=3.5。按 R 的 <code>quantile(type=7)</code>，Q1=9.75、Q3=12.5、IQR=2.75。两者使用了不同的有限样本插值规则；题目指定某种规则时就按该规则作答。</p>\n<p>用第一种规则，围栏是 4.25 与 18.25 cm，须端点是实际观测 8 和 14，30 单独画成点。这个点可能是真实高植株，也可能是单位、录入或测量问题。先查记录；如果无法证明错误，主分析保留它，并在需要时报告有无该点的敏感性分析。删除后 mean 变成 74/7≈10.571，这说明它对均值影响很大，并没有证明它是错误。</p>\n<pre><code>y &lt;- c(8, 9, 10, 10, 11, 12, 14, 30)\n# Keep measurement units in the analysis notes.\nc(n=length(y), mean=mean(y), median=median(y),\n  variance=var(y), sd=sd(y), se=sd(y)/sqrt(length(y)))\n# Declare the quantile convention explicitly.\nquantile(y, c(.25, .5, .75), type=7)\n# Display every observation alongside the box plot.\nboxplot(y, ylab=\"Height (cm)\")\nstripchart(y, method=\"jitter\", vertical=TRUE, add=TRUE,\n           pch=16, col=\"steelblue\")</code></pre>\n<p><b>自检：</b> 把 cm 换成 mm，mean、median、SD 与 SE 都乘 10，variance 乘 100；CV 保持不变。单位检查是发现公式混用最快的方法之一。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapters_1_2_3.pptx",
+        "pages": "27–58"
+      },
+      {
+        "file": "classnote/440 - Chapter 1, 2, & 3 - 2022 Fall.pdf",
+        "pages": "24–40"
+      }
+    ]
+  },
+  {
+    "chapter": "04",
+    "id": "without-replacement",
+    "title": "抽了就不放回：为什么“成功次数”未必是 Binomial",
+    "body": "<p>看到“n 次里面有几次成功”，不要立刻套 binomial。课程的候选人抽选例说明，抽样机制决定每一步概率是否保持不变。这里用一组新数字完整推导。</p>\n<p>十名候选人中，六人有温室经验，四人没有。随机选三名，<b>不放回</b>。令 Y 为三人中有经验的人数。</p>\n<ol><li><b>第一次。</b> 选到有经验者的概率为 6/10。</li><li><b>已知第一次成功。</b> 剩下九人中只有五名有经验者，因此第二次成功概率变成 5/9。</li><li><b>如果前两次都成功。</b> 第三次成功概率为 4/8。</li><li><b>三人全有经验。</b> P(Y=3)=(6/10)(5/9)(4/8)=1/6≈0.1667。</li></ol>\n<p>若错误地当作独立且每次 p=.6，会得到 .6³=.216。差异来自不放回使后续构成发生变化。一次成功会使下一次成功稍不容易，这些试验相互依赖。</p>\n<p>还有一种更直接的计数方法：所有三人组合都等可能，共 C(10,3)=120 种。恰好两人有经验，要从六人中选二人、再从四人中选一人，共 C(6,2)C(4,1)=60 种。</p>\n<div class=\"equation\">P(Y=k)=C(6,k)C(4,3−k)/C(10,3)<br>P(Y=2)=60/120=.5<br>P(Y≥1)=1−C(4,3)/C(10,3)=29/30≈.9667</div>\n<p>这就是 <b>hypergeometric distribution（超几何分布）</b> 的计数结构，是对课程不放回例子的延伸。这里的支持集为 k=0,1,2,3；一般还受到总体两类人数的限制。两次成功发生在哪个抽取位置，不需要再额外乘三：组合计数已经覆盖所有选人方式。</p>\n<pre><code># Three draws without replacement from six successes and four failures.\ndhyper(2, m=6, n=4, k=3)\nphyper(0, m=6, n=4, k=3, lower.tail=FALSE)\n# Compare the all-success event under two different mechanisms.\nc(without_replacement=dhyper(3,6,4,3),\n  independent_trials=dbinom(3,3,.6))</code></pre>\n<p><b>何时可以近似 binomial？</b> 如果总体很大、抽取比例很小，不放回对剩余成功比例的影响可能很小。但这是需要说明的近似条件，不能仅因为 n 大就成立。学习时先写四个词：<b>放回吗、独立吗、概率恒定吗、次数固定吗</b>，再选择分布。</p>\n<p><b>练习：</b> 若改成每次抽选后放回并重新随机抽，三次全有经验的概率变为 .216。注意此时允许同一个人被抽到多次，已经改变了实验。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_4.pptx",
+        "pages": "34–46"
+      },
+      {
+        "file": "classnote/440 - Chapter 4 - 2022 Fall.pdf",
+        "pages": "17–24"
+      }
+    ]
+  },
+  {
+    "chapter": "05",
+    "id": "power-from-region",
+    "title": "功效的计算从拒绝区域出发，左右尾都不会弄反",
+    "body": "<p>功效公式中的正负号很容易记错。更可靠的做法是先在<b>样本均值的原始单位</b>上确定拒绝区域，再到指定的真实总体下计算落入该区域的概率。</p>\n<p>原创实验：独立测量 n=25 株植物，已知总体 SD σ=10 cm；假设个体正态。检验 H₀:μ≤50 对 Hₐ:μ&gt;50，α=.05。样本均值的 SE=10/√25=2 cm。</p>\n<ol><li><b>在 null 边界找门槛。</b> μ₀=50 时，拒绝条件为 Z&gt;1.644854，即 ȳ&gt;50+1.644854×2=53.289707 cm。</li><li><b>指定一个真实 alternative。</b> 若真正的 μₐ=54，重复实验时 ȳ 的中心在 54，SE 仍为 2。</li><li><b>把同一个门槛放到 alternative 下。</b> power=P(ȳ&gt;53.289707 | μ=54)=P[Z&gt;(53.289707−54)/2]。</li><li><b>计算。</b> 标准化门槛约 −.355146；power≈.638760，β≈.361240。约64%的这类实验会检出这个真实差异。</li></ol>\n<p>这里有两个不同世界：α 是 μ=50 时落入拒绝区的概率；power 是 μ=54 时落入同一拒绝区的概率。α 不是这次显著结论出错的后验概率，power 也不是 μ=54 为真的概率。</p>\n<p><b>如果研究问题改成“双向变化”：</b> Hₐ:μ≠50，α 仍为 .05，就把 .025 分配到每一端。拒绝区域为 ȳ&lt;46.080072 或 ȳ&gt;53.919928。真实 μ=54 时，两个尾部都要相加：</p>\n<div class=\"equation\">Power(54)=Φ[(46.080072−54)/2]<br>+1−Φ[(53.919928−54)/2]≈.516005</div>\n<p>常见的双侧近似只保留朝效应方向的一端。本例另一端很小，但完整写法能解释为什么这是近似。双侧功效较低，是因为相同 α 被分给了两个方向；这不能成为看过数据之后再把双侧改成单侧的理由。</p>\n<pre><code>mu0 &lt;- 50\nmua &lt;- 54\nse &lt;- 10/sqrt(25)\nalpha &lt;- .05\n# Derive the rejection boundary under the null.\ncut &lt;- mu0 + qnorm(1-alpha)*se\npower_right &lt;- pnorm(cut, mean=mua, sd=se, lower.tail=FALSE)\n# Include both rejection tails for an exact normal-model calculation.\nlimits &lt;- mu0 + qnorm(c(alpha/2, 1-alpha/2))*se\npower_two &lt;- pnorm(limits[1],mua,se) +\n  pnorm(limits[2],mua,se,lower.tail=FALSE)\nc(power_right=power_right, power_two=power_two)</code></pre>\n<p><b>自检：</b> 左尾 Hₐ:μ&lt;50 的临界均值为 46.710293；真实 μ=46 时功效仍为 .638760，对称性可用来核对。若 σ 未知并采用 t 检验，需要相应的非中心 t 计算或 <code>power.t.test()</code>，不能把这个已知 σ 的数值直接当成 t 检验精确功效。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_5.pptx",
+        "pages": "29–63"
+      },
+      {
+        "file": "classnote/440 - Chapter 5 - 2022 Fall.pdf",
+        "pages": "18–36"
+      }
+    ]
+  },
+  {
+    "chapter": "06",
+    "id": "rank-statistic-output",
+    "title": "手算秩和是 8，R 为什么报告 W=2？",
+    "body": "<p>同一个 Wilcoxon rank-sum test，教材的 raw rank sum 和 R 的 statistic 标签可能不同。判断结果是否一致，要先核对它们的定义，再比较 p-value。</p>\n<p>原创数据：A=[3,5,5]，B=[4,8,9]。研究事先指定 Hₐ：A 的分布相对 B 向左移动。两组独立，并在位置移动解释下假定形状和尺度可比较。</p>\n<table><caption>合并排序，给相同数值分配平均秩</caption><thead><tr><th>数值</th><th>组</th><th>占据的顺序位置</th><th>使用的秩</th></tr></thead><tbody><tr><td>3</td><td>A</td><td>1</td><td>1</td></tr><tr><td>4</td><td>B</td><td>2</td><td>2</td></tr><tr><td>5</td><td>A</td><td>3、4</td><td>3.5、3.5</td></tr><tr><td>8</td><td>B</td><td>5</td><td>5</td></tr><tr><td>9</td><td>B</td><td>6</td><td>6</td></tr></tbody></table>\n<ol><li>Raw rank sum T_A=1+3.5+3.5=8；T_B=2+5+6=13。</li><li>总和 8+13=21，等于 N(N+1)/2=6×7/2，秩分配通过检查。</li><li>R 两独立样本的 W 减掉 A 组能达到的最小秩和 n_A(n_A+1)/2=6，因此 W=8−6=2。</li><li>在本例 null 下，E(T_A)=n_A(N+1)/2=10.5；E(W)=n_A n_B/2=4.5。两者相差同一个6，不改变离各自 null 中心的距离。</li></ol>\n<p><b>Ties 会改变参考方差。</b> 两个5形成大小为2的 tied block。近似方差为：</p>\n<div class=\"equation\">Var(W)=n_A n_B/12 × [N+1−Σ(tⱼ³−tⱼ)/(N(N−1))]<br>=9/12 × [7−(2³−2)/(6×5)]=5.1</div>\n<p>为明确复现，这里指定 normal approximation、不开 continuity correction：Z=(2−4.5)/√5.1≈−1.1070，左尾 p≈.1341。这个极小样本只用于理解统计量和输出；近似 p 的精度有限，不应被包装成小样本精确检验。</p>\n<pre><code>a &lt;- c(3,5,5)\nb &lt;- c(4,8,9)\n# R reports the shifted rank sum for two independent samples.\nr &lt;- rank(c(a,b), ties.method=\"average\")\nraw_sum &lt;- sum(r[seq_along(a)])\nc(raw_rank_sum=raw_sum, W=raw_sum-length(a)*(length(a)+1)/2)\n# Specify the approximation and correction to make output reproducible.\nwilcox.test(a,b, alternative=\"less\", exact=FALSE, correct=FALSE)</code></pre>\n<p>软件默认的 exact/approximate 选择可能随样本大小、ties 和版本变化。报告方法时说明是否用了 continuity correction；不同结果先核对这些条件。交换 a 和 b 后，单侧方向也必须反转。这个检验没有配对关系，不能把 <code>paired=TRUE</code> 当成提高功效的开关。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_6.pptx",
+        "pages": "33–51"
+      },
+      {
+        "file": "classnote/440 - Chapter 6 - 2022 Fall.pdf",
+        "pages": "24–35"
+      }
+    ]
+  },
+  {
+    "chapter": "07",
+    "id": "f-tail-output",
+    "title": "方差比小于 1 也可以检验：把组别、自由度和尾部一起读",
+    "body": "<p>F 分布只取正值，但它允许统计量小于1。把“大方差放分子”是某些手查表流程的便利安排，不是运行 F 检验的必要条件。固定组别定义通常更容易保持问题和结果的一致性。</p>\n<p>原创比较：组A有 n_A=10，sample variance s_A²=4；组B有 n_B=15，s_B²=9。两组独立、各自总体正态。目标参数 R=σ_A²/σ_B²，检验 H₀:R=1 对 Hₐ:R≠1。</p>\n<ol><li><b>固定方向。</b> F=s_A²/s_B²=4/9≈.444444。</li><li><b>跟随分子分母写 df。</b> numerator df=10−1=9；denominator df=15−1=14。</li><li><b>计算两侧。</b> P(F₉,₁₄≤.444444)≈.111834；右尾约 .888166。</li><li><b>使用等尾双侧规则。</b> p=2 min(.111834,.888166)≈.223668。不能因为方差比“不到一半”就认定差异显著。</li><li><b>构造参数比的区间。</b> 95% CI=[F/q_.975,F/q_.025]≈[.138486,1.687979]，分位数都取 F(9,14)。区间含1，与该双侧检验未拒绝一致。</li></ol>\n<p>这一区间很宽：数据仍容许 A 的方差明显较小，也容许它大于 B。结论应是“尚无足够证据证明两总体方差不同”，不能说“两个方差已经相等”。</p>\n<pre><code>ratio &lt;- 4/9\ndf_a &lt;- 10-1\ndf_b &lt;- 15-1\n# Keep group order fixed throughout the calculation.\np_left &lt;- pf(ratio,df_a,df_b)\np_right &lt;- pf(ratio,df_a,df_b,lower.tail=FALSE)\np_two &lt;- min(1,2*min(p_left,p_right))\nci &lt;- ratio/qf(c(.975,.025),df_a,df_b)\nc(F=ratio,p_two=p_two,lower=ci[1],upper=ci[2])</code></pre>\n<p><b>如果交换分子分母：</b> 新参数为 1/R，统计量为2.25，df 变为14和9，区间也应取旧端点的倒数并交换顺序，即 [1/1.687979,1/.138486]。双侧 p 不变，单侧问题的方向则反转。只倒数 F，却不交换 df，是常见错误。</p>\n<p><b>分析边界：</b> 经典 F 方差检验对非正态敏感；这里的 p 和 CI 依赖前述模型。也不要把“F 检验未显著”当成必须使用 pooled t 的证书。比较两个均值时，Welch 是否合适应根据目标与设计判断，不应机械地由一次方差预检决定。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_7.pptx",
+        "pages": "26–47"
+      },
+      {
+        "file": "classnote/440 - Chapter 7 - 2022 Fall.pdf",
+        "pages": "21–30"
+      }
+    ]
+  },
+  {
+    "chapter": "08",
+    "id": "unbalanced-anova-worked",
+    "title": "每组人数不同，ANOVA 的 grand mean 怎样计算？",
+    "body": "<p>等样本量的例子容易让人误记为“grand mean 就是几个组均值的简单平均”。一元 ANOVA 的 total sum of squares 以<b>所有观测的均值</b>为中心，因此组大小不同时必须按人数加权。</p>\n<p>原创数据：A=[2,4]，B=[5,5,8]，C=[8,9,10,11]。组大小分别2、3、4，组均值分别3、6、9.5。N=9，全部观测总和62，所以 grand mean=62/9≈6.888889。直接平均三个组均值得到6.166667，描述的是三个组各占三分之一的另一个目标，不能拿来代入本例的 SST 分解。</p>\n<div class=\"equation\">ȳ..=Σnᵢȳᵢ/N<br>SS_between=Σnᵢ(ȳᵢ−ȳ..)²<br>SS_error=ΣΣ(Yᵢⱼ−ȳᵢ)²</div>\n<ol><li><b>组内平方和。</b> A贡献2，B贡献6，C贡献5，所以 SSE=13。</li><li><b>组间平方和。</b> 2(3−62/9)²+3(6−62/9)²+4(9.5−62/9)²=539/9≈59.888889。</li><li><b>核对总平方和。</b> SST=59.888889+13=72.888889。</li><li><b>自由度。</b> 三个组估计三个组均值，error df=N−3=6；treatment df=3−1=2；total df=8。</li><li><b>检验。</b> MStrt=29.944444，MSE=13/6≈2.166667，F≈13.820513，参考 F(2,6)，右尾 p≈.00567。</li></ol>\n<table><caption>怎样从 ANOVA output 找回每一步计算</caption><thead><tr><th>Source</th><th>Df</th><th>Sum Sq</th><th>Mean Sq</th><th>F value</th></tr></thead><tbody><tr><td>group</td><td>2</td><td>59.8889</td><td>29.9444</td><td>13.8205</td></tr><tr><td>Residuals</td><td>6</td><td>13</td><td>2.1667</td><td>不填</td></tr></tbody></table>\n<p>Residuals 一行对应误差分母，不是第二个待检验的处理。总平方和与总 df 常不显示在 R 的该表中，可用两行相加核对。</p>\n<pre><code>y &lt;- c(2,4, 5,5,8, 8,9,10,11)\ngroup &lt;- factor(rep(c(\"A\",\"B\",\"C\"),c(2,3,4)))\nfit &lt;- aov(y ~ group)\nsummary(fit)\n# Verify the decomposition using all observations.\nsse &lt;- sum(residuals(fit)^2)\nsst &lt;- sum((y-mean(y))^2)\nc(grand_mean=mean(y),SS_between=sst-sse,SS_error=sse,SS_total=sst)\n# Check model diagnostics; a small example cannot certify assumptions.\nqqnorm(residuals(fit)); qqline(residuals(fit))\nplot(fitted(fit),residuals(fit),xlab=\"Fitted values\",ylab=\"Residuals\")\nabline(h=0,lty=2)</code></pre>\n<p>上述数值检验仍以独立、共同误差方差及相应正态模型为前提。样本量不等本身不使经典一元 ANOVA 失效，但与方差不等同时出现时尤其需要谨慎。总体拒绝只定位到“至少一个组均值不同”；具体比较还需要下一章的计划对比或多重比较。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_8.pptx",
+        "pages": "10–29"
+      },
+      {
+        "file": "classnote/440 - Chapter 8 - 2022 Fall.pdf",
+        "pages": "4–19"
+      }
+    ]
+  },
+  {
+    "chapter": "09",
+    "id": "tukey-letters",
+    "title": "读懂 Tukey 区间和字母分组：不显著没有传递性",
+    "body": "<p>多重比较常用 a、ab、b 表示分组。这些字母压缩了若干假设检验结果，并没有把总体分成已经证明相等的类别。用一个可复现的小例子看清它的含义。</p>\n<p>原创数据三组各五个观测：A=[8,8,10,12,12]，B=[10,10,12,14,14]，C=[12,12,14,16,16]。三组均值10、12、14，每组 sample variance=4。共同 MSE=4，error df=15−3=12。</p>\n<p>Tukey 的目标 family 为三个 pairwise comparisons。95% simultaneous interval 的半宽为 q_.95(3,12)√(MSE/n)≈3.772929√(4/5)=3.374610。</p>\n<table><caption>三组全部两两比较，统一使用 Tukey 校正</caption><thead><tr><th>比较方向</th><th>估计差</th><th>95% simultaneous CI</th><th>是否包含0</th></tr></thead><tbody><tr><td>B−A</td><td>2</td><td>[−1.3746,5.3746]</td><td>是：未检出差异</td></tr><tr><td>C−B</td><td>2</td><td>[−1.3746,5.3746]</td><td>是：未检出差异</td></tr><tr><td>C−A</td><td>4</td><td>[.6254,7.3746]</td><td>否：检出差异</td></tr></tbody></table>\n<p>一种有效的字母表示是 A=a、B=ab、C=b。A 和 B 共享 a，B 和 C 共享 b，A 和 C 没有共同字母。这里没有逻辑矛盾，因为“未拒绝A=B”与“未拒绝B=C”并不能推出A=C。</p>\n<p><b>三个层次分开读：</b> estimate 告诉你差的方向和量级；CI 告诉你在该模型与比较 family 下的不确定性；adjusted p-value 告诉你在所选 α 下是否拒绝。只看显著星号会漏掉效果大小和精度。</p>\n<pre><code>y &lt;- c(8,8,10,12,12, 10,10,12,14,14, 12,12,14,16,16)\ngroup &lt;- factor(rep(c(\"A\",\"B\",\"C\"),each=5))\nfit &lt;- aov(y ~ group)\n# Simultaneous intervals for the complete pairwise family.\ntk &lt;- TukeyHSD(fit, \"group\", conf.level=.95)\ntk\nplot(tk)\n# Equal-size HSD threshold, verified against the interval output.\nqtukey(.95,nmeans=3,df=12)*sqrt(4/5)</code></pre>\n<p>如果问题只关心 B 和 C 各自相对 control A，Dunnett 直接对应这个比较 family；如果目标是 arbitrary contrasts，Tukey 的 all-pairs 保护不能自动覆盖它们。若想证明两组差异足够小，需要事先设定有实际意义的 equivalence margin 并使用相应等效性方法，不能把共享字母当作等效证明。</p>\n<p><b>自检：</b> 全部观测同时加100，三个 estimate、SE、区间相对0的位置和字母关系都不变。对比系数和为0，保证它们只关注相对差异。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_9.pptx",
+        "pages": "45–66"
+      },
+      {
+        "file": "classnote/440 - Chapter 9 - 2022 Fall.pdf",
+        "pages": "23–37"
+      }
+    ]
+  },
+  {
+    "chapter": "14",
+    "id": "factorial-interaction-worked",
+    "title": "不平行的两条线为什么未必意味着显著 interaction？",
+    "body": "<p>Interaction plot 展示的是样本里的差异。有没有充分证据把这种差异推广到总体，需要同时考虑重复观测的误差和自由度。把一个2×2实验完整算一遍，就能看清图与检验的关系。</p>\n<table><caption>原创数据：两个品种 A1/A2 × 两种处理 B1/B2，每格两次独立重复</caption><thead><tr><th>Cell</th><th>观测</th><th>Cell mean</th></tr></thead><tbody><tr><td>A1,B1</td><td>9,11</td><td>10</td></tr><tr><td>A1,B2</td><td>11,13</td><td>12</td></tr><tr><td>A2,B1</td><td>13,15</td><td>14</td></tr><tr><td>A2,B2</td><td>19,21</td><td>20</td></tr></tbody></table>\n<p>B 的 simple effect 在 A1 中为12−10=2，在 A2 中为20−14=6，所以 difference-of-differences Δ=6−2=4。两条 profile lines 不平行。</p>\n<ol><li><b>看误差。</b> 每格的两个值相对 cell mean 为−1和+1，各贡献 SSE=2。四格总 SSE=8，error df=ab(r−1)=4，所以 MSE=2。</li><li><b>写 interaction contrast。</b> Δ=μ₂₂−μ₂₁−μ₁₂+μ₁₁，四个系数为+1,−1,−1,+1。各 cell mean 的估计方差为 MSE/r=1。</li><li><b>计算 SE。</b> 独立 cell means 的四项方差相加，SE(Δhat)=√[4MSE/r]=2。</li><li><b>标准化。</b> t=4/2=2，error df=4。双侧 p≈.1161；等价 interaction F=t²=4，df=(1,4)。</li></ol>\n<p>在 α=.05 时，图里虽然有不平行，证据仍不足以拒绝总体无 interaction。也不能因此断言 interaction 不存在：df 很少，Δ 的区间可能很宽。</p>\n<table><caption>完整模型 Y ~ A * B 的方差分析</caption><thead><tr><th>来源</th><th>SS</th><th>df</th><th>MS</th><th>F</th><th>p</th></tr></thead><tbody><tr><td>A</td><td>72</td><td>1</td><td>72</td><td>36</td><td>.00388</td></tr><tr><td>B</td><td>32</td><td>1</td><td>32</td><td>16</td><td>.01613</td></tr><tr><td>A:B</td><td>8</td><td>1</td><td>8</td><td>4</td><td>.11612</td></tr><tr><td>Error</td><td>8</td><td>4</td><td>2</td><td>—</td><td>—</td></tr></tbody></table>\n<p>Grand mean=14，A marginal means=11与17，B marginal means=12与16，所以平衡设计下 SS_A=72、SS_B=32。各 cell 相对“grand + A + B”的偏离为[1,−1,−1,1]，每格两次重复，SS_AB=2×(1+1+1+1)=8。总SS=120，总df=7。</p>\n<pre><code>d &lt;- data.frame(\n  A=factor(rep(c(\"A1\",\"A2\"),each=4)),\n  B=factor(rep(c(\"B1\",\"B1\",\"B2\",\"B2\"),2)),\n  y=c(9,11,11,13,13,15,19,21))\n# The asterisk includes both main effects and their interaction.\nfit &lt;- aov(y ~ A*B,data=d)\nsummary(fit)\nwith(d,interaction.plot(B,A,y,ylab=\"Mean response\"))</code></pre>\n<p><b>再想一步：</b> 若每格只有一个观测，四个 cell means 仍可画图，完整模型却没有 residual df 来估计上述误差。这就是为什么“画得出 interaction”与“能检验 interaction”是两件不同的事。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_14.pptx",
+        "pages": "8–22"
+      },
+      {
+        "file": "classnote/440 - Chapter 14 - 2022 Fall.pdf",
+        "pages": "5–17"
+      }
+    ]
+  },
+  {
+    "chapter": "15",
+    "id": "factor-coding-blocks",
+    "title": "区组编号是标签：把数字直接放进 lm 会换掉你的模型",
+    "body": "<p>实验记录常用1、2、3代表三个品种，1、2、3、4代表四个区组。但 R 不知道这些数字只是标签。若直接把 numeric 列放进 <code>lm</code>，它会拟合一条随编号线性变化的趋势，分析的问题就变了。</p>\n<p>原创完整区组实验：每个区组都有三种 treatment，每个 treatment×block 一个实验单位。数据按 treatment 排列：</p>\n<table><caption>三个处理在四个完整区组中的观测</caption><thead><tr><th>Treatment</th><th>Block1</th><th>Block2</th><th>Block3</th><th>Block4</th></tr></thead><tbody><tr><td>1</td><td>7</td><td>10</td><td>13</td><td>14</td></tr><tr><td>2</td><td>14</td><td>17</td><td>17</td><td>20</td></tr><tr><td>3</td><td>9</td><td>9</td><td>12</td><td>14</td></tr></tbody></table>\n<p>Treatment means 为11、17、11。中间处理较高，两端一样；若只拟合编号1到3的线性趋势，正负方向会抵消，线性 slope 为0。这并不说明三个 treatment 的总体均值相同。</p>\n<ol><li><b>正确的 RCBD 模型。</b> Treatment 作为三水平 factor，占2 df；block 作为四水平 factor，占3 df。</li><li><b>核对剩余信息。</b> N=12，总df=11，error df=11−2−3=6。</li><li><b>解释输出。</b> 本例 treatment SS=96、error SS=6，所以 treatment F=(96/2)/(6/6)=48，df=(2,6)，p≈.000204。</li><li><b>错误的 numeric 模型。</b> 两个数字列各只有1 df，error df=9。它检验的是编号的直线趋势，不能代替 treatment 全体均值的比较。</li></ol>\n<pre><code>d &lt;- data.frame(\n  treatment=rep(1:3,each=4),\n  block=rep(1:4,times=3),\n  y=c(7,10,13,14, 14,17,17,20, 9,9,12,14))\n# Numeric codes would impose linear trends in the identifiers.\nwrong_target &lt;- lm(y ~ treatment + block,data=d)\ndf.residual(wrong_target)\n# Convert categorical identifiers before fitting the RCBD.\nd$treatment &lt;- factor(d$treatment)\nd$block &lt;- factor(d$block)\nfit &lt;- aov(y ~ treatment + block,data=d)\nsummary(fit)\ndf.residual(fit)\n# Check that every treatment occurs once in every block.\nwith(d,table(treatment,block))</code></pre>\n<p>这个检查也适用于 factorial experiments。<code>A*B</code> 中的 A 和 B 若是数值，交互项是两条连续线性趋势的乘积；若它们是类别，模型比较所有相应 cell means。选哪一种必须由变量意义与科学问题决定。</p>\n<p><b>设计与软件的边界：</b> 把变量转换为 factor 修正的是模型表示，不能补做当初没有实施的随机化。本例完整 RCBD 的加性检验仍依赖区组内随机分配、独立实验误差以及相应误差条件；每格只有一个单位时，不能另外估计 treatment×block interaction。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_15.pptx",
+        "pages": "3–15"
+      },
+      {
+        "file": "classnote/440 - Chapter 15 - 2022 Fall.pdf",
+        "pages": "2–11"
+      }
+    ]
+  },
+  {
+    "chapter": "11",
+    "id": "leverage-influence",
+    "title": "高 leverage、outlier 与 influence：三个问题分别检查",
+    "body": "<p>回归中的“异常点”至少包含三种不同情况。<b>Leverage</b> 问 x 是否远离大多数预测变量；<b>residual outlier</b> 问 Y 是否远离模型给出的条件均值；<b>influence</b> 问去掉这个点会让拟合结果改变多少。它们相关，但不是同义词。</p>\n<p>原创五个观测 x=[0,1,2,3,4]，y=[1,2,5,8,9]。最小二乘线为 ŷ=.6+2.2x。现在增加一个 x=10 的观测，它远离原有 x 范围。</p>\n<ol><li><b>若新 y=22.6。</b> 新点恰好落在原拟合线，加入后 slope 仍为2.2、intercept 仍为.6。它的 leverage 很高，但本次没有改变回归系数。</li><li><b>若同一个 x=10 的 y 改成5。</b> 加入后 slope≈.347368、intercept≈3.842105，拟合方向几乎被拉平。</li><li><b>看新点自身 residual。</b> 第二种情形中，新点的 fitted y≈7.315789，residual≈−2.315789。它已经把线拉向自己，因此它对原线的巨大偏离，被重新拟合后的残差部分掩盖。</li></ol>\n<div class=\"equation\">hᵢ=1/n+(xᵢ−x̄)²/Sxx<br>加入 x=10 后，该点 h≈.868421</div>\n<p>Leverage 由 x 决定，所以上述两个版本的 h 完全相同。这个例子说明，只按“绝对 residual 最大”寻找有影响的点，会漏掉重要情况。</p>\n<pre><code>x &lt;- c(0,1,2,3,4,10)\ny &lt;- c(1,2,5,8,9,5)\nfit &lt;- lm(y ~ x)\n# Compare the full fit with a documented sensitivity fit.\ncoef(fit)\ncoef(lm(y[-6] ~ x[-6]))\n# Examine predictor leverage, scaled residuals, and influence together.\ndata.frame(x=x,y=y,\n  leverage=hatvalues(fit),\n  studentized_residual=rstudent(fit),\n  cooks_distance=cooks.distance(fit))\nplot(x,y,pch=16,xlab=\"x\",ylab=\"y\")\nabline(fit,col=\"firebrick\",lwd=2)\nabline(lm(y[-6] ~ x[-6]),col=\"steelblue\",lty=2,lwd=2)</code></pre>\n<p><b>如何行动：</b> 先核查原始记录、单位和测量流程；再判断这个 x 是否属于目标总体，以及直线模型在此范围是否合理。对真实但影响很大的观测，应透明报告敏感性结果，并考虑更合适的模型或更多该范围的数据。某个诊断超过经验阈值，只是调查线索，不能自动触发删除。</p>\n<p><b>自检：</b> 把全部 x 从厘米改成毫米，slope 的数值会除以10，拟合的 y 和每个点的 leverage 不变。若诊断随着这种单纯单位改变而完全改观，先检查实现。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_11.pptx",
+        "pages": "5–11"
+      },
+      {
+        "file": "classnote/440 - Chapter 11 - 2022 Fall.pdf",
+        "pages": "8–14"
+      }
+    ]
+  }
+]

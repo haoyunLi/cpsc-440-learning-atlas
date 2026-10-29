@@ -1,0 +1,5 @@
+x <- c(8, 9, 10, 11, 12, 14, 16, 24)
+q1 <- median(x[1:4])
+q3 <- median(x[5:8])
+answer <- q3 + 1.5 * (q3 - q1)
+print(c(Q1 = q1, Q3 = q3, upper_fence = answer))

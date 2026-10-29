@@ -1,0 +1,7 @@
+set.seed(440)
+g <- factor(rep(c("A","B","C"),each=20))
+y <- rep(c(0,6,12),each=20)+rnorm(60)
+fit <- aov(y ~ g)
+par(mfrow=c(1,2))
+qqnorm(residuals(fit)); qqline(residuals(fit))
+plot(fitted(fit),residuals(fit)); abline(h=0,lty=2)

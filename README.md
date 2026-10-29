@@ -4,7 +4,16 @@
 
 **学习网站：** https://haoyunli.github.io/cpsc-440-learning-atlas/
 
-10 个学习单元、78 个教学段落、10 个交互实验，另有 20 张原创静态图与 10 组分步图解（共 40 个步骤画面）。所有单元的讲解、例题与答案已逐章重写，补足计算衔接与变量解释。每个单元从问题与动机进入定义、计算机制、worked examples、条件、误解与解释式练习。交互包括 binomial / CLT、α / β / power、CI repeated coverage、pairing、variance CI、ANOVA、FWER、interaction、blocking 和 regression intervals。
+10 个学习单元、88 个教学段落、56 道原创改编练习（168 个解题步骤）、10 个章节实验和 4 个交互工作台。另有 20 张原创静态图与 10 组分步图解（共 40 个步骤画面）。每个单元从问题与动机进入定义、计算机制、worked examples、条件、误解与练习，并明确掌握目标。
+
+新增的自学入口：
+
+- [练习工坊](practice.html)：41 道数值题、15 道选择题；按章节、难度、题型与复习状态筛选，自动判题、提示、逐步解析、每章抽一题综合自测。每题附独立 base R 脚本；进度仅保存于本浏览器。
+- [交互实验室](labs.html)：分布与单双尾概率、Welch / pooled / paired 数据工作台、可暂停的 residual / Q–Q 逐点演示、研究问题与设计方法向导。
+- [自学手册](handbook.html)：零基础路线、11 类方法速查、完整 R 入门分析、结论写法、20 个中英术语检索。
+- [辅助资源](resources.html)：按章筛选 OpenIntro 视频与教材、Seeing Theory 可视化、NIST 方法说明和 R 官方文档，每个资源附学习任务。
+
+原有实验包括 binomial / CLT、α / β / power、CI repeated coverage、pairing、variance CI、ANOVA、FWER、interaction、blocking 和 regression intervals。新增深入例题针对真实难点：不放回概率、单双侧功效、软件秩统计量差异、F 小于 1 的双尾、非平衡 ANOVA、Tukey 字母、interaction 与显著性、block 编码与 influence。
 
 ## 内容与来源
 
@@ -12,7 +21,7 @@
 
 课程的重复逐行推导与 SAS/R 软件输出合并成科学解释、代表性演算与不同场景的案例桥接。本站不逐格转载每个软件输出、原课件图片、教材扫描页或原练习题。原始资料、作业、测验、考试和个人答案不包含在此仓库。Notes 中不同于 PPT 的案例和推导分别保留；方法的适用条件优先于原资料中不严谨的措辞。
 
-公开来源说明与 primary references 见 [sources.html](sources.html)。本站为独立学习辅助材料，不是 UIUC 官方课程站。
+公开来源说明、各章文件与主题页码映射、primary references 见 [sources.html](sources.html)。作业与测验只作为题型参考，练习的数值和情境重新设计；没有转载个人提交答案。本站为独立学习辅助材料，不是 UIUC 官方课程站。
 
 ## 本地运行与维护
 
@@ -28,7 +37,9 @@ python3 -m http.server 4400
 python3 tools/build.py
 ```
 
-生成的 HTML 已提交，GitHub Pages 从 `main` 根目录发布。JavaScript 关闭时仍可阅读所有核心内容。
+补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
+
+生成的 HTML 已提交，GitHub Pages 从 `main` 根目录发布。JavaScript 关闭时仍可阅读所有核心内容、展开提示与解析。运行时不依赖 CDN、外部字体或服务器 API；外部辅助链接需要网络。
 
 ## 验证
 
@@ -36,9 +47,14 @@ python3 tools/build.py
 
 ```sh
 node tests/numerical.mjs
+node tests/workbench.mjs
+node tests/learning.mjs
+python3 tests/site.py
 ```
 
-另外检查了所有章节在 1440、390、320px 下的横向溢出与参数端点，以及 interval 播放/暂停/重置、配对 covariance、设计平衡、prediction interval 宽度、输入错误、进度、搜索、可访问名称与内部链接。测试采用独立 headless browser；未操作原生桌面界面。浏览器字体、自定义辅助技术组合仍可能需要使用者反馈。
+工作台数值测试独立对照 R，包括极小尾概率、无效输入与配对约束。题库的 56 段 R 与 10 个补充例题的 R 均已执行核查；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
+
+浏览器验证覆盖桌面与手机布局、做错→待复习→重新答对、保存进度、综合自测、术语搜索、实验参数与动画。原有章节还检查了 interval 播放/暂停/重置、配对 covariance、设计平衡、prediction interval 宽度、输入错误、搜索与内部链接。浏览器字体、自定义辅助技术组合仍可能需要使用者反馈。
 
 新增分步图解也验证了手动前后推进、键盘 Enter、播放/暂停、离屏停止、最终步骤停止、减少动态偏好、加载失败和全部章节的无 JavaScript 回退。手机默认显示完整图，放大图的方向键移动和当前步骤同步已逐章核查。
 

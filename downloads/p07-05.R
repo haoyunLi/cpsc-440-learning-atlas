@@ -1,0 +1,6 @@
+y <- c(9,10,10,10,11, 6,8,10,12,14, 8,9,10,11,12)
+g <- factor(rep(c("A","B","C"), each=5))
+z <- abs(y-ave(y,g,FUN=median))
+fit <- aov(z ~ g)
+answer <- unname(summary(fit)[[1]][1,"F value"])
+summary(fit)

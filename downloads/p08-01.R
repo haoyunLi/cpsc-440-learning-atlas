@@ -1,0 +1,6 @@
+y <- c(4,5,6,7,8,9,8,9,10)
+g <- factor(rep(c("A","B","C"),each=3))
+fit <- aov(y ~ g)
+answer <- unname(summary(fit)[[1]][1,"F value"])
+print(summary(fit))
+print(sum((y-mean(y))^2))

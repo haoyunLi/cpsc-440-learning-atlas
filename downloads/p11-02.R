@@ -1,0 +1,6 @@
+x <- 1:5; y <- c(2,4,5,4,5)
+fit <- lm(y ~ x)
+pi <- predict(fit,data.frame(x=3),interval="prediction",level=0.95)
+ci <- predict(fit,data.frame(x=3),interval="confidence",level=0.95)
+answer <- unname(pi[1,"upr"])
+print(pi); print(ci)

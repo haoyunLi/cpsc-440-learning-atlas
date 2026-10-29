@@ -67,6 +67,7 @@ def build_learning(root, chapters, doc, esc):
 <section class="lesson" id="chapter-labs"><h2>继续进入各章实验与机制演示</h2><div class="lab-directory">'''
     lab_names = [('01', 'summary', '数据、分箱与异常值'), ('04', 'probability', 'Binomial 与反复抽样的 CLT'), ('05', 'inference', 'α / β / power 与 CI 重复覆盖'), ('06', 'paired', 'Pairing 与 covariance'), ('07', 'variance', 'χ² 与不对称的 variance CI'), ('08', 'anova', '组间信号与组内 noise'), ('09', 'multiple', '比较次数与 FWER'), ('14', 'factorial', 'Interaction、样本构成与 marginal means'), ('15', 'design', 'Blocking 与 Latin square'), ('11', 'regression', 'Least squares、CI 与 PI')]
     labs += ''.join(f'<a href="chapters/{cid}.html#lab-{key}"><span>Ch {"1–3" if cid == "01" else int(cid)}</span>{title} →</a>' for cid, key, title in lab_names)
+    labs += '<a href="chapters/15.html#randomization-experiment"><span>Ch 15</span>同样15盆：CRD与RCBD的抽签范围 →</a>'
     labs += '<a href="chapters/08.html#kruskal-experiment"><span>Ch 8</span>Kruskal–Wallis：ties、H 与 1680 种标签分配 →</a>'
     labs += '<a href="chapters/07.html#brown-forsythe-experiment"><span>Ch 7</span>Brown–Forsythe：原始值 → median 距离 → ANOVA →</a></div></section></main>'
     (root / 'labs.html').write_text(doc('交互实验室', labs))

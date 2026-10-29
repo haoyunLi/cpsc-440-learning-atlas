@@ -10,7 +10,7 @@
 
 - [练习工坊](practice.html)：62 道数值题、27 道选择题；按章节、难度、题型与复习状态筛选，自动判题、逐选项解释、常见计算岔路反馈、提示、可逐步推进的解析、每章抽一题综合自测（本轮进度与累计记录分开）。每题附独立 base R 脚本；进度仅保存于本浏览器。每题回到对应知识点，60 个知识点也直接列出相应题目；各节提供下一节或章节实验与返回目录入口；筛选和自测模式与 URL 同步，脚本未就绪时自动判题控件保持禁用。
 - [交互实验室](labs.html)：分布与单双尾概率、Welch / pooled / paired 数据工作台、可暂停的 residual / Q–Q 逐点演示、研究问题与设计方法向导，以及可编辑系数、均值与样本量的 contrast 实验（普通 / Bonferroni / Scheffé 区间、正交性与当前设置 R 代码），以及可编辑观测、追踪同一点的变换与均值实验（平方根 / 对数、回变换中心、稳定二阶矩差值、当前数据 R 代码），以及精确秩检验实验（20 个组标签与 32 个符号分配、含 ties 重数与删零、单双侧尾部计数、可暂停播放），以及可编辑六格频数的条件概率实验（行 / 列条件、边际与联合概率、有限表独立性、面积图和当前表的 R 代码）。
-- [自学手册](handbook.html)：零基础路线、公式符号与分位数读法、11 类方法速查、完整 R 入门分析、结论写法、20 个中英术语检索。
+- [自学手册](handbook.html)：零基础路线、公式符号与分位数读法、14 类问题与设计速查、完整 R 入门分析、结论写法、20 个中英术语检索。
 - [辅助资源](resources.html)：按章筛选 OpenIntro 视频与教材、Seeing Theory 可视化、NIST 方法说明和 R 官方文档，每个资源附学习任务。
 
 原有实验包括 binomial / CLT、α / β / power、CI repeated coverage、pairing、variance CI、ANOVA、FWER、interaction、blocking 和 regression intervals。章节还包含连续性校正的完整边界规则与近似误差、median CI 从置信度到数据端点、单样本单侧 t 检验逆求样本量。新增深入例题针对真实难点：不放回概率、单双侧功效、软件秩统计量差异、F 小于 1 的双尾、非平衡 ANOVA、Tukey 字母、interaction 与显著性、block 编码与 influence。
@@ -37,7 +37,7 @@ python3 -m http.server 4400
 python3 tools/build.py
 ```
 
-补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 70 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
+补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 73 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
 
 Ch04 通过完整列联表区分两种条件方向、joint 与 marginals，以及固定清单概率和样本频率；Ch05 对照 PPT 的 σ 与 notes 的样本 s 设定，分别说明精确 z、正态模型 t 与大样本 z 近似。方法向导保留配对 / 重复 / block 结构与 variance 条件，推荐对应知识点；Ch08 追加三项 Welch 检验、Bonferroni P 与近似同时区间的完整复算。
 
@@ -62,6 +62,7 @@ node tests/clt.mjs
 node tests/factorial.mjs
 node tests/kruskal.mjs
 node tests/latin.mjs
+node tests/randomization.mjs
 node tests/ci_geometry.mjs
 node tests/distribution_display.mjs
 node tests/search.mjs
@@ -88,7 +89,7 @@ python3 tests/practice_paths.py
 python3 tests/r_examples.py
 ```
 
-工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。89 道题、70 个章节示例及 R 入门脚本，共 160 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
+工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。89 道题、73 个章节示例及 R 入门脚本，共 163 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
 
 Ch08 的 Kruskal–Wallis 实验可编辑三组各3个观测，追踪 pooled ranks、ties correction 与全部1680种固定组规模标签分配；逐项浏览保留观测身份和重复统计量的分配重数，比较χ²近似与条件exact P。正文与新练习包含完整独立R枚举。Ch15 区分block内随机化、全场CRD分配和对既有RCBD数据省略block的分析，并核对两个随机化空间的大小。
 
@@ -129,3 +130,7 @@ Ch06 新增 pooled / Welch 的长期校准比较：在相等总体均值下交�
 练习答案修改后会撤下旧的正确/错误反馈并提示重新检查，历史明确标为上次有效提交；只有再次提交才累计次数。反馈生命周期测试覆盖数值题、选择题、无效输入、重复编辑、Enter 后移开焦点、跨标签同步和综合自测重置。
 
 Brown–Forsythe 验证包含 16 组独立 R 分析及对应当前数据代码，覆盖不等 n、ties、每组两个值、常量、极小尺度和大基准值；另检查平移/放大、全部点的有限 SVG 坐标、表格焦点、无效输入恢复与异步复制。桌面与 390px 手机实测两个变换、逐行追踪和复制；数值过于接近浮点下限或变换会抹掉组内差异时，会明确提示换单位并保留可用数据。
+
+Ch04 补全 factorial / combination 的计数依据，用12种有序抽法到6个集合解释为什么除以k!，并连回精确标签分配与设计空间。新增期望先修从概率加权定义、八个不等成功率结果，到依赖与独立indicator的均值/方差对照，帮助区分期望可加性和二项分布条件。Ch14 增加多水平slice的完整联合F、共享完整模型误差及预定family校正，并按原课件修正Group因素标签。
+
+Ch15 新实验固定15个花盆的ID、位置与环境，分别按全场CRD或block内RCBD抽签；展示处理×block计数、平均环境和偶然平衡的CRD。当前分配可复制到R核验，草稿与已应用设置明确区分；独立枚举756756个CRD布局与7776个RCBD布局，并核对16份实际分配的R代码。

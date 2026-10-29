@@ -65,6 +65,7 @@ node tests/influence.mjs
 node tests/latin.mjs
 node tests/randomization.mjs
 node tests/student.mjs
+node tests/paired.mjs
 node tests/ci_geometry.mjs
 node tests/distribution_display.mjs
 node tests/search.mjs
@@ -144,3 +145,7 @@ Ch11 的影响度实验保留六个固定ID，可独立调整第6点的x/y并选
 Ch01 用40名志愿者的完整情景区分目标总体、样本、实验单位、参数与统计量，以及 random assignment 和 random sampling；四种有序样本枚举解释 n−1 的无偏性质与 SD 的偏差。Ch05 增加同一份原始数据的 z-with-s / t 对照，明确中心 t 的零假设条件及复合零假设下 α 的上界含义。新的三种区间实验保留实际生成的 iid 正态样本，允许切换置信水平后重算同一批数据、回看任意已抽样本，并将有限模拟覆盖率与精确理论覆盖率分列。R 导出复现当前选中样本，不声称重建浏览器的随机序列。
 
 三种区间实验用 144 个 n/置信水平组合、34 组原始样本及实际导出脚本与 R 对照；检查单步与批量抽样一致、切换水平不消耗随机序列、重置重放、500 组上限、完整端点、无效状态恢复及复制反馈。桌面与390px手机验证同一数据重算、旧样本回看、R复制和新旧CI实验的独立状态。
+
+Ch06 明确 paired 可以是同一个体的重复观测，也可以是设计中预先匹配的不同单位；用课程 split-field 案例区分 field 作为 pair/block 与 half-field 作为处理随机化实验单位。配对实验与正文共用五对原始值，逐项显示差值、sample covariance 和差值方差贡献；整行反序保持推断，单独反转 B 显示错配身份及算术后果，不输出该映射的正式 P/CI。方法向导、手册与两道练习的设计解释同步修正。
+
+配对实验对三种映射与五个选中 ID 逐一执行独立 R 核验及导出代码；检查原始点坐标固定、身份追踪、整行排序不变量、错配中的单个保留 pair、稳定焦点、错误恢复与复制生命周期。桌面与390px手机验证全部模式、行追踪、放大图及横向表格；168 个独立 R 下载脚本仍全部通过。

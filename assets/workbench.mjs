@@ -290,7 +290,31 @@ function mountDiagnostics(root) {
   render();
 }
 
-export function chooseMethod({ goal = 'mean', design = 'independent', groups = 'two', factors = 'one', equal = 'unsure' } = {}) {
+function chooseLocationMethod({ design, groups, factors, locationTarget }) {
+  if (factors === 'two') return { boundary: true, title: '多个 treatment factors：先指定位置目标与模型', chapter: design === 'blocked' ? '15' : '14', anchor: design === 'blocked' ? 'factorial-blocks' : 'interaction', why: '先写清比较哪些 factor levels、是否存在 interaction，以及需要怎样的 averaging 权重。单因素的 sign、rank-sum 或 Kruskal–Wallis 路线不能自动回答 factorial 问题。', caution: '链接用于理解设计与模型结构，不是适用于所有 factorial median / rank 问题的现成检验。若有配对、重复测量或 blocks，还必须保留其依赖结构。' };
+  if (design === 'blocked') return { boundary: true, title: '含 blocks 的位置问题：保留随机化与依赖结构', chapter: '15', anchor: 'blocking', why: '先定义 block 内比较的参数，再选择尊重 blocks 的模型或允许的随机化。不能把同 block 的观测直接当作普通独立组。', caution: '普通独立组 rank-sum / Kruskal–Wallis 不会自动调整 blocks。该链接解释设计基础；是否能化成独立的预定两条件差值，仍须由实际设计决定。' };
+  if (design === 'paired' && groups !== 'two') return { boundary: true, title: '相关观测：先明确可分析的差值或重复测量模型', chapter: '06', anchor: 'paired-t', why: '这里的配对路线需要每个预定 pair 各有一个 A、B，并先定义差值方向。一个条件或三个及以上相关条件，尚未给出这种两条件差值问题。', caution: '不能为了运行 sign / signed-rank 随意生成 pairs，也不能把重复测量当成独立组做 Kruskal–Wallis。链接说明配对结构，不表示此时应采用 paired t。' };
+  if (locationTarget === 'median') {
+    if (design === 'paired') return { title: '配对差值的 median：Sign test', chapter: '05', anchor: 'median', why: '按预先确定的 pairs 和方向计算 D=A−B，再针对 median(D)=D₀ 记录正负号。目标 median(A−B) 一般不等于两个边际 medians 的差；各 pairs 应独立。', caution: 'Sign test 不要求差分布对称，但连续差分布及 H₀ 下正负号各 .5 的公平符号条件仍须成立；以非零差数 m 的 Binomial(m,.5) 为参考。零差、离散值或大量 ties 时，不能仅删零就假定条件成立。' };
+    if (groups === 'one') return { title: '单总体 median：Sign test', chapter: '05', anchor: 'median', why: '研究参数是总体 median。对独立同分布观测计算 Y−M₀，只记录正负号；不因偏态就把科学目标从 mean 自动改成 median。', caution: '连续总体、H₀ 下正负号各 .5 时，可用非零观测数 m 的 Binomial(m,.5) 参考。不要求对称；零差、离散值或大量 ties 时须核对公平符号条件，删零本身不能保证它成立。' };
+    return { boundary: true, title: '独立组的 median 比较：先补充位置模型', chapter: groups === 'two' ? '06' : '08', anchor: groups === 'two' ? 'rank-sum' : 'kruskal', why: '两组或多组的 medians 相等，不能单独保证组标签可交换。Rank-sum / Kruskal–Wallis 的基本 null 是同分布；只有共同形状、尺度及 location-shift 模型等依据支持时，才可进一步按位置或 median 差解释。', caution: '链接说明秩方法的适用边界，并未解决任意不同形状总体的 median 比较。不要把独立组强行配成差值，也不要根据哪种方法 P 更小来更换目标。' };
+  }
+  if (locationTarget === 'symmetric') {
+    if (design === 'paired' || groups === 'one') return { title: design === 'paired' ? '对称差分布的中心：Wilcoxon signed-rank' : '单总体的对称中心：Wilcoxon signed-rank', chapter: '06', anchor: 'signed-rank', why: design === 'paired' ? '先按设计中的真实 pairs 计算 D=A−B，再减去假设中心 D₀。对差分布的对称性有依据时，用差的方向与绝对差 ranks 检查中心偏移；各 pairs 应独立。' : '对独立同分布观测先计算 D=Y−M₀，再按 |D| 排序并保留符号。这里 M₀ 是对称位置模型的中心，在该模型下也是 median。', caution: '需要差分布的对称性，使 H₀ 下符号与绝对大小符合参考分布；不是任意偏态总体的 median 检验。明确零差处理与 average ranks，核对有无 ties、exact 符号枚举或近似参考的条件与双侧定义。' };
+    return { boundary: true, title: '各组对称仍不足以指定独立组的位置检验', chapter: groups === 'two' ? '06' : '08', anchor: groups === 'two' ? 'rank-sum' : 'kruskal', why: '各组分别对称，不保证它们具有共同形状或尺度，也不会生成 pairs。Signed-rank 的单总体 / 配对差中心问题与独立组比较不同。', caution: '若希望把 rank-sum / Kruskal–Wallis 解释为中心位移，还需共同形状与 location-shift 等模型依据；不能仅凭各组对称就作这种解释。链接用于核对边界，不是当前设置下的自动处方。' };
+  }
+  if (locationTarget === 'distribution') {
+    if (design === 'paired') return { boundary: true, title: '相关两条件的分布比较：先明确目标与相关模型', chapter: '06', anchor: 'signed-rank', why: '配对观测不能套用独立组 rank-sum。若真正的问题是配对差的对称中心，才可在相应条件下考虑 signed-rank；任意差分布不能自动作此解释。', caution: '链接只说明 signed-rank 的差值、对称性与参考分布。它不是任意两种相关分布相同的通用检验；需要先明确研究参数或合适的相关数据方法。' };
+    if (groups === 'one') return { boundary: true, title: '单总体的分布问题：尚未指定比较对象', chapter: '05', anchor: 'median', why: '目前只有一个总体，尚未说明要与哪个分布或哪种性质比较。独立组 rank-sum / Kruskal–Wallis 至少需要两个组。', caution: '链接仅介绍单总体 median 的位置目标基础，不是一般的分布拟合优度检验。先定义要比较的分布或参数，再选择相应方法。' };
+    return { title: groups === 'two' ? '独立两组的秩比较：Wilcoxon rank-sum' : '多个独立组的秩比较：Kruskal–Wallis', chapter: groups === 'two' ? '06' : '08', anchor: groups === 'two' ? 'rank-sum' : 'kruskal', why: '研究各组是否系统性占据更高或更低的 ranks；基本 null 是各组同分布。需要独立观测，标签枚举还须满足给定组大小下的可交换性。', caution: `${groups === 'two' ? 'Ties 用 average ranks；核对 exact / permutation 或含 tie correction 的近似参考。' : 'Ties 用 average ranks 并核对 H 的 tie correction；小样本核对 exact / permutation，χ²(k−1) 是大样本近似。整体拒绝不能确定哪一对不同，也不指定某组更大。'}它不是所有分布差异的通用检测，也不是 mean test；只有共同形状、尺度及 location-shift 等条件支持时，才可进一步解释为位置或 median 差。` };
+  }
+  return { boundary: true, title: '先明确位置问题的研究参数', chapter: '05', anchor: 'median', why: '请选择总体 / 配对差的 median、已有对称性依据的中心，或独立组的分布 / 秩位置比较。', caution: '这些目标不能仅凭数据非正态而互换。链接用于理解 median 目标，不表示当前信息已足够指定检验。' };
+}
+
+export function chooseMethod({ goal = 'mean', design = 'independent', groups = 'two', factors = 'one', equal = 'unsure', locationTarget = 'median' } = {}) {
+  // Equal marginal variances do not select a location/rank route. Conversely,
+  // a saved locationTarget has no effect while a different goal is active.
+  if (goal === 'location') return chooseLocationMethod({ design, groups, factors, locationTarget });
   if (goal === 'describe') return { title: '先画数据，再报告 center 与 spread', chapter: '01', anchor: 'variables', why: '连续变量用 histogram、boxplot 和合适的摘要；categorical variables 用 counts 与 proportions。Mean 容易受极端值影响。', caution: '先定义 observation、experimental unit 与测量单位；描述本身不能推出总体因果效应。' };
   if (goal === 'variance') {
     if (design === 'paired') return { title: '相关观测的 variance：先明确参数与依赖结构', chapter: '07', anchor: 'practice', why: '目标可能是各次测量的边际 variance、配对差值的 variance，或单位内的误差 variance；三者不同。重复测量的原始行不能当作独立样本。', caution: '需要适用于相关观测的方差模型或检验。普通 χ²、独立样本 F，以及独立组 Levene / Brown–Forsythe 都不能直接套用；本课程该章仅提供独立样本的基础与适用边界。' };
@@ -320,18 +344,20 @@ export function chooseMethod({ goal = 'mean', design = 'independent', groups = '
 }
 
 function mountChooser(root) {
-  root.innerHTML = `<h2>从研究问题选择方法</h2><p>先告诉自己“想估计什么、数据如何产生”，再考虑计算公式。结果是学习入口，具体分析仍要检查模型条件。</p><div class="wbench-controls">${label('研究目标', field('goal', [['mean', '比较总体 mean'], ['variance', '比较稳定性 / variance'], ['relationship', '连续变量关系与预测'], ['compare', '具体均值比较与多重校正'], ['describe', '描述样本数据']]))}${label('观测结构', field('design', [['independent', '单位之间独立 / 独立组'], ['paired', '预先配对 / 同一单位重复观测'], ['blocked', '有明确 nuisance blocks']]))}${label('总体 / 处理组数', field('groups', [['two', '两个'], ['one', '一个'], ['many', '三个及以上']]))}${label('Treatment factors', field('factors', [['one', '一个因素'], ['two', '两个或更多因素']]))}${label('共同 variance 假设', field('equal', [['unsure', '未知或没有充分理由'], ['yes', '有科学与诊断依据支持']]))}</div><div class="wbench-result" aria-live="polite"></div>`;
+  root.innerHTML = `<h2>从研究问题选择方法</h2><p>先告诉自己“想估计什么、数据如何产生”，再考虑计算公式。结果是学习入口，具体分析仍要检查模型条件。</p><div class="wbench-controls">${label('研究目标', field('goal', [['mean', '比较总体 mean'], ['location', '中位数与秩位置'], ['variance', '比较稳定性 / variance'], ['relationship', '连续变量关系与预测'], ['compare', '具体均值比较与多重校正'], ['describe', '描述样本数据']]))}${label('位置问题的具体目标', field('locationTarget', [['median', '单总体 / 配对差的 median'], ['symmetric', '对称中心（已有对称性依据）'], ['distribution', '独立组的分布 / 秩位置']]))}${label('观测结构', field('design', [['independent', '单位之间独立 / 独立组'], ['paired', '预先配对 / 同一单位重复观测'], ['blocked', '有明确 nuisance blocks']]))}${label('总体 / 处理条件数', field('groups', [['two', '两个'], ['one', '一个'], ['many', '三个及以上']]))}${label('Treatment factors', field('factors', [['one', '一个因素'], ['two', '两个或更多因素']]))}${label('共同 variance 假设', field('equal', [['unsure', '未知或没有充分理由'], ['yes', '有科学与诊断依据支持']]))}</div><div class="wbench-result" aria-live="polite"></div>`;
   listen(root, () => {
-    const state = Object.fromEntries(['goal', 'design', 'groups', 'factors', 'equal'].map(key => [key, read(root, key).value]));
+    const state = Object.fromEntries(['goal', 'design', 'groups', 'factors', 'equal', 'locationTarget'].map(key => [key, read(root, key).value]));
     const relevant = {
-      design: ['mean', 'variance', 'relationship', 'compare'].includes(state.goal),
-      groups: state.goal === 'variance' || (state.goal === 'mean' && state.factors !== 'two'),
-      factors: ['mean', 'compare'].includes(state.goal) || (state.goal === 'variance' && state.design === 'independent' && state.groups === 'many'),
+      locationTarget: state.goal === 'location',
+      design: ['mean', 'variance', 'relationship', 'compare', 'location'].includes(state.goal),
+      groups: ['variance', 'location'].includes(state.goal) || (state.goal === 'mean' && state.factors !== 'two'),
+      factors: ['mean', 'compare', 'location'].includes(state.goal) || (state.goal === 'variance' && state.design === 'independent' && state.groups === 'many'),
       equal: (state.goal === 'compare' && state.design !== 'paired') || (state.goal === 'mean' && state.design === 'independent' && state.factors === 'one' && state.groups !== 'one')
     };
     for (const [key, active] of Object.entries(relevant)) { read(root, key).disabled = !active; read(root, key).closest('label').classList.toggle('wbench-inactive', !active); }
+    read(root, 'locationTarget').closest('label').hidden = !relevant.locationTarget;
     const result = chooseMethod(state);
-    root.querySelector('.wbench-result').innerHTML = `<strong>${result.title}</strong><span>${result.why}</span><span>${result.caution}</span><a href="${chapterURL(result.chapter, result.anchor)}">进入 Chapter ${result.chapter === '01' ? '1–3' : Number(result.chapter)} 对应知识点 →</a>`;
+    root.querySelector('.wbench-result').innerHTML = `${result.boundary ? '<span class="wbench-error">需要先补充模型或调整问题</span>' : ''}<strong>${result.title}</strong><span>${result.why}</span><span>${result.caution}</span>${state.goal === 'location' ? '<span class="wbench-note">“总体 / 处理条件数”不是 pairs 数量：20 个 pairs 仍是两个条件。目标与设计先于检验；不能仅因非正态就换成秩方法。</span>' : ''}<a href="${chapterURL(result.chapter, result.anchor)}">${result.boundary ? '查看适用边界与基础' : `进入 Chapter ${result.chapter === '01' ? '1–3' : Number(result.chapter)} 对应知识点`} →</a>`;
   });
 }
 

@@ -85,6 +85,7 @@ def build_learning(root, chapters, doc, esc):
         ('start', '第一次学：总体、样本与实验单位', 'Population sample parameter statistic experimental unit 零基础'),
         ('notation', '公式怎么读：符号、下标与分位数', 'Sigma Σ 求和 下标 横线 帽子 分位数 quantile parameter statistic μ sigma variance SD SE'),
         ('method-map', '方法速查：先读问题，再读公式', '方法选择 t test ANOVA paired Welch contrast 公式速查'),
+        ('rank-targets', 'Median、对称中心与秩位置：先明确目标', 'sign 符号检验 signed-rank rank-sum Kruskal-Wallis median 配对差 对称 location shift'),
         ('r-start', 'R 从零到一个完整分析', 'R 入门 读数据 ANOVA Brown-Forsythe Tukey'),
         ('language', '结论怎么写', '结论写作 P-value confidence interval CI 易错点'),
         ('glossary', '中英术语与符号', 'SD SE residual LSMeans standard error 标准误 术语词典')

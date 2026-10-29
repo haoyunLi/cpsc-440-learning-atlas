@@ -30,8 +30,16 @@
 <tr><td>每个 block 内有全部 treatments</td><td>Yᵢⱼ=μ+τᵢ+βⱼ+εᵢⱼ<br>完整 RCBD residual df=(t−1)(b−1)</td><td>block 内随机化。每 cell 一个观测时 interaction 与 error 无法分离。<a href="chapters/15.html">Ch 15</a></td></tr>
 <tr><td>每个独立单位的一对连续 X、Y</td><td>ŷ=b₀+b₁x；b₁=Sxy/Sxx<br>residual eᵢ=yᵢ−ŷᵢ</td><td>每单位记录一对 (X,Y) 本身不意味着误差相关。检查 conditional mean 线性、单位间 independent errors、variance 与 normality。<a href="chapters/11.html#slr">Ch 11</a></td></tr>
 <tr><td>同一单位多行 / 含 blocks 的连续关系</td><td>先区分单位内、单位间或调整 block 后的 slope；再选择对应误差结构的 regression。</td><td>普通 SLR 的独立误差 SE、CI / PI 不可直接沿用。可能需要 block-adjusted、repeated-measures 或 mixed regression，本站基础例不覆盖全部模型。<a href="chapters/11.html#slr">SLR 基础</a> · <a href="chapters/15.html#random-effects">相关结构</a></td></tr>
-<tr><td>秩与位置问题</td><td>Sign / signed-rank / rank-sum / Kruskal–Wallis</td><td>它们不是同一个检验，也不是统一的“非正态 mean test”；对称或同形 location-shift 条件决定解释。<a href="chapters/08.html#kruskal">检查目标</a></td></tr>
-</tbody></table></div></section>
+<tr><td>单总体 median，或预先配对差 D 的 median</td><td>Sign：数 Y−M₀ 或 D−D₀ 的正负号；公平符号条件下正号数 B∼Binomial(m,.5)。</td><td>独立观测／独立 pairs；连续总体在假设 median 两侧各有一半概率。不需要对称，但离散或 zero ties 不能无条件删去后仍宣称检验任意 median。<a href="chapters/05.html#median">Sign 与 median 区间</a>；<a href="chapters/06.html#paired-median-target">配对差 median 的目标</a>。</td></tr>
+<tr><td>对称分布的中心：单样本或两条件配对</td><td>Signed-rank：对中心化值的绝对大小排序，再合计正号 ranks W⁺。</td><td>单样本中心化 Y−M₀，配对先作 D 再减 D₀。参考分布要求对称性等条件；不能只因不正态就选它。核对 zeros、absolute ties 与 exact/approximation。<a href="chapters/06.html#signed-rank">Signed-rank</a>；<a href="chapters/06.html#single-sample-signed-rank">单样本复算</a>。</td></tr>
+<tr><td>两个独立组：相同分布假设下的秩位置比较</td><td>Rank-sum：两组合并排名，合计一组的 ranks；均值差的单位和距离没有保留。</td><td>独立单位和组别；只有额外共同形状、location-shift 条件下，才按中心位移解释。它不是任意不同形状下“只检验两个 median 相等”的方法。<a href="chapters/06.html#rank-sum">Rank-sum / Mann–Whitney</a>。</td></tr>
+<tr><td>三个及以上独立组：相同分布假设下的秩位置比较</td><td>Kruskal–Wallis：合并 ranks 后比较组 rank sums；有 ties 时校正 H。</td><td>总体检验拒绝不说明哪一对不同；median 解释仍需额外同形位置模型。小样本须核对参考分布。<a href="chapters/08.html#kruskal">Kruskal–Wallis 与 exact 枚举</a>。</td></tr>
+</tbody></table></div>
+<h3 id="rank-targets">先写参数，再决定保留哪些信息</h3>
+<p>“非正态”只描述一个模型条件，不能替你选择科学问题。预计总工时需要 arithmetic mean；典型个体位置可能关心 median；预先匹配对象的改变可以问 median(D)；秩位置比较则使用相对排序。即使面对同一份资料，这些目标也不等价。<a href="practice.html#p05-11">先判断总工时的目标</a>，再用<a href="practice.html#p06-04">偏态配对差题</a>核对为什么不能直接套 signed-rank。</p>
+<p>配对问题先固定 D=A−B，所问 median(D) 一般不等于 median(A)−median(B)。Sign 不使用变化幅度；signed-rank 使用绝对差的排名，并增加对称性条件。对于两个或多个独立组，只知道各组 median 相等，并不保证原始标签可交换；不同形状下的 median 比较需要专门匹配目标的方法，不能无条件以 rank-sum 或 Kruskal–Wallis 代替。</p>
+<p>若数据含 blocks、同一对象有三个及以上测量，或问题涉及多个因素，须保留其相关性与因素结构。普通独立组 rank-sum / Kruskal–Wallis 不会自动处理这些设计；给每个 cell 排名，也不能自动获得正确的交互作用检验。<a href="labs.html#chooser">在方法向导中改变目标与设计</a>，查看相应入口或需要补充的条件。</p>
+</section>
 <section id="r-start" class="lesson"><h2>R 从零到一个完整分析</h2><p>这些代码使用 base R，无需额外 packages。浏览器交互不会运行 R。把整段代码粘贴到 R console，或保存为 .R 后执行。下载章节脚本后，可在 RStudio 的 File → Open File 打开，再点 Source；也可在 R 中运行 <code>source(file.choose(), echo=TRUE)</code> 并选择该 .R 文件。图形在 Plots 面板或 R 的图形窗口中显示。<code>&lt;-</code> 是赋值；<code>c()</code> 组合一列值；<code>data.frame()</code> 建表；<code>factor()</code> 标记类别；<code>y ~ group</code> 表示用 group 解释 y。</p><pre><code># Synthetic teaching data: independent units in three groups
 d &lt;- data.frame(
   group = factor(rep(c("A", "B", "C"), each = 5)),

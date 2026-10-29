@@ -78,5 +78,7 @@
   "p09-05": "unequal-n-pairwise",
   "p04-13": "conditional",
   "p05-15": "ci",
-  "p11-06": "regression-anova"
+  "p11-06": "regression-anova",
+  "p04-14": "clt",
+  "p14-06": "factorial-ss"
 }

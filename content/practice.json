@@ -725,12 +725,12 @@
       "locator": "Q2",
       "note": "原创改编，非原题答案；数值与情境已重新设计。"
     },
-    "prompt": "已知 σ=6，n=36。以 α=0.05 检验 H₀:μ≤50 对 Hₐ:μ>50。若真实 μ=52，Type II error 概率 β 是多少？",
+    "prompt": "规划模型假定 n=36 个观测独立同分布于 N(μ,6²)，总体 σ=6 已知。使用右尾 Z 检验，以 α=0.05 检验 H₀:μ≤50 对 Hₐ:μ>50。若真实 μ=52，在此模型下 Type II error 概率 β 是多少？",
     "hint": "先在 μ=50 下确定拒绝阈值，再在 μ=52 下计算不拒绝的面积。",
     "steps": [
       {
         "title": "零假设决定阈值",
-        "body": "SE=6/√36=1，拒绝域为 Ȳ>50+z₀.₉₅×1=51.64485。此阈值使边界 μ=50 下误拒概率为 0.05。"
+        "body": "独立同分布的正态模型使 Ȳ 精确服从 N(μ,σ²/n)，SE=6/√36=1。拒绝域为 Ȳ>50+z₀.₉₅×1=51.64485；在给定模型的边界 μ=50 下，此阈值使误拒概率为 0.05。"
       },
       {
         "title": "换到真实均值 52",
@@ -741,9 +741,9 @@
         "body": "β=Φ((51.64485−52)/1)=Φ(−0.35515)≈0.361240，因此 power=1−β≈0.638760。"
       }
     ],
-    "conclusion": "真实均值为 52 时，此检验约有 63.88% 的检出能力。",
-    "pitfall": "β 依赖指定的真实效应；它不是一次观测后“H₀ 错了”的概率，也不等于 α。",
-    "rCode": "mu0 <- 50; mu1 <- 52; sigma <- 6; n <- 36; alpha <- 0.05\nse <- sigma / sqrt(n)\ncritical_mean <- mu0 + qnorm(1-alpha) * se\nanswer <- pnorm(critical_mean, mu1, se)\nprint(c(threshold = critical_mean, beta = answer, power = 1-answer))",
+    "conclusion": "在指定的独立正态模型、已知 σ=6 和真实 μ=52 下，此检验的 power≈.6388。",
+    "pitfall": "β 依赖指定的真实效应与抽样模型；它不是一次观测后“H₀ 错了”的概率，也不等于 α。仅知道 σ 和 n 不足以保证样本均值精确正态；若使用正态近似，应另行检查并注明近似条件。",
+    "rCode": "# Exact planning model: independent observations from N(mu, sigma^2), known sigma.\nmu0 <- 50; mu1 <- 52; sigma <- 6; n <- 36; alpha <- 0.05\nse <- sigma / sqrt(n)\ncritical_mean <- mu0 + qnorm(1-alpha) * se\nanswer <- pnorm(critical_mean, mu1, se)\nprint(c(threshold = critical_mean, beta = answer, power = 1-answer))",
     "unit": "β",
     "answer": 0.3612399686876652,
     "tolerance": 0.001,
@@ -775,12 +775,12 @@
       "locator": "Q2",
       "note": "原创改编，非原题答案；数值与情境已重新设计。"
     },
-    "prompt": "已知 σ=12，n=36，以 α=0.05 检验 H₀:μ≥100 对 Hₐ:μ&lt;100。若真实 μ=96，β 是多少？",
+    "prompt": "规划模型假定 n=36 个观测独立同分布于 N(μ,12²)，总体 σ=12 已知。使用左尾 Z 检验，以 α=0.05 检验 H₀:μ≥100 对 Hₐ:μ&lt;100。若真实 μ=96，在此模型下 β 是多少？",
     "hint": "检验在较小的 Ȳ 时拒绝；β 是备择分布中留在阈值右侧的面积。",
     "steps": [
       {
         "title": "写出左尾拒绝域",
-        "body": "SE=12/6=2，临界均值 c=100+z₀.₀₅×2≈96.71029。Ȳ&lt;c 时拒绝。"
+        "body": "在给定的独立同分布正态模型下，Ȳ~N(μ,σ²/n)，SE=12/6=2。临界均值 c=100+z₀.₀₅×2≈96.71029；Ȳ&lt;c 时拒绝，在边界 μ=100 下误拒概率为 .05。"
       },
       {
         "title": "写出漏检事件",
@@ -791,9 +791,9 @@
         "body": "β=1−Φ((96.71029−96)/2)=1−Φ(0.35515)≈0.361240。与上一道对称右尾题相同，因为标准化效应同为 2。"
       }
     ],
-    "conclusion": "β≈0.3612，power≈0.6388。",
-    "pitfall": "只把右尾公式中的差值符号改一下，容易把 β 算成 power；先画拒绝域最可靠。",
-    "rCode": "mu0 <- 100; mu1 <- 96; sigma <- 12; n <- 36\nse <- sigma / sqrt(n)\ncritical_mean <- mu0 + qnorm(0.05) * se\nanswer <- pnorm(critical_mean, mu1, se, lower.tail = FALSE)\nprint(c(threshold = critical_mean, beta = answer, power = 1-answer))",
+    "conclusion": "在指定的独立正态模型、已知 σ=12 和真实 μ=96 下，β≈.3612，power≈.6388。",
+    "pitfall": "只把右尾公式中的差值符号改一下，容易把 β 算成 power；先画拒绝域最可靠。这里的正态概率来自题给模型，不能仅凭 n=36 就声称任意总体有同样的精确功效。",
+    "rCode": "# Exact planning model: independent observations from N(mu, sigma^2), known sigma.\nmu0 <- 100; mu1 <- 96; sigma <- 12; n <- 36\nse <- sigma / sqrt(n)\ncritical_mean <- mu0 + qnorm(0.05) * se\nanswer <- pnorm(critical_mean, mu1, se, lower.tail = FALSE)\nprint(c(threshold = critical_mean, beta = answer, power = 1-answer))",
     "unit": "β",
     "answer": 0.3612399686876652,
     "tolerance": 0.001,
@@ -825,12 +825,12 @@
       "locator": "Q3",
       "note": "原创改编，非原题答案；数值与情境已重新设计。"
     },
-    "prompt": "计划用右尾 Z 检验检测 μ 从 50 增至 52，已知 σ=6。要求 α=0.05、power≥0.90。至少需要多少独立观测？",
+    "prompt": "规划模型假定观测独立同分布于 N(μ,6²)，总体 σ=6 已知。计划用右尾 Z 检验检测 μ 从 50 增至 52，要求在此模型下 α=0.05、μ=52 时 power≥0.90。至少需要多少个独立观测？",
     "hint": "效应 Δ=2，β=0.10，使用 z₁₋α+z₁₋β。",
     "steps": [
       {
         "title": "明确目标世界",
-        "body": "在 μ₀=50 控制误拒率 5%；在指定 μ₁=52 时要求至少 90% 的概率拒绝 H₀。Δ=2 不能用后来观测的差替换。"
+        "body": "在独立正态、已知 σ=6 的规划模型下，Ȳ~N(μ,36/n)。在 μ₀=50 控制误拒率 5%；在指定 μ₁=52 时要求至少 90% 的概率拒绝 H₀。Δ=2 不能用后来观测的差替换。"
       },
       {
         "title": "解出规划公式",
@@ -841,9 +841,9 @@
         "body": "把 n=78 代回 β=Φ(z₀.₉₅−Δ√n/σ)，得到 power≈0.9030。n=77 尚未达到 0.90。"
       }
     ],
-    "conclusion": "至少需要 78 个独立观测。",
-    "pitfall": "样本量规划不只需要 α，还需要有科学意义的效应大小、噪声大小和目标 power。",
-    "rCode": "sigma <- 6; delta <- 2; alpha <- 0.05; beta <- 0.10\nanswer <- ceiling((sigma*(qnorm(1-alpha)+qnorm(1-beta))/delta)^2)\npower <- function(n) 1-pnorm(qnorm(1-alpha)-delta*sqrt(n)/sigma)\nprint(c(n = answer, achieved_power = power(answer),\n        previous_n_power = power(answer-1)))",
+    "conclusion": "在指定的独立正态模型、已知 σ=6 和效应 Δ=2 下，至少需要 78 个独立观测。",
+    "pitfall": "样本量规划不只需要 α，还需要有科学意义的效应大小、噪声大小、目标 power 和抽样模型。这里的保证针对题给正态模型；模型或方差假定改变时应重新核验功效。",
+    "rCode": "# Exact planning model: independent normal observations with known sigma.\nsigma <- 6; delta <- 2; alpha <- 0.05; beta <- 0.10\nanswer <- ceiling((sigma*(qnorm(1-alpha)+qnorm(1-beta))/delta)^2)\npower <- function(n) 1-pnorm(qnorm(1-alpha)-delta*sqrt(n)/sigma)\nprint(c(n = answer, achieved_power = power(answer),\n        previous_n_power = power(answer-1)))",
     "unit": "个观测",
     "answer": 78.0,
     "tolerance": 0,
@@ -1509,7 +1509,7 @@
         "body": "dfB=2，dfE=6，dfT=8；MSB=13，MSE=1，所以 F=13。P≈0.00659，5% 水平拒绝 H₀。整体检验不指出具体哪一对不同。"
       }
     ],
-    "conclusion": "F=13；至少有一个总体均值与其他不同。",
+    "conclusion": "F=13，P≈.00659；在给定模型下，5% 水平有证据认为三个总体均值并非全部相等。整体检验不确定具体哪一对不同。",
     "pitfall": "F 是 mean squares 的比，不能直接用 26/6；各 SS 先除以不同自由度。",
     "rCode": "y <- c(4,5,6,7,8,9,8,9,10)\ng <- factor(rep(c(\"A\",\"B\",\"C\"),each=3))\nfit <- aov(y ~ g)\nanswer <- unname(summary(fit)[[1]][1,\"F value\"])\nprint(summary(fit))\nprint(sum((y-mean(y))^2))",
     "unit": "F",
@@ -1594,38 +1594,42 @@
       "locator": "Q1d–e",
       "note": "原创改编，非原题答案；数值与情境已重新设计。"
     },
-    "prompt": "所有反应值为正，log(Y) 的模型估计 B 相对 A 的均值差为 log(1.5)。回到原尺度，最直接的解释是哪一个？",
-    "hint": "exp(平均 log Y) 是 geometric mean；exp(差) 是两个 geometric means 的比。",
+    "prompt": "所有反应值为正，log(Y) 的模型给出 B 相对 A 的总体 log 均值差 δ=E(log Y|B)−E(log Y|A) 的点估计 δ̂=log(1.5)。未提供 SE 或 CI。仅凭这项输出回到原尺度，最直接的解释是哪一个？",
+    "hint": "总体 geometric mean 为 exp[E(log Y)]；对 log 均值差的估计 δ̂ 取指数，得到 geometric mean 之比的点估计。",
     "steps": [
       {
         "title": "确认分析尺度",
-        "body": "模型比较 E(log Y|B) 与 E(log Y|A)，它们的差为 log(1.5)。"
+        "body": "目标参数是总体 log 均值之差 δ=E(log Y|B)−E(log Y|A)。题目给出的是从数据拟合得到的 δ̂=log(1.5)，而不是已知总体 δ 的真值。"
       },
       {
         "title": "对差异取指数",
-        "body": "exp[E(log Y|B)−E(log Y|A)]=1.5，所以 B 的 geometric mean 估计是 A 的 1.5 倍。"
+        "body": "记两组总体 geometric means 为 G_B=exp[E(log Y|B)]、G_A=exp[E(log Y|A)]，则目标比值 G_B/G_A=exp(δ)。代入估计得到 exp(δ̂)=1.5，所以总体 geometric mean 之比的点估计为 1.5。"
       },
       {
         "title": "检查不能偷换的量",
-        "body": "它不直接等于原尺度算术均值增加 0.5 个单位。若要估计 arithmetic mean，还需要考虑误差分布与回变换偏差。变换后仍应重查 residuals。"
+        "body": "它不直接等于原尺度 arithmetic mean 增加 0.5 个单位，也不保证 arithmetic mean 之比可用相同数值估计。估计 arithmetic mean 还需要考虑误差分布与回变换偏差；变换后仍应重查 residuals。"
+      },
+      {
+        "title": "把点估计与不确定性分开",
+        "body": "1.5 是数据给出的估计，不代表总体真比值已经确定。题目未给 SE 或 CI，不能仅据此判断比值是否显著不同于 1；若有针对 δ 的有效区间 [L,U]，取 exp 后才得到相应 geometric mean 之比的区间 [exp(L),exp(U)]。"
       }
     ],
-    "conclusion": "B 的 geometric mean 约为 A 的 1.5 倍。",
-    "pitfall": "单凭一两个组的样本 mean–variance 关系就断言 log 一定合适不稳妥；还需要机制、量纲及变换后的诊断。",
-    "rCode": "delta_log <- log(1.5)\nratio_geometric_means <- exp(delta_log)\nratio_geometric_means",
+    "conclusion": "B 与 A 的总体 geometric mean 之比点估计为 1.5；未给不确定性信息，不能据此断言总体真比值等于 1.5 或显著不同于 1。",
+    "pitfall": "不能把模型估计值直接写成总体期望的已知真值，也不能把 geometric mean 的比偷换成 arithmetic mean 的比。log 是否合适还需机制、量纲及变换后的诊断。",
+    "rCode": "# Back-transform a fitted log-mean difference, not a known population parameter.\ndelta_log_estimate <- log(1.5)\nratio_geometric_means_estimate <- exp(delta_log_estimate)\nprint(c(estimated_geometric_mean_ratio = ratio_geometric_means_estimate))\n# No standard error or confidence interval was supplied; no significance claim follows.",
     "unit": "",
     "options": [
-      "B 比 A 增加 0.5 个原始单位",
-      "B 的 geometric mean 是 A 的 1.5 倍",
+      "B 相对 A 的 arithmetic mean 差估计为 0.5 个原始单位",
+      "B 与 A 的总体 geometric mean 之比点估计为 1.5",
       "所有 B 个体都恰好是 A 的 1.5 倍",
-      "B 的 arithmetic mean 一定恰好是 A 的 1.5 倍"
+      "B 与 A 的 arithmetic mean 之比也必定估计为 1.5"
     ],
     "answer": 1,
     "optionExplanations": [
-      "log 差异取指数后得到乘法比值，不是原单位的加法差。增加 0.5 个单位和增加到原来的 1.5 倍是不同陈述。",
-      "正确。exp[E(logY|B)−E(logY|A)]=1.5，表示两组 geometric means 的比；这种解释保留了模型的 log 尺度含义。",
-      "模型描述总体位置及随机波动，不规定每个个体一一对应。组 geometric means 相差 1.5 倍，个体之间仍可有很大变异。",
-      "exp(E(logY)) 通常不等于 E(Y)。原尺度 arithmetic means 的比还可能受两组误差分布影响，本题信息不足以保证同样的 1.5 倍。"
+      "log 差异的估计取指数后得到乘法比值的估计，不是原单位的加法差。增加 0.5 个单位和增加到原来的 1.5 倍是不同陈述。",
+      "正确。总体目标是 exp(δ)=G_B/G_A；将拟合估计 δ̂ 代入后得到 exp(δ̂)=1.5。这是点估计，未提供 SE 或 CI 时不能把它当成已确定的总体比值或显著性结论。",
+      "模型描述总体位置及随机波动，不规定每个个体一一对应。即使 geometric mean 之比估计为 1.5，个体之间仍可有很大变异。",
+      "exp(E(logY)) 通常不等于 E(Y)。原尺度 arithmetic means 的比还受误差分布影响；仅给 log 均值差的估计，不足以保证 arithmetic mean 比也应估计为 1.5。"
     ]
   },
   {
@@ -4251,6 +4255,121 @@
         "value": 0.0513116714781621,
         "tolerance": 0.0003,
         "feedback": "这是lm输出Pr(>|t|)给出的双侧P，对应Ha:β₁≠0。题目在收集数据前已规定Ha:β₁>0，应使用有符号t的右尾概率。"
+      }
+    ]
+  },
+  {
+    "id": "p04-14",
+    "chapter": "04",
+    "title": "重复更多组，会缩小单个均值的 SE 吗？",
+    "level": "应用",
+    "type": "choice",
+    "prompt": "总体为 Exponential(rate=1)，population mean=1、SD=1。每次独立抽取 n=25 个观测，计算一个样本均值；各组也彼此独立。只把模拟重复组数 B 从100增加到1600，每组 n 保持25。单个样本均值的理论抽样 SE 会怎样？",
+    "options": [
+      "保持 .2；更多组帮助看清同一个抽样分布。",
+      "减到 .05；重复组数增加16倍，SE就除以4。",
+      "减到 .005；现在累计有40000个原始观测。",
+      "变成 1；原始总体 SD 仍为1。"
+    ],
+    "answer": 0,
+    "hint": "先确认目标是每一组的均值，而不是把所有组再次平均。SE公式中的n是一次均值使用的独立观测数。",
+    "steps": [
+      {
+        "title": "区分一次样本与模拟次数",
+        "body": "每组25个Y只产生一个ȳ。B=100时图中有100个ȳ；B=1600时有1600个ȳ，但它们每一个都由25个Y计算。"
+      },
+      {
+        "title": "使用目标统计量的抽样方差",
+        "body": "独立同分布观测的Var(Ȳ)=σ²/n=1/25，因此SE(Ȳ)=1/√25=.2。该式不含模拟组数B。"
+      },
+      {
+        "title": "说明更多重复改变了什么",
+        "body": "增加B会增加观察同一个均值抽样分布的模拟信息；直方图与模拟SD通常更稳定，但理论SE保持.2。要把单组均值SE降为.1，应把每组n从25增至100。"
+      },
+      {
+        "title": "识别另一个统计量",
+        "body": "如果将1600个均值再取一次平均，这个新统计量等价于所有40000个Y的均值，SE=.005。它不是题目中每组的那个ȳ，不能将其SE替换到原问题。"
+      }
+    ],
+    "conclusion": "单个25观测均值的理论SE仍为.2；n决定每个均值的精度，B决定我们用多少个均值观察其抽样分布。",
+    "pitfall": "不要用累计原始观测数nB替换单个均值公式中的n，也不要把均值抽样SE与原始总体SD混为一谈。有限模拟SD不必恰好等于理论SE。",
+    "optionExplanations": [
+      "n与总体variance保持不变，单个均值的理论SE仍为1/√25=.2。更多重复帮助估计该分布，不改变它的宽度。",
+      "这把B的变化当成每组n的变化。只有把每个均值用的独立观测数增加16倍，其SE才除以4；这里每组仍为25个。",
+      "这是将所有40000个观测合成一个总均值的SE，也等于1600个独立组均值的再平均SE；题目目标是每个25观测组的均值。",
+      "1是单个原始Y的population SD。一次均值平均了25个独立Y，其抽样SE为1/√25=.2，和原始SD不同。"
+    ],
+    "source": {
+      "file": "PPT/Chapter_4.pptx",
+      "locator": "slides 86–92；notes Chapter 4 pp.59–63",
+      "note": "抽样分布与重复抽样的原创情境，不是原作业答案。"
+    },
+    "rCode": "# Fixed population SD and fixed observations per sample.\nsigma <- 1\nn <- 25\nB <- c(100,1600)\nse_one_mean <- rep(sigma/sqrt(n),length(B))\nse_mean_of_means <- sigma/sqrt(n*B)\nprint(data.frame(n=n,B=B,raw_count=n*B,SE_one_mean=se_one_mean,\n                 SE_mean_of_means=se_mean_of_means))\nstopifnot(all(se_one_mean==.2),abs(se_mean_of_means[2]-.005)<1e-12)\n# The first choice describes the per-sample mean, not the mean of all samples.\nanswer <- 0L\nprint(answer)",
+    "tags": [
+      "sampling distribution",
+      "SE",
+      "sample size",
+      "simulation"
+    ]
+  },
+  {
+    "id": "p14-06",
+    "chapter": "14",
+    "title": "Factorial marginal means 的 Tukey 半宽",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "factorial ANOVA",
+      "Tukey",
+      "marginal means",
+      "error model"
+    ],
+    "source": {
+      "file": "PPT/Chapter_14.pptx",
+      "locator": "slides 27–29；notes Chapter 14 pp.19–24",
+      "note": "针对课程main-effect比较的原创练习；数据与正文例题不同。"
+    },
+    "prompt": "完整平衡3×2 fixed-effects factorial实验，每cell有r=2个独立花盆，响应为干物质g。六格原始数据为A1B1=(7,9)、A1B2=(11,13)、A2B1=(9,11)、A2B2=(13,15)、A3B1=(12,14)、A3B2=(16,18)。假定独立正态errors与共同variance。预先指定family为三个A等权marginal means的全部三对，使用完整模型Y~A*B的误差。其family-wise 95% Tukey区间的共同半宽是多少g？注意填写半宽，不是整个区间宽度。",
+    "answer": 3.06827443073426,
+    "tolerance": 0.005,
+    "unit": "g（半宽）",
+    "hint": "A的一个marginal mean平均了B的两个cells，所以n=br。先由cell内SS与ab(r−1)求完整模型MSE，再用qtukey(.95,3,error_df)。",
+    "steps": [
+      {
+        "title": "先固定平均目标与family",
+        "body": "三个目标means为(8+12)/2=10、(10+14)/2=12、(13+17)/2=15 g。每一个都对B1/B2等权平均；family是A2−A1、A3−A1、A3−A2三项。q的nmeans为A水平数3。"
+      },
+      {
+        "title": "从完整模型保留误差",
+        "body": "每格两个观测相对cell mean为−1和+1，贡献SS=2。六格SSE=12，error df=ab(r−1)=3×2×1=6，所以MSE=12/6=2。"
+      },
+      {
+        "title": "使用marginal mean对应的样本数量",
+        "body": "每个A marginal mean来自两个B cells、每格两个观测，n=br=4。其variance估计为MSE/(br)=2/4=.5；pairwise SE为√1=1，但Tukey的q尺度是SE/√2=√.5。"
+      },
+      {
+        "title": "计算同时区间半宽并解释",
+        "body": "q_.95(3,6)=4.339195313，因此半宽H=4.339195313×√(2/4)=3.068274431 g。三个差2、5、3的区间分别为[−1.068274,5.068274]、[1.931726,8.068274]、[−.068274,6.068274]；只有A3−A1排除0。整体A检验显著并不表示每一对都显著。"
+      }
+    ],
+    "conclusion": "共同Tukey半宽约3.068274 g；使用完整模型MSE=2、error df=6以及每个A marginal mean的n=4。",
+    "pitfall": "每格r、每个marginal mean的br、总N与error df是四个不同数量。也不能为了调用一元Tukey代码删去B，或用q直接乘pairwise SE。",
+    "rCode": "# Original balanced complete 3-by-2 design, two independent pots per cell.\nd <- expand.grid(replicate=1:2,B=factor(c(\"B1\",\"B2\")),\n                 A=factor(c(\"A1\",\"A2\",\"A3\")))\nd$y <- rep(c(8,12,10,14,13,17),each=2)+rep(c(-1,1),6)\nfit <- aov(y ~ A*B,data=d)\nprint(with(d,tapply(y,list(A,B),mean)))\nprint(summary(fit))\na <- nlevels(d$A)\nb <- nlevels(d$B)\nr <- 2\nerror_df <- df.residual(fit)\nmse <- deviance(fit)/error_df\ncritical <- qtukey(.95,nmeans=a,df=error_df)\nanswer <- critical*sqrt(mse/(b*r))\ntk <- TukeyHSD(fit,which=\"A\",conf.level=.95)$A\nprint(c(MSE=mse,error_df=error_df,marginal_n=b*r,\n        q_critical=critical,answer=answer))\nprint(tk)\nstopifnot(error_df==6,abs(mse-2)<1e-10,\n          max(abs((tk[,\"upr\"]-tk[,\"lwr\"])/2-answer))<1e-10,\n          abs(answer-3.06827443073426)<1e-10)\n# Diagnostic values for common incorrect substitutions.\nA_only <- aov(y ~ A,data=d)\nwrong_mse <- deviance(A_only)/df.residual(A_only)\nprint(c(using_cell_n=critical*sqrt(mse/r),\n        using_pairwise_SE=critical*sqrt(2*mse/(b*r)),\n        using_total_N=critical*sqrt(mse/nrow(d)),\n        omitting_B=qtukey(.95,a,df.residual(A_only))*sqrt(wrong_mse/(b*r))))\n",
+    "commonMistakes": [
+      {
+        "value": 4.33919531302698,
+        "tolerance": 0.005,
+        "feedback": "这个值可能来自把n误填为每格r=2，或把q直接乘pairwise SE=1。目标是跨两个B cells的A marginal mean，应使用n=br=4；Tukey尺度为√(MSE/4)=SE_pair/√2。"
+      },
+      {
+        "value": 1.77146906853207,
+        "tolerance": 0.005,
+        "feedback": "这个值与把总N=12作为每个A mean的样本量一致。三个A means各有四个观测，不能让每个均值都占用全部十二个观测的精度。"
+      },
+      {
+        "value": 5.09748151400556,
+        "tolerance": 0.005,
+        "feedback": "这个值与重新拟合Y~A后计算Tukey一致。遗漏B使SSE变为60、df变为9、MSE变为60/9。题目要求完整Y~A*B模型，应保留MSE=2与6个error df。"
       }
     ]
   }

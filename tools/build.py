@@ -39,7 +39,7 @@ for i,c in enumerate(ch):
  nav=''.join(f'<a href="{x["id"]}.html"'+(' class="current" aria-current="page"' if x==c else '')+f'>{j:02} · {esc(x["title"])}</a>' for j,x in enumerate(ch,1))
  toc=''.join(f'<a href="#{l["id"]}">{esc(l["title"])}</a>' for l in c['lessons'])
  article=f'<div class="chapter-title"><h1>{esc(c["title"])}</h1><p class="status">学习单元 {i+1:02} / 10 · Chapter {"1–3" if c["id"]=="01" else c["id"]}</p><p class="english">{esc(c["en"])}</p><p class="question">{esc(c["question"])}</p><p class="bridge">{esc(c["bridge"])}</p></div>'
- article+=f'<section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter={c["id"]}">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter={c["id"]}">辅助资源</a></nav></section>'
+ article+=f'<section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter={c["id"]}">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#notation">公式读法</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter={c["id"]}">辅助资源</a></nav></section>'
  article+='<details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul>'+''.join('<li>'+esc(goal)+'</li>' for goal in goals[c['id']])+'</ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details>'
  for l in c['lessons']:
   # Normalize intentional code line breaks from the authored JSON.

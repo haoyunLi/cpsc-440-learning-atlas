@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>比较两个总体，先辨认实验结构 · CPSC 440 Atlas</title><link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="../assets/style.css?v=f1df1a4b06"><link rel="stylesheet" href="../assets/learning.css?v=50236d7836"><link rel="stylesheet" href="../assets/workbench.css?v=65723d1bf9"><script type="module" src="../assets/learning.mjs?v=5917f90976"></script><script type="module" src="../assets/workbench.mjs?v=42dc64c835"></script><script type="module" src="../assets/atlas.mjs?v=5e612de49c"></script><script type="module" src="../assets/contrast.mjs?v=a2eb66cefe"></script><script type="module" src="../assets/walkthrough.mjs?v=53f6ba509b"></script></head><body><a class="skip" href="#main">跳到正文</a><header><a class="brand" href="../index.html">CPSC 440 <span>Atlas</span></a><nav class="desktop-nav" aria-label="主导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a></nav><details class="mobile-menu"><summary>目录</summary><nav aria-label="手机导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a><a href="../sources.html">来源与使用</a></nav></details></header><main id="main" class="wrap chapter-layout"><aside class="sidebar"><details><summary>章节与本页目录</summary><div><nav aria-label="课程章节"><a href="01.html">01 · 从测量到数据描述</a><a href="04.html">02 · 把随机性写成概率</a><a href="05.html">03 · 从样本判断总体中心</a><a href="06.html" class="current" aria-current="page">04 · 比较两个总体，先辨认实验结构</a><a href="07.html">05 · 把稳定性作为研究目标</a><a href="08.html">06 · ANOVA：分解变异来比较多个 mean</a><a href="09.html">07 · ANOVA 之后，精确回答比较问题</a><a href="14.html">08 · 同时改变多个因素，寻找 interaction</a><a href="15.html">09 · 设计实验来分离 nuisance variation</a><a href="11.html">10 · 从解释差异到连续关系与预测</a></nav><nav class="toc" aria-label="本页目录"><a href="#difference">独立 random variables 的 variance 会相加</a><a href="#pooled">Pooled t-test 假定共同的 population variance</a><a href="#welch">Welch t-test 不必强行共享 variance</a><a href="#pvalue">读 one-sided 和 two-sided output 要与 Hₐ 对齐</a><a href="#rank-sum">Wilcoxon rank-sum 使用整体排序比较两组</a><a href="#paired-t">Paired t-test 先把每对变成一个 difference</a><a href="#signed-rank">Signed-rank 同时使用 direction 和 magnitude ranks</a><a href="#sample-size">预算要分配给真正独立的单位</a><a href="#course-cases">把课程案例连回方法与结论</a><a href="#rank-statistic-output">手算秩和是 8，R 为什么报告 W=2？</a><a href="#signed-rank-exact">Signed-rank 的 exact p：五个差值为什么有32种符号排列？</a></nav></div></details></aside><article class="article"><div class="chapter-title"><h1>比较两个总体，先辨认实验结构</h1><p class="status">学习单元 04 / 10 · Chapter 06</p><p class="english">Two-sample &amp; paired inference</p><p class="question">两种肥料的差异，应该比较两组 mean，还是每块地内的差？</p><p class="bridge">相同的两个平均值，在 independent 与 paired designs 中有不同的 SE。</p></div><section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter=06">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter=06">辅助资源</a></nav></section><details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul><li>从数据产生方式区分 independent 与 paired。</li><li>计算 Welch、pooled、paired 的 SE、df 与结论，说明各自的条件。</li><li>区分 mean、median 与秩检验的目标，不把所有非参数方法当成 mean test。</li></ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details><section class="lesson" id="difference"><h2>独立 random variables 的 variance 会相加</h2><p>比较两组，先把目标写成一个差：D=μ₁−μ₂。组别顺序要固定，例如 fresh−stored。正差表示第一组平均更大；如果交换顺序，估计值和单侧假设方向都要一起反转。</p>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>比较两个总体，先辨认实验结构 · CPSC 440 Atlas</title><link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="../assets/style.css?v=f1df1a4b06"><link rel="stylesheet" href="../assets/learning.css?v=7b1d349ac6"><link rel="stylesheet" href="../assets/workbench.css?v=65723d1bf9"><script type="module" src="../assets/learning.mjs?v=5917f90976"></script><script type="module" src="../assets/workbench.mjs?v=42dc64c835"></script><script type="module" src="../assets/atlas.mjs?v=2316dc87f2"></script><script type="module" src="../assets/contrast.mjs?v=a2eb66cefe"></script><script type="module" src="../assets/walkthrough.mjs?v=53f6ba509b"></script></head><body><a class="skip" href="#main">跳到正文</a><header><a class="brand" href="../index.html">CPSC 440 <span>Atlas</span></a><nav class="desktop-nav" aria-label="主导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a></nav><details class="mobile-menu"><summary>目录</summary><nav aria-label="手机导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a><a href="../sources.html">来源与使用</a></nav></details></header><main id="main" class="wrap chapter-layout"><aside class="sidebar"><details><summary>章节与本页目录</summary><div><nav aria-label="课程章节"><a href="01.html">01 · 从测量到数据描述</a><a href="04.html">02 · 把随机性写成概率</a><a href="05.html">03 · 从样本判断总体中心</a><a href="06.html" class="current" aria-current="page">04 · 比较两个总体，先辨认实验结构</a><a href="07.html">05 · 把稳定性作为研究目标</a><a href="08.html">06 · ANOVA：分解变异来比较多个 mean</a><a href="09.html">07 · ANOVA 之后，精确回答比较问题</a><a href="14.html">08 · 同时改变多个因素，寻找 interaction</a><a href="15.html">09 · 设计实验来分离 nuisance variation</a><a href="11.html">10 · 从解释差异到连续关系与预测</a></nav><nav class="toc" aria-label="本页目录"><a href="#difference">独立 random variables 的 variance 会相加</a><a href="#pooled">Pooled t-test 假定共同的 population variance</a><a href="#welch">Welch t-test 不必强行共享 variance</a><a href="#pvalue">读 one-sided 和 two-sided output 要与 Hₐ 对齐</a><a href="#rank-sum">Wilcoxon rank-sum 使用整体排序比较两组</a><a href="#paired-t">Paired t-test 先把每对变成一个 difference</a><a href="#signed-rank">Signed-rank 同时使用 direction 和 magnitude ranks</a><a href="#sample-size">预算要分配给真正独立的单位</a><a href="#course-cases">把课程案例连回方法与结论</a><a href="#rank-statistic-output">手算秩和是 8，R 为什么报告 W=2？</a><a href="#signed-rank-exact">Signed-rank 的 exact p：五个差值为什么有32种符号排列？</a><a href="#independent-size-planning">两独立样本规划：从每组人数到不等分配的实际 power</a><a href="#paired-size-planning">配对样本量规划：差值 SD、相关性与完整 pairs</a></nav></div></details></aside><article class="article"><div class="chapter-title"><h1>比较两个总体，先辨认实验结构</h1><p class="status">学习单元 04 / 10 · Chapter 06</p><p class="english">Two-sample &amp; paired inference</p><p class="question">两种肥料的差异，应该比较两组 mean，还是每块地内的差？</p><p class="bridge">相同的两个平均值，在 independent 与 paired designs 中有不同的 SE。</p></div><section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter=06">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#notation">公式读法</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter=06">辅助资源</a></nav></section><details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul><li>从数据产生方式区分 independent 与 paired。</li><li>计算 Welch、pooled、paired 的 SE、df 与结论，说明各自的条件。</li><li>区分 mean、median 与秩检验的目标，不把所有非参数方法当成 mean test。</li></ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details><section class="lesson" id="difference"><h2>独立 random variables 的 variance 会相加</h2><p>比较两组，先把目标写成一个差：D=μ₁−μ₂。组别顺序要固定，例如 fresh−stored。正差表示第一组平均更大；如果交换顺序，估计值和单侧假设方向都要一起反转。</p>
 <div class="equation">D̂=ȳ₁−ȳ₂；E(D̂)=μ₁−μ₂<br>独立样本：Var(D̂)=σ₁²/n₁+σ₂²/n₂</div>
 <p>减法为什么没有使方差相减？均值告诉我们差的中心，方差描述两组抽样误差怎样波动。两组独立时，第一组偏高或偏低都可能使差发生变化，第二组也一样，因此两份不确定性相加。</p>
 <p>例如两组各 n=25，σ₁=σ₂=10，各自均值的方差都是 100/25=4。差的方差是 4+4=8，所以 SE=√8≈2.828，而不是 0。若它们其实相关，正确公式还包含 −2Cov(ȳ₁,ȳ₂)，这正是后面的 paired analysis 要利用的信息。</p>
@@ -79,7 +79,8 @@ wilcox.test(after, before, paired=TRUE, alternative="two.sided",
 <p>如果两组数量不一样，先写出 SE² 再规划。例如 n₂=r n₁、共同 σ²，则 SE²=σ²(1+1/r)/n₁，于是 n₁≈σ²(1+1/r)(z sum)²/Δ²，再求 n₂。课程 cattle-diet 例就是比较 equal 与 unequal allocation，而不是把两组数量随意相加。</p>
 <p>若两组 planning variances 分别是 σ₁²、σ₂²，使用 σ₁²/n₁+σ₂²/n₂；equal n 的分子相应变成 σ₁²+σ₂²。想规划 CI 半宽 E 时，用 z critical，而不是 zα+zβ：paired n≈(z₁₋α/₂σᴅ/E)²；full width W 要先换成 E=W/2。</p>
 <p>以上是 z 近似的规划。实际 t critical 与 df 随 n 改变，需迭代核对；还要考虑独立实验单位、测量成本、dropout 和 clustering。反复测同一株植物，不能直接当作增加独立 n。</p>
-<details><summary>练习：同一植物处理前后测量，应套哪种样本量公式？</summary><p>先以植物为 pair，估计变化量 D 的 variance，再规划需要多少独立植物。若用独立两组公式，就忽略了两次测量共享的 covariance。更复杂时间结构需对应 repeated-measures model。</p></details></section><section class="lesson" id="course-cases"><h2>把课程案例连回方法与结论</h2><p>下面把前面的计算方法放回课程案例。每个案例先辨认研究目标与数据结构，再说明如何计算和解释。PPT 与 class notes 中不同的场景分别保留。</p><h3>新鲜与储存药物：独立样本的均值差</h3><p>Fresh / stored drug potency 来自两个独立组，目标是 μFresh−μStored。先确认每个观测属于独立实验单位，再计算 difference 的 SE；因为两组独立，两项 sample-mean variances 在 SE² 中相加。</p><p>软件同时列出 pooled 与 Satterthwaite 输出时，两行对应不同的 variance 假设。共同 variance 有合理依据时才使用 pooled；允许两组 variance 不同时使用 Welch / Satterthwaite。不能看哪一行 P-value 更小，再决定采用哪一行。</p><h3>绵羊绦虫：把“降低”翻译成同一方向</h3><p>Class notes 独有的 sheep tapeworm 例比较 drug-treated sheep 与 control sheep。若定义差为 treated−control，虫数降低就对应 Hₐ:μTreated−μControl&lt;0，应该读取左侧 P-value。</p><p>令 Fₜ 为参考 t 分布的 CDF，则同一个统计量 tcalc 的左侧 P 为 Fₜ(tcalc)，右侧 P 为 1−Fₜ(tcalc)，常用双侧 P 为 2×min{Fₜ(tcalc),1−Fₜ(tcalc)}。先确定 subtraction 与 Hₐ，三个输出才不会被混用。</p><h3>反应时间、修车估价与草地：三种结构</h3><p>Alcohol reaction time 例的两组参与者独立，使用合并后的整体 ranks 比较分布。Repair estimates 例则在同一辆车上获得两家 garage 的估价，先计算 garage1−garage2，再分析这些 paired differences。</p><p>Fertilizer 例把每块 field 分半施加两个处理，以 field 为配对单位；signed-rank 使用差的方向与绝对值的排名，并依赖相应的对称性条件。先辨认独立或配对结构，再决定是否求差；不能因为都出现 ranks，就把三种问题当作同一种检验。</p><h3>牛饮食与不等分配：预算对应独立动物</h3><p>Cattle diets 规划先指定最小有意义的 weight-gain difference，再给出共同的 planning variance。Equal n 中的 n 是每组独立动物数，不能把同一动物的多次测量重复计入。</p><p>若 n₂=m n₁，均值差的 variance 为 σ²/n₁+σ²/(m n₁)=σ²(1+1/m)/n₁。不等分配改变两组对 SE 的贡献；更多测量记录不一定意味着更多独立信息。</p></section><section class="lesson" id="rank-statistic-output"><h2>手算秩和是 8，R 为什么报告 W=2？</h2><p>同一个 Wilcoxon rank-sum test，教材的 raw rank sum 和 R 的 statistic 标签可能不同。判断结果是否一致，要先核对它们的定义，再比较 p-value。</p>
+<details><summary>练习：同一植物处理前后测量，应套哪种样本量公式？</summary><p>先以植物为 pair，估计变化量 D 的 variance，再规划需要多少独立植物。若用独立两组公式，就忽略了两次测量共享的 covariance。更复杂时间结构需对应 repeated-measures model。</p></details>
+<p>接下来把规划做完：<a href="#independent-size-planning">等组与不等分配：逐步取整并核验实际 t power</a>；<a href="#paired-size-planning">配对设计：从边际 SD 与ρ得到差值 SD，再规划完整 pairs</a>。两节都提供独立可运行 R，并检查目标 power 与前一个整数。</p></section><section class="lesson" id="course-cases"><h2>把课程案例连回方法与结论</h2><p>下面把前面的计算方法放回课程案例。每个案例先辨认研究目标与数据结构，再说明如何计算和解释。PPT 与 class notes 中不同的场景分别保留。</p><h3>新鲜与储存药物：独立样本的均值差</h3><p>Fresh / stored drug potency 来自两个独立组，目标是 μFresh−μStored。先确认每个观测属于独立实验单位，再计算 difference 的 SE；因为两组独立，两项 sample-mean variances 在 SE² 中相加。</p><p>软件同时列出 pooled 与 Satterthwaite 输出时，两行对应不同的 variance 假设。共同 variance 有合理依据时才使用 pooled；允许两组 variance 不同时使用 Welch / Satterthwaite。不能看哪一行 P-value 更小，再决定采用哪一行。</p><h3>绵羊绦虫：把“降低”翻译成同一方向</h3><p>Class notes 独有的 sheep tapeworm 例比较 drug-treated sheep 与 control sheep。若定义差为 treated−control，虫数降低就对应 Hₐ:μTreated−μControl&lt;0，应该读取左侧 P-value。</p><p>令 Fₜ 为参考 t 分布的 CDF，则同一个统计量 tcalc 的左侧 P 为 Fₜ(tcalc)，右侧 P 为 1−Fₜ(tcalc)，常用双侧 P 为 2×min{Fₜ(tcalc),1−Fₜ(tcalc)}。先确定 subtraction 与 Hₐ，三个输出才不会被混用。</p><h3>反应时间、修车估价与草地：三种结构</h3><p>Alcohol reaction time 例的两组参与者独立，使用合并后的整体 ranks 比较分布。Repair estimates 例则在同一辆车上获得两家 garage 的估价，先计算 garage1−garage2，再分析这些 paired differences。</p><p>Fertilizer 例把每块 field 分半施加两个处理，以 field 为配对单位；signed-rank 使用差的方向与绝对值的排名，并依赖相应的对称性条件。先辨认独立或配对结构，再决定是否求差；不能因为都出现 ranks，就把三种问题当作同一种检验。</p><h3>牛饮食与不等分配：预算对应独立动物</h3><p>Cattle diets 规划先指定最小有意义的 weight-gain difference，再给出共同的 planning variance。Equal n 中的 n 是每组独立动物数，不能把同一动物的多次测量重复计入。</p><p>若 n₂=m n₁，均值差的 variance 为 σ²/n₁+σ²/(m n₁)=σ²(1+1/m)/n₁。不等分配改变两组对 SE 的贡献；更多测量记录不一定意味着更多独立信息。</p></section><section class="lesson" id="rank-statistic-output"><h2>手算秩和是 8，R 为什么报告 W=2？</h2><p>同一个 Wilcoxon rank-sum test，教材的 raw rank sum 和 R 的 statistic 标签可能不同。判断结果是否一致，要先核对它们的定义，再比较 p-value。</p>
 <p>原创数据：A=[3,5,5]，B=[4,8,9]。研究事先指定 Hₐ：A 的分布相对 B 向左移动。两组独立，并在位置移动解释下假定形状和尺度可比较。</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>合并排序，给相同数值分配平均秩</caption><thead><tr><th>数值</th><th>组</th><th>占据的顺序位置</th><th>使用的秩</th></tr></thead><tbody><tr><td>3</td><td>A</td><td>1</td><td>1</td></tr><tr><td>4</td><td>B</td><td>2</td><td>2</td></tr><tr><td>5</td><td>A</td><td>3、4</td><td>3.5、3.5</td></tr><tr><td>8</td><td>B</td><td>5</td><td>5</td></tr><tr><td>9</td><td>B</td><td>6</td><td>6</td></tr></tbody></table></div>
 <ol><li>Raw rank sum T_A=1+3.5+3.5=8；T_B=2+5+6=13。</li><li>总和 8+13=21，等于 N(N+1)/2=6×7/2，秩分配通过检查。</li><li>R 两独立样本的 W 减掉 A 组能达到的最小秩和 n_A(n_A+1)/2=6，因此 W=8−6=2。</li><li>在本例 null 下，E(T_A)=n_A(N+1)/2=10.5；E(W)=n_A n_B/2=4.5。两者相差同一个6，不改变离各自 null 中心的距离。</li></ol>
@@ -117,4 +118,140 @@ c(W_positive=observed_w, assignments=nrow(signs),
 wilcox.test(d,mu=0,alternative="greater",exact=TRUE,correct=FALSE)</code></pre><p class="r-download"><a href="../downloads/chapters/chapter-06-signed-rank-exact.R" download>下载本节 R 示例</a> · 已含数据和对象定义，可在新 R 会话中运行。<a href="../handbook.html#r-start">查看运行方法</a></p>
 <p><b>如何读R输出：</b> <code>V=14</code>对应这里的 W⁺，<code>p-value=0.0625</code>对应右尾；<code>exact test</code>说明使用离散精确参考。没有正态近似时，也不需要 continuity correction。代码中的 <code>correct=FALSE</code>用于明确意图，并不改变这次 exact p。</p>
 <p><b>零值与ties的边界：</b> 常用Wilcoxon约定先去掉零差，再对剩余绝对差排名，此时m会改变。绝对差相同需要平均秩，其参考分布也要相应处理，不能继续套无ties的表。软件是否提供该情形的exact参考取决于实现与版本，应核对 method 和 warning。上述32种排列只属于本例的五个非零、无ties差值；更一般的符号枚举必须使用实际的秩和零值处理规则。</p>
-<p><b>离散性带来的限制：</b> m=5时，即使五个差全部为正，最小双侧p也为2/32=.0625。因此这个样本量无法在常用的无随机化双侧5%检验中显著。这说明“未显著”也可能反映有限信息，不能当作没有变化的证明。</p><p class="source-locator">课程定位：PPT/Chapter_6.pptx，59–71；classnote/440 - Chapter 6 - 2022 Fall.pdf，46–57。讲解与例题为重新编写。</p></section><section class="sources"><h2>本单元来源</h2><p>Alexander E. Lipka, CPSC 440, Chapter 6 lecture slides；CPSC 440 Chapter 6 class notes。依据二者并集重新组织，公式、解释与交互均为重新编写。部分数字沿用课程的公开教学例题，完整原始课件不转载。</p><a href="../sources.html">核查参考文献、方法边界与覆盖说明 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></a></section><div class="completion"><button id="complete" data-chapter="06">标记此单元已读</button><p class="status" id="progress-error" aria-live="polite"></p></div><nav class="chapter-actions" aria-label="相邻单元"><a href="05.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg> 从样本判断总体中心</a><a href="07.html">把稳定性作为研究目标 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></a></nav></article></main><footer><span>CPSC 440 · Applied Statistical Methods I<br>中文解释 · English technical terms · 原创交互</span><span><a href="../resources.html">辅助学习资源</a> · <a href="../sources.html">来源、模型假设与内容边界</a></span></footer></body></html>
+<p><b>离散性带来的限制：</b> m=5时，即使五个差全部为正，最小双侧p也为2/32=.0625。因此这个样本量无法在常用的无随机化双侧5%检验中显著。这说明“未显著”也可能反映有限信息，不能当作没有变化的证明。</p><p class="source-locator">课程定位：PPT/Chapter_6.pptx，59–71；classnote/440 - Chapter 6 - 2022 Fall.pdf，46–57。讲解与例题为重新编写。</p></section><section class="lesson" id="independent-size-planning"><h2>两独立样本规划：从每组人数到不等分配的实际 power</h2><p>样本量不是从最终 P-value 倒推的数字。先固定研究目标、分析模型、最小有意义效应 Δ、α 与目标 power，再决定收集多少独立单位。本例原创情境是比较两套温室灌溉方案的平均生长量；在收集数据前，把 Δ=.5 cm 作为希望检出的真实均值差，规划共同总体 SD=.8 cm，双侧 α=.05，目标 power=.90。</p>
+<p><b>分析模型：</b> 两组独立，每组内的实验单位独立；响应服从正态总体，且两个总体具有共同 variance。最终使用 pooled two-sample t-test。这里的 .8 是规划假定，不表示分析时知道真实 σ；若来自先导实验的 s，应考虑它的不确定性。若预定分析是异方差 Welch 检验，这个共同方差功效公式不能直接称为其精确 power。</p>
+<h3>等组设计：从近似人数走到实际 t power</h3>
+<p>先规定 n₁=n₂=n，因此 n 是<b>每组</b>独立单位数。用完整精度的 normal quantiles，z₁₋α/₂=1.959964、z₁₋β=1.281552：</p>
+<div class="equation">n≈2σ²(z₁₋α/₂+z₁₋β)²/Δ²<br>=2×.8²×(1.959964+1.281552)²/.5²<br>≈53.798006 → 每组54</div>
+<p>课件使用 z≈1.96、1.28，得到约53.74，也向上取整到54。这个差异只是中间数值的精度；更重要的是，该公式是 z 近似。实际 pooled t 的门槛和非中心参数为：</p>
+<div class="equation">ν=n₁+n₂−2；λ=Δ/[σ√(1/n₁+1/n₂)]<br>c=t₁₋α/₂,ν<br>power=P(Tν,λ&lt;−c)+P(Tν,λ&gt;c)</div>
+<p>Tν,λ 表示 alternative 下的 noncentral t。两个尾部都属于预先设定的双侧拒绝域。逆求得到每组连续解 n≈54.776398，向上取整后需要<b>每组55，总计110个独立单位</b>；再检查54是否不足。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>同一效应与共同 SD 下的整数设计核验</caption><thead><tr><th>设计</th><th>n₁</th><th>n₂</th><th>总数</th><th>实际 t power</th></tr></thead><tbody><tr><td>等组，前一个整数</td><td>54</td><td>54</td><td>108</td><td>.895817，未达到.90</td></tr><tr><td>等组，最小达标整数</td><td>55</td><td>55</td><td>110</td><td>.901176</td></tr><tr><td>按比例取整，前一个 n₁</td><td>46</td><td>65</td><td>111</td><td>.895284，未达到.90</td></tr><tr><td>按比例取整，最小达标 n₁</td><td>47</td><td>66</td><td>113</td><td>.900814</td></tr></tbody></table></div>
+<h3>不等组设计：先定义整数分配规则</h3>
+<p>假设第二套方案需要较多独立单位，规划 n₂≈1.4n₁。先把方差写清楚：SE²=σ²(1/n₁+1/n₂)≈σ²(1+1/1.4)/n₁，所以 z 近似为：</p>
+<div class="equation">n₁≈σ²(1+1/1.4)(z₁₋α/₂+z₁₋β)²/Δ²≈46.112577<br>n₁=ceil(46.112577)=47<br>n₂=ceil(1.4×47)=66</div>
+<p><code>ceil</code> 表示向上取整。第二步必须使用已经取整的 n₁。这里预先接受的整数规则是 <b>n₂=ceil(1.4n₁)</b>，所以实际比例66/47≈1.4043；程序对这个规则下的所有较小候选 n₁逐一计算 t power，得到47/66是最先达标的组合。不能把 <code>power.t.test(type="two.sample")</code> 的等组结果当成不等组解。</p>
+<p>若实验要求比例<b>严格等于</b>7:5，允许的组合则是 n₁=5k、n₂=7k。本例最先达标的是50/70，power≈.917405；这与允许向上取整到约1.4倍是两个不同的设计约束。在共同方差、单位成本相同的条件下，等组分配通常更有效率；较多地分配给第二组需要对应额外的研究目标或成本理由。</p>
+<pre><code>alpha &lt;- .05
+target_power &lt;- .90
+delta &lt;- .5
+sigma_plan &lt;- .8
+allocation_ratio &lt;- 1.4
+z_sum &lt;- qnorm(1-alpha/2)+qnorm(target_power)
+# Normal approximations provide starting values, not exact t-test power.
+n_equal_z &lt;- 2*sigma_plan^2*z_sum^2/delta^2
+n1_ratio_z &lt;- sigma_plan^2*(1+1/allocation_ratio)*z_sum^2/delta^2
+# This model assumes independent normal groups with a common population SD.
+power_two &lt;- function(n1,n2) {
+  df &lt;- n1+n2-2
+  ncp &lt;- delta/(sigma_plan*sqrt(1/n1+1/n2))
+  critical &lt;- qt(1-alpha/2,df=df)
+  pt(-critical,df=df,ncp=ncp)+
+    pt(critical,df=df,ncp=ncp,lower.tail=FALSE)
+}
+# The returned n is the number in each group, not the total.
+equal_plan &lt;- power.t.test(n=NULL,delta=delta,sd=sigma_plan,
+                          sig.level=alpha,power=target_power,
+                          type="two.sample",alternative="two.sided",
+                          strict=TRUE,tol=1e-10)
+n_equal &lt;- ceiling(equal_plan$n)
+equal_check &lt;- data.frame(n1=c(n_equal-1,n_equal),
+                          n2=c(n_equal-1,n_equal))
+equal_check$power &lt;- mapply(power_two,equal_check$n1,equal_check$n2)
+# Define the integer allocation rule before searching the candidate designs.
+ratio_check &lt;- data.frame(n1=2:200)
+ratio_check$n2 &lt;- ceiling(allocation_ratio*ratio_check$n1)
+ratio_check$power &lt;- mapply(power_two,ratio_check$n1,ratio_check$n2)
+first &lt;- which(ratio_check$power&gt;=target_power)[1]
+ratio_plan &lt;- ratio_check[first,]
+print(c(normal_equal=n_equal_z,normal_ratio_n1=n1_ratio_z,
+        continuous_t_equal=equal_plan$n))
+print(equal_check)
+print(ratio_check[c(first-1,first),])
+# An exact 7:5 ratio is a different integer constraint.
+k &lt;- 1:100
+exact_ratio &lt;- data.frame(n1=5*k,n2=7*k)
+exact_ratio$power &lt;- mapply(power_two,exact_ratio$n1,exact_ratio$n2)
+exact_first &lt;- which(exact_ratio$power&gt;=target_power)[1]
+print(exact_ratio[exact_first,])
+# Independently compare the equal-group calculation with the R helper.
+helper_power &lt;- power.t.test(n=n_equal,delta=delta,sd=sigma_plan,
+                            sig.level=alpha,type="two.sample",
+                            alternative="two.sided",strict=TRUE)$power
+stopifnot(n_equal==55,
+          equal_check$power[1]&lt;target_power,
+          equal_check$power[2]&gt;=target_power,
+          abs(helper_power-power_two(n_equal,n_equal))&lt;1e-12,
+          ratio_plan$n1==47,ratio_plan$n2==66,
+          all(ratio_check$power[seq_len(first-1)]&lt;target_power),
+          exact_ratio$n1[exact_first]==50,
+          exact_ratio$n2[exact_first]==70)</code></pre><p class="r-download"><a href="../downloads/chapters/chapter-06-independent-size-planning.R" download>下载本节 R 示例</a> · 已含数据和对象定义，可在新 R 会话中运行。<a href="../handbook.html#r-start">查看运行方法</a></p>
+<p><b>读 R 输出：</b> <code>equal_plan$n</code> 是每组人数；<code>strict=TRUE</code> 让双侧 power 包含真实效应相反方向的拒绝概率，与上面的“两尾相加”一致。<a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/power.t.test.html" target="_blank" rel="noopener noreferrer">R 官方 power.t.test 文档</a> 说明了这两个约定。代码用非中心 t 公式独立回验函数结果，并检查前一个整数与所有更小的分配候选。</p>
+<p>这些结果都以 Δ=.5、σ=.8 和指定模型为条件；Δ更小、SD更大时应重新规划。最终 n 指完整进入预定分析的独立单位数；失访、盆内相关或其他聚类结构需要额外设计，不能把多测几片叶子计入这里的 n。</p><p class="source-locator">课程定位：PPT/Chapter_6.pptx，72–78；classnote/440 - Chapter 6 - 2022 Fall.pdf，58–60。讲解与例题为重新编写。</p></section><section class="lesson" id="paired-size-planning"><h2>配对样本量规划：差值 SD、相关性与完整 pairs</h2><p>配对设计把每个单位的两次测量变成一个差值。因此，规划的关键不只是“需要多少对”，还包括<b>差值会有多大波动</b>。原来的两列 SD 不够；同一对内的 correlation 也会改变差值的 variance。</p>
+<p>原创情境：比较独立仪器在调整程序前后的读数，定义 D=after−before。预先检验 H₀:μD=0 对 Hₐ:μD≠0，双侧 α=.05；指定值得发现的真实均值差 Δ=.5 units，目标 power=.90。假定不同仪器的 pairs 独立、差值 D 服从正态总体。规划 before 和 after 的总体 SD 都为 .8，同一仪器前后的相关性为 ρ=.6。这些是收集数据前的效应和变异假定，不是从显著结果反推的输入。</p>
+<h3>先把边际变异换成差值变异</h3>
+<div class="equation">Var(D)=σafter²+σbefore²−2Cov(after,before)<br>=σafter²+σbefore²−2ρσafterσbefore<br>=.8²+.8²−2×.6×.8×.8=.512<br>σD=√.512≈.715542</div>
+<p>正相关意味着某台仪器两次读数倾向于一起偏高或偏低；相减可以消除一部分共同波动。这是 pairing 可能提高效率的原因。不能把某一次测量的 SD=.8 直接当成差值 SD，也不能在没有配对信息时凭空指定较大的 ρ。若已有可靠的先导差值，可以直接用其 SD 规划，而不必分别估计三个量。</p>
+<h3>把 paired t 写成差值上的 one-sample t</h3>
+<div class="equation">z 近似：n≈σD²(z₁₋α/₂+z₁₋β)²/Δ²≈21.519202 → 22 pairs<br>实际 t 模型：ν=n−1；λ=Δ√n/σD；c=t₁₋α/₂,n−1<br>power(n)=P(Tν,λ&lt;−c)+P(Tν,λ&gt;c)</div>
+<p>非中心 t 逆求给出 n≈23.524347，向上取整为<b>24个完整 pairs</b>。这是24台独立仪器、48次测量、24个独立差值，检验的 error df=23。不是48个独立样本，也不需要再把24乘2后代入 SE。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>取整后核验最小 pairs 数</caption><thead><tr><th>完整 pairs</th><th>df</th><th>t power</th><th>是否达到.90</th></tr></thead><tbody><tr><td>23</td><td>22</td><td>.892837</td><td>否</td></tr><tr><td>24</td><td>23</td><td>.906120</td><td>是</td></tr></tbody></table></div>
+<h3>ρ敏感性：24对的结论依赖什么？</h3>
+<p>保持 Δ、两个边际 SD、α 与目标 power 不变，只改变可能的配对相关性。每行都重新规划 t 检验所需人数：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>ρ影响差值 SD，进而影响所需 pairs</caption><thead><tr><th>规划ρ</th><th>σD</th><th>至少需要 pairs</th><th>该人数下 power</th><th>若仍只收24对</th></tr></thead><tbody><tr><td>0</td><td>1.131371</td><td>56</td><td>.901292</td><td>.545511</td></tr><tr><td>.3</td><td>.946573</td><td>40</td><td>.902766</td><td>.697980</td></tr><tr><td>.6</td><td>.715542</td><td>24</td><td>.906120</td><td>.906120</td></tr><tr><td>.8</td><td>.505964</td><td>13</td><td>.904303</td><td>.996217</td></tr></tbody></table></div>
+<p>如果用ρ=.6规划，却在真实总体中只有ρ=.3，那么24对并没有原计划的90% power。应根据同类先导配对数据、历史研究和科学机制提出合理范围，并考虑较保守的σD；不能挑选能让样本量最小的ρ。配对也不会自动消除所有噪声，负相关甚至会增加差值 variance。</p>
+<pre><code>alpha &lt;- .05
+target_power &lt;- .90
+delta &lt;- .5
+sd_before &lt;- .8
+sd_after &lt;- .8
+rho_plan &lt;- .6
+sd_difference &lt;- function(rho) {
+  sqrt(sd_before^2+sd_after^2-2*rho*sd_before*sd_after)
+}
+# n counts independent pairs; sd_d describes within-pair differences.
+power_paired &lt;- function(n,sd_d) {
+  df &lt;- n-1
+  ncp &lt;- delta*sqrt(n)/sd_d
+  critical &lt;- qt(1-alpha/2,df=df)
+  pt(-critical,df=df,ncp=ncp)+
+    pt(critical,df=df,ncp=ncp,lower.tail=FALSE)
+}
+sd_d &lt;- sd_difference(rho_plan)
+z_n &lt;- sd_d^2*(qnorm(1-alpha/2)+qnorm(target_power))^2/delta^2
+plan &lt;- power.t.test(n=NULL,delta=delta,sd=sd_d,sig.level=alpha,
+                     power=target_power,type="paired",
+                     alternative="two.sided",strict=TRUE,tol=1e-10)
+n_pairs &lt;- ceiling(plan$n)
+check &lt;- data.frame(pairs=c(n_pairs-1,n_pairs))
+check$df &lt;- check$pairs-1
+check$power &lt;- vapply(check$pairs,power_paired,numeric(1),sd_d=sd_d)
+print(c(sd_difference=sd_d,normal_n=z_n,continuous_t_n=plan$n,
+        complete_pairs=n_pairs,measurements=2*n_pairs))
+print(check)
+# Re-plan at several plausible correlations without changing the target effect.
+rhos &lt;- c(0,.3,.6,.8)
+sensitivity &lt;- do.call(rbind,lapply(rhos,function(rho) {
+  candidate_sd &lt;- sd_difference(rho)
+  candidate &lt;- power.t.test(n=NULL,delta=delta,sd=candidate_sd,
+                           sig.level=alpha,power=target_power,type="paired",
+                           alternative="two.sided",strict=TRUE,tol=1e-10)
+  candidate_n &lt;- ceiling(candidate$n)
+  achieved &lt;- power_paired(candidate_n,candidate_sd)
+  previous &lt;- power_paired(candidate_n-1,candidate_sd)
+  stopifnot(previous&lt;target_power,achieved&gt;=target_power)
+  data.frame(rho=rho,sd_difference=candidate_sd,pairs=candidate_n,
+             power_at_planned_n=achieved,
+             power_if_only_24=power_paired(24,candidate_sd))
+}))
+print(sensitivity)
+# Check the noncentral-t formula against the independent R implementation.
+helper_power &lt;- power.t.test(n=n_pairs,delta=delta,sd=sd_d,
+                            sig.level=alpha,type="paired",
+                            alternative="two.sided",strict=TRUE)$power
+stopifnot(n_pairs==24,
+          check$power[1]&lt;target_power,check$power[2]&gt;=target_power,
+          abs(helper_power-check$power[2])&lt;1e-12,
+          identical(sensitivity$pairs,c(56,40,24,13)))</code></pre><p class="r-download"><a href="../downloads/chapters/chapter-06-paired-size-planning.R" download>下载本节 R 示例</a> · 已含数据和对象定义，可在新 R 会话中运行。<a href="../handbook.html#r-start">查看运行方法</a></p>
+<p><b>读 R 参数：</b> <code>type="paired"</code> 中 n 是 pairs 数，<code>sd</code> 必须传入差值的 σD；它与对 D 使用 <code>type="one.sample"</code> 的数学规划相同。<code>strict=TRUE</code> 表示双侧功效计入两个拒绝尾部，规则见<a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/power.t.test.html" target="_blank" rel="noopener noreferrer">R 官方 power.t.test 文档</a>。这里只需要差值的正态模型来获得精确 t 分布功效；分别对两列做正态性检验不能代替检查差值。</p>
+<p>n 指完整且可分析的 pairs。丢掉一侧读数通常不能贡献一个完整差值；正式招募计划还需处理缺失和独立单位来源。如果真实平均变化小于预定Δ，或真实σD高于规划值，power会降低。</p><p class="source-locator">课程定位：PPT/Chapter_6.pptx，52–58、78；classnote/440 - Chapter 6 - 2022 Fall.pdf，40、61。讲解与例题为重新编写。</p></section><section class="sources"><h2>本单元来源</h2><p>Alexander E. Lipka, CPSC 440, Chapter 6 lecture slides；CPSC 440 Chapter 6 class notes。依据二者并集重新组织，公式、解释与交互均为重新编写。部分数字沿用课程的公开教学例题，完整原始课件不转载。</p><a href="../sources.html">核查参考文献、方法边界与覆盖说明 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></a></section><div class="completion"><button id="complete" data-chapter="06">标记此单元已读</button><p class="status" id="progress-error" aria-live="polite"></p></div><nav class="chapter-actions" aria-label="相邻单元"><a href="05.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg> 从样本判断总体中心</a><a href="07.html">把稳定性作为研究目标 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></a></nav></article></main><footer><span>CPSC 440 · Applied Statistical Methods I<br>中文解释 · English technical terms · 原创交互</span><span><a href="../resources.html">辅助学习资源</a> · <a href="../sources.html">来源、模型假设与内容边界</a></span></footer></body></html>

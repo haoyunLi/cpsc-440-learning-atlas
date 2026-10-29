@@ -66,12 +66,20 @@ def build_learning(root, chapters, doc, esc):
     labs += ''.join(f'<a href="chapters/{cid}.html#lab-{key}"><span>Ch {"1–3" if cid == "01" else int(cid)}</span>{title} →</a>' for cid, key, title in lab_names)
     labs += '</div></section></main>'
     (root / 'labs.html').write_text(doc('交互实验室', labs))
-    handbook = '<main id="main" class="wrap study-page handbook"><div class="study-heading"><h1>一本随时翻开的自学手册。</h1><p class="study-lead">从研究问题到 R 输出，把概念、计算与结论连起来。</p></div><nav class="study-jumps" aria-label="手册目录"><a href="#start">零基础起步</a><a href="#route">学习路线</a><a href="#method-map">方法速查</a><a href="#r-start">R 入门</a><a href="#language">结论写作</a><a href="#glossary">术语词典</a></nav>' + (root / 'content/handbook.html').read_text() + '</main>'
+    handbook = '<main id="main" class="wrap study-page handbook"><div class="study-heading"><h1>一本随时翻开的自学手册。</h1><p class="study-lead">从研究问题到 R 输出，把概念、计算与结论连起来。</p></div><nav class="study-jumps" aria-label="手册目录"><a href="#start">零基础起步</a><a href="#route">学习路线</a><a href="#notation">公式读法</a><a href="#method-map">方法速查</a><a href="#r-start">R 入门</a><a href="#language">结论写作</a><a href="#glossary">术语词典</a></nav>' + (root / 'content/handbook.html').read_text() + '</main>'
     (root / 'handbook.html').write_text(doc('自学手册', handbook))
     resource_html = '<main id="main" class="wrap study-page"><div class="study-heading"><h1>换一种方式理解同一个概念。</h1><p class="study-lead">按问题选择外部视频、可视化和官方文档。每个资源都附一个可以实际完成的小任务。</p><p class="status">链接于 2026-10-28 核对。外部资源可能变化，需要网络；站内核心讲解与实验不依赖外部服务。</p></div><label for="resource-chapter">选择正在学习的章节</label><select id="resource-chapter" class="study-input"><option value="all">全部章节</option>'+options+'</select><p id="resource-count" class="status" aria-live="polite"></p><div class="resource-list">'
     for r in resources:
         resource_html += f'<article class="resource-item" data-chapters="{" ".join(r["chapters"])}"><p class="status">{esc(r["kind"])} · {" / ".join("Ch "+("1–3" if x=="01" else str(int(x))) for x in r["chapters"])}</p><h2><a href="{esc(r["url"])}" target="_blank" rel="noopener noreferrer">{esc(r["title"])} ↗</a></h2><p>{esc(r["task"])}</p><p class="status">{esc(r["note"])}</p></article>'
     resource_html += '</div><p><a href="sources.html">课程文件与章节覆盖映射 →</a></p></main>'
     (root / 'resources.html').write_text(doc('辅助学习资源', resource_html))
-    searches.extend([{'chapter': '自学手册', 'title': title, 'text': title, 'url': 'handbook.html#'+anchor} for anchor, title in [('start', '零基础 Population parameter experimental unit'), ('method-map', '方法选择 公式速查'), ('r-start', 'R 入门 读数据 ANOVA Brown-Forsythe Tukey'), ('language', '结论写作 P-value 易错点'), ('glossary', '中英术语 SD SE residual LSMeans')]])
+    handbook_search = [
+        ('start', '第一次学：总体、样本与实验单位', 'Population sample parameter statistic experimental unit 零基础'),
+        ('notation', '公式怎么读：符号、下标与分位数', 'Sigma Σ 求和 下标 横线 帽子 分位数 quantile parameter statistic μ sigma variance SD SE'),
+        ('method-map', '方法速查：先读问题，再读公式', '方法选择 t test ANOVA paired Welch contrast 公式速查'),
+        ('r-start', 'R 从零到一个完整分析', 'R 入门 读数据 ANOVA Brown-Forsythe Tukey'),
+        ('language', '结论怎么写', '结论写作 P-value confidence interval CI 易错点'),
+        ('glossary', '中英术语与符号', 'SD SE residual LSMeans standard error 标准误 术语词典')
+    ]
+    searches.extend({'chapter': '自学手册', 'title': title, 'text': title + ' ' + keywords, 'url': 'handbook.html#' + anchor} for anchor, title, keywords in handbook_search)
     return searches

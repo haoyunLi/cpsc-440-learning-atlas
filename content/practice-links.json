@@ -62,5 +62,9 @@
   "p09-04": "contrast",
   "p14-04": "factorial-bf-cells",
   "p15-05": "random-block-mean-se",
-  "p15-06": "latin-square-worked"
+  "p15-06": "latin-square-worked",
+  "p08-06": "transform",
+  "p11-05": "regression-anova",
+  "p06-05": "independent-size-planning",
+  "p06-06": "paired-size-planning"
 }

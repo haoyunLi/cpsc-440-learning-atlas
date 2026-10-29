@@ -3290,5 +3290,255 @@
         "feedback": "这个值把比值反过来了。用于treatment均值检验的F是MS_treatment/MSE=32/6，分母是误差均方。"
       }
     ]
+  },
+  {
+    "id": "p08-06",
+    "chapter": "08",
+    "title": "平方根变换后怎样找回原始 arithmetic mean",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "transformation",
+      "back transformation",
+      "estimand",
+      "sample variance"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 8 - 2022 Fall.pdf",
+      "locator": "pp.31、35–38；sqrt(Y+3/8)变换",
+      "note": "原创改编，非原题答案；用新的样本量和变换后摘要核对二阶矩。"
+    },
+    "prompt": "8个原始非负响应用 T=√(Y+3/8) 变换。变换后样本均值为 T̄=3，按n−1作分母的sample variance为sT²=2。原始8个Y的arithmetic sample mean是多少？本题求当前样本的均值，不是总体均值的置信区间。",
+    "answer": 10.375,
+    "tolerance": 0.005,
+    "unit": "Y的原单位",
+    "hint": "Yi=Ti²−3/8；mean(T²)=T̄²+[(n−1)/n]sT²。平方均值会丢掉T的分散信息。",
+    "steps": [
+      {
+        "title": "写出逐个观测的逆变换",
+        "body": "T=√(Y+3/8)，所以Y=T²−3/8。必须先平方每一个T再求平均，不能直接把T̄代进去后称为Ȳ。"
+      },
+      {
+        "title": "把样本variance还原为平均平方偏差",
+        "body": "sT²=Σ(Ti−T̄)²/(n−1)。因此Σ(Ti−T̄)²/n=(7/8)×2=1.75；n−1与n在这一步作用不同。"
+      },
+      {
+        "title": "恢复二阶矩并减去平移",
+        "body": "mean(T²)=T̄²+1.75=9+1.75=10.75，所以Ȳ=10.75−.375=10.375。"
+      },
+      {
+        "title": "辨认参数与尺度",
+        "body": "直接回变换T̄得到8.625，描述变换后中心的另一种表达，不等于原始样本均值。本题使用精确样本恒等式，不需要先声称T来自正态总体，也没有据此构造总体mean的CI。"
+      }
+    ],
+    "conclusion": "原始arithmetic sample mean为10.375；遗漏分散项会误得8.625。",
+    "pitfall": "样本variance的分母是n−1，因此恢复mean(T²)要乘(n−1)/n；总体恒等式E(Y)=Var(T)+[E(T)]²−3/8没有这个样本修正。",
+    "rCode": "# Original transformed observations matching n=8, mean=3, sample variance=2.\na <- sqrt(3.5)\ntransformed <- 3+c(-a,-a,0,0,0,0,a,a)\ny <- transformed^2-3/8\nn <- length(y)\nanswer <- mean(transformed)^2+(n-1)/n*var(transformed)-3/8\nprint(data.frame(y=y,transformed=transformed))\nprint(c(n=n,mean_transformed=mean(transformed),\n        variance_transformed=var(transformed),answer=answer,raw_mean=mean(y)))\nprint(c(naive_back_transform=mean(transformed)^2-3/8,\n        missing_n_correction=mean(transformed)^2+var(transformed)-3/8,\n        wrong_inverse_shift=mean(transformed)^2+3/8))\nstopifnot(isTRUE(all.equal(answer,mean(y))))",
+    "commonMistakes": [
+      {
+        "value": 8.625,
+        "tolerance": 0.005,
+        "feedback": "这个值是3²−3/8，即直接回变换T̄。它漏掉了平均平方偏差(7/8)×2=1.75；先恢复mean(T²)才能得到原始Ȳ。"
+      },
+      {
+        "value": 10.625,
+        "tolerance": 0.005,
+        "feedback": "这个值把sT²=2直接加到了T̄²上。题目给的是n−1分母的sample variance，恢复平均平方偏差时要先乘7/8。"
+      },
+      {
+        "value": 9.375,
+        "tolerance": 0.005,
+        "feedback": "这个值与T̄²+3/8一致。逐个逆变换应平方后减3/8，并且恢复样本arithmetic mean还需要保留T的分散项。"
+      }
+    ]
+  },
+  {
+    "id": "p11-05",
+    "chapter": "11",
+    "title": "预测均值的SE需要保留截距与斜率的covariance",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "regression",
+      "covariance",
+      "fitted mean",
+      "standard error"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 11 - 2022 Fall.pdf",
+      "locator": "pp.14、19–20、23–27；coefficient inference与prediction",
+      "note": "原创改编，非原题答案；用新的五个观测连接coefficient covariance与拟合均值SE。"
+    },
+    "prompt": "对原创数据(x,y)=(2,5),(4,7),(6,12),(8,13),(10,18)拟合含截距SLR，得到ŷ=1.4+1.6x。估计的coefficient covariance matrix给出Var̂(b₀)=1.32、Var̂(b₁)=.03、Cov̂(b₀,b₁)=−.18。在x₀=6处，拟合总体均值ŷ₀的SE是多少？题目求fitted-mean SE，不是单个新观测的prediction SE。",
+    "answer": 0.4898979485566356,
+    "tolerance": 0.005,
+    "unit": "Y的原单位",
+    "hint": "ŷ₀=b₀+6b₁；线性组合的方差包含2×6×Cov(b₀,b₁)。最后对variance开平方。",
+    "steps": [
+      {
+        "title": "核对这些不确定性来自同一个模型",
+        "body": "本例n=5、x̄=6、Sxx=40；SSE=3.6、error df=3，所以MSE=1.2。由此Var̂(b₁)=1.2/40=.03，Var̂(b₀)=1.2(1/5+36/40)=1.32，Cov̂(b₀,b₁)=−6×1.2/40=−.18。"
+      },
+      {
+        "title": "为所求的线性组合写方差",
+        "body": "ŷ₀=b₀+6b₁，因此Var̂(ŷ₀)=Var̂(b₀)+6²Var̂(b₁)+2×6Cov̂(b₀,b₁)。两个coefficients并非独立，不能删除最后一项。"
+      },
+      {
+        "title": "代入并转为SE",
+        "body": "Var̂(ŷ₀)=1.32+36×.03+12×(−.18)=1.32+1.08−2.16=.24；SE=√.24≈.489898。也可用x₀=x̄时的MSE/n=1.2/5=.24核对。"
+      },
+      {
+        "title": "解释与另一个预测问题的区别",
+        "body": "此处拟合均值为1.4+1.6×6=11，所求SE约.49。若预测一个独立新观测，还要加上MSE=1.2，得到√(1.2+.24)=1.2；那回答的是另一个问题。"
+      }
+    ],
+    "conclusion": "保留covariance后，fitted-mean SE≈.489898。遗漏covariance会误得约1.54919。",
+    "pitfall": "把intercept与slope的各自CI端点相加，并不能自动形成正确的mean CI；应先对联合线性组合计算variance，再使用匹配的t critical与df。",
+    "rCode": "# Original complete data for a five-point simple linear regression.\nd <- data.frame(x=c(2,4,6,8,10),y=c(5,7,12,13,18))\nfit <- lm(y~x,data=d)\nV <- vcov(fit)\nx0 <- 6\na <- c(1,x0)\nvariance_mean <- as.numeric(t(a)%*%V%*%a)\nanswer <- sqrt(variance_mean)\nmse <- deviance(fit)/df.residual(fit)\nprint(coef(fit))\nprint(V)\nprint(c(variance_mean=variance_mean,answer=answer,\n        predict_lm_SE=predict(fit,data.frame(x=x0),se.fit=TRUE)$se.fit,\n        without_covariance=sqrt(V[1,1]+x0^2*V[2,2]),\n        wrong_covariance_sign=sqrt(V[1,1]+x0^2*V[2,2]-2*x0*V[1,2]),\n        new_observation_SE=sqrt(mse+variance_mean)))\nstopifnot(abs(answer-predict(fit,data.frame(x=x0),se.fit=TRUE)$se.fit)<1e-10)",
+    "commonMistakes": [
+      {
+        "value": 1.5491933384829668,
+        "tolerance": 0.005,
+        "feedback": "这个值等于√(1.32+36×.03)，把两个coefficients当成了独立。还需加入2×6×(−.18)这项covariance贡献。"
+      },
+      {
+        "value": 2.1354156504062622,
+        "tolerance": 0.005,
+        "feedback": "这个值与把负covariance的贡献反向加大一致。方差公式使用+2x₀Cov；这里Cov为负，代入后这项应为−2.16。"
+      },
+      {
+        "value": 0.24,
+        "tolerance": 0.005,
+        "feedback": ".24是正确的fitted-mean variance。题目问SE，应再开平方，得到约.4899。"
+      },
+      {
+        "value": 1.2,
+        "tolerance": 0.005,
+        "feedback": "1.2是本例单个独立新观测的prediction SE：√(MSE+.24)。题目问拟合mean的不确定性，不需要加入新观测的误差variance。"
+      }
+    ]
+  },
+  {
+    "id": "p06-05",
+    "chapter": "06",
+    "title": "不等分配设计中的最小第一组人数",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "sample size",
+      "unequal allocation",
+      "noncentral t"
+    ],
+    "source": {
+      "file": "PPT/Chapter_6.pptx",
+      "locator": "72–78；class notes Chapter 6，58–60",
+      "note": "原创规划练习；数值与情境重新设计。"
+    },
+    "prompt": "两组独立正态响应具有共同总体 SD，规划σ=2。预先使用双侧 pooled t 检验 H₀:μA−μB=0，α=.05，希望在真实均值差Δ=1时power≥.80。整数分配规则为nB=ceil(1.5nA)，ceil表示向上取整。用noncentral-t功效核验，A组最少需要多少个独立单位？",
+    "unit": "A组独立单位数",
+    "integer": true,
+    "answer": 53,
+    "tolerance": 0,
+    "hint": "每个候选nA先计算整数nB，再用df=nA+nB−2、λ=1/[2√(1/nA+1/nB)]计算两个拒绝尾部。题目问A组人数。",
+    "steps": [
+      {
+        "title": "固定模型与分配规则",
+        "body": "分析采用共同方差pooled t；nB=ceil(1.5nA)允许取整后的实际比例稍微超过1.5。它不同于要求比例严格为3:2。"
+      },
+      {
+        "title": "建立功效计算",
+        "body": "给定nA、nB，ν=nA+nB−2，λ=1/[2√(1/nA+1/nB)]，c=t₍.975,ν₎。power=P(Tν,λ<−c)+P(Tν,λ>c)。"
+      },
+      {
+        "title": "按整数约束逐个核验",
+        "body": "nA=52时nB=78，power≈.791569；nA=53时nB=ceil(79.5)=80，power≈.800216。所有更小候选均未达标，因此A组最少53个单位。"
+      },
+      {
+        "title": "回到完整设计",
+        "body": "最终nA=53、nB=80，总计133个独立单位。power以真实效应1、共同σ=2和指定正态独立模型为条件。"
+      }
+    ],
+    "conclusion": "A组至少53个独立单位；B组80个，总计133个。",
+    "pitfall": "power.t.test(type=\"two.sample\")直接反求的是等组设计，不能用它的每组n替代本题的不等分配计算。先取整nA，再按规定取整nB，并核验实际power。",
+    "rCode": "alpha <- .05\ntarget_power <- .80\ndelta <- 1\nsigma_plan <- 2\n# Evaluate the actual pooled t test for each integer allocation.\npower_at <- function(nA,nB) {\n  df <- nA+nB-2\n  ncp <- delta/(sigma_plan*sqrt(1/nA+1/nB))\n  critical <- qt(1-alpha/2,df=df)\n  pt(-critical,df=df,ncp=ncp)+\n    pt(critical,df=df,ncp=ncp,lower.tail=FALSE)\n}\ndesigns <- data.frame(nA=2:200)\ndesigns$nB <- ceiling(1.5*designs$nA)\ndesigns$power <- mapply(power_at,designs$nA,designs$nB)\nfirst <- which(designs$power>=target_power)[1]\nanswer <- designs$nA[first]\nprint(designs[c(first-1,first),])\nstopifnot(answer==53,designs$nB[first]==80,\n          all(designs$power[seq_len(first-1)]<target_power))",
+    "commonMistakes": [
+      {
+        "value": 52,
+        "tolerance": 0,
+        "feedback": "A组52、B组78时实际t功效约.791569，未达到.80。不能将连续解向下取整。"
+      },
+      {
+        "value": 80,
+        "tolerance": 0,
+        "feedback": "80是达标设计中B组的人数；本题问A组，需要53个独立单位。"
+      },
+      {
+        "value": 133,
+        "tolerance": 0,
+        "feedback": "133是两组总人数53+80；本题只问A组人数。"
+      }
+    ]
+  },
+  {
+    "id": "p06-06",
+    "chapter": "06",
+    "title": "用相关性规划完整配对数",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "paired design",
+      "sample size",
+      "correlation",
+      "noncentral t"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 6 - 2022 Fall.pdf",
+      "locator": "40、61；PPT Chapter 6，78",
+      "note": "原创规划练习；数值与情境重新设计。"
+    },
+    "prompt": "同一仪器在程序调整前后各测一次，不同仪器的pairs独立，差值D=after−before服从正态总体。规划前后两个总体SD均为3，对内相关性ρ=.25。预先用双侧paired t检验H₀:μD=0，α=.05，希望在真实μD=2时power≥.80。用noncentral-t计算，最少需要多少个完整pairs？",
+    "unit": "完整pairs",
+    "integer": true,
+    "answer": 29,
+    "tolerance": 0,
+    "hint": "先算σD²=3²+3²−2ρ×3×3，再将σD传给power.t.test(type=\"paired\")的sd；n是pairs数。",
+    "steps": [
+      {
+        "title": "把前后变异换成差值变异",
+        "body": "Cov(after,before)=.25×3×3=2.25。σD²=9+9−2×2.25=13.5，因此σD=√13.5≈3.674235。"
+      },
+      {
+        "title": "按paired t模型逆求",
+        "body": "Δ=2，df=n−1，λ=2√n/√13.5。双侧noncentral-t连续解n≈28.470338，向上取整为29个完整pairs。"
+      },
+      {
+        "title": "检查前一个整数",
+        "body": "28对的power≈.792926，29对≈.807717，所以29达到至少.80而28尚未达到。"
+      },
+      {
+        "title": "解释观测数量",
+        "body": "29对对应29个独立仪器、58次测量和29个差值；实际t检验使用df=28。不能把58当成独立差值数。"
+      }
+    ],
+    "conclusion": "至少29个完整pairs；在指定模型、效应和变异假定下，power约.807717。",
+    "pitfall": "sd参数必须是差值SD，不是before或after任意一列的SD。ρ来自规划假定或可靠先导信息；若真实ρ更低，σD更大，固定pairs数的功效会下降。",
+    "rCode": "alpha <- .05\ntarget_power <- .80\ndelta <- 2\nsd_before <- 3\nsd_after <- 3\nrho <- .25\nsd_d <- sqrt(sd_before^2+sd_after^2-2*rho*sd_before*sd_after)\n# The sd argument describes differences; n counts complete pairs.\nplan <- power.t.test(n=NULL,delta=delta,sd=sd_d,sig.level=alpha,\n                     power=target_power,type=\"paired\",\n                     alternative=\"two.sided\",strict=TRUE,tol=1e-10)\nanswer <- ceiling(plan$n)\nns <- c(answer-1,answer)\npower <- vapply(ns,function(n) {\n  df <- n-1\n  ncp <- delta*sqrt(n)/sd_d\n  critical <- qt(1-alpha/2,df=df)\n  pt(-critical,df=df,ncp=ncp)+\n    pt(critical,df=df,ncp=ncp,lower.tail=FALSE)\n},numeric(1))\nprint(c(sd_difference=sd_d,continuous_n=plan$n,complete_pairs=answer))\nprint(data.frame(pairs=ns,power=power))\nstopifnot(answer==29,power[1]<target_power,power[2]>=target_power)",
+    "commonMistakes": [
+      {
+        "value": 58,
+        "tolerance": 0,
+        "feedback": "58是29对中前后测量的总次数；有效样本量是29个独立差值。"
+      },
+      {
+        "value": 27,
+        "tolerance": 0,
+        "feedback": "27来自已知σ的z近似26.489969向上取整。实际paired t还要计入估计SD的不确定性；28对仍只有约.792926功效。"
+      },
+      {
+        "value": 20,
+        "tolerance": 0,
+        "feedback": "20与把单列SD=3直接传给paired规划一致。本题差值SD=√13.5≈3.674235，正确结果是29对。"
+      }
+    ]
   }
 ]

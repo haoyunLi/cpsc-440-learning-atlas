@@ -82,5 +82,8 @@
   "p04-14": "clt",
   "p14-06": "factorial-ss",
   "p07-08": "brown-forsythe",
-  "p06-09": "welch"
+  "p06-09": "welch",
+  "p14-07": "three-way",
+  "p14-08": "unbalanced",
+  "p11-07": "lack-fit"
 }

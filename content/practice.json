@@ -4482,5 +4482,176 @@
         "feedback": "这个值与重新拟合Y~A后计算Tukey一致。遗漏B使SSE变为60、df变为9、MSE变为60/9。题目要求完整Y~A*B模型，应保留MSE=2与6个error df。"
       }
     ]
+  },
+  {
+    "id": "p14-07",
+    "chapter": "14",
+    "title": "AB平均为零，不代表每个C下都没有interaction",
+    "level": "综合",
+    "type": "choice",
+    "tags": [
+      "three-way interaction",
+      "conditional interaction",
+      "marginal averaging",
+      "ANOVA interpretation"
+    ],
+    "source": {
+      "file": "PPT/Chapter_14.pptx",
+      "locator": "slides 30–33；notes Chapter 14 pp.25–28、34–45",
+      "note": "原创2×2×2机制题；cells与正文例不同，不是原作业答案。"
+    },
+    "prompt": "完整平衡2×2×2实验，A、B、C均为fixed factors，响应是每盆干物质（g），各cell有两个独立花盆的观测，分别等于该cell mean−1与mean+1。C1的cell means为A1B1=8、A1B2=10、A2B1=10、A2B2=18；C2则为12、14、20、16（顺序相同）。假定独立正态共同variance errors。完整A*B*C模型给出MSE=2、error df=8，AB行F=0、P=1，ABC行F=18、P≈.002827。以下解释哪项正确？",
+    "options": [
+      "AB的P=1证明在C1和C2条件下都不存在A×B interaction，因此无需再读ABC行。",
+      "两个条件AB contrasts分别为6和−6，跨C平均抵消为0；ABC比较的是它们的差−12，所以AB与ABC两行并不矛盾。",
+      "AB行不显著时，ABC行不可能显著；这里必须有一个ANOVA结果算错了。",
+      "ABC显著意味着每一个A、B、C的simple effect都已显著，而且在所有条件下方向一致。"
+    ],
+    "answer": 1,
+    "unit": "",
+    "hint": "在每个C内先算A2−A1，再用B2的差减B1的差。比较“两个条件AB的平均”与“两个条件AB的差”。",
+    "steps": [
+      {
+        "title": "在C1中计算条件AB",
+        "body": "B1下A2−A1=10−8=2，B2下为18−10=8；所以Δ̂AB|C1=8−2=6。"
+      },
+      {
+        "title": "在C2中重复同样方向",
+        "body": "B1下A2−A1=20−12=8，B2下为16−14=2；所以Δ̂AB|C2=2−8=−6。不能换相减顺序来使两个数字同号。"
+      },
+      {
+        "title": "区分平均与差",
+        "body": "跨C的等权AB contrast=(6−6)/2=0，对应边际AB行；三阶contrast L̂=(−6)−6=−12，回答AB关系是否随C改变。平均相互抵消不能推出各条件效应为零。"
+      },
+      {
+        "title": "与完整模型推断连接",
+        "body": "八个cell means各有variance估计MSE/r=2/2=1，L̂使用八个±1系数，所以SE=√8。ABC只有1df，F=L̂²/SE²=144/8=18，F(1,8)右尾P≈.002827。支持条件AB不同，但不能由此自动声称所有simple effects都显著。"
+      }
+    ],
+    "conclusion": "AB行描述跨C平均后的二阶关系；ABC行描述这个二阶关系如何随C改变。这里平均为0，同时条件关系有明显差异。",
+    "pitfall": "不显著不证明零效应；显著高阶interaction也不为所有事后simple comparisons提供自动的错误率保护。一般多水平ABC不止1df，不能用一个contrast的t²代替整个检验。",
+    "optionExplanations": [
+      "AB行在此平衡设计中针对跨C等权平均的关系。C1与C2的条件interaction可一正一负而相互抵消；P=1也不是总体无效应的证明。",
+      "正确。6与−6的平均为0，但两者之差为−12。完整模型对平均AB和ABC分别提出不同的假设。",
+      "二阶边际interaction与三阶interaction不是同一个参数，二者可以有完全不同的检验结果。上面的cell means已提供可直接核算的例子。",
+      "ABC检验支持的是条件interaction之间存在差别，不是所有更低阶的简单效应都已逐项通过检验；这些比较还需明确目标和family。"
+    ],
+    "rCode": "# New original two-replicate cells, distinct from the lesson example.\ngrid <- expand.grid(A=factor(c(\"A1\",\"A2\")),B=factor(c(\"B1\",\"B2\")),\n                    C=factor(c(\"C1\",\"C2\")))\ncell_means <- c(8,10,10,18,12,20,14,16)\nd <- grid[rep(seq_len(8),times=2),]\nd$y <- rep(cell_means,2)+rep(c(-1,1),each=8)\nfit <- lm(y ~ A*B*C,data=d)\nmu <- with(d,tapply(y,list(A,B,C),mean))\nsimple_A <- mu[\"A2\",,]-mu[\"A1\",,]\nAB_given_C <- simple_A[\"B2\",]-simple_A[\"B1\",]\nL <- unname(AB_given_C[\"C2\"]-AB_given_C[\"C1\"])\nerror_df <- df.residual(fit)\nmse <- deviance(fit)/error_df\nF_ABC <- L^2/(8*mse/2)\ntab <- anova(fit)\nprint(mu)\nprint(AB_given_C)\nprint(tab)\nprint(c(AB_averaged=mean(AB_given_C),ABC_contrast=L,\n        error_df=error_df,MSE=mse,F_ABC=F_ABC,\n        P_ABC=pf(F_ABC,1,error_df,lower.tail=FALSE)))\nstopifnot(max(abs(AB_given_C-c(6,-6)))<1e-10,\n          abs(mean(AB_given_C))<1e-10,\n          error_df==8,abs(mse-2)<1e-10,\n          abs(F_ABC-18)<1e-10,\n          abs(F_ABC-tab[\"A:B:C\",\"F value\"])<1e-10)\n# The second choice distinguishes a marginal average from conditional interactions.\nanswer <- 1L\nprint(answer)\n"
+  },
+  {
+    "id": "p14-08",
+    "chapter": "14",
+    "title": "用同一个目标构成比较两组 marginal means",
+    "level": "应用",
+    "type": "numeric",
+    "tags": [
+      "estimated marginal mean",
+      "weights",
+      "estimand",
+      "unbalanced"
+    ],
+    "source": {
+      "file": "PPT/Chapter_14.pptx",
+      "locator": "47–51；classnote/440 - Chapter 14 - 2022 Fall.pdf 第46–49页",
+      "note": "原创目标权重练习；四格数据汇总与目标构成重新设计。"
+    },
+    "prompt": "两个品种 V1、V2 在 Low/High 条件下的 fitted cell means 分别为 V1=(8,20)、V2=(13,17)。已有样本数分别为 V1=(8,2)、V2=(2,8)。研究目标预先规定：两个品种都按 Low 占75%、High占25%的同一构成平均。目标 marginal mean difference（V2−V1）的点估计是多少？这题不是要求 observed raw difference 或等权平均。",
+    "hint": "把同一组目标权重(.75,.25)用于两个品种。也可先算各条件下的 V2−V1，再按同一权重平均。",
+    "answer": 3,
+    "tolerance": 0.001,
+    "unit": "响应原单位",
+    "steps": [
+      {
+        "title": "先写目标，而不是直接使用样本数",
+        "body": "设μᵢ,L与μᵢ,H为两个条件的总体均值。目标是[.75μ₂,L+.25μ₂,H]−[.75μ₁,L+.25μ₁,H]。两品种必须使用相同的预设构成；样本数不是这里的目标权重。"
+      },
+      {
+        "title": "分别计算目标均值",
+        "body": "V1的目标均值估计为.75×8+.25×20=11；V2为.75×13+.25×17=14。因此V2−V1=14−11=3。"
+      },
+      {
+        "title": "用simple effects再次核对",
+        "body": "Low下V2−V1=5，High下为−3；共同加权差为.75×5+.25×(−3)=3。正结果不表示两个条件下都更高。"
+      },
+      {
+        "title": "解释另外两种平均为什么不同",
+        "body": "Observed raw means分别为10.4和16.2，raw difference=5.8，混入不同样本构成。Low/High等权时差为(5−3)/2=1，回答的是另一目标。这三种点估计不同并不意味着算术出错；区间还需模型covariance和自由度。"
+      }
+    ],
+    "conclusion": "按两品种共同的75% Low、25% High目标构成，V2−V1的点估计为3。",
+    "pitfall": "不能一组按实际样本数、另一组按目标权重，也不能把equal weights当成所有研究必然正确的唯一选择。权重要在看到有利结果之前由目标问题确定。",
+    "commonMistakes": [
+      {
+        "value": 5.8,
+        "tolerance": 0.001,
+        "feedback": "这是各组分别按实际样本数平均后的raw difference。两个品种的Low/High构成不同，不是题目指定的共同75%/25%目标。"
+      },
+      {
+        "value": 1,
+        "tolerance": 0.001,
+        "feedback": "这是Low/High各占一半时的等权差。题目明确的共同目标是75% Low与25% High。"
+      },
+      {
+        "value": -1,
+        "tolerance": 0.001,
+        "feedback": "这与把权重反为25% Low、75% High一致。检查两个条件的顺序；不能只交换权重而保留原解释。"
+      }
+    ],
+    "rCode": "# Original fitted cell summaries, in Low/High order.\ncell_mean <- rbind(V1=c(Low=8,High=20),V2=c(Low=13,High=17))\ncell_n <- rbind(V1=c(Low=8,High=2),V2=c(Low=2,High=8))\n# Use the same prespecified target composition for both varieties.\nw <- c(Low=.75,High=.25)\ntarget_mean <- as.vector(cell_mean %*% w)\nraw_mean <- rowSums(cell_mean*cell_n)/rowSums(cell_n)\nequal_mean <- rowMeans(cell_mean)\nsimple_effect <- cell_mean[\"V2\",]-cell_mean[\"V1\",]\nanswer <- target_mean[2]-target_mean[1]\nprint(data.frame(variety=rownames(cell_mean),raw=raw_mean,\n                 equal=equal_mean,target=target_mean))\nprint(c(target_difference=answer,\n        weighted_simple_effect=sum(w*simple_effect),\n        raw_difference=diff(raw_mean),equal_difference=diff(equal_mean)))\nstopifnot(abs(answer-3)<1e-12,\n          abs(answer-sum(w*simple_effect))<1e-12)\n# These are point estimates; uncertainty requires the fitted model covariance."
+  },
+  {
+    "id": "p11-07",
+    "chapter": "11",
+    "title": "Quadratic 输出中的三个 F 不能共用一个分母",
+    "level": "综合",
+    "type": "choice",
+    "tags": [
+      "quadratic",
+      "nested models",
+      "lack of fit",
+      "F denominator"
+    ],
+    "source": {
+      "file": "PPT/Chapter_11.pptx",
+      "locator": "slides 55–56、60–65；notes Chapter 11 pp.37–38、45",
+      "note": "针对quadratic输出解读的原创练习；数据与正文12观测不同。"
+    },
+    "prompt": "<p>原创实验在 x=0,1,2,3,4 各测三个独立单位，Y 分别为 [2,3,4]、[3,4,5]、[7,8,9]、[12,13,14]、[21,22,23]。事先列出含截距的 line、quadratic 与每个 x 一个均值的 cell model，假定 errors 独立正态、共同 variance。R 给出 SSE(line)=73.3、SSE(quadratic)=11.37142857、SSPE=10，总 n=15。</p><p>现在分别读取 quadratic 的整体 regression F、<code>anova(line,quadratic)</code> 的增量 F、<code>anova(quadratic,cell)</code> 的 lack-of-fit F。以下哪项正确匹配它们的问题与分母？</p>",
+    "options": [
+      "三项都除以 MSPE=10/10，因为有重复 x 后，所有 regression F 都自动改用 pure error。",
+      "整体检验 β₁=β₂=0，增量检验 β₂=0，两者都除以 11.37142857/12；quadratic LOF 检验五个 x 处均值是否服从同一 quadratic，除以 10/10。",
+      "整体 regression F 等于 x² 行的 t²；它与增量 F 问同一个问题，只是显示方式不同。",
+      "增量 F 应除以直线的 73.3/13；quadratic LOF 应除以 quadratic 的 11.37142857/12，因为分母总来自被检验的较简单模型。"
+    ],
+    "answer": 1,
+    "unit": "",
+    "hint": "先画三对 nested models：constant→quadratic、line→quadratic、quadratic→cell。每一对的标准增量 F 使用较完整模型的 residual MSE。",
+    "steps": [
+      {
+        "title": "先核对模型与 residual df",
+        "body": "共有 n=15、g=5 个不同 x。含截距的 line 用2个参数，residual df=13；quadratic 用3个，df=12；cell model 用5个，pure-error df=10。于是 MSE_quad=11.37142857/12≈.947619，MSPE=10/10=1。"
+      },
+      {
+        "title": "整体 F 与额外二次项 F 使用同一个误差模型",
+        "body": "Quadratic 整体 H₀:β₁=β₂=0 有2个分子df；增量 H₀:β₂=0 有1个分子df。两者较完整的模型都是 quadratic，所以都除以 MSE_quad≈.947619。SST=736，整体 F≈382.341709；增量 F=(73.3−11.37142857)/.947619≈65.351759。"
+      },
+      {
+        "title": "LOF 的比较参照改变了分母",
+        "body": "Quadratic LOF 将 quadratic 与5个自由 cell means 比较。多出的参数数为5−3=2；F=[(11.37142857−10)/2]/(10/10)≈.685714，df=(2,10)、P≈.525926。这里的分母是 cell model 的 pure-error MS，而非 quadratic 的 MSE。"
+      },
+      {
+        "title": "按各自的问题解释输出",
+        "body": "整体检验、增加二次项检验与剩余失配检验可以同时给出很不同的 P；它们不矛盾。x² 行的 t²≈65.351759 只等于同一个1-df增量 F，不等于2-df整体 F。LOF 未拒绝也不能证明 quadratic 为真。"
+      }
+    ],
+    "conclusion": "正确配对是：整体与额外 x² 检验用 quadratic MSE（12 df）；quadratic LOF 用 pure-error MS（10 df），不能把三种 F 当成同一个检验。",
+    "pitfall": "先确认同一批观测、嵌套模型、各自的零假设与误差参照，再比较 P。存在重复 x 不意味着所有检验都自动改用 pure error；整体 F 显著也不表示每个 coefficient 均显著。",
+    "optionExplanations": [
+      "Pure error 是 quadratic→cell 这一 LOF 比较的分母。这里指定的整体 quadratic F 和 anova(line,quadratic) 都以 quadratic 为较完整模型，使用其12个residual df与MSE；不能因存在重复就替换输出的分母。",
+      "正确。constant→quadratic 与 line→quadratic 的较完整模型相同，因此共享 quadratic MSE；quadratic→cell 的参照模型改变，才改用 cell model 的 pure-error MS。三项的零假设与分子df也不同。",
+      "只有检验同一1-df线性约束时，对应的 F 才等于 t²。x² 行检验 β₂=0，而整体 quadratic 同时检验 β₁=β₂=0，有2个分子df；两者不能互换。",
+      "标准嵌套模型 F 用较完整模型估计共同误差，而不是较简单模型的剩余SS。直线SSE可能含遗漏的curvature，quadratic SSE可能含相对cell model的剩余失配；正是这些部分进入各自分子。"
+    ],
+    "rCode": "# Original five-level example, with three independent units at each x.\nd <- data.frame(x=rep(0:4,each=3),\n                y=rep(c(3,4,8,13,22),each=3)+rep(c(-1,0,1),5))\nline <- lm(y~x,data=d)\nquadratic <- lm(y~x+I(x^2),data=d)\ncell <- lm(y~factor(x),data=d)\nsst <- sum((d$y-mean(d$y))^2)\nsse_line <- deviance(line)\nsse_quad <- deviance(quadratic)\nss_pe <- deviance(cell)\nmse_quad <- sse_quad/df.residual(quadratic)\nms_pe <- ss_pe/df.residual(cell)\nF_values <- c(overall=((sst-sse_quad)/2)/mse_quad,\n              extra_quadratic=(sse_line-sse_quad)/mse_quad,\n              lack_of_fit=((sse_quad-ss_pe)/2)/ms_pe)\nresults <- data.frame(test=names(F_values),F=unname(F_values),\n                      df1=c(2,1,2),df2=c(12,12,10),\n                      denominator=c(mse_quad,mse_quad,ms_pe))\nresults$P <- pf(results$F,results$df1,results$df2,lower.tail=FALSE)\nprint(c(SST=sst,SSE_line=sse_line,SSE_quadratic=sse_quad,SSPE=ss_pe))\nprint(results,digits=12)\nprint(summary(quadratic)$coefficients)\nprint(anova(line,quadratic))\nprint(anova(quadratic,cell))\n# The quadratic coefficient t corresponds to the one-df extra-term test.\nt_quad <- summary(quadratic)$coefficients[\"I(x^2)\",\"t value\"]\nstopifnot(df.residual(quadratic)==12,df.residual(cell)==10,\n          abs(mse_quad-.947619047619048)<1e-12,abs(ms_pe-1)<1e-12,\n          abs(F_values[\"extra_quadratic\"]-t_quad^2)<1e-10,\n          max(abs(F_values-c(382.341708542714,65.3517587939699,.685714285714278)))<1e-9,\n          max(abs(results$P-c(1.36026423773983e-11,3.37784818863505e-6,.525926266406393)))<1e-12)\nanswer <- 1L\nprint(answer)\n"
   }
 ]

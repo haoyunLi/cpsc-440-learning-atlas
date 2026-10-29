@@ -19,6 +19,19 @@ grid <- expand.grid(A=levels(d$A), B=levels(d$B))
 grid$estimate <- predict(fit, newdata=grid)
 grid
 aggregate(estimate ~ A, data=grid, FUN=mean)
+# Apply the same prespecified target weights to both varieties.
+cell_estimate <- xtabs(estimate ~ A+B, data=grid)
+target_weights <- c(Low=.75, High=.25)
+target_mean <- as.vector(cell_estimate[,names(target_weights)] %*% target_weights)
+names(target_mean) <- rownames(cell_estimate)
+simple_effect <- cell_estimate["V2",]-cell_estimate["V1",]
+target_difference <- unname(target_mean["V2"]-target_mean["V1"])
+print(target_mean)
+print(c(target_difference=target_difference,
+        weighted_simple_effect=sum(target_weights*simple_effect[names(target_weights)])))
+stopifnot(max(abs(target_mean-c(12.5,13.5)))<1e-10,
+          abs(target_difference-1)<1e-10,
+          abs(target_difference-sum(target_weights*simple_effect[names(target_weights)]))<1e-10)
 # Optional equivalent calls if the emmeans package is installed:
 # emmeans::emmeans(fit, ~ A, weights="equal")
 # emmeans::emmeans(fit, ~ A | B)

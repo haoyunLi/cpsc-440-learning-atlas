@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import * as M from '../assets/math.mjs';
 import { CLT_LIMIT, createCLTSimulation, cltHistogram, cltRCode, drawCLTSample, drawCLTHistogram, mountCLT } from '../assets/clt.mjs';
+import { mountBinomial } from '../assets/binomial.mjs';
 
 const near = (a, b, tolerance = 1e-12) => assert.ok(Math.abs(a - b) <= tolerance, `${a} versus ${b}`);
 // Independently calculate the documented LCG using integer BigInt arithmetic,
@@ -171,31 +172,36 @@ try {
   }
   assert.equal(action('one'), one); assert.equal(action('hundred'), hundred); assert.equal(details.open, true);
 
-  // Mount both real modules. Parent queries must include subsequently mounted
-  // descendants, as the browser does. CLT deliberately has no #cltn-v output.
+  // Mount both real modules as siblings. Parent queries still expose nested
+  // controls as a browser would, but no outer setup owns either module's inputs.
   const source = readFileSync(new URL('../assets/atlas.mjs', import.meta.url), 'utf8').replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '');
   const binomialFields = Object.fromEntries(Object.entries({ bn: 20, bp: .85, bk: 18 }).map(([id, value]) => [id, Object.assign(new Element('input'), { id, value: String(value) })]));
-  const binomialSvg = new Element('svg'), binomialReadout = new Element(), cltRoot = new Element();
+  const binomialRoot = new Element(), cltRoot = new Element();
   const binomialOutputs = Object.fromEntries(Object.keys(binomialFields).map(id => [`${id}-v`, new Element()]));
+  const binomialExtras = Object.fromEntries(['mode', 'preset', 'reset', 'error', 'result', 'plot', 'zoom-plot', 'comparisons', 'rule', 'rows', 'copy', 'code', 'copy-status'].map(key => [`[data-binom-${key}]`, new Element(key.includes('plot') ? 'svg' : 'div')]));
+  const binomial = key => binomialExtras[`[data-binom-${key}]`]; binomial('mode').value = 'right';
+  const binomialSvg = binomial('plot'), binomialReadout = binomial('result');
+  binomialRoot.querySelector = selector => binomialExtras[selector] || binomialFields[selector.slice(1)] || binomialOutputs[selector.slice(1)] || null;
   const nested = Object.fromEntries(selectors.map(name => [`[data-clt-${name}]`, new Element(name === 'raw' || name === 'means' ? 'svg' : 'div')]));
   for (const action of ['one', 'hundred', 'reset']) nested[`[data-clt-action="${action}"]`] = new Element('button');
   const nestedN = nested['[data-clt-n]']; nestedN.id = 'cltn'; nestedN.value = '10';
   cltRoot.querySelector = selector => nested[selector] || null;
   const host = {
-    querySelector: selector => selector === 'svg' ? binomialSvg : selector === '.readout' ? binomialReadout : selector === '[data-clt]' ? cltRoot : selector === '#cltn' && cltRoot.dataset.cltReady ? nestedN : binomialFields[selector.slice(1)] || binomialOutputs[selector.slice(1)] || null,
+    querySelector: selector => selector === '[data-binomial]' ? binomialRoot : selector === '[data-clt]' ? cltRoot : selector === '#cltn' && cltRoot.dataset.cltReady ? nestedN : binomialRoot.querySelector(selector),
     querySelectorAll: selector => ['input[type=range]', 'input,select,textarea'].includes(selector) ? [...Object.values(binomialFields), ...(cltRoot.dataset.cltReady ? [nestedN] : [])] : []
   };
-  let mounts = 0;
-  const context = vm.createContext({ M, document: { querySelector: () => null, querySelectorAll: () => [], createElementNS: (namespace, tag) => new Element(tag) }, mountCLT: root => { assert.equal(root, cltRoot); mounts++; mountCLT(root); } });
+  let binomialMounts = 0, cltMounts = 0;
+  const context = vm.createContext({ M, document: { querySelector: () => null, querySelectorAll: () => [], createElementNS: (namespace, tag) => new Element(tag) }, mountBinomial: root => { assert.equal(root, binomialRoot); binomialMounts++; mountBinomial(root); }, mountCLT: root => { assert.equal(root, cltRoot); cltMounts++; mountCLT(root); } });
   vm.runInContext(`${source}\nglobalThis.mountProbability=labProbability;`, context);
-  context.mountProbability(host); assert.equal(mounts, 1);
+  context.mountProbability(host); assert.equal(cltMounts, 1); assert.equal(binomialMounts, 1);
   assert.equal(host.querySelectorAll('input[type=range]').length, 4);
   assert.equal(host.querySelector('#cltn-v'), null, 'Do not invent an output that is absent in the mounted DOM');
   assert.equal(nestedN.events.input.length, 1, 'Only the CLT module handles its sample-size input');
+  assert.equal(binomialFields.bn.events.input.length, 1, 'Only the binomial module handles n trials');
   assert.equal(binomialSvg.children.filter(node => node.tag === 'rect').length, 21);
-  assert.match(binomialReadout.textContent, /P\(Y≥18\)=0.404896/);
+  assert.match(binomialReadout.innerHTML, /P\(X≥18\) = 0.404896/);
   const cltState = () => JSON.stringify(Object.entries(nested).map(([selector, element]) => [selector, element.value, element.textContent, element.innerHTML, element.disabled, element.children]));
-  const binomialState = () => JSON.stringify([binomialReadout.textContent, binomialSvg.children, Object.values(binomialOutputs).map(element => element.textContent)]);
+  const binomialState = () => JSON.stringify([binomialReadout.innerHTML, binomialSvg.children, Object.values(binomialOutputs).map(element => element.textContent), Object.values(binomialFields).map(element => element.value), binomial('mode').value]);
   const untouchedBinomial = binomialState();
   await nested['[data-clt-action="one"]'].dispatch('click');
   assert.match(nested['[data-clt-status]'].textContent, /n=10.*B=1.*nB=10/);
@@ -204,13 +210,23 @@ try {
   binomialFields.bn.value = '1'; await binomialFields.bn.dispatch('input');
   assert.equal(binomialOutputs['bn-v'].textContent, '1');
   assert.equal(binomialSvg.children.filter(node => node.tag === 'rect').length, 2);
-  assert.match(binomialReadout.textContent, /P\(Y≥18\)=0/);
-  assert.equal(cltState(), untouchedCLT, 'A parent range update must leave the accumulated CLT sample intact');
+  assert.match(binomialReadout.innerHTML, /P\(X≥18\) = 0/);
+  assert.equal(cltState(), untouchedCLT, 'A binomial range update must leave the accumulated CLT sample intact');
+  binomial('mode').value = 'two'; await binomial('mode').dispatch('change');
+  assert.match(binomial('error').textContent, /x=18>n=1/);
+  assert.equal(binomial('copy').disabled, true); assert.equal(cltState(), untouchedCLT);
   binomialFields.bk.value = '1'; await binomialFields.bk.dispatch('input');
-  assert.equal(binomialOutputs['bk-v'].textContent, '1'); assert.match(binomialReadout.textContent, /P\(Y≥1\)=0.850000/);
+  assert.equal(binomialOutputs['bk-v'].textContent, '1'); assert.equal(binomial('error').textContent, '');
+  assert.equal(binomial('copy').disabled, false); assert.equal(cltState(), untouchedCLT);
+  binomial('mode').value = 'right'; await binomial('mode').dispatch('input');
+  assert.match(binomialReadout.innerHTML, /P\(X≥1\) = 0.850000/);
   binomialFields.bp.value = '0.5'; await binomialFields.bp.dispatch('input');
-  assert.equal(binomialOutputs['bp-v'].textContent, '0.5'); assert.match(binomialReadout.textContent, /P\(Y≥1\)=0.500000/);
+  assert.equal(binomialOutputs['bp-v'].textContent, '0.5'); assert.match(binomialReadout.innerHTML, /P\(X≥1\) = 0.500000/);
   assert.equal(cltState(), untouchedCLT);
+  await binomial('preset').dispatch('click');
+  assert.match(binomialReadout.innerHTML, /0.021511/); assert.equal(cltState(), untouchedCLT);
+  await binomial('reset').dispatch('click');
+  assert.match(binomialReadout.innerHTML, /P\(X≥18\) = 0.404896/); assert.equal(cltState(), untouchedCLT);
   const changedBinomial = binomialState();
   nestedN.value = '25'; await nestedN.dispatch('input');
   assert.match(nested['[data-clt-status]'].textContent, /n=25.*B=0.*nB=0/);
@@ -218,6 +234,9 @@ try {
   await nested['[data-clt-action="hundred"]'].dispatch('click');
   assert.match(nested['[data-clt-status]'].textContent, /n=25.*B=100.*nB=2500/);
   assert.equal(binomialState(), changedBinomial);
+  await nested['[data-clt-action="reset"]'].dispatch('click');
+  assert.equal(binomialState(), changedBinomial);
+
 } finally {
   for (const [key, descriptor] of Object.entries(saved)) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; }
 }

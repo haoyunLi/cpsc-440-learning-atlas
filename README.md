@@ -37,7 +37,7 @@ python3 -m http.server 4400
 python3 tools/build.py
 ```
 
-补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 78 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
+补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 79 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
 
 Ch04 通过完整列联表区分两种条件方向、joint 与 marginals，以及固定清单概率和样本频率；Ch05 对照 PPT 的 σ 与 notes 的样本 s 设定，分别说明精确 z、正态模型 t 与大样本 z 近似。方法向导保留配对 / 重复 / block 结构与 variance 条件，推荐对应知识点；Ch08 追加三项 Welch 检验、Bonferroni P 与近似同时区间的完整复算。
 
@@ -58,6 +58,7 @@ Ch09 包含单个 contrast 的单双侧、正交 SS 分解、Scheffé 与 Dunnet
 ```sh
 node tests/numerical.mjs
 node tests/chapter_probabilities.mjs
+node tests/binomial.mjs
 node tests/clt.mjs
 node tests/factorial.mjs
 node tests/kruskal.mjs
@@ -94,7 +95,7 @@ python3 tests/practice_paths.py
 python3 tests/r_examples.py
 ```
 
-工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、78 个章节示例及 R 入门脚本，共 171 个下载脚本（含贯穿案例）在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
+工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、79 个章节示例及 R 入门脚本，共 172 个下载脚本（含贯穿案例）在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
 
 Ch08 的 Kruskal–Wallis 实验可编辑三组各3个观测，追踪 pooled ranks、ties correction 与全部1680种固定组规模标签分配；逐项浏览保留观测身份和重复统计量的分配重数，比较χ²近似与条件exact P。正文与新练习包含完整独立R枚举。Ch15 区分block内随机化、全场CRD分配和对既有RCBD数据省略block的分析，并核对两个随机化空间的大小。
 
@@ -159,3 +160,7 @@ ANOVA 实验独立对照 R 核验全部500组合法滑块设置，逐点验证�
 原创贯穿案例 `case-study.html` 连接研究问题、实验单位、数据整理、Welch、诊断与结论。12盆×3株的36行CSV和完整R使用同一份教学数据；图上方选择器与表格按盆ID双向联动，六步自检支持逐项解释、改答撤销旧判定与重新检查，不写入累计进度。正确盆级结果与明确标为无效的逐株伪重复输出分别独立对照R；静态数据表、解释和R在无JavaScript时仍可阅读。来源定位包括课程experimental unit与Welch讲义，以及Penn State STAT502的公开实验设计教材。
 
 方法向导新增中位数与秩位置目标，区分单总体／配对差median、对称中心与独立组秩位置。单因素独立模型之外的blocks、重复多条件、factorial，以及任意不同形状的组间median比较显示明确边界，不自动改换参数。手册拆分sign、signed-rank、rank-sum、Kruskal–Wallis入口；Ch05明确中心处零差的条件符号模型，Ch06补单样本signed-rank与median(A−B)不等于median(A)−median(B)的原创衔接。288种设置的路由与真实锚点、跨目标控件状态隔离已验证。
+
+Ch04 二项实验在同一 PMF 图中切换单点、左右尾与概率排序双侧，展示全部计数的入选集合、PMF 和求和贡献；不对称例解释为什么双侧不总是两倍较小单尾。当前设置可复制完整 R 代码，x>n 的双侧检验保留输入并清除旧结果。验证包含5,584项独立 R 数值与计数集合对照、5,358个几何状态和31份实际导出 R；CLT 与二项模块的参数、抽样、重置及复制状态分别管理。
+
+Ch14 追加整格缺失的完整例题：同一组观测可由两套参数同样拟合，却产生不同的空格均值与等权主效应，说明 rank deficiency、可估计性与加性假设。已有 B1 内 simple effect 完成 SE、df、P 与区间推断，并附独立 base R。Ch07 的 Hartley 基础段补上完整参考分布与决策例题的直达链接。

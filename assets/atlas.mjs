@@ -4,6 +4,7 @@ import { mountSearch } from './search.mjs';
 import { mountLatinDesigner } from './latin.mjs';
 import { boxplotAnalysis, drawBoxplot, boxplotRCode } from './boxplot.mjs';
 import { mountCLT } from './clt.mjs';
+import { mountBinomial, chapterProbabilityLabel as binomialProbabilityLabel, binomialTailSummary as summarizeBinomialTail } from './binomial.mjs';
 import { mountFactorial } from './factorial.mjs';
 import { mountPaired } from './paired.mjs';
 import { mountAnova } from './anova.mjs';
@@ -23,18 +24,10 @@ function range(id,label,min,max,step,value){return `<label for="${id}">${label} 
 function setup(el,html,fn){el.innerHTML=html;const ownedRanges=[...el.querySelectorAll('input[type=range]')];const update=()=>{ownedRanges.forEach(i=>{$('#'+i.id+'-v',el).textContent=i.value});fn()};el.querySelectorAll('input,select,textarea').forEach(i=>i.addEventListener('input',update));update();return update}
 function val(id,el){return Number($('#'+id,el).value)}
 export function chapterProbabilityLabel(value, complement = 1 - value, digits = 6) {
-  if (!Number.isFinite(value) || value < 0 || value > 1) return '—';
-  if (value > .5 && complement > 0 && complement < 10 ** -digits) return `1 − ${complement.toExponential(3)}`;
-  if (value > 0 && value < .0001) return value.toExponential(3);
-  return value === 0 || value === 1 ? String(value) : value.toFixed(digits);
+  return binomialProbabilityLabel(value, complement, digits);
 }
 export function binomialTailSummary(n, p, k) {
-  if (!Number.isInteger(n) || n < 1 || n > 60 || !Number.isFinite(p) || p < 0 || p > 1 || !Number.isInteger(k) || k < 0 || k > 60) throw Error('二项分布设置无效');
-  const pmf = Array.from({length:n+1}, (_, i) => M.binomialPMF(i, n, p));
-  // Retain both disjoint tails, including the tiny complement near probability 1.
-  const sum = (first, last) => Math.min(1, pmf.slice(first, last).reduce((total, x) => total + x, 0));
-  const right = k === 0 ? 1 : sum(k, n + 1), below = k > n ? 1 : sum(0, k);
-  return {pmf, right, below};
+  return summarizeBinomialTail(n, p, k);
 }
 export function formatSummaryNumber(value, spread = Math.abs(value)) {
   if (!Number.isFinite(value)) return '—';
@@ -119,7 +112,11 @@ function labSummary(el) {
   $('#summary-reset',el).onclick=()=>{$('textarea',el).value='2, 3, 3, 4, 18';$('#box-rule',el).value='type7';$('#bins',el).value='7';update();};
   $('#box-copy',el).onclick=async()=>{try{await navigator.clipboard.writeText($('[data-box-code]',el).textContent);$('[data-box-copy-status]',el).textContent='已复制当前数据与规则的 R 代码。';}catch{$('[data-box-copy-status]',el).textContent='请选中上方完整代码复制。';}};
 }
-function labProbability(el){setup(el,`<div class="controls">${range('bn','n trials',1,60,1,20)}${range('bp','p success',0,1,.01,.85)}${range('bk','Threshold k',0,60,1,18)}</div>${svg('Binomial probability mass function；阈值及其右侧柱子使用强调色')}<div class="readout" aria-live="polite"></div><p class="caption">P(Y≥k) 包含 k。右侧阈值柱用 brown 表示；k&gt;n 时概率为 0。很小的正概率用科学记数法显示，例如 1e−6=0.000001；接近 1 时保留其补事件概率。柱子细到看不见，不代表概率为 0。</p><div data-clt></div>`,()=>{const n=val('bn',el),p=val('bp',el),k=val('bk',el),{pmf,right,below}=binomialTailSummary(n,p,k);const map=axes($('svg',el),'Y（success count）','P(Y=k)',-.5,n+.5,0,Math.max(...pmf)*1.2);pmf.forEach((v,i)=>add($('svg',el),'rect',{x:map.x(i-.4),y:map.y(v),width:550/(n+1)*.8,height:map.y(0)-map.y(v),fill:i>=k?'#9a472e':'#086f68'}));$('.readout',el).textContent=`P(Y≥${k})=${chapterProbabilityLabel(right,below)} · E(Y)=${fmt(n*p)} · SD(Y)=${fmt(Math.sqrt(n*p*(1-p)))}`});mountCLT(el.querySelector('[data-clt]'))}
+function labProbability(el) {
+  el.innerHTML = '<div data-binomial></div><div data-clt></div>';
+  mountBinomial(el.querySelector('[data-binomial]'));
+  mountCLT(el.querySelector('[data-clt]'));
+}
 function labInference(el){const update=setup(el,`<div class="controls">${range('in','n',4,200,1,25)}${range('is','Known σ',1,20,.5,10)}${range('id','True μ−μ₀',-8,8,.25,4)}${range('ia','α',.01,.2,.01,.05)}<label for="tail">Alternative<select id="tail"><option value="right">Right-tail: μ&gt;0</option><option value="left">Left-tail: μ&lt;0</option><option value="two">Two-tail: μ≠0</option></select></label></div>${svg('Null 边界与指定真实均值的 sample-mean densities，标出拒绝与不拒绝区域')}<div class="readout" aria-live="polite"></div><p class="caption inference-caption"></p><h3>双侧已知 σ CI 的重复覆盖</h3><p>本段独立演示：从 Normal(0,σ²) 抽样，始终构造双侧区间 ȳ ± z₁₋α/₂σ/√n。真实均值固定为 0；区间使用上方 n、σ 与 α，但不随备择方向改变。每条横线是新 sample 的 CI；实线覆盖 μ=0，虚线未覆盖。图示最新 24 条区间，覆盖率按当前保留的最多 1000 条计算。横轴通常保持 ±5SE；需要时会扩展并留白，显示最新区间的完整端点。</p><p class="caption ci-relation">同一数据、模型与 α 下，双侧检验拒绝 H₀: μ=μ₀，对应双侧 CI 不含 μ₀。单侧检验应对照同置信度的单侧界限，不能直接对照这里的双侧区间。<a href="#testing">查看单侧与双侧检验的拒绝域 →</a></p><div class="lab-actions"><button id="ci-step">生成 1 个 interval</button><button id="ci-play" class="secondary">播放 50 个 intervals</button><button id="ci-reset" class="secondary">重置</button></div><div id="ci-plot">${svg('双侧已知σ置信区间的重复覆盖；纵线是固定的μ=0，不随上方备择方向改变')}</div><p id="ci-readout" class="readout" aria-live="polite">尚未生成 intervals</p>`,()=>{const n=val('in',el),sigma=val('is',el),delta=val('id',el),alpha=val('ia',el),tail=$('#tail',el).value,result=inferenceProbabilities({n,sigma,delta,alpha,tail}),{se,lower,upper}=result;const lo=Math.min(-4*se,delta-4*se),hi=Math.max(4*se,delta+4*se),s=$('svg',el),map=axes(s,'Sample mean ȳ（μ₀=0）','Density',lo,hi,0,.46/se);const nul=v=>M.normalPDF(v/se)/se,alt=v=>M.normalPDF((v-delta)/se)/se;if(lower!==-Infinity)area(s,nul,lo,lower,map);if(upper!==Infinity)area(s,nul,upper,hi,map);area(s,alt,Math.max(lo,lower),Math.min(hi,upper),map,'#dfbba9');curve(s,nul,lo,hi,map);curve(s,alt,lo,hi,map,'plot-alt');[lower,upper].filter(Number.isFinite).forEach(c=>add(s,'line',{x1:map.x(c),x2:map.x(c),y1:45,y2:265,stroke:'#50655f','stroke-dasharray':'3 3'}));const probabilityText=result.classification==='alternative'?`β(μₐ=${delta})=${fmt(result.beta,4)} · power=${fmt(result.power,4)}`:result.classification==='boundary'?`真值 μ=μ₀：P(拒绝 H₀)=α=${fmt(result.rejection,4)} · P(不拒绝 H₀)=${fmt(result.nonRejection,4)}`:`真值 μ=${delta} 属于 H₀：P(拒绝 H₀)=${fmt(result.rejection,4)} · P(不拒绝 H₀)=${fmt(result.nonRejection,4)}`;$('.readout',el).textContent=`SE=${fmt(se)} · critical ȳ=${tail==='right'?fmt(upper):tail==='left'?fmt(lower):`${fmt(lower)}, ${fmt(upper)}`} · ${probabilityText}`;$('.inference-caption',el).textContent=`实线为 null 边界 μ₀=0，绿色区域是该边界的拒绝概率 α；虚线为指定真值 μ=${delta}，brown 区域是该真值下不拒绝的概率。${result.classification==='alternative'?'该真值满足 Hₐ，因此 brown 面积称为 β，拒绝概率称为 power。':'该真值满足 H₀，不属于本次 Hₐ，因此不把 brown 面积标为 Type II error β；这里报告拒绝与不拒绝概率。'}Known σ 的 z model。`});let rng=M.seeded(440),records=[],timer=null;const play=$('#ci-play',el);function stop(){if(timer)clearInterval(timer);timer=null;play.textContent='播放 50 个 intervals'}function reset(){stop();records=[];rng=M.seeded(440);$('#ci-plot svg',el).replaceChildren();$('#ci-readout',el).textContent='尚未生成 intervals'}function step(){const se=val('is',el)/Math.sqrt(val('in',el)),z=M.normalQuantile(1-val('ia',el)/2),m=M.randomNormal(rng)*se;records.push({m,lo:m-z*se,hi:m+z*se,hit:Math.abs(m)<=z*se});if(records.length>1000)records.shift();const shown=records.slice(-24),padding=.25*se,xmin=Math.min(-5*se,...shown.map(r=>r.lo-padding)),xmax=Math.max(5*se,...shown.map(r=>r.hi+padding)),s=$('#ci-plot svg',el),map=axes(s,'双侧 CI endpoints（known σ）','最新 24 个 sample intervals',xmin,xmax,0,25);add(s,'line',{x1:map.x(0),x2:map.x(0),y1:40,y2:265,stroke:'#50655f'});shown.forEach((r,i)=>{add(s,'line',{x1:map.x(r.lo),x2:map.x(r.hi),y1:map.y(i+1),y2:map.y(i+1),stroke:r.hit?'#086f68':'#9a472e','stroke-width':2,'stroke-dasharray':r.hit?'':'4 3'});add(s,'circle',{cx:map.x(r.m),cy:map.y(i+1),r:2,fill:'#183a37'})});const hits=records.filter(r=>r.hit).length;$('#ci-readout',el).textContent=`${hits}/${records.length} intervals 覆盖 μ=0；observed coverage=${fmt(hits/records.length,3)}，双侧标称覆盖率=${fmt(1-val('ia',el),2)}。有限模拟不会总是恰好达到 nominal rate。`}
 $('#ci-step',el).onclick=()=>{stop();step()};$('#ci-reset',el).onclick=reset;play.onclick=()=>{if(timer){stop();return}let left=50;play.textContent='暂停';timer=setInterval(()=>{step();if(--left===0)stop()},250)};el.querySelectorAll('.controls input').forEach(i=>i.addEventListener('input',reset));document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});window.addEventListener('pagehide',stop)}
 function labPaired(el){mountPaired(el)}

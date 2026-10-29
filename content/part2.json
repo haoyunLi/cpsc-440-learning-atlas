@@ -80,7 +80,7 @@
       {
         "id": "hartley",
         "title": "Hartley Fmax 依靠更强的平衡与 normality",
-        "body": "<p>超过两组时，一个直接的问题是：最分散的一组与最稳定的一组相差多大？<b>Hartley’s Fmax</b> 用所有组的最大样本方差除以最小样本方差：</p>\n<div class=\"equation\">Fmax=max(sᵢ²)/min(sᵢ²)</div>\n<p>例如三组方差为 4、9、16，则 Fmax=16/4=4。这个数总结了极端差距，但还没有告诉我们 null 下出现这种差距有多罕见。</p>\n<p>它从多组中选了最大和最小，因此参考分布不同于预先指定两组的普通 F。要做检验，还需要 groups 的数量、每组 replicates、相应的 Fmax table / quantile。不能把 4 塞入普通 qf 就当成精确检验。</p>\n<p>课程方法通常要求 equal n、相同 within-group df、独立且正态的组。它对 nonnormality 不稳健，也不适用于任意不平衡样本。若这些条件欠缺，应考虑针对设计与分布更合适的方法；下一节用 absolute deviations 来构造另一种比较。</p>"
+        "body": "<p>超过两组时，一个直接的问题是：最分散的一组与最稳定的一组相差多大？<b>Hartley’s Fmax</b> 用所有组的最大样本方差除以最小样本方差：</p>\n<div class=\"equation\">Fmax=max(sᵢ²)/min(sᵢ²)</div>\n<p>例如三组方差为 4、9、16，则 Fmax=16/4=4。这个数总结了极端差距，但还没有告诉我们 null 下出现这种差距有多罕见。</p>\n<p>它从多组中选了最大和最小，因此参考分布不同于预先指定两组的普通 F。要做检验，还需要 groups 的数量、每组 replicates、相应的 Fmax table / quantile。不能把 4 塞入普通 qf 就当成精确检验。</p>\n<p>课程方法通常要求 equal n、相同 within-group df、独立且正态的组。它对 nonnormality 不稳健，也不适用于任意不平衡样本。若这些条件欠缺，应考虑针对设计与分布更合适的方法；下一节用 absolute deviations 来构造另一种比较。</p><p>接下来把这个统计量算成正式决策：<a href=\"#hartley-complete-decision\">完整 Hartley 例题</a>从三个独立 χ² 变量构造 Fmax 自己的参考分布，用 base R 求 P≈.120301 和95%临界值≈5.338458，并说明为什么普通两方差 F 分布不适用。</p>"
       },
       {
         "id": "brown-forsythe",

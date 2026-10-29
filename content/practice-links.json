@@ -80,5 +80,7 @@
   "p05-15": "ci",
   "p11-06": "regression-anova",
   "p04-14": "clt",
-  "p14-06": "factorial-ss"
+  "p14-06": "factorial-ss",
+  "p07-08": "brown-forsythe",
+  "p06-09": "welch"
 }

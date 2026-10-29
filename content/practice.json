@@ -3788,6 +3788,60 @@
     "unit": ""
   },
   {
+    "id": "p07-08",
+    "chapter": "07",
+    "title": "整组移位为何不改变 Brown–Forsythe 结果",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "Brown–Forsythe",
+      "median deviations",
+      "location versus spread"
+    ],
+    "source": {
+      "file": "PPT/Chapter_7.pptx",
+      "locator": "52；classnote/440 - Chapter 7 - 2022 Fall.pdf 第35页",
+      "note": "原创机制自检；数据与平移操作重新设计。"
+    },
+    "prompt": "独立两组数据 A=(0,2,2,4)、B=(10,14,14,18)。按本组 median 构造 Z=|Y−median|，再做 Brown–Forsythe 检验。现在仅把 B 的每个观测都加 100，并重新计算 B 的 median。哪个结论正确？",
+    "hint": "平移之后，B 的观测和它自己的 median 都加了同一个常数。先写出绝对偏差再判断。",
+    "options": [
+      "B 的原始 mean 改变，但两组 Z、F 和参考 P 完全不变",
+      "B 的 mean 增大，所以 Brown–Forsythe 的 F 必然增大",
+      "应该保留平移前的 B median=14，因此 B 的 Z 会变大",
+      "P 不变且大于 .05，证明两个总体 variance 相等"
+    ],
+    "answer": 0,
+    "optionExplanations": [
+      "每组都减自己的新 median，平移常数抵消。这正是中心位置与组内散布的区别。",
+      "这把原始 mean 的变化混同于 spread 的变化。检验对 Z 做 ANOVA，而不是对原始 Y。",
+      "median 由当前整组数据计算；B 新 median=114。只移动观测而固定旧 median，就不再是本题规定的变换。",
+      "P 不变是计算的不变性；未拒绝只说明证据不足，不能证明总体方差相等。"
+    ],
+    "steps": [
+      {
+        "title": "先求各自的中心",
+        "body": "A 的 median=(2+2)/2=2；B 的 median=(14+14)/2=14。原始 mean 也分别为 2、14，但检验不是直接比较这两个 mean。"
+      },
+      {
+        "title": "把同一组内的距离列出来",
+        "body": "A 的 Z=(2,0,0,2)，B 的 Z=(4,0,0,4)。B 加 100 后为 (110,114,114,118)，median=114，绝对偏差仍为 (4,0,0,4)。"
+      },
+      {
+        "title": "在 Z 上核对 ANOVA",
+        "body": "Z 的两组均值为 1、2，总均值为 1.5；组间 SS=2，误差 SS=20，df 分别为 1、6。F=(2/1)/(20/6)=.6，参考 F₁,₆ 的右尾 P≈.467994。平移前后这些量逐项相同。"
+      },
+      {
+        "title": "把不变性与研究结论分开",
+        "body": "平移不改变样本 variance，也不改变到本组 median 的距离。它能改变 raw mean，却不制造 spread 差异；当前小例未拒绝不能证明总体等方差。把 B 围绕 median 的偏差放大，才会改变这里的 Z。"
+      }
+    ],
+    "conclusion": "B 整组加常数只移动位置；按本组新 median 计算后，Brown–Forsythe 的 F=.6 与参考 P≈.467994 保持不变。",
+    "pitfall": "不要使用两组共同的 median、固定旧 median，或把未拒绝写成已证明相等。Brown–Forsythe 的 F 参考是近似校准，稳健性不等于对任意分布都有精确的错误率。",
+    "rCode": "# Original teaching data; compare distances from each group's own median.\na <- c(0,2,2,4)\nb <- c(10,14,14,18)\ncalculate <- function(a,b) {\n  y <- c(a,b)\n  g <- factor(rep(c(\"A\",\"B\"),c(length(a),length(b))))\n  center <- ave(y,g,FUN=median)\n  z <- abs(y-center)\n  fit <- aov(z~g)\n  tab <- summary(fit)[[1]]\n  list(z=z,F=unname(tab[1,\"F value\"]),p=unname(tab[1,\"Pr(>F)\"]))\n}\noriginal <- calculate(a,b)\nshifted <- calculate(a,b+100)\nprint(original)\nprint(shifted)\nstopifnot(identical(original$z,shifted$z),\n          isTRUE(all.equal(original$F,shifted$F)),\n          isTRUE(all.equal(original$p,shifted$p)),\n          abs(original$F-.6)<1e-12,\n          var(b)==var(b+100))\n# This algebraic invariance does not establish equal population variances.",
+    "unit": ""
+  },
+  {
     "id": "p15-08",
     "chapter": "15",
     "title": "Blocked factorial的interaction应除以哪个MS",
@@ -4030,6 +4084,62 @@
         "feedback": "这与将右尾11/64加倍得到的双侧P一致。本题的正向alternative已经事先确定，不需要加倍。"
       }
     ]
+  },
+  {
+    "id": "p06-09",
+    "chapter": "06",
+    "title": "长期误报率不等于某次P或power",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "Welch",
+      "pooled t",
+      "Type I error",
+      "simulation",
+      "estimand"
+    ],
+    "source": {
+      "file": "PPT/Chapter_6.pptx",
+      "locator": "slides 21–24；notes Chapter 6 p.16",
+      "note": "原创正态总体模拟；参数、seed和结果重新生成，不是原作业答案。"
+    },
+    "prompt": "两个独立正态总体的mean都为0；总体SD分别为3与1，每次样本量n₁=8、n₂=32。对每份重新抽得的数据，分别做预先规定的双侧pooled与Welch均值差检验，α=.05。独立模拟20000次得到pooled拒绝5173次（.25865），Welch拒绝1000次（.05000）。哪项解释正确？",
+    "options": [
+      "这是两种方法的power；pooled的power较高，因此应该优先选择它。",
+      ".25865和.05000就是某一份样本的两个P-value，可以根据它们选择本次的检验方法。",
+      "因为总体均值差确为0，这些比例估计Type I error；两种方法仍检验同一个均值差，但SE与参考df的校准不同，比例也有Monte Carlo误差。",
+      "Welch把目标改成了两个总体median之差，所以它的拒绝率不能与pooled比较。"
+    ],
+    "answer": 2,
+    "unit": "",
+    "hint": "先问生成模型中H₀是否为真，再区分“一个研究的P”和“很多独立研究的拒绝次数比例”。",
+    "steps": [
+      {
+        "title": "确认null在每次生成中为真",
+        "body": "两总体mean均固定为0，因此μ₁−μ₂=0在本模拟中成立。拒绝它属于Type I error；这里没有设置非零真实效应，不能把这些频率称为备择下的power。"
+      },
+      {
+        "title": "识别报告的随机量",
+        "body": "每次研究都有自己的P；把P<.05记为1再跨20000次平均，才得到表中的拒绝比例。它不是某一份样本的P，也不是null为真的概率。"
+      },
+      {
+        "title": "保留相同estimand，解释方法差别",
+        "body": "两方法都检验总体均值差为0。小样本组的variance更大时，pooled的权重可能低估差值的不确定性；Welch保留s₁²/n₁+s₂²/n₂并调整df，没有把mean换成median。"
+      },
+      {
+        "title": "给模拟结果保留数值误差与适用范围",
+        "body": "两个拒绝比例的MCSE分别约.003096和.001541。一次结果恰好.05000不证明Welch在所有模型下精确维持.05，也不能根据单次哪个P更小来选择程序。"
+      }
+    ],
+    "conclusion": "本例比较同一均值null下的长期误报率，支持检查程序校准；它既不是单次P比较，也不是更换了目标量后的power比较。",
+    "pitfall": "固定均值相等只确保均值null为真，不确保pooled的共同variance假设成立。Welch仍需要独立数据及适用的近似条件，不能由这一次模拟保证所有分布下的表现。",
+    "optionExplanations": [
+      "这里生成的是相等均值，null为真，较高拒绝率意味着更多误报，不是对真实非零效应更有检出力。",
+      "这些数字由20000个P经阈值判定后汇总得到，不是某一个P。先看哪一方法P更有利再选方法，也没有由这张校准表获得依据。",
+      "目标同为μ₁−μ₂，比较的是程序在指定null生成模型下的拒绝概率；有限模拟频率必须结合MCSE解释。",
+      "Welch和pooled都针对mean difference。它们的区别在variance估计与reference df，不是把均值目标替换为median。"
+    ],
+    "rCode": "# Original calibration experiment under a true equal-means null.\nRNGkind(\"Mersenne-Twister\",\"Inversion\",\"Rejection\")\nset.seed(607441)\nB <- 20000\nn1 <- 8\nn2 <- 32\nx <- matrix(rnorm(n1*B,mean=0,sd=3),nrow=n1)\ny <- matrix(rnorm(n2*B,mean=0,sd=1),nrow=n2)\nmx <- colMeans(x)\nmy <- colMeans(y)\nvx <- colSums(sweep(x,2,mx,\"-\")^2)/(n1-1)\nvy <- colSums(sweep(y,2,my,\"-\")^2)/(n2-1)\nsp2 <- ((n1-1)*vx+(n2-1)*vy)/(n1+n2-2)\np_pooled <- 2*pt(-abs((mx-my)/sqrt(sp2*(1/n1+1/n2))),df=n1+n2-2)\na <- vx/n1\nb <- vy/n2\ndf_welch <- (a+b)^2/(a^2/(n1-1)+b^2/(n2-1))\np_welch <- 2*pt(-abs((mx-my)/sqrt(a+b)),df=df_welch)\ncounts <- c(sum(p_pooled<.05),sum(p_welch<.05))\nrate <- counts/B\nprint(data.frame(method=c(\"pooled\",\"Welch\"),rejections=counts,\n                 B=B,rejection_rate=rate,MCSE=sqrt(rate*(1-rate)/B)))\n# Verify both formulas against independent base-R t.test calls.\nstopifnot(abs(p_pooled[1]-t.test(x[,1],y[,1],var.equal=TRUE)$p.value)<1e-12,\n          abs(p_welch[1]-t.test(x[,1],y[,1],var.equal=FALSE)$p.value)<1e-12)\n# Both procedures test the same mean difference; the null is true here.\nanswer <- 2L\nprint(answer)\n"
   },
   {
     "id": "p09-05",

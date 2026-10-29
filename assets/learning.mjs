@@ -95,6 +95,8 @@ if (typeof document !== 'undefined') {
     const cards = $$('.exercise', app);
     const questionIds = cards.map(card => card.id);
     const resetSolutions = new Map(cards.map(card => [card.id, addSolutionSteps(card)]));
+    const feedbackStates = new Map();
+    const checkedInputs = new Map();
     let records = {}, persisted = {}, pending = [], session = null, sessionRecords = {};
     const readStored = () => {
       // Permission failures must stop a write; malformed JSON is recoverable.
@@ -142,7 +144,8 @@ if (typeof document !== 'undefined') {
       $('#practice-meter').setAttribute('aria-label', session ? '本轮答对的题目比例' : '已答对的题目比例');
       cards.forEach(c => {
         const r = activeRecord(c.id), saved = record(c.id);
-        $('.exercise-state', c).textContent = (session ? '本轮' : '') + (r.correct ? '已答对' : r.attempts ? '待复习' : '尚未作答');
+        const ungraded = ['edited', 'invalid'].includes(feedbackStates.get(c.id));
+        $('.exercise-state', c).textContent = (session ? '本轮' : '') + (ungraded && r.attempts ? '上次有效提交：' : '') + (r.correct ? '已答对' : r.attempts ? '待复习' : '尚未作答');
         c.dataset.result = r.correct ? 'correct' : r.attempts ? 'review' : 'new';
         $('.bookmark', c).setAttribute('aria-pressed', String(!!saved.bookmark));
         $('.bookmark', c).textContent = saved.bookmark ? '已加入复习' : '加入复习';
@@ -171,14 +174,32 @@ if (typeof document !== 'undefined') {
       if (href !== location.href) history.replaceState(null, '', href);
     }
     cards.forEach(c => {
-      $('.answer-form', c).addEventListener('submit', event => {
+      const form = $('.answer-form', c), feedback = $('.answer-feedback', c);
+      const markEdited = () => {
+        // Editing is not another attempt. Feedback only describes the last check.
+        if (!feedbackStates.has(c.id) || feedbackStates.get(c.id) === 'edited') return;
+        // A blur/change event may arrive after an Enter submission without a new edit.
+        if (new FormData(form).get('answer') === checkedInputs.get(c.id)) return;
+        feedbackStates.set(c.id, 'edited');
+        feedback.textContent = '答案已修改，请重新检查。进度仍按已提交的答案记录。';
+        delete feedback.dataset.correct;
+        updateDashboard();
+      };
+      form.addEventListener('input', markEdited);
+      form.addEventListener('change', markEdited);
+      form.addEventListener('submit', event => {
         event.preventDefault();
         const raw = new FormData(event.currentTarget).get('answer');
         const result = gradeAnswer(grading[c.id], raw);
-        const feedback = $('.answer-feedback', c);
-        if (!result.valid) { feedback.textContent = answerFeedback(grading[c.id], raw); feedback.dataset.correct = 'false'; return; }
+        checkedInputs.set(c.id, raw);
+        if (!result.valid) {
+          feedbackStates.set(c.id, 'invalid');
+          feedback.textContent = answerFeedback(grading[c.id], raw); feedback.dataset.correct = 'false';
+          updateDashboard(); return;
+        }
         save({type: 'answer', id: c.id, correct: result.correct});
         if (session) sessionRecords[c.id] = {attempts: (sessionRecords[c.id]?.attempts || 0) + 1, correct: result.correct};
+        feedbackStates.set(c.id, 'checked');
         feedback.textContent = answerFeedback(grading[c.id], raw);
         feedback.dataset.correct = String(result.correct);
         updateDashboard();
@@ -193,7 +214,10 @@ if (typeof document !== 'undefined') {
       [...new Set(cards.map(c => c.dataset.chapter))].forEach(ch => { const pool = cards.filter(c => c.dataset.chapter === ch); session.add(pool[Math.floor(Math.random() * pool.length)].id); });
       cards.filter(c => session.has(c.id)).forEach(c => {
         $('.answer-form', c).reset();
-        $('.answer-feedback', c).textContent = '';
+        const feedback = $('.answer-feedback', c);
+        feedback.textContent = ''; delete feedback.dataset.correct;
+        feedbackStates.delete(c.id);
+        checkedInputs.delete(c.id);
         resetSolutions.get(c.id)();
         $$('details', c).forEach(d => d.open = false);
       });

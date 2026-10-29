@@ -1,4 +1,6 @@
 import * as M from './math.mjs';
+import { parseSample } from './sample.mjs';
+export { parseSample } from './sample.mjs';
 
 const clamp = x => Math.max(0, Math.min(1, x));
 const format = (x, n = 4) => Number.isFinite(x) ? (Math.abs(x) > 0 && Math.abs(x) < .0001 ? x.toExponential(3) : x.toFixed(n)) : '无法计算';
@@ -30,10 +32,11 @@ function gammaUpper(x, a) {
 
 export function distribution(kind, df1 = 10, df2 = 20) {
   if (!['normal', 't', 'chi', 'f'].includes(kind)) throw Error('未知分布');
-  if (!(df1 >= 2 && df1 <= 100 && df2 >= 3 && df2 <= 100)) throw Error('自由度超出实验范围。');
+  if (!(df1 >= 1 && df1 <= 100 && df2 >= 1 && df2 <= 100)) throw Error('自由度需在 1–100 之间；可以使用非整数 df。');
   const cdf = kind === 'normal' ? x => x < 0 ? normalUpper(-x) : 1 - normalUpper(x) : kind === 't' ? x => M.studentCDF(x, df1) : kind === 'chi' ? x => M.chiCDF(x, df1) : x => M.fCDF(x, df1, df2);
   const survival = kind === 'normal' ? normalUpper : kind === 't' ? x => x >= 0 ? .5 * M.betaCDF(df1 / (df1 + x * x), df1 / 2, .5) : 1 - .5 * M.betaCDF(df1 / (df1 + x * x), df1 / 2, .5) : kind === 'chi' ? x => gammaUpper(x / 2, df1 / 2) : x => x <= 0 ? 1 : M.betaCDF(df2 / (df2 + df1 * x), df2 / 2, df1 / 2);
-  const pdf = kind === 'normal' ? M.normalPDF : kind === 't' ? x => Math.exp(M.logGamma((df1 + 1) / 2) - M.logGamma(df1 / 2)) / Math.sqrt(df1 * Math.PI) * (1 + x * x / df1) ** (-(df1 + 1) / 2) : kind === 'chi' ? x => M.chiPDF(x, df1) : x => x > 0 ? Math.exp((df1 / 2) * Math.log(df1 / df2) + (df1 / 2 - 1) * Math.log(x) - ((df1 + df2) / 2) * Math.log1p(df1 * x / df2) - M.logGamma(df1 / 2) - M.logGamma(df2 / 2) + M.logGamma((df1 + df2) / 2)) : 0;
+  const atZero = kind === 'chi' ? (df1 < 2 ? Infinity : df1 === 2 ? .5 : 0) : (df1 < 2 ? Infinity : df1 === 2 ? 1 : 0);
+  const pdf = kind === 'normal' ? M.normalPDF : kind === 't' ? x => Math.exp(M.logGamma((df1 + 1) / 2) - M.logGamma(df1 / 2)) / Math.sqrt(df1 * Math.PI) * (1 + x * x / df1) ** (-(df1 + 1) / 2) : kind === 'chi' ? x => x === 0 ? atZero : M.chiPDF(x, df1) : x => x > 0 ? Math.exp((df1 / 2) * Math.log(df1 / df2) + (df1 / 2 - 1) * Math.log(x) - ((df1 + df2) / 2) * Math.log1p(df1 * x / df2) - M.logGamma(df1 / 2) - M.logGamma(df2 / 2) + M.logGamma((df1 + df2) / 2)) : x === 0 ? atZero : 0;
   function quantile(p) {
     if (!(p > 0 && p < 1)) throw Error('概率必须在 0 与 1 之间。');
     if (kind === 'normal') return M.normalQuantile(p);
@@ -58,14 +61,19 @@ export function tailProbability(kind, observed, tail, df1 = 10, df2 = 20, alpha 
   return { p, critical, shade, reject: p <= alpha };
 }
 
-export function parseSample(raw) {
-  const input = raw.trim();
-  if (/^[,，;；]|[,，;；]$|[,，;；]\s*[,，;；]/.test(input)) throw Error('数据中存在空字段；请检查开头、末尾或连续分隔符。空值不能自动替换成 0。');
-  const tokens = input.split(/[\s,，;；]+/);
-  const values = tokens.map(Number);
-  const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
-  if (!input || values.length < 2 || values.length > 500 || tokens.some(t => !decimal.test(t)) || values.some(x => !Number.isFinite(x) || Math.abs(x) > 1e6)) throw Error('每组请输入 2–500 个数字（绝对值 ≤ 10⁶），以逗号或空格分隔。');
-  return values;
+export function distributionPlot(kind, df1 = 10, df2 = 20) {
+  const d = distribution(kind, df1, df2);
+  // Low-df t/F tails can extend far beyond the informative center. Truncate the
+  // display only; report the omitted mass and keep inference on the full model.
+  const hi = kind === 't' ? Math.min(d.quantile(.999), 12) : kind === 'f' ? Math.min(d.quantile(.999), Math.max(20, 12 * d.quantile(.5))) : d.quantile(.999);
+  const lo = d.positive ? 0 : -hi;
+  const singular = d.positive && df1 < 2;
+  const samples = Array.from({ length: 601 }, (_, i) => lo + (hi - lo) * i / 600);
+  // The density genuinely tends to infinity at 0 for chi-square/F numerator
+  // df<2. A labeled cap shows its shape without flattening all other values.
+  const densityCap = singular ? d.pdf(d.quantile(.2)) : Math.max(...samples.map(d.pdf));
+  const density = x => Math.min(densityCap, d.pdf(x));
+  return { lo, hi, samples, density, densityCap, yMax: densityCap * 1.14, singular, omittedMass: d.cdf(lo) + d.survival(hi) };
 }
 
 export function twoSample(a, b, method = 'welch', confidence = .95) {
@@ -138,7 +146,7 @@ function errorBox(root, error) { root.querySelector('.wbench-error').textContent
 function chapterURL(id) { return new URL(`../chapters/${id}.html`, import.meta.url).href; }
 
 function mountDistribution(root) {
-  root.innerHTML = `<h2>分布与尾部概率</h2><p>把统计量放进 H₀ 的 reference distribution，阴影才有概率含义。先选尾，再移动统计量。</p><div class="wbench-controls">${label('参考分布', field('kind', [['normal', 'Standard normal Z'], ['t', 'Student t'], ['chi', 'Chi-square χ²'], ['f', 'F distribution']]))}${label('备择方向 / tail', field('tail', [['right', '右尾：较大值反驳 H₀'], ['left', '左尾：较小值反驳 H₀'], ['two', '双尾：两端等尾概率']]))}${label('df / numerator df', number('df1', 10, 2, 100))}${label('Denominator df（F）', number('df2', 20, 3, 100))}${label('观测统计量', number('observed', 2, -10000, 10000, .1))}${label('显著性水平 α', field('alpha', [['0.05', '0.05'], ['0.01', '0.01'], ['0.1', '0.10']]))}</div><p class="wbench-error" role="alert"></p>${plot('参考分布密度；绿色尾部对应 P-value，棕色虚线为显著性水平临界值')}<div class="wbench-result" aria-live="polite"></div><p class="wbench-note">实线为观测值，棕色虚线为 α 的临界值。Normal / t 显示 0.1%–99.9% 分位区间；χ² / F 从 0 显示至 99.9% 分位数。尾部概率按完整分布计算。χ² / F 的双尾采用 2 × min(左尾, 右尾)，不同 exact tests 可能使用其他双尾定义。</p>`;
+  root.innerHTML = `<h2>分布与尾部概率</h2><p>把统计量放进 H₀ 的 reference distribution，阴影才有概率含义。先选尾，再移动统计量。</p><div class="wbench-controls">${label('参考分布', field('kind', [['normal', 'Standard normal Z'], ['t', 'Student t'], ['chi', 'Chi-square χ²'], ['f', 'F distribution']]))}${label('备择方向 / tail', field('tail', [['right', '右尾：较大值反驳 H₀'], ['left', '左尾：较小值反驳 H₀'], ['two', '双尾：两端等尾概率']]))}${label('df / numerator df', number('df1', 10, 1, 100))}${label('Denominator df（F）', number('df2', 20, 1, 100))}${label('观测统计量', number('observed', 2, -10000, 10000, .1))}${label('显著性水平 α', field('alpha', [['0.05', '0.05'], ['0.01', '0.01'], ['0.1', '0.10']]))}</div><p class="wbench-error" role="alert"></p>${plot('参考分布密度；绿色尾部对应 P-value，棕色虚线为显著性水平临界值')}<div class="wbench-result" aria-live="polite"></div><p class="wbench-note wbench-window-note"></p><p class="wbench-note">实线为观测值，棕色虚线为 α 的临界值。图中阴影只展示当前视窗内的尾部位置；P-value 与临界值始终按完整分布计算。χ² / F 的双尾采用 2 × min(左尾, 右尾)，不同 exact tests 可能使用其他双尾定义。</p>`;
   listen(root, () => {
     const kind = read(root, 'kind').value;
     read(root, 'df1').disabled = kind === 'normal';
@@ -147,20 +155,22 @@ function mountDistribution(root) {
     try {
       for (const key of ['df1', 'df2', 'observed']) if (!read(root, key).disabled && !read(root, key).value.trim()) throw Error('请输入完整的统计量与自由度。');
       const df1 = read(root, 'df1').disabled ? 10 : +read(root, 'df1').value, df2 = read(root, 'df2').disabled ? 20 : +read(root, 'df2').value, observed = +read(root, 'observed').value, alpha = +read(root, 'alpha').value, tail = read(root, 'tail').value;
-      const d = distribution(kind, df1, df2), r = tailProbability(kind, observed, tail, df1, df2, alpha);
-      const lo = d.positive ? 0 : d.quantile(.001), hi = d.quantile(.999), samples = Array.from({ length: 601 }, (_, i) => lo + (hi - lo) * i / 600), max = Math.max(...samples.map(x => d.pdf(x || .00001)));
-      const map = frame(svg, lo, hi, 0, max * 1.14, 'Test statistic', 'Density');
+      const r = tailProbability(kind, observed, tail, df1, df2, alpha);
+      const plan = distributionPlot(kind, df1, df2), { lo, hi, samples, density } = plan;
+      const map = frame(svg, lo, hi, 0, plan.yMax, 'Test statistic', 'Density');
       for (let i = 0; i < samples.length - 1; i++) {
         const x = samples[i], mid = (x + samples[i + 1]) / 2;
         const inTail = tail === 'two' ? mid <= r.shade[0] || mid >= r.shade[1] : mid >= r.shade[0] && mid <= r.shade[1];
-        if (inTail) add(svg, 'rect', { x: map.x(x), y: map.y(d.pdf(mid)), width: 518 / 600 + .2, height: map.y(0) - map.y(d.pdf(mid)), fill: '#9bc9b5' });
+        if (inTail) add(svg, 'rect', { x: map.x(x), y: map.y(density(mid)), width: 518 / 600 + .2, height: map.y(0) - map.y(density(mid)), fill: '#9bc9b5' });
       }
-      add(svg, 'path', { d: samples.map((x, i) => `${i ? 'L' : 'M'}${map.x(x)},${map.y(d.pdf(x || .00001))}`).join(' '), class: 'wbench-curve' });
+      add(svg, 'path', { d: samples.map((x, i) => `${i ? 'L' : 'M'}${map.x(x)},${map.y(density(x))}`).join(' '), class: 'wbench-curve' });
+      if (plan.singular) add(svg, 'path', { d: `M${map.x(0)+2},${map.y(plan.densityCap)-2} l5,-9 l5,9`, stroke: '#9a472e', fill: 'none', 'stroke-width': 2 });
+      root.querySelector('.wbench-window-note').textContent = `横轴显示 [${format(lo, 2)}, ${format(hi, 2)}]，图外尾部概率合计约 ${format(plan.omittedMass * 100, 2)}%。${plan.singular ? `密度在 0 附近趋于无穷；高于 ${format(plan.densityCap)} 的部分截去，并用箭头提示，因此图中阴影面积不等于完整 P-value。` : ''}${r.critical.some(x => x < lo || x > hi) ? '部分临界值在图外，请以上方数值为准。' : ''}`;
       r.critical.filter(x => x >= lo && x <= hi).forEach(x => add(svg, 'line', { x1: map.x(x), x2: map.x(x), y1: 42, y2: 258, class: 'wbench-critical' }));
       if (observed >= lo && observed <= hi) add(svg, 'line', { x1: map.x(observed), x2: map.x(observed), y1: 42, y2: 258, class: 'wbench-observed' });
       out.innerHTML = `<strong>P = ${format(r.p, 6)}</strong><span>临界值：${r.critical.map(x => format(x)).join(' 与 ')}</span><span>P ${r.reject ? '≤' : '>'} α → ${r.reject ? '拒绝' : '不拒绝'} H₀；这不是 H₀ 为真的概率。</span>${observed < lo || observed > hi ? '<span>观测值在当前绘图区之外；上方概率仍按输入值计算。</span>' : ''}`;
       errorBox(root);
-    } catch (error) { errorBox(root, error); svg.replaceChildren(); out.textContent = '等待有效设置。'; }
+    } catch (error) { errorBox(root, error); svg.replaceChildren(); out.textContent = '等待有效设置。'; root.querySelector('.wbench-window-note').textContent = ''; }
   });
 }
 

@@ -54,4 +54,4 @@ assert len({x['chapter'] for x in deepening}) == 10
 assert all(x.get('source') for x in deepening)
 for p in paths:
     assert '/Users/' not in p.read_text(), f'Private local path leaked in {p.name}'
-print(f'{len(pages)} pages, {count} local links/assets, search anchors, {len(questions)} static exercises and 10 source-backed supplements passed.')
+print(f'{len(pages)} pages, {count} local links/assets, search anchors, {len(questions)} static exercises and {len(deepening)} source-backed supplements across 10 chapters passed.')

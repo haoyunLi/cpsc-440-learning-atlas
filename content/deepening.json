@@ -158,5 +158,53 @@
         "pages": "8–14"
       }
     ]
+  },
+  {
+    "chapter": "06",
+    "id": "signed-rank-exact",
+    "title": "Signed-rank 的 exact p：五个差值为什么有32种符号排列？",
+    "body": "<p>从 signed ranks 得到 p-value，还需要知道 null 下哪些结果可能出现，以及每一种结果有多大概率。一个只有五个独立配对差的例子，就能把这一步完整列出来。</p>\n<p>原创数据按 after−before 定义为 <b>d=[−1,2,3,4,5]</b>。研究预先指定 Hₐ：差分布的位置大于0。用于本例精确参考的 H₀ 是：差值相互独立，并来自<b>关于0对称的连续分布</b>。仅仅说 median=0，不足以保证下面的 signed-rank 参考分布。</p>\n<table><caption>先对绝对差排序，再把符号带回来</caption><thead><tr><th>d</th><th>|d|</th><th>Rank of |d|</th><th>贡献</th></tr></thead><tbody><tr><td>−1</td><td>1</td><td>1</td><td>W⁻加1</td></tr><tr><td>2</td><td>2</td><td>2</td><td>W⁺加2</td></tr><tr><td>3</td><td>3</td><td>3</td><td>W⁺加3</td></tr><tr><td>4</td><td>4</td><td>4</td><td>W⁺加4</td></tr><tr><td>5</td><td>5</td><td>5</td><td>W⁺加5</td></tr></tbody></table>\n<p>因此 W⁺=2+3+4+5=14，W⁻=1，总和15=m(m+1)/2。较大的 W⁺支持预定的正向 alternative。</p>\n<ol><li><b>固定五个绝对大小。</b> 对称null使每个非零差为正或负的条件概率各为1/2；独立差使这些符号独立。</li><li><b>列出可能结果。</b> 五个位置各有两种符号，所以有2⁵=32种等可能的符号排列。每一种概率都是1/32。这不是重新排列五个对象的5!种顺序。</li><li><b>找至少同样极端的结果。</b> W⁺≥14只有两种：所有秩为正，W⁺=15；只有秩1为负，其余为正，W⁺=14。</li><li><b>求右尾概率。</b> exact p=2/32=.0625。在预定α=.05下，证据不足以拒绝对称null。</li></ol>\n<div class=\"equation\">右侧 p=P(W⁺≥14 | symmetric null)=.0625<br>对称参考下的双侧 p=2×.0625=.125</div>\n<p>“五个差中四个为正”本身不是 signed-rank 的全部信息。如果唯一的负差具有最大的绝对大小，W⁺就会减小。本方法同时保留方向和绝对差的排名；sign test 只统计正号个数，因此两个检验的 p 不必相同。</p>\n<pre><code>d &lt;- c(-1,2,3,4,5)\n# This exact example has no zero differences and no tied magnitudes.\nstopifnot(all(d != 0), !anyDuplicated(abs(d)))\nr &lt;- rank(abs(d))\nobserved_w &lt;- sum(r[d &gt; 0])\n# Enumerate all 2^m sign assignments under the symmetric null.\nsigns &lt;- as.matrix(expand.grid(rep(list(c(-1,1)),length(d))))\nnull_w &lt;- as.vector((signs &gt; 0) %*% r)\np_right &lt;- mean(null_w &gt;= observed_w)\np_two &lt;- min(1,2*min(mean(null_w &lt;= observed_w),p_right))\nc(W_positive=observed_w, assignments=nrow(signs),\n  p_right=p_right, p_two=p_two)\n# R calls the positive signed-rank sum V.\nwilcox.test(d,mu=0,alternative=\"greater\",exact=TRUE,correct=FALSE)</code></pre>\n<p><b>如何读R输出：</b> <code>V=14</code>对应这里的 W⁺，<code>p-value=0.0625</code>对应右尾；<code>exact test</code>说明使用离散精确参考。没有正态近似时，也不需要 continuity correction。代码中的 <code>correct=FALSE</code>用于明确意图，并不改变这次 exact p。</p>\n<p><b>零值与ties的边界：</b> 常用Wilcoxon约定先去掉零差，再对剩余绝对差排名，此时m会改变。绝对差相同需要平均秩，其参考分布也要相应处理，不能继续套无ties的表。软件是否提供该情形的exact参考取决于实现与版本，应核对 method 和 warning。上述32种排列只属于本例的五个非零、无ties差值；更一般的符号枚举必须使用实际的秩和零值处理规则。</p>\n<p><b>离散性带来的限制：</b> m=5时，即使五个差全部为正，最小双侧p也为2/32=.0625。因此这个样本量无法在常用的无随机化双侧5%检验中显著。这说明“未显著”也可能反映有限信息，不能当作没有变化的证明。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_6.pptx",
+        "pages": "59–71"
+      },
+      {
+        "file": "classnote/440 - Chapter 6 - 2022 Fall.pdf",
+        "pages": "46–57"
+      }
+    ]
+  },
+  {
+    "chapter": "07",
+    "id": "hartley-complete-decision",
+    "title": "Hartley Fmax 从统计量走到临界值：构造它自己的参考分布",
+    "body": "<p>Hartley检验不能使用普通两样本F参考，因为分子和分母是从多个样本方差中挑出来的最大值与最小值。下面在独立、正态、每组相同样本量的条件下，直接构造这个极值比的null分布，完成一次可复现的检验。</p>\n<p>原创例：k=3组，每组n=10，sample variances为4、9、16。检验H₀:σ₁²=σ₂²=σ₃²，对至少一个总体方差不同的alternative。统计量Fmax=16/4=4；每个样本方差的df为ν=n−1=9。观察到的最大组与最小组必须由全部三组一起决定。</p>\n<div class=\"equation\">H₀下：Xᵢ=νsᵢ²/σ² 独立服从 χ²ν<br>Fmax=max(Xᵢ)/min(Xᵢ)</div>\n<p>共同的σ²与ν在比值中抵消，所以参考分布不需要知道共同总体方差的数值。它依赖的是组数k和共同df；组数增加后，出现较极端最大/最小组合的机会也会改变。</p>\n<p>令fν与Fν分别为χ²ν的density与CDF。对r≥1，Fmax的CDF可以写成：</p>\n<div class=\"equation\">G(r)=P(Fmax≤r)<br>=k ∫₀∞ fν(x)[Fν(rx)−Fν(x)]ᵏ⁻¹ dx</div>\n<ol><li><b>设最小值在x附近。</b> 连续分布中最小值几乎必然唯一，k个组中的任何一个都可能提供它，因此有系数k。</li><li><b>限制其他k−1个值。</b> 要让最大/最小≤r，每一个其余值都必须落在[x,rx]中。单个概率为Fν(rx)−Fν(x)。</li><li><b>使用独立性并累加。</b> 将这个概率取k−1次方，再乘最小值位置对应的density并对x积分，就得到全部允许情况的概率。</li><li><b>取右尾与分位数。</b> p=1−G(4)；95%临界值c满足G(c)=.95。</li></ol>\n<p>数值积分得到 <b>p≈.120301</b>，95%临界值约为<b>5.338458</b>。因为4&lt;5.338458，且p&gt;.05，本例在5%水平不拒绝方差相等的null。这个结论表示证据不足，不表示三个方差已经被证明相等。</p>\n<pre><code># CDF of the ratio of the largest to smallest independent chi-square.\n# Equal group sizes are required for this common-df construction.\nfmax_cdf &lt;- function(r,k,df) {\n  stopifnot(length(r)==1L,k &gt;= 2,df &gt; 0)\n  if (r &lt;= 1) return(0)\n  value &lt;- integrate(function(x) {\n    interval_prob &lt;- pmax(pchisq(r*x,df)-pchisq(x,df),0)\n    k*dchisq(x,df)*interval_prob^(k-1)\n  },lower=0,upper=Inf,rel.tol=1e-10,subdivisions=1000L)$value\n  min(1,max(0,value))\n}\nsample_variances &lt;- c(4,9,16)\nk &lt;- length(sample_variances)\nn &lt;- 10\nnu &lt;- n-1\nobserved_fmax &lt;- max(sample_variances)/min(sample_variances)\np_value &lt;- 1-fmax_cdf(observed_fmax,k,nu)\n# The upper bracket is chosen for this k=3, df=9 example.\ncritical &lt;- uniroot(function(r) fmax_cdf(r,k,nu)-.95,\n                    interval=c(1,100),tol=1e-9)$root\nc(Fmax=observed_fmax,p_value=p_value,critical_95=critical)\nstopifnot(abs(p_value-.1203008) &lt; 1e-6,\n          abs(critical-5.3384579) &lt; 1e-6)</code></pre>\n<p>这里使用确定性的数值积分，不是Monte Carlo；最后几位精度受到积分与求根容差影响。代码返回的是该正态、独立、平衡设计下Fmax统计量的参考概率，而非普通<code>pf(4,9,9)</code>。</p>\n<p><b>使用边界：</b> 不等n时，各χ²的df和缩放不同，以上共同df公式不能直接复用。非正态时，样本方差也不再具有这里使用的χ²参考。课程的Brown–Forsythe方法提供了另一条检查组间分散差异的途径，但它也需要独立单位和合理条件。不要先看哪一种检验显著，再倒推使用哪一种。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_7.pptx",
+        "pages": "48–52"
+      },
+      {
+        "file": "classnote/440 - Chapter 7 - 2022 Fall.pdf",
+        "pages": "31–33"
+      }
+    ]
+  },
+  {
+    "chapter": "08",
+    "id": "welch-anova-complete",
+    "title": "Welch ANOVA：异方差下怎样比较三个总体均值",
+    "body": "<p>当研究问题仍是比较多个<b>总体均值</b>，但各组误差方差不同，Welch ANOVA保留每组自己的方差信息。它扩展了两样本Welch思路，使用按精度加权的组均值差异，并校正参考统计量与自由度。课件提到该方法，这里把计算与输出完整展开。</p>\n<table><caption>原创数据：三个独立组，样本量和方差都不相同</caption><thead><tr><th>组</th><th>原始观测</th><th>nᵢ</th><th>ȳᵢ</th><th>sᵢ²</th><th>wᵢ=nᵢ/sᵢ²</th></tr></thead><tbody><tr><td>A</td><td>9,10,11,10</td><td>4</td><td>10</td><td>.666667</td><td>6</td></tr><tr><td>B</td><td>5,9,13,17,21,25</td><td>6</td><td>15</td><td>56</td><td>.107143</td></tr><tr><td>C</td><td>10,11,12,13,14</td><td>5</td><td>12</td><td>2.5</td><td>2</td></tr></tbody></table>\n<p>预先指定H₀:μA=μB=μC，Hₐ为并非所有均值相同。假定组间和组内实验单位独立、各组总体近似正态，允许不同的总体方差。这里的小数据主要用于手算和复现，不能仅凭这些观测证明分布条件。</p>\n<p><b>第一步：让精度决定计算权重。</b> 组均值的估计方差为sᵢ²/nᵢ，其倒数是wᵢ。B组虽然有六个观测，方差却很大，均值估计不精确，因此权重很小。总权重W=Σwᵢ≈8.107143，参考中心为：</p>\n<div class=\"equation\">ȳw=Σwᵢȳᵢ/W≈10.559471</div>\n<p>ȳw用于形成检验统计量，并没有把科学问题改成“比较加权总体均值”。检验目标始终是三个μ是否相同。</p>\n<p><b>第二步：计算组均值的加权偏离，并校正估计方差的额外不确定性。</b> 用U表示下面的校正和，k=3：</p>\n<div class=\"equation\">U=Σ[(1−wᵢ/W)²/(nᵢ−1)]≈.359133<br>A=Σwᵢ(ȳᵢ−ȳw)²/(k−1)≈4.070485<br>C=1+[2(k−2)/(k²−1)]U≈1.089783<br>FWelch=A/C≈3.735132</div>\n<p>A是加权组间差异；C反映权重使用样本方差估计所带来的校正。它没有经典ANOVA中那一个所有组共用的MSE分母。</p>\n<p><b>第三步：使用匹配的近似F参考。</b></p>\n<div class=\"equation\">ν₁=k−1=2<br>ν₂=(k²−1)/(3U)≈7.425282<br>p=P[F(2,7.425282)≥3.735132]≈.075424</div>\n<p>所以α=.05时不拒绝均值全相同的null。分母df为7.425282而非N−k=12，也不需要把它取整。这是近似参考分布；未知且不同的方差通常不产生一个简单的精确有限样本F检验。</p>\n<pre><code>y &lt;- c(9,10,11,10, 5,9,13,17,21,25, 10,11,12,13,14)\ng &lt;- factor(rep(c(\"A\",\"B\",\"C\"),c(4,6,5)))\nni &lt;- as.numeric(table(g))\nmi &lt;- as.numeric(tapply(y,g,mean))\nsi2 &lt;- as.numeric(tapply(y,g,var))\nstopifnot(all(ni &gt; 1),all(si2 &gt; 0))\nk &lt;- length(ni)\n# Estimate the precision of each group mean separately.\nw &lt;- ni/si2\nW &lt;- sum(w)\nweighted_mean &lt;- sum(w*mi)/W\nU &lt;- sum((1-w/W)^2/(ni-1))\nA &lt;- sum(w*(mi-weighted_mean)^2)/(k-1)\nC &lt;- 1+2*(k-2)*U/(k^2-1)\nf_welch &lt;- A/C\ndf1 &lt;- k-1\ndf2 &lt;- (k^2-1)/(3*U)\np_welch &lt;- pf(f_welch,df1,df2,lower.tail=FALSE)\nprint(data.frame(group=levels(g),n=ni,mean=mi,variance=si2,weight=w))\nprint(c(weighted_mean=weighted_mean,F=f_welch,\n        numerator_df=df1,denominator_df=df2,p=p_welch))\n# Verify the manual calculation against base R.\nfit &lt;- oneway.test(y ~ g,var.equal=FALSE)\nprint(fit)\nstopifnot(abs(unname(fit$statistic)-f_welch) &lt; 1e-10,\n          abs(fit$p.value-p_welch) &lt; 1e-10)</code></pre>\n<p><b>怎样读输出：</b> <code>F</code>是经过校正的Welch统计量；<code>num df</code>是组数减一；<code>denom df</code>是估计出来的近似自由度；<code>p-value</code>对应“所有总体均值相同”的整体问题。拒绝时也不能直接推出每一对都不同。</p>\n<p><b>为什么要事先确定模型：</b> 同一数据用共同方差的经典ANOVA，F≈1.30137、p≈.308，两种方法对噪声的处理不同。这个对照用于解释假设，不能成为选择较小p的方法。研究设计、目标量和对方差结构的合理判断应先于查看比较结果；也不应把一次方差检验的p当作自动切换按钮。</p>\n<p><b>后续比较与边界：</b> 异方差整体检验之后，不要直接接一个依赖共同MSE的经典Tukey阈值，声称它已经配套保护了异方差推断。可事先定义需要的pairwise均值比较，并对相应Welch检验作适当的family校正，例如Holm，或采用适用的异方差同时推断方法。Welch不会修复配对被忽略、伪重复、严重重尾或选择性删点；若真正目标是median或分布，应另行明确估计对象。</p>",
+    "source": [
+      {
+        "file": "PPT/Chapter_8.pptx",
+        "pages": "46–55"
+      },
+      {
+        "file": "PPT/Chapter_6.pptx",
+        "pages": "24–27"
+      }
+    ]
   }
 ]

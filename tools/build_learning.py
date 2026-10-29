@@ -25,15 +25,20 @@ def build_learning(root, chapters, doc, esc):
         rcode = q.get('rCode', '').replace('\\n', '\n')
         (root / 'downloads' / f'{qid}.R').write_text(rcode + '\n')
         code = f'<details class="r-solution"><summary>用 R 复现</summary><p>在自己的 R 环境中运行；本页不执行 R。</p><pre><code>{esc(rcode)}</code></pre><a href="downloads/{qid}.R" download>下载这道题的 .R 脚本</a></details>' if rcode else ''
+        alternatives = ''
+        if q.get('optionExplanations'):
+            alternatives = '<details class="option-explanations"><summary>逐项比较：每个选项为什么对或错？</summary><dl>'+''.join(f'<dt>{i+1}. {esc(q["options"][i])}</dt><dd>{esc(explanation)}</dd>' for i, explanation in enumerate(q['optionExplanations']))+'</dl></details>'
+        if q.get('commonMistakes'):
+            alternatives += '<details class="mistake-explanations"><summary>对照常见计算岔路</summary><ul>'+''.join(f'<li><b>若算得约 {m["value"]:.6g}：</b>{esc(m["feedback"])}</li>' for m in q['commonMistakes'])+'</ul><p class="status">相近结果只是检查线索，不能唯一确定你的计算过程。</p></details>'
         cards.append(f'''<article class="exercise" id="{qid}" data-question="{qid}" data-chapter="{q['chapter']}" data-level="{q['level']}">
 <div class="exercise-meta"><span>{n:02d} / Ch {"1–3" if q['chapter'] == '01' else int(q['chapter'])} · {esc(q['level'])}</span><span class="exercise-state">尚未作答</span></div>
 <h2>{esc(q['title'])}</h2><div class="exercise-prompt">{q['prompt']}</div><p class="status">{' · '.join(esc(t) for t in q['tags'])}</p>
 <form class="answer-form">{inputs}<div class="study-actions"><button type="submit">检查答案</button><button type="button" class="secondary bookmark" aria-pressed="false">加入复习</button></div><p class="answer-feedback" role="status" aria-live="polite"></p></form>
 <details class="exercise-hint"><summary>先给我一个提示</summary><p>{esc(q['hint'])}</p></details>
-<details class="exercise-solution"><summary>展开完整解题过程</summary><ol class="solution-steps">{steps}</ol><p class="solution-conclusion"><b>结论：</b>{q['conclusion']}</p><p class="pitfall"><b>易错点：</b>{q['pitfall']}</p>{code}</details>
+<details class="exercise-solution"><summary>展开完整解题过程</summary><ol class="solution-steps">{steps}</ol><div class="solution-tail"><p class="solution-conclusion"><b>结论：</b>{q['conclusion']}</p><p class="pitfall"><b>易错点：</b>{q['pitfall']}</p>{alternatives}{code}</div></details>
 <p class="exercise-source">题型参考：{esc(source['file'])} · {esc(source['locator'])}。{esc(source['note'])}。<a href="chapters/{q['chapter']}.html">回到这一章</a></p></article>''')
         searches.append({'chapter': '练习工坊', 'title': q['title'], 'text': re.sub('<[^>]+>', ' ', q['prompt'] + ' ' + ' '.join(q['tags'])), 'url': f'practice.html#{qid}'})
-    grading = {q['id']: {k: q[k] for k in ('type', 'answer', 'tolerance', 'integer') if k in q} for q in questions}
+    grading = {q['id']: {k: q[k] for k in ('type', 'answer', 'tolerance', 'integer', 'optionExplanations', 'commonMistakes') if k in q} for q in questions}
     practice = f'''<main id="main" class="wrap study-page"><div class="study-heading"><h1>把“看懂了”变成“会做了”。</h1><p class="study-lead">{len(questions)} 道分层练习，从方法选择到完整推断。先独立作答，再按需打开提示、逐步解析和 R 复现。</p><p class="status">根据 Homework 0–8、Quiz 1–9 的题型及后续课件原创改编。数值和情境已重写；不作为课程原题答案。</p></div>
 <div id="practice-app"><div class="study-toolbar"><label>章节<select id="practice-chapter"><option value="all">全部章节</option>{options}</select></label><label>难度<select id="practice-level"><option value="all">全部难度</option><option>基础</option><option>应用</option><option>综合</option></select></label><label>练习状态<select id="practice-status"><option value="all">全部题目</option><option value="unanswered">尚未作答</option><option value="review">待复习</option><option value="correct">已答对</option></select></label><label>搜索题型<input id="practice-search" type="search" placeholder="例如：power、配对"></label></div>
 <p class="status">也可搜索 Homework_6、Quiz_9 等材料编号，定位对应题型。</p><div class="practice-dashboard"><p id="practice-progress" aria-live="polite">进度仅保存在此浏览器。</p><progress id="practice-meter" max="{len(questions)}" value="0" aria-label="已答对的题目比例"></progress><div class="study-actions"><button id="mixed-practice" class="secondary">综合自测 · 每章抽一题</button><button id="all-practice" class="secondary">显示全部题目</button></div><p class="status" id="practice-storage" aria-live="polite"></p></div><p id="practice-result-count" role="status"></p><p id="practice-empty" hidden>没有符合条件的题目。调整筛选，或点击“显示全部题目”。</p><noscript><p class="notice">当前未启用 JavaScript，自动判题与筛选不可用；所有题目、提示、解析与 R 代码仍可阅读。</p></noscript><div class="exercise-list">{''.join(cards)}</div></div>

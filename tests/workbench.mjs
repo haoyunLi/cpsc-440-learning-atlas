@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { distribution, tailProbability, parseSample, twoSample, diagnosticData, chooseMethod } from '../assets/workbench.mjs';
+import { distribution, distributionPlot, tailProbability, parseSample, twoSample, diagnosticData, chooseMethod } from '../assets/workbench.mjs';
+import { parseSample as sharedParseSample } from '../assets/sample.mjs';
 const near = (actual, expected, tolerance = 1e-6) => assert.ok(Math.abs(actual - expected) < tolerance, `${actual} versus ${expected}`);
 // Reference values independently calculated with R 4.x pnorm/pt/pchisq/pf and q*.
 for (const [kind, d1, d2, observed, cdf, q975] of [
@@ -16,6 +17,35 @@ for (const [kind, d1, d2, observed, cdf, q975] of [
   near(tailProbability(kind, observed, 'two', d1, d2).p, 2 * Math.min(cdf, 1 - cdf));
 }
 const a = [8, 10, 13, 14, 18, 20], b = [7, 8, 10, 12, 12, 13];
+// Low-df cases used by the regression/interaction chapters, independently from R.
+for (const [kind, d1, d2, x, pRight, q95, q975] of [
+  ['f', 1, 3, 180 / (44 / 3), .03938885402264284, 10.127964486013923, 17.443443320725116],
+  ['f', 1, 4, 4, .11611652351681551, 7.708647422176787, 12.2178626330711],
+  ['f', 1, 1, 2, .39182655203060712, 161.44763879758818, 647.789011477844],
+  ['f', 2, 1, 2, .44721359549995793, 199.49999999999966, 799.4999999999987],
+  ['t', 1, 20, 2, .14758361765043321, 6.313751514675038, 12.706204736174692],
+  ['chi', 1, 20, 2, .15729920705028447, 3.841458820694124, 5.023886187314885]
+]) {
+  const d = distribution(kind, d1, d2);
+  near(tailProbability(kind, x, 'right', d1, d2).p, pRight, 1e-12);
+  near(d.quantile(.95), q95, 1e-8);
+  near(d.quantile(.975), q975, 1e-8);
+}
+assert.equal(distribution('chi', 1).pdf(0), Infinity);
+assert.equal(distribution('f', 1, 3).pdf(0), Infinity);
+near(distribution('chi', 2).pdf(0), .5);
+near(distribution('f', 2, 1).pdf(0), 1);
+for (const kind of ['normal', 't', 'chi', 'f']) {
+  for (const d1 of [1, 1.5, 2, 3, 100]) for (const d2 of [1, 2, 3, 100]) {
+    const plan = distributionPlot(kind, d1, d2);
+    assert.ok(Number.isFinite(plan.yMax) && plan.yMax > 0);
+    assert.ok(plan.samples.every(x => Number.isFinite(plan.density(x)) && plan.density(x) >= 0));
+    assert.ok(plan.omittedMass >= 0 && plan.omittedMass < 1);
+  }
+}
+assert.ok(distributionPlot('t', 1).hi <= 12);
+assert.ok(distributionPlot('f', 1, 1).hi <= 20);
+assert.ok(distributionPlot('chi', 1).singular);
 for (const [kind, x, d1, d2, expected] of [
   ['normal', 10, 10, 20, 7.6198530241605269e-24],
   ['t', 20, 100, 20, 4.9971339306684723e-37],
@@ -38,6 +68,10 @@ for (const [method, t, df, p, low, high] of [
   near(twoSample(b, a, method).p, r.p);
 }
 assert.throws(() => parseSample(''), /请输入/);
+assert.equal(parseSample, sharedParseSample);
+assert.deepEqual(parseSample('2,3'), [2, 3]);
+assert.deepEqual(parseSample('1e10, 2', { maxAbs: 1e10 }), [1e10, 2]);
+assert.throws(() => parseSample('1e10, 2'), /请输入/);
 assert.throws(() => parseSample('2, not-a-number'), /请输入/);
 assert.throws(() => parseSample('1, Infinity'), /请输入/);
 assert.deepEqual(parseSample('1，2;3 4'), [1, 2, 3, 4]);

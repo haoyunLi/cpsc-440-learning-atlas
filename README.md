@@ -58,6 +58,9 @@ Ch09 包含单个 contrast 的单双侧、正交 SS 分解、Scheffé 与 Dunnet
 ```sh
 node tests/numerical.mjs
 node tests/chapter_probabilities.mjs
+node tests/latin.mjs
+node tests/ci_geometry.mjs
+node tests/distribution_display.mjs
 node tests/search.mjs
 node tests/learning_storage.mjs
 node tests/workbench.mjs
@@ -81,6 +84,10 @@ python3 tests/r_examples.py
 工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。79 道题、62 个章节示例及 R 入门脚本，共 142 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
 
 数据摘要实验保留微小数值尺度，用明确标注的坐标基准处理大数附近的微小差异；常量数据的 SD/variance 正确为零。CI 重复覆盖明确为独立的双侧已知 σ 演示，说明它与单侧检验界限的区别。
+
+Ch15 的 Latin square 任务可从空表构建、修复“仅每行正确”的错误排列，并逐项查看行序、列序与处理名称的合法随机置换。当前排列可复制为独立 R 检查；结构合法不代替随机化与模型条件。另在 Ch01、05、09 加入先选图形、从研究句子写假设、从等权比较写 contrast 的情境自检，避免只会代入已给公式。
+
+Latin square 检查覆盖全部 576 个四阶合法方阵、9,216 个单格错误、1,000 个可复现置换及 13 个独立 R 排列。桌面和手机检查构建、诊断、随机化与当前 R 复制；RCBD 控件变化保留 Latin square 的编辑状态。CI 动画按最新区间的完整端点扩展坐标范围，避免远端被裁切；分布工作台为密度轴保留可区分刻度，并说明浮点下溢与真实零概率的区别。
 
 二项分布与 ANOVA 章节实验保留极小正概率，接近 1 的二项概率显示小的补事件；F 右尾直接计算，避免用 1−CDF 相减丢失精度。225 个额外 R 对照使用相对误差检查，包括 10⁻¹²⁰ 的尾概率。手册解释科学记数法，秩和讲解区分固定偏移与 ties 下可达的最小秩和。
 

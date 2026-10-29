@@ -76,6 +76,23 @@ export function distributionPlot(kind, df1 = 10, df2 = 20) {
   return { lo, hi, samples, density, densityCap, yMax: densityCap * 1.14, singular, omittedMass: d.cdf(lo) + d.survival(hi) };
 }
 
+export function distributionTick(value, step) {
+  const decimals = Math.max(0, 1 - Math.floor(Math.log10(Math.abs(step))));
+  return String(Number(value.toFixed(decimals)));
+}
+
+export function distributionProbabilityDisplay(kind, observed, tail, probability) {
+  const positive = kind === 'chi' || kind === 'f';
+  const exactZero = positive && observed === 0 && tail !== 'right';
+  const exactOne = positive && observed === 0 && tail === 'right' || !positive && observed === 0 && tail === 'two';
+  if (exactZero) return { text: 'P = 0', note: '此处是支持集边界：连续 χ² / F 分布在 0 及其左侧的概率为 0。' };
+  if (exactOne) return { text: 'P = 1', note: positive ? '此处右尾覆盖该分布的全部支持集，概率为 1。' : '观测值在对称分布中心，双侧规则计入全部结果，概率为 1。' };
+  if (probability === 0) return { text: 'P > 0（数值下溢，无法可靠显示）', note: '这个有限统计量对应的尾概率在数学上大于 0；当前浮点计算返回了 0，不能把它解释为概率恰为 0。' };
+  const rounded = format(probability, 6);
+  if (rounded === '1.000000') return { text: 'P ≈ 1.000000', note: '概率在当前计算或显示精度下舍入到 1；这是近似显示，不据此断言数学概率恰为 1。' };
+  return { text: `P = ${rounded}`, note: '' };
+}
+
 function stableSummary(values) {
   // Center first so repeated decimals and a large common offset do not create
   // artificial variance through summation roundoff.
@@ -198,7 +215,7 @@ function mountDistribution(root) {
       const df1 = read(root, 'df1').disabled ? 10 : +read(root, 'df1').value, df2 = read(root, 'df2').disabled ? 20 : +read(root, 'df2').value, observed = +read(root, 'observed').value, alpha = +read(root, 'alpha').value, tail = read(root, 'tail').value;
       const r = tailProbability(kind, observed, tail, df1, df2, alpha);
       const plan = distributionPlot(kind, df1, df2), { lo, hi, samples, density } = plan;
-      const map = frame(svg, lo, hi, 0, plan.yMax, 'Test statistic', 'Density');
+      const map = frame(svg, lo, hi, 0, plan.yMax, 'Test statistic', 'Density', value => distributionTick(value, plan.yMax / 4));
       for (let i = 0; i < samples.length - 1; i++) {
         const x = samples[i], mid = (x + samples[i + 1]) / 2;
         const inTail = tail === 'two' ? mid <= r.shade[0] || mid >= r.shade[1] : mid >= r.shade[0] && mid <= r.shade[1];
@@ -209,7 +226,8 @@ function mountDistribution(root) {
       root.querySelector('.wbench-window-note').textContent = `横轴显示 [${format(lo, 2)}, ${format(hi, 2)}]，图外尾部概率合计约 ${format(plan.omittedMass * 100, 2)}%。${plan.singular ? `密度在 0 附近趋于无穷；高于 ${format(plan.densityCap)} 的部分截去，并用箭头提示，因此图中阴影面积不等于完整 P-value。` : ''}${r.critical.some(x => x < lo || x > hi) ? '部分临界值在图外，请以上方数值为准。' : ''}`;
       r.critical.filter(x => x >= lo && x <= hi).forEach(x => add(svg, 'line', { x1: map.x(x), x2: map.x(x), y1: 42, y2: 258, class: 'wbench-critical' }));
       if (observed >= lo && observed <= hi) add(svg, 'line', { x1: map.x(observed), x2: map.x(observed), y1: 42, y2: 258, class: 'wbench-observed' });
-      out.innerHTML = `<strong>P = ${format(r.p, 6)}</strong><span>临界值：${r.critical.map(x => format(x)).join(' 与 ')}</span><span>P ${r.reject ? '≤' : '>'} α → ${r.reject ? '拒绝' : '不拒绝'} H₀；这不是 H₀ 为真的概率。</span>${observed < lo || observed > hi ? '<span>观测值在当前绘图区之外；上方概率仍按输入值计算。</span>' : ''}`;
+      const probability = distributionProbabilityDisplay(kind, observed, tail, r.p);
+      out.innerHTML = `<strong>${probability.text}</strong>${probability.note ? `<span>${probability.note}</span>` : ''}<span>临界值：${r.critical.map(x => format(x)).join(' 与 ')}</span><span>P ${r.reject ? '≤' : '>'} α → ${r.reject ? '拒绝' : '不拒绝'} H₀；这不是 H₀ 为真的概率。</span>${observed < lo || observed > hi ? '<span>观测值在当前绘图区之外；上方概率仍按输入值计算，并标明数值精度限制。</span>' : ''}`;
       errorBox(root);
     } catch (error) { errorBox(root, error); svg.replaceChildren(); out.textContent = '等待有效设置。'; root.querySelector('.wbench-window-note').textContent = ''; }
   });

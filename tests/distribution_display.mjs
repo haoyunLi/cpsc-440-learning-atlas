@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { distributionPlot, distributionTick, distributionProbabilityDisplay, tailProbability, mountWorkbench, diagnosticData } from '../assets/workbench.mjs';
+import { distributionPlot, distributionTick, distributionProbabilityDisplay, tailProbability, mountWorkbench } from '../assets/workbench.mjs';
 
 const near = (actual, expected, tolerance = 1e-10) => assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} versus ${expected}`);
 // Independent R references: pnorm(x, lower.tail=FALSE, log.p=TRUE), and
@@ -137,40 +137,9 @@ try {
   assert.match(result(), /临界值：-12.7062 与 12.7062/);
   assert.equal(svg.children.filter(el => el.attrs.class === 'wbench-critical' || el.attrs.class === 'wbench-observed').length, 0);
 
-  // The distribution-only formatter must leave diagnostic geometry and its
-  // observed-order / sorted-order animation unchanged in all four modes.
-  const mode = new Element(); mode.value = 'normal';
-  const svgs = [new Element('svg'), new Element('svg')];
-  const actions = Object.fromEntries(['step', 'play', 'all'].map(name => [name, new Element('button')]));
-  const labels = { '.wbench-progress': new Element(), '.wbench-result': new Element() };
-  const root = new Element(); root.dataset.workbench = 'diagnostics';
-  root.querySelector = selector => selector === '[data-field="mode"]' ? mode : selector.startsWith('[data-action=') ? actions[selector.match(/"(.+)"/)[1]] : labels[selector];
-  root.querySelectorAll = selector => selector === 'svg' ? svgs : [];
-  mountWorkbench(root);
-  const points = graph => graph.children.filter(el => el.tag === 'circle');
-  for (const value of ['normal', 'skew', 'outlier', 'unequal']) {
-    mode.value = value; mode.events.input();
-    for (const graph of svgs) {
-      assert.equal(points(graph).length, 48);
-      for (const point of points(graph)) {
-        const x = +point.attrs.cx, y = +point.attrs.cy, radius = +point.attrs.r;
-        assert.ok(x - radius >= 72 && x + radius <= 590 && y - radius >= 51 && y + radius <= 258);
-      }
-    }
-    actions.step.onclick();
-    const data = diagnosticData(value), ymin = Math.min(...data.sorted) - .5, ymax = Math.max(...data.sorted) + .5;
-    assert.equal(points(svgs[0]).length, 1); assert.equal(points(svgs[1]).length, 1);
-    near(+points(svgs[0])[0].attrs.cy, 258 - (data.points[0].residual - ymin) / (ymax - ymin) * 207);
-    near(+points(svgs[1])[0].attrs.cy, 258 - (data.sorted[0] - ymin) / (ymax - ymin) * 207);
-    actions.play.onclick(); for (let i = 0; i < 47; i++) tick();
-    assert.equal(timers.size, 0); assert.equal(points(svgs[0]).length, 48);
-  }
-  actions.play.onclick(); motion.matches = true; motion.change();
-  assert.equal(timers.size, 0); assert.equal(actions.play.disabled, true);
-  motion.matches = false; motion.change(); actions.play.onclick();
-  document.hidden = true; documentEvents.visibilitychange(); assert.equal(timers.size, 0);
-  document.hidden = false; actions.play.onclick(); windowEvents.pagehide(); assert.equal(timers.size, 0);
-  console.log(`Distribution display: ${settings.length * 9} mounted legal states, distinct density ticks, underflow/boundary/near-one semantics, ordinary tails, invalid clearing and diagnostic animation regression passed.`);
+  // The independently mounted diagnostic module now has same-ID reveal order.
+  // Its geometry, all four scenarios and lifecycle regression live in diagnostics.mjs.
+  console.log(`Distribution display: ${settings.length * 9} mounted legal states, distinct density ticks, underflow/boundary/near-one semantics, ordinary tails and invalid clearing passed.`);
 } finally {
   for (const [key, value] of Object.entries(saved)) { if (value === undefined) delete globalThis[key]; else globalThis[key] = value; }
 }

@@ -1,5 +1,6 @@
 import * as M from './math.mjs';
 import { parseSample } from './sample.mjs';
+import { diagnosticData as buildDiagnosticData, mountDiagnostics } from './diagnostics.mjs';
 export { parseSample } from './sample.mjs';
 
 const clamp = x => Math.max(0, Math.min(1, x));
@@ -158,23 +159,7 @@ export function twoSampleAxis(values) {
     scaleNote: scaleNote + (range ? '' : '所有观测相同；轴上留白不代表数据有变异。') };
 }
 
-export function diagnosticData(mode = 'normal') {
-  if (!['normal', 'skew', 'outlier', 'unequal'].includes(mode)) throw Error('未知诊断场景');
-  const rng = M.seeded(440);
-  const groups = [10, 13, 16].map((center, group) => Array.from({ length: 16 }, (_, i) => {
-    const z = M.randomNormal(rng);
-    const error = mode === 'skew' ? Math.exp(z * .9) - Math.exp(.405) : z * (mode === 'unequal' ? [0.45, 1, 2.8][group] : 1);
-    return center + error + (mode === 'outlier' && group === 2 && i === 15 ? 12 : 0);
-  }));
-  const fitted = groups.map(M.mean);
-  const points = groups.flatMap((group, g) => group.map((value, i) => ({ value, group: g, fitted: fitted[g], residual: value - fitted[g], special: mode === 'outlier' && g === 2 && i === 15 })));
-  const sorted = points.map(p => p.residual).sort((a, b) => a - b), n = sorted.length;
-  const a = n <= 10 ? .375 : .5;
-  const theoretical = sorted.map((_, i) => M.normalQuantile((i + 1 - a) / (n + 1 - 2 * a)));
-  const slope = (M.quantile(sorted, .75) - M.quantile(sorted, .25)) / (M.normalQuantile(.75) - M.normalQuantile(.25));
-  const intercept = M.quantile(sorted, .25) - slope * M.normalQuantile(.25);
-  return { groups, points, sorted, theoretical, slope, intercept, n };
-}
+export function diagnosticData(mode = 'normal') { return buildDiagnosticData(mode); }
 
 const ns = 'http://www.w3.org/2000/svg';
 function add(svg, name, attrs, text = '') { const node = document.createElementNS(ns, name); for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value); node.textContent = text; svg.append(node); return node; }
@@ -253,42 +238,6 @@ function mountTwoSample(root) {
   });
 }
 
-function mountDiagnostics(root) {
-  root.innerHTML = `<h2>诊断图：先观察，再判断</h2><p>三组、每组 16 个观测，使用固定 seed=440 的教学模拟。改变生成机制，追踪它在两张诊断图里留下的痕迹。</p><div class="wbench-controls">${label('数据生成机制', field('mode', [['normal', 'Normal：同方差基准'], ['skew', 'Skew：右偏误差'], ['outlier', 'Outlier：一个观测额外增加 12'], ['unequal', 'Unequal：各组误差 SD 不同']]))}</div><div class="wbench-actions"><button type="button" data-action="step">逐点显示</button><button type="button" data-action="play">播放诊断过程</button><button type="button" class="secondary" data-action="all">显示全部</button></div><p class="wbench-progress" aria-live="polite"></p><div class="wbench-plots"><figure>${plot('Residual versus fitted：三个组的 residual 离散程度')}<figcaption>Residual vs fitted：找弯曲、漏斗形和极端残差。</figcaption></figure><figure>${plot('Normal Q-Q：排序 residual 与理论 normal quantiles')}<figcaption>Normal Q-Q：沿参考线表示形状较相近；偏离需要结合设计解读。</figcaption></figure></div><div class="wbench-result" aria-live="polite"></div><details><summary>图上的点如何算出来？</summary><p>拟合 one-way ANOVA：fitted = 所在组 mean；residual = observed − fitted。Q-Q 将 48 个 residual 排序，与 Φ⁻¹((i−0.5)/48) 配对。这与 R 的 ppoints(48) 一致；参考线穿过样本与理论的 25%、75% quantiles（R qqline 默认 type 7）。动画仅逐点揭示一次完整拟合结果，不随显示点数重新拟合。</p><p>这些图没有证明 independence 的能力；独立性主要由抽样与实验设计保证。Residual 也并非严格相互独立，图形是模型诊断工具。</p></details>`;
-  let timer = null, count = 48;
-  const play = root.querySelector('[data-action="play"]');
-  function stop() { if (timer) clearInterval(timer); timer = null; play.textContent = '播放诊断过程'; }
-  const narratives = {
-    normal: '同方差 normal 基准：残差大致围绕 0，各组散布接近。有限样本 Q-Q 不会完美成线；不能把任意偏离都判为失败。',
-    skew: '右偏误差：大正残差较突出，Q-Q 上端偏离。关注偏态程度与每组样本量；可讨论有科学意义的变换或更适合的模型，不是只追求一个通过的检验。',
-    outlier: '一个观测额外增加 12：它拉高第三组 fitted mean，其余该组 residual 也随之改变。该点始终保留。应核查测量与记录来源，再报告敏感性分析；不能因为不符合预期就删除。',
-    unequal: '误差 SD 分别设为 0.45、1、2.8：残差散布随组增大。Pooled ANOVA 的共同 variance 假设值得怀疑；Welch one-way、合理变换或合适的 variance model 是后续方向。'
-  };
-  function render() {
-    const mode = read(root, 'mode').value, data = diagnosticData(mode), svgs = root.querySelectorAll('svg');
-    const fit = data.points.map(p => p.fitted), residuals = data.points.map(p => p.residual), ymin = Math.min(...residuals) - .5, ymax = Math.max(...residuals) + .5;
-    const left = frame(svgs[0], Math.min(...fit) - 1, Math.max(...fit) + 1, ymin, ymax, 'Fitted group mean', 'Residual');
-    add(svgs[0], 'line', { x1: 72, x2: 590, y1: left.y(0), y2: left.y(0), stroke: '#9a472e', 'stroke-dasharray': '5 4' });
-    data.points.slice(0, count).forEach(p => add(svgs[0], 'circle', { cx: left.x(p.fitted), cy: left.y(p.residual), r: p.special ? 6 : 4.5, fill: p.special ? '#9a472e' : '#086f68' }));
-    const right = frame(svgs[1], -2.5, 2.5, ymin, ymax, 'Theoretical normal quantile', 'Ordered residual');
-    const refLo = Math.max(-2.5, (ymin - data.intercept) / data.slope), refHi = Math.min(2.5, (ymax - data.intercept) / data.slope);
-    add(svgs[1], 'line', { x1: right.x(refLo), x2: right.x(refHi), y1: right.y(data.intercept + data.slope * refLo), y2: right.y(data.intercept + data.slope * refHi), stroke: '#9a472e', 'stroke-dasharray': '5 4' });
-    data.sorted.slice(0, count).forEach((r, i) => add(svgs[1], 'circle', { cx: right.x(data.theoretical[i]), cy: right.y(r), r: 4.5, fill: '#086f68' }));
-    root.querySelector('.wbench-progress').textContent = `已显示 ${count} / 48 个点。左图按观测顺序，右图按 residual 大小依次显示。`;
-    root.querySelector('.wbench-result').textContent = narratives[mode];
-  }
-  read(root, 'mode').addEventListener('input', () => { stop(); count = 48; render(); });
-  root.querySelector('[data-action="step"]').onclick = () => { stop(); count = count >= 48 ? 1 : count + 1; render(); };
-  root.querySelector('[data-action="all"]').onclick = () => { stop(); count = 48; render(); };
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  function syncMotion() { if (reduced.matches) stop(); play.disabled = reduced.matches; play.title = reduced.matches ? '减少动态偏好已启用，请用逐点显示按钮。' : ''; }
-  syncMotion(); reduced.addEventListener('change', syncMotion);
-  play.onclick = () => { if (timer) { stop(); return; } if (count >= 48) count = 0; timer = setInterval(() => { count++; render(); if (count >= 48) stop(); }, 110); play.textContent = '暂停'; };
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
-  window.addEventListener('pagehide', stop);
-  if ('IntersectionObserver' in window) new IntersectionObserver(entries => { if (!entries[0].isIntersecting) stop(); }).observe(root);
-  render();
-}
 
 function chooseLocationMethod({ design, groups, factors, locationTarget }) {
   if (factors === 'two') return { boundary: true, title: '多个 treatment factors：先指定位置目标与模型', chapter: design === 'blocked' ? '15' : '14', anchor: design === 'blocked' ? 'factorial-blocks' : 'interaction', why: '先写清比较哪些 factor levels、是否存在 interaction，以及需要怎样的 averaging 权重。单因素的 sign、rank-sum 或 Kruskal–Wallis 路线不能自动回答 factorial 问题。', caution: '链接用于理解设计与模型结构，不是适用于所有 factorial median / rank 问题的现成检验。若有配对、重复测量或 blocks，还必须保留其依赖结构。' };

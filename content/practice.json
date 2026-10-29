@@ -4886,5 +4886,72 @@
       "回归系数只是点估计。新增点会改变设计的Sxx及残差自由度；本例SSE虽不变，MSE从1.2变为.9，因此标准误改变，不能据Cook=0断言没有任何信息。"
     ],
     "rCode": "# Original constructed data: only the sixth point lies exactly on the five-point fit.\nd <- data.frame(x=c(1,2,3,4,5,9),y=c(2,3,7,7,11,19.2))\nfit_five <- lm(y ~ x,data=d[1:5,])\nfit_six <- lm(y ~ x,data=d)\noriginal_sixth_prediction <- predict(fit_five,newdata=d[6,,drop=FALSE])\nh6 <- hatvalues(fit_six)[6]\ne6 <- residuals(fit_six)[6]\nD6 <- cooks.distance(fit_six)[6]\nsummary_row <- function(fit,x) {\n  mse <- deviance(fit)/df.residual(fit)\n  Sxx <- sum((x-mean(x))^2)\n  c(SSE=deviance(fit),error_df=df.residual(fit),MSE=mse,Sxx=Sxx,\n    slope_SE=sqrt(mse/Sxx))\n}\ncomparison <- rbind(five=summary_row(fit_five,d$x[1:5]),\n                    six=summary_row(fit_six,d$x))\nprint(rbind(five=coef(fit_five),six=coef(fit_six)),digits=12)\nprint(comparison,digits=12)\nprint(c(original_prediction_at_9=original_sixth_prediction,\n        h6=h6,e6=e6,Cook6=D6),digits=12)\n# The first five observations retain nonzero residual variation.\nstopifnot(abs(deviance(fit_five)-3.6)<1e-12,\n          abs(deviance(fit_six)-3.6)<1e-12,\n          max(abs(coef(fit_five)-c(-.6,2.2)))<1e-12,\n          max(abs(coef(fit_six)-coef(fit_five)))<1e-12,\n          abs(original_sixth_prediction-19.2)<1e-12,\n          abs(h6-19/24)<1e-12,abs(e6)<1e-12,abs(D6)<1e-20,\n          abs(comparison['five','slope_SE']-sqrt(.12))<1e-12,\n          abs(comparison['six','slope_SE']-.15)<1e-12,\n          abs(summary(fit_six)$coefficients['x','Std. Error']-.15)<1e-12)\n# These SEs describe this constructed dataset under the stated regression model.\n# They do not imply that every added observation reduces the estimated SE.\n"
+  },
+  {
+    "id": "p08-08",
+    "chapter": "08",
+    "title": "同一条观测怎样走到 residual Q–Q 图上",
+    "level": "应用",
+    "type": "numeric",
+    "tags": [
+      "diagnostics",
+      "fitted value",
+      "residual",
+      "Q–Q",
+      "plotting position"
+    ],
+    "source": {
+      "file": "PPT/Chapter_8.pptx",
+      "locator": "slides 27–29、36；notes Chapter 8 pp.14–16、23",
+      "note": "课程 residual 与诊断图主题的原创迁移练习；数据与正文例不同，Q–Q 坐标按题定 plotting positions 计算。"
+    },
+    "prompt": "<p>原创教学数据有三个组、每组4个独立实验单位：A=[3,7,10,12]，B=[11,15,18,24]，C=[21,22,28,29]。按各组列出的顺序编号 A1–A4、B1–B4、C1–C4。拟合每组一个均值的 one-way 模型，residual 定义为 Y−fitted。</p><p>追踪 <b>A3（Y=10）</b>：先求它的 fitted 与 residual，再把<b>全部12个 residual</b>由小到大排序。normal Q–Q 图的横坐标为 qᵢ=Φ⁻¹(pᵢ)，本题 pᵢ=(i−.5)/12，i 是从1开始的排序位置，纵坐标是 residual。A3 的<b>理论横坐标 qᵢ</b>是多少？可用 <code>qnorm(pᵢ)</code> 求标准正态分位数，保留至少四位小数。不要填写 plotting probability 或 residual。</p>",
+    "answer": 0.318639363964375,
+    "tolerance": 0.0005,
+    "unit": "标准正态理论分位数（无响应单位）",
+    "hint": "先用 A 组四个值求拟合均值；所有组各自减去自己的拟合均值后，再合并排序。A3 在 raw Y 中的名次不决定它在 residual Q–Q 图中的位置。",
+    "steps": [
+      {
+        "title": "先按组拟合，保留观测 ID",
+        "body": "三个 fitted group means 分别为 A:8、B:17、C:25。A3 的 fitted=8，residual=10−8=2。各组 residuals 为 A:[−5,−1,2,4]、B:[−6,−2,1,7]、C:[−4,−3,3,4]。在 residual vs fitted 图上，A3 的坐标是(8,2)，横坐标不是原始 Y=10。"
+      },
+      {
+        "title": "合并 residual 后确定这条观测的位置",
+        "body": "全部12个残差由小到大是 [−6,−5,−4,−3,−2,−1,1,2,3,4,4,7]，因此 A3 的 residual=2 位于第 i=8 个位置。它在这里没有并列；两个 residual=4 占第10、11位，不影响 A3。排序的是减去各自组均值后的数，不是原始响应，也不是只排 A 组。"
+      },
+      {
+        "title": "由 plotting probability 求标准正态分位数",
+        "body": "p₈=(8−.5)/12=.625；q₈=Φ⁻¹(.625)=qnorm(.625)≈.318639364。因此答案约为 <b>.3186</b>，A3 的 Q–Q 坐标是(.318639,2)。.625 是排序位置对应的 plotting probability，不是横坐标 q，也不是假设检验的 P-value。"
+      },
+      {
+        "title": "比较两张图并限制结论",
+        "body": "同一条 A3 在 residual vs fitted 图上是(8,2)，在 normal Q–Q 图上是(.318639,2)；纵坐标仍是同一个 residual=2，只是横轴的参照改变。若按 raw Y 排序，Y=10 位于第3名，会误得 qnorm(2.5/12)≈−.812218。计算出一个点的位置不能判断整个误差分布是否正态，更不能证明独立性或共同方差；需要结合完整图形与设计。"
+      }
+    ],
+    "conclusion": "A3 的 fitted=8、residual=2、全体 residual 排序位置 i=8，所以 normal Q–Q 理论横坐标为 .318639364，纵坐标仍是2。",
+    "pitfall": "不要混淆原始值的顺序、残差的顺序、plotting probability 与理论分位数。此题明确采用 n=12 时的 (i−.5)/12；它不是适用于所有样本量的 R 默认公式。Q–Q 图中的排列位置也不是秩检验中合并 ties 的平均秩。",
+    "commonMistakes": [
+      {
+        "value": -0.812217801499913,
+        "tolerance": 0.0005,
+        "feedback": "这个值与按 raw Y 的第3名计算 qnorm(2.5/12) 相符。请核对是否先减了各自组的 fitted mean；Q–Q 图应对全部 residual 排序，A3 的 residual=2 并不位于第3名。"
+      },
+      {
+        "value": 0.625,
+        "tolerance": 0.0005,
+        "feedback": "这与正确排序位置对应的 plotting probability p₈ 一致。题目要的是标准正态理论分位数 q₈，还需计算 qnorm(.625)，不能把累计概率直接当横坐标。"
+      },
+      {
+        "value": 2,
+        "tolerance": 0.0005,
+        "feedback": "这个数是 A3 的 residual，也是 Q–Q 图的纵坐标。题目要求横坐标：先找 residual 在全体12个观测中的位置，再由 plotting probability 求 qnorm。"
+      },
+      {
+        "value": -0.318639363964375,
+        "tolerance": 0.0005,
+        "feedback": "这个值与把所有残差定义为 fitted−Y 后得到的第5位相符。请检查相减方向与排序方向；本题规定 residual=Y−fitted，并从小到大排序。"
+      }
+    ],
+    "rCode": "# Original teaching data, with four independent units per group.\nd <- data.frame(id=c(paste0(\"A\",1:4),paste0(\"B\",1:4),paste0(\"C\",1:4)),\n                group=factor(rep(c(\"A\",\"B\",\"C\"),each=4)),\n                y=c(3,7,10,12,11,15,18,24,21,22,28,29))\nfit <- lm(y ~ group,data=d)\n# Direct group subtraction preserves exact ties in these integer data.\nd$fitted <- ave(d$y,d$group,FUN=mean)\nd$residual <- d$y-d$fitted\nstopifnot(max(abs(d$fitted-fitted(fit)))<1e-10,\n          max(abs(d$residual-residuals(fit)))<1e-10)\nn <- nrow(d)\n# Keep IDs when sorting; break exact residual ties by original record order.\nordered <- order(d$residual,seq_len(n))\nprobability <- ppoints(n)\nstopifnot(max(abs(probability-(seq_len(n)-.5)/n))<1e-12)\nqq_table <- data.frame(d[ordered,],position=seq_len(n),\n                       probability=probability,theoretical=qnorm(probability))\nprint(qq_table,digits=12,row.names=FALSE)\nselected <- qq_table[qq_table$id==\"A3\",]\nprint(selected,digits=12,row.names=FALSE)\n# Independently check the selected point against base R's Q-Q calculation.\nqq <- qqnorm(d$residual,plot.it=FALSE)\nselected_row <- which(d$id==\"A3\")\nstopifnot(selected$fitted==8,selected$residual==2,selected$position==8,\n          selected$probability==.625,\n          abs(selected$theoretical-.318639363964375)<1e-12,\n          abs(qq$x[selected_row]-selected$theoretical)<1e-12,\n          qq$y[selected_row]==selected$residual)\n# Compute plausible wrong routes rather than treating them as valid coordinates.\nraw_position <- match(selected_row,order(d$y,seq_len(n)))\nreverse_position <- match(selected_row,order(-d$residual,seq_len(n)))\nwrong_raw <- qnorm(probability[raw_position])\nwrong_reverse <- qnorm(probability[reverse_position])\nprint(c(raw_position=raw_position,wrong_raw=wrong_raw,\n        reverse_position=reverse_position,wrong_reverse=wrong_reverse),digits=12)\nstopifnot(raw_position==3,reverse_position==5,\n          abs(wrong_raw-(-.812217801499913))<1e-12,\n          abs(wrong_reverse-(-.318639363964375))<1e-12)\n# A plotting probability is not a test P-value or proof of any assumption.\nanswer <- unname(selected$theoretical)\nprint(answer,digits=12)\n"
   }
 ]

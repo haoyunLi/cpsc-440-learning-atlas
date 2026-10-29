@@ -38,6 +38,8 @@ def doc(title,body,prefix='./'):
   extra+=f'<link rel="stylesheet" href="{prefix}assets/study-case.css?v={version("assets/study-case.css")}"><script type="module" src="{prefix}assets/study-case.mjs?v={version("assets/study-case.mjs")}"></script>'
  if 'data-lab="probability"' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/binomial.css?v={version("assets/binomial.css")}">'
+ if 'data-workbench="diagnostics"' in body:
+  extra+=f'<link rel="stylesheet" href="{prefix}assets/diagnostics.css?v={version("assets/diagnostics.css")}">'
  if 'data-brown-forsythe' in body:
   extra=f'<link rel="stylesheet" href="{prefix}assets/brown-forsythe.css?v={version("assets/brown-forsythe.css")}"><script type="module" src="{prefix}assets/brown-forsythe.mjs?v={version("assets/brown-forsythe.mjs")}"></script>'
  if 'data-randomization' in body:

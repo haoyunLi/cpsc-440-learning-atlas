@@ -1,6 +1,6 @@
 import * as M from './math.mjs';
 import { parseSample } from './sample.mjs';
-import { mountSearch } from './search.mjs';
+import { mountSearch } from './search.mjs?v=query-location-1';
 import { mountLatinDesigner } from './latin.mjs';
 import { boxplotAnalysis, drawBoxplot, boxplotRCode } from './boxplot.mjs';
 import { mountCLT } from './clt.mjs';
@@ -134,7 +134,7 @@ function getProgress(){try{return normalizeReadingProgress(JSON.parse(localStora
 const complete=$('#complete');if(complete){function refresh(){complete.setAttribute('aria-pressed',String(getProgress().includes(complete.dataset.chapter)));complete.textContent=getProgress().includes(complete.dataset.chapter)?'已标记完成 · 再点撤销':'标记本章已完成'}refresh();complete.onclick=()=>{let p=getProgress();const id=complete.dataset.chapter;p=p.includes(id)?p.filter(v=>v!==id):[...p,id];if(!setProgress(p)){$('#progress-error').textContent='浏览器未允许保存进度；正文与实验仍可使用。'}refresh()}}
 const prog=$('#progress-count');if(prog)prog.textContent=`已标记 ${getProgress().length}/${readingChapterIds.length} 个单元。进度只保存在此浏览器。`;
 const search=$('#search');
-if(search) mountSearch({input:search,results:$('#search-results'),fetchIndex:async()=>{
+if(search) mountSearch({input:search,results:$('#search-results'),queryLocation:typeof window==='undefined'?undefined:window,fetchIndex:async()=>{
   const response=await fetch('./search.json');
   if(!response.ok)throw Error('Search index');
   return response.json();

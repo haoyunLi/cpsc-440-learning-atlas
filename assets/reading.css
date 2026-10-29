@@ -1,0 +1,40 @@
+/* Authored subsection navigation stays usable without JavaScript. */
+.lesson > .lesson-outline {
+  margin: 0 0 28px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+}
+.lesson-outline summary {
+  min-height: 44px;
+  padding: 7px 0;
+  color: var(--accent);
+}
+.lesson-outline nav { margin: 8px 0 4px; }
+.lesson-outline ol { margin: 0; padding-left: 1.8em; }
+.lesson-outline li { padding-left: 4px; }
+.lesson-outline li::marker { color: var(--muted); }
+.lesson-outline a {
+  display: block;
+  min-height: 44px;
+  padding: 9px 0;
+  line-height: 1.7;
+  text-decoration-thickness: 1px;
+  overflow-wrap: anywhere;
+}
+.lesson-outline ol ol {
+  border-left: 1px solid var(--line);
+  padding-left: 1.65em;
+  margin: 0 0 6px 3px;
+}
+.lesson h3[id], .lesson h4[id] { scroll-margin-top: 16px; }
+.lesson h3[id]:target, .lesson h4[id]:target {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+}
+@media (max-width: 700px) {
+  .lesson > .lesson-outline { font-size: 14px; }
+  .lesson-outline ol { padding-left: 1.5em; }
+}

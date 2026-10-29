@@ -1,6 +1,7 @@
 from pathlib import Path
 import json,re,html,hashlib
 from r_examples import add_r_downloads
+from lesson_outline import collect_ids, enrich_lesson, render_outline
 root=Path(__file__).resolve().parents[1]; ch=sum([json.loads((root/f'content/part{i}.json').read_text()) for i in range(1,4)],[])
 for addition in json.loads((root/'content/deepening.json').read_text()) if (root/'content/deepening.json').exists() else []:
  c=next(c for c in ch if c['id']==addition['chapter'])
@@ -56,6 +57,8 @@ def doc(title,body,prefix='./'):
   extra+=f'<link rel="stylesheet" href="{prefix}assets/paired.css?v={version("assets/paired.css")}">'
  if 'data-lab="factorial"' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/factorial.css?v={version("assets/factorial.css")}">'
+ if 'class="lesson-outline"' in body:
+  extra+=f'<link rel="stylesheet" href="{prefix}assets/reading.css?v={version("assets/reading.css")}">'
  return f'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>{esc(title)} · CPSC 440 Atlas</title><link rel="icon" href="{prefix}assets/favicon.svg"><link rel="stylesheet" href="{prefix}assets/style.css?v={version("assets/style.css")}"><link rel="stylesheet" href="{prefix}assets/learning.css?v={version("assets/learning.css")}"><link rel="stylesheet" href="{prefix}assets/workbench.css?v={version("assets/workbench.css")}"><script type="module" src="{prefix}assets/learning.mjs?v={version("assets/learning.mjs")}"></script><script type="module" src="{prefix}assets/workbench.mjs?v={version("assets/workbench.mjs")}"></script><script type="module" src="{prefix}assets/atlas.mjs?v={version("assets/atlas.mjs")}"></script><script type="module" src="{prefix}assets/contrast.mjs?v={version("assets/contrast.mjs")}"></script><script type="module" src="{prefix}assets/transformation.mjs?v={version("assets/transformation.mjs")}"></script><link rel="stylesheet" href="{prefix}assets/ranks.css?v={version("assets/ranks.css")}"><script type="module" src="{prefix}assets/ranks.mjs?v={version("assets/ranks.mjs")}"></script><link rel="stylesheet" href="{prefix}assets/conditional.css?v={version("assets/conditional.css")}"><script type="module" src="{prefix}assets/conditional.mjs?v={version("assets/conditional.mjs")}"></script><script type="module" src="{prefix}assets/walkthrough.mjs?v={version("assets/walkthrough.mjs")}"></script>{extra}</head><body>{header(prefix)}{body}{footer(prefix)}</body></html>'
 svg='''<svg viewBox="0 0 560 390" role="img" aria-labelledby="hero-diagram-title hero-diagram-desc"><title id="hero-diagram-title">从植物观测到统计推断</title><desc id="hero-diagram-desc">观测值沿轴分布，平均值连接样本与抽样分布；置信区间表达估计的不确定性。</desc><g fill="none" stroke="#708b80" stroke-width="1"><path d="M35 135H525M35 305H525"/></g><g fill="#086f68"><circle cx="90" cy="135" r="6"/><circle cx="132" cy="135" r="6"/><circle cx="170" cy="135" r="6"/><circle cx="196" cy="135" r="6"/><circle cx="223" cy="135" r="6"/><circle cx="261" cy="135" r="6"/><circle cx="309" cy="135" r="6"/><circle cx="356" cy="135" r="6"/><circle cx="410" cy="135" r="6"/></g><path d="M245 151V182" stroke="#086f68" stroke-width="2"/><path d="M135 305C175 305 185 217 245 217S315 305 355 305" fill="#bad6c8" stroke="#086f68" stroke-width="2"/><path d="M194 335H296M194 327V343M296 327V343" stroke="#9a472e" stroke-width="3"/><g fill="#183a37" font-family="sans-serif" font-size="15"><text x="35" y="65">OBSERVE</text><text x="35" y="92">单株测量 · observations Yᵢ</text><text x="250" y="178">ȳ</text><text x="35" y="210">INFER</text><text x="360" y="258">Sampling distribution</text><text x="360" y="281">SE = σ / √n</text><text x="162" y="375">Estimate ± uncertainty</text></g></svg>'''
 rows=''.join(f'<a class="route" href="chapters/{c["id"]}.html"><span class="num">{i:02}</span><span><h3>{esc(c["title"])}</h3><small>{esc(c["en"])} · 来源 Chapter {"1–3" if c["id"]=="01" else c["id"]}</small></span><p>{esc(c["question"])}</p><span class="arrow"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></span></a>' for i,c in enumerate(ch,1))
@@ -64,6 +67,14 @@ home=f'''<main id="main"><section class="hero"><div class="hero-inner"><div><h1>
 (root/'chapters').mkdir(exist_ok=True);search=[]
 positions={'01':'boxplot','04':'clt','05':'errors','06':'paired-t','07':'variance-ci','08':'worked','09':'multiplicity','14':'interaction','15':'blocking','11':'prediction'}
 for i,c in enumerate(ch):
+ authored_bodies={l['id']:l['body'].replace('\\n','\n') for l in c['lessons']}
+ lesson_figures={l['id']:teaching_figures(c['id'],l['id']) for l in c['lessons']}
+ chapter_ids=['main','chapter-navigation','complete','progress-error',f'lab-{c["sim"]}']
+ for l in c['lessons']:
+  chapter_ids.extend([l['id'],*collect_ids(authored_bodies[l['id']]),*collect_ids(lesson_figures[l['id']])])
+ if len(chapter_ids)!=len(set(chapter_ids)):
+  raise ValueError(f'Duplicate authored or reserved ID in Chapter {c["id"]}')
+ reserved_ids=set(chapter_ids)
  nav=''.join(f'<a href="{x["id"]}.html"'+(' class="current" aria-current="page"' if x==c else '')+f'>{j:02} · {esc(x["title"])}</a>' for j,x in enumerate(ch,1))
  toc=''.join(f'<a href="#{l["id"]}">{esc(l["title"])}</a>' for l in c['lessons'])
  article=f'<div class="chapter-title"><h1>{esc(c["title"])}</h1><p class="status">学习单元 {i+1:02} / 10 · Chapter {"1–3" if c["id"]=="01" else c["id"]}</p><p class="english">{esc(c["en"])}</p><p class="question">{esc(c["question"])}</p><p class="bridge">{esc(c["bridge"])}</p></div>'
@@ -71,7 +82,8 @@ for i,c in enumerate(ch):
  article+='<details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul>'+''.join('<li>'+esc(goal)+'</li>' for goal in goals[c['id']])+'</ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details>'
  for lesson_index,l in enumerate(c['lessons']):
   # Normalize intentional code line breaks from the authored JSON.
-  body=l['body'].replace('\\n','\n')
+  body,subtopics=enrich_lesson(authored_bodies[l['id']],l['id'],reserved_ids)
+  outline=render_outline(subtopics,l['title'])
   body=add_r_downloads(root,c['id'],l,body)
   if l.get('source'):
    body+='<p class="source-locator">课程定位：'+'；'.join(esc(v['file'])+'，'+esc(str(v['pages'])) for v in l['source'])+'。讲解与例题为重新编写。</p>'
@@ -84,11 +96,12 @@ for i,c in enumerate(ch):
   next_link=f'<a href="#{next_lesson["id"]}">下一节：{esc(next_lesson["title"])} →</a>' if next_lesson else ''
   if l['id']==positions[c['id']]:next_link=f'<a href="#lab-{c["sim"]}">接着操作本章实验 →</a>'
   lesson_tools=f'<nav class="lesson-tools" aria-label="本节阅读导航"><a href="#chapter-navigation">↑ 返回章节与本页目录</a>{next_link}</nav>'
-  article+=f'<section class="lesson" id="{l["id"]}"><h2>{esc(l["title"])}</h2>{body}{teaching_figures(c["id"],l["id"])}{practice_nav}{lesson_tools}</section>'
+  article+=f'<section class="lesson" id="{l["id"]}"><h2>{esc(l["title"])}</h2>{outline}{body}{lesson_figures[l["id"]]}{practice_nav}{lesson_tools}</section>'
   if l['id']==positions[c['id']]:
    article+=f'<section class="lab" id="lab-{c["sim"]}" data-lab="{c["sim"]}" aria-label="{esc(c["en"])} 交互实验"><p>启用 JavaScript 后可调整参数。完整推导与 worked examples 可直接阅读正文。</p></section>'
    if next_lesson:article+=f'<nav class="lesson-tools" aria-label="实验之后继续阅读"><a href="#chapter-navigation">↑ 返回章节与本页目录</a><a href="#{next_lesson["id"]}">继续下一节：{esc(next_lesson["title"])} →</a></nav>'
   search.append({'chapter':c['title'],'title':l['title'],'text':re.sub('<[^>]+>',' ',body),'url':f'chapters/{c["id"]}.html#{l["id"]}'})
+  search.extend({'chapter':f'Ch {c["id"]} · {c["title"]} › {l["title"]}','title':s['title'],'text':s['text'],'url':f'chapters/{c["id"]}.html#{s["id"]}'} for s in subtopics)
  chaptername='1, 2, and 3' if c['id']=='01' else str(int(c['id']))
  article+=f'<section class="sources"><h2>本单元来源</h2><p>Alexander E. Lipka, CPSC 440, Chapter {chaptername} lecture slides；CPSC 440 Chapter {chaptername} class notes。依据二者并集重新组织，公式、解释与交互均为重新编写。部分数字沿用课程的公开教学例题，完整原始课件不转载。</p><a href="../sources.html">核查参考文献、方法边界与覆盖说明 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></a></section><div class="completion"><button id="complete" data-chapter="{c["id"]}">标记此单元已读</button><p class="status" id="progress-error" aria-live="polite"></p></div>'
  previous=f'<a href="{ch[i-1]["id"]}.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg> {esc(ch[i-1]["title"])}</a>' if i else '<a href="../index.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7"/></svg> 学习路径</a>'
@@ -113,7 +126,7 @@ about=about.replace('</main>',coverage_html+'</main>')
 (root/'sources.html').write_text(doc('来源与使用',about))
 (root/'404.html').write_text(doc('页面未找到','<main id="main" class="wrap about"><h1>页面未找到</h1><p>请从学习路径选择一个章节。</p><a href="index.html">返回首页 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7"/></svg></a></main>'))
 (root/'.nojekyll').touch()
-print('Built',len(ch),'chapters and',len(search),'search sections')
+print('Built',len(ch),'chapters,',sum(len(c['lessons']) for c in ch),'lessons and',len(search)-sum(len(c['lessons']) for c in ch),'subsection search entries')
 
 from build_learning import build_learning
 search.extend(build_learning(root,ch,doc,esc))

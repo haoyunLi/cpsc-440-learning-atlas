@@ -24,7 +24,38 @@ function validIndex(items) {
   });
 }
 
-export function mountSearch({ input, results, fetchIndex }) {
+// The optional browser adapter keeps search navigation independent of storage.
+function locationAdapter(browser) {
+  if (!browser?.location || !browser?.history
+      || typeof browser.history.replaceState !== 'function'
+      || typeof browser.addEventListener !== 'function') return null;
+  return {
+    read() {
+      try { return new URL(browser.location.href).searchParams.get('q') || ''; }
+      catch { return null; }
+    },
+    write(query) {
+      try {
+        const url = new URL(browser.location.href);
+        if (query === '') {
+          if (!url.searchParams.has('q')) return;
+          url.searchParams.delete('q');
+        } else {
+          if (url.searchParams.get('q') === query && url.searchParams.getAll('q').length === 1) return;
+          url.searchParams.set('q', query);
+        }
+        // Preserve the current entry and any state owned by other page features.
+        browser.history.replaceState(browser.history.state, '', url.href);
+      } catch { /* A denied history write must not interrupt the current search. */ }
+    },
+    listen(restore) {
+      browser.addEventListener('popstate', restore);
+      browser.addEventListener('pageshow', restore);
+    }
+  };
+}
+
+export function mountSearch({ input, results, fetchIndex, queryLocation }) {
   const document = results.ownerDocument || input.ownerDocument;
   if (!document || typeof fetchIndex !== 'function') throw new TypeError('Search needs DOM elements and a fetchIndex function.');
   const status = document.createElement('p');
@@ -44,7 +75,7 @@ export function mountSearch({ input, results, fetchIndex }) {
   // Announce the concise count rather than reading every inserted result again.
   results.setAttribute('aria-live', 'off');
 
-  let items = null, failed = false, matches = [], shown = 0;
+  let items = null, failed = false, matches = [], shown = 0, renderedQuery = null;
   function updateCount() {
     status.textContent = `显示 ${shown} / ${matches.length} 条匹配结果 · 标题命中优先`;
     const remaining = matches.length - shown;
@@ -69,6 +100,7 @@ export function mountSearch({ input, results, fetchIndex }) {
     updateCount();
   }
   function render() {
+    renderedQuery = input.value;
     list.replaceChildren();
     matches = [];
     shown = 0;
@@ -89,7 +121,21 @@ export function mountSearch({ input, results, fetchIndex }) {
     }
     appendPage();
   }
-  input.addEventListener('input', render);
+  const location = locationAdapter(queryLocation);
+  if (location) {
+    const initialQuery = location.read();
+    if (typeof initialQuery === 'string') input.value = initialQuery;
+    location.listen(() => {
+      const query = location.read();
+      if (typeof query !== 'string' || (query === input.value && query === renderedQuery)) return;
+      input.value = query;
+      render();
+    });
+  }
+  input.addEventListener('input', () => {
+    location?.write(input.value);
+    render();
+  });
   more.addEventListener('click', () => {
     if (shown >= matches.length) return;
     appendPage();

@@ -4083,5 +4083,115 @@
         "feedback": "这个数值与把三组平均n=6代入平衡Tukey公式一致。本pair应明确使用n_A=4和n_C=8。"
       }
     ]
+  },
+  {
+    "id": "p04-13",
+    "chapter": "04",
+    "title": "同一个交集，两个条件方向",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "conditional probability",
+      "contingency table",
+      "marginal probability",
+      "independence"
+    ],
+    "source": {
+      "file": "PPT/Chapter_4.pptx",
+      "locator": "25–35；classnote/440 - Chapter 4 - 2022 Fall.pdf 13–17",
+      "note": "原创改编，非原题答案；使用与正文不同的完整计数表。"
+    },
+    "prompt": "<p>一份完整清单有 120 条理赔记录，按下表分类。现从这 120 条中<b>等概率随机抽一条</b>。令 F=fraud、H=fire。下面哪项正确给出 P(H|F)，并判断 F 与 H 在这个有限抽取实验中是否独立？</p><table><caption>原创理赔计数；合计需自行核对</caption><thead><tr><th>状态</th><th>fire</th><th>auto</th><th>theft</th></tr></thead><tbody><tr><th>fraud</th><td>12</td><td>8</td><td>4</td></tr><tr><th>nonfraud</th><td>28</td><td>32</td><td>36</td></tr></tbody></table>",
+    "options": [
+      "P(H|F)=.30，且 F 与 H 独立",
+      "P(H|F)=.50，且 F 与 H 不独立",
+      "P(H|F)=.10，且 F 与 H 不独立",
+      "P(H|F)=.50，且 F 与 H 独立"
+    ],
+    "answer": 1,
+    "unit": "",
+    "hint": "竖线后面是给定条件。先限制在 fraud 行，再求 fire 占比；检查独立时，把联合概率与两个边际概率的乘积比较。",
+    "steps": [
+      {
+        "title": "先建立边际总数",
+        "body": "fraud 行总数为 12+8+4=24，nonfraud 行为 28+32+36=96；fire 列为 12+28=40。全表 N=24+96=120。"
+      },
+      {
+        "title": "按给定条件选择分母",
+        "body": "P(H|F) 读作“已知 fraud，属于 fire 的概率”。只在 fraud 行的 24 条中抽取，其中 12 条 fire，所以 P(H|F)=12/24=.50。"
+      },
+      {
+        "title": "用反向条件检查是否读反",
+        "body": "P(F|H)=12/40=.30，是“已知 fire，属于 fraud 的概率”。分子仍是交集 12，但 fire 列的 40 是另一个条件分母，不回答本题所求。"
+      },
+      {
+        "title": "检查独立的乘法关系",
+        "body": "P(F∩H)=12/120=.10；P(F)=24/120=.20，P(H)=40/120=1/3，所以 P(F)P(H)=1/15≈.066667，不等于 .10。故 F 与 H 在该有限清单抽取模型中不独立。"
+      },
+      {
+        "title": "限定结论适用的对象",
+        "body": "这里概率针对从这份固定清单等概率抽一条的实验。若清单改被视为更大总体的样本，仅看到样本频率不满足乘积关系，尚不能称为总体独立性显著性检验。"
+      }
+    ],
+    "conclusion": "P(H|F)=.50；该有限抽取实验中，F 与 H 不独立。",
+    "pitfall": "12/24 是给定 fraud；12/40 是给定 fire；12/120 是没有条件的联合概率。三者共享同一分子，但分母代表不同实验范围。",
+    "optionExplanations": [
+      ".30=12/40 是 P(F|H)，把条件方向读反了；并且 joint=.10 不等于边际乘积 1/15，因此独立判断也不成立。",
+      "正确。给定 fraud 后分母为 24，12/24=.50；联合概率 .10 与边际乘积 1/15 不相等，所以不独立。",
+      ".10=12/120 是联合概率 P(F∩H)，使用了全表分母。独立判断虽对，但本题给定 fraud 后必须把分母限制为 fraud 行的 24。",
+      ".50 的条件概率算对了，但独立要求 P(H|F)=P(H)。这里 .50≠40/120=1/3；“两事件能同时发生”并不足以判定独立。"
+    ],
+    "rCode": "# Original transfer data, distinct from the lesson's 200-record table.\nclaims <- matrix(c(12,8,4,28,32,36),nrow=2,byrow=TRUE,\n                 dimnames=list(status=c(\"fraud\",\"nonfraud\"),\n                               policy=c(\"fire\",\"auto\",\"theft\")))\nprint(addmargins(claims))\nn <- sum(claims)\nn_fraud <- sum(claims[\"fraud\",])\nn_fire <- sum(claims[,\"fire\"])\nn_joint <- claims[\"fraud\",\"fire\"]\np_fire_given_fraud <- n_joint/n_fraud\np_fraud_given_fire <- n_joint/n_fire\np_joint <- n_joint/n\nproduct <- (n_fraud/n)*(n_fire/n)\n# These probabilities concern equal sampling from this fixed list.\nindependent <- isTRUE(all.equal(p_joint,product))\nanswer <- 1L\nprint(c(fire_given_fraud=p_fire_given_fraud,\n        fraud_given_fire=p_fraud_given_fire,joint=p_joint,\n        product_of_marginals=product,independent=independent,\n        zero_based_answer=answer))\nstopifnot(n==120,n_fraud==24,n_fire==40,\n          abs(p_fire_given_fraud-.50)<1e-12,\n          abs(p_fraud_given_fire-.30)<1e-12,\n          abs(p_joint-.10)<1e-12,abs(product-1/15)<1e-12,\n          !independent)"
+  },
+  {
+    "id": "p05-15",
+    "chapter": "05",
+    "title": "样本量相同，SD 的来源为何改变精确区间",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "known sigma",
+      "sample SD",
+      "z versus t",
+      "confidence interval"
+    ],
+    "source": {
+      "file": "PPT/Chapter_5.pptx",
+      "locator": "6、9、64–69、79；classnote/440 - Chapter 5 - 2022 Fall.pdf 5、7",
+      "note": "针对总体 SD 与样本 SD 区别的原创练习；情境与数值重新设计。"
+    },
+    "prompt": "两项独立研究都从正态总体随机抽取 n=100 个观测，样本均值均为 30。甲的总体 σ=8 确实已知；乙只有本次样本的 s=8，总体 σ 未知。要构造各自模型下具有精确 95% 覆盖率的双侧 mean CI，哪种说法正确？",
+    "hint": "样本量相同不代表 σ 的信息相同；区间的中心和代入 SE 可以相同，但 critical value 不同。",
+    "steps": [
+      {
+        "title": "先判断 SD 的来源",
+        "body": "甲已知总体 σ，所以在独立正态抽样下用 z 区间；乙的 s 是随机样本估计，所以使用 df=99 的 t 区间。n=100 不会使乙的 σ 变为已知。"
+      },
+      {
+        "title": "保持相同中心与代入 SE",
+        "body": "两者 SE 的数值均为 8/√100=.8。z critical=1.959964；t₉₉ critical=1.984217。甲 CI=[28.432029,31.567971]；乙 CI=[28.412626,31.587374]。"
+      },
+      {
+        "title": "解释数值接近与方法差异",
+        "body": "乙的精确 t 区间略宽，因为估计 σ 有额外不确定性。对乙使用 z×s/√n 可以作为大样本近似，但不具有本题所要求的有限样本精确覆盖率。"
+      }
+    ],
+    "conclusion": "甲用已知 σ 的 z 区间，乙用 df=99 的 t 区间；乙的区间略宽。",
+    "pitfall": "不能按 n 是否超过某个门槛判断 σ 是否已知；同样的 SD 数字不代表同样的知识条件。",
+    "rCode": "n <- 100; ybar <- 30; sd_value <- 8\nse <- sd_value / sqrt(n)\n# Study A: known population SD under independent normal sampling.\nci_A <- ybar + c(-1, 1) * qnorm(.975) * se\n# Study B: sample SD estimates unknown population SD.\nci_B <- ybar + c(-1, 1) * qt(.975, df = n - 1) * se\nprint(rbind(A_known_sigma = ci_A, B_sample_sd = ci_B), digits = 10)\nstopifnot(ci_B[1] < ci_A[1], ci_B[2] > ci_A[2])",
+    "unit": "",
+    "options": [
+      "两项都用精确 z 区间，因为 n=100",
+      "甲用 z，乙用 df=99 的 t；乙略宽",
+      "两项都必须用 df=99 的 t，因为都有样本",
+      "乙的 s=8 与甲的 σ=8 相等，所以两项的精确区间完全相同"
+    ],
+    "answer": 1,
+    "optionExplanations": [
+      "n 较大不会让未知 σ 变成已知。乙的 z×s/√n 是大样本近似；题目要求独立正态模型下的精确覆盖率，因此乙用 t₉₉。",
+      "正确。两项的代入 SE 都是 .8，但甲的已知 σ 使用 z critical，乙的样本 s 使用 t₉₉ critical；t₉₉ 更大，所以乙略宽。",
+      "是否使用 t 取决于是否需要由样本估计 σ，而不是是否抽了样本。甲的 σ 已知，在独立正态模型下应使用精确 z 区间。",
+      "8 这个数值相同，只保证代入 SE 相同。甲知道总体参数，乙用随机的样本 SD 估计它，有限样本参考分布与 critical value 不同。"
+    ]
   }
 ]

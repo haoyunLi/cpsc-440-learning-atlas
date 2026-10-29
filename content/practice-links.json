@@ -75,5 +75,7 @@
   "p15-09": "missing-block-cell-worked",
   "p06-07": "rank-sum-ties-exact",
   "p06-08": "signed-rank-zero-ties",
-  "p09-05": "unequal-n-pairwise"
+  "p09-05": "unequal-n-pairwise",
+  "p04-13": "conditional",
+  "p05-15": "ci"
 }

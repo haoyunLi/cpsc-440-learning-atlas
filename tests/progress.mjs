@@ -48,9 +48,10 @@ async function atlasFixture(raw, {chapter=false, failSearch=false, index=[], den
   if(chapter) { els['#complete']=new Element();els['#complete'].dataset.chapter='01';els['#progress-error']=new Element(); }
   else for(const key of ['#progress-count','#search','#search-results'])els[key]=new Element();
   const document={querySelector:s=>els[s]||null,querySelectorAll:()=>[],createElement:()=>new Element()};
+  Object.values(els).forEach(element=>element.ownerDocument=document);
   const storage=storageFixture(raw,denyRead,denyWrite);let fetches=0;
-  const context={document,localStorage:storage,fetch:()=>{fetches++;return failSearch?Promise.reject(Error('Offline')):Promise.resolve({ok:true,json:()=>Promise.resolve(index)});},matchMedia:()=>({matches:false}),window:{addEventListener(){}},console};
-  vm.runInNewContext(source('atlas.mjs'),context);
+  const context={document,URL,localStorage:storage,fetch:()=>{fetches++;return failSearch?Promise.reject(Error('Offline')):Promise.resolve({ok:true,json:()=>Promise.resolve(index)});},matchMedia:()=>({matches:false}),window:{addEventListener(){}},console};
+  vm.runInNewContext(source('search.mjs')+'\n'+source('atlas.mjs'),context);
   await settle();
   return {els,storage,fetches};
 }
@@ -72,14 +73,14 @@ writeDenied.els['#complete'].onclick();
 assert.match(writeDenied.els['#progress-error'].textContent,/未允许保存/);
 for(const options of [{failSearch:true},{index:{}},{index:[{title:'Missing fields'}]}]) {
   const result=await atlasFixture('[]',options);
-  assert.match(result.els['#search-results'].textContent,/未载入/);
+  assert.match(result.els['#search-results'].children[0].textContent,/未载入/);
   result.els['#search'].value='ANOVA';result.els['#search'].events.input();
-  assert.match(result.els['#search-results'].textContent,/未载入/);
+  assert.match(result.els['#search-results'].children[0].textContent,/未载入/);
   assert.equal(result.fetches,1);
 }
 const validSearch=await atlasFixture('null',{index:[{chapter:'Ch 08',title:'ANOVA',text:'Means',url:'chapters/08.html#model'}]});
 validSearch.els['#search'].value='ANOVA';validSearch.els['#search'].events.input();
-assert.equal(validSearch.els['#search-results'].children[0].href,'chapters/08.html#model');
+assert.equal(validSearch.els['#search-results'].children[1].children[0].href,'chapters/08.html#model');
 
 function practiceFixture(raw,{denyRead=false,denyWrite=false}={}) {
   const els={},card=new Element('Test question'),app=new Element();
@@ -117,7 +118,7 @@ const denied=practiceFixture(null,{denyRead:true,denyWrite:true});
 assert.match(denied.els['#practice-storage'].textContent,/未能读取/);
 const form=denied.card.selectors['.answer-form'];form.answer='1';
 form.events.submit({currentTarget:form,preventDefault(){}});
-assert.match(denied.els['#practice-storage'].textContent,/未能保存/);
+assert.match(denied.els['#practice-storage'].textContent,/暂未保存|未能保存/);
 assert.match(denied.card.selectors['.answer-feedback'].textContent,/答对/);
 assert.match(denied.els['#practice-progress'].textContent,/当前答对 1/);
 console.log('Malformed progress schemas, preserved valid records, startup/search/deep links and denied-storage interaction passed in isolated fixtures.');

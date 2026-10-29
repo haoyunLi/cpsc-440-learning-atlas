@@ -16,6 +16,20 @@ export function normalizePracticeProgress(value, questionIds) {
   return records;
 }
 
+export function mergePracticeActions(value, questionIds, actions) {
+  const records = normalizePracticeProgress(value, questionIds);
+  for (const action of actions) {
+    if (!questionIds.includes(action.id)) continue;
+    const previous = records[action.id] || {};
+    if (action.type === 'answer') {
+      records[action.id] = {...previous, attempts: Math.min(Number.MAX_SAFE_INTEGER, (previous.attempts || 0) + 1), correct: action.correct === true};
+    } else if (action.type === 'bookmark') {
+      records[action.id] = {...previous, bookmark: action.bookmark === true};
+    }
+  }
+  return records;
+}
+
 export function practiceLocation(href, { chapter = 'all', level = 'all', status = 'all', query = '', mixed = false, question = '' } = {}) {
   const url = new URL(href);
   for (const name of ['chapter', 'level', 'status', 'q', 'mode', 'answer']) url.searchParams.delete(name);
@@ -79,11 +93,41 @@ if (typeof document !== 'undefined') {
   if (app) {
     const grading = JSON.parse($('#practice-grading').textContent);
     const cards = $$('.exercise', app);
+    const questionIds = cards.map(card => card.id);
     const resetSolutions = new Map(cards.map(card => [card.id, addSolutionSteps(card)]));
-    let records = {}, session = null, sessionRecords = {};
-    try { records = normalizePracticeProgress(JSON.parse(localStorage.getItem(key) || '{}'), cards.map(card => card.id)); }
+    let records = {}, persisted = {}, pending = [], session = null, sessionRecords = {};
+    const readStored = () => {
+      // Permission failures must stop a write; malformed JSON is recoverable.
+      const raw = localStorage.getItem(key) || '{}';
+      let saved;
+      try { saved = JSON.parse(raw); }
+      catch {
+        $('#practice-storage').textContent = '保存的进度格式损坏，已从空记录开始；新的作答仍可保存。';
+        saved = {};
+      }
+      return normalizePracticeProgress(saved, questionIds);
+    };
+    try { persisted = readStored(); records = persisted; }
     catch { $('#practice-storage').textContent = '浏览器未能读取本地进度；仍可完成练习。'; }
-    function save() { try { localStorage.setItem(key, JSON.stringify(records)); } catch { $('#practice-storage').textContent = '浏览器未能保存进度，本次作答仍有效。'; } }
+    function save(action) {
+      pending.push(action);
+      // Another page may have saved since this page opened. Replay only local
+      // field-level actions, rather than replacing its newer record snapshot.
+      let canWrite = true;
+      try { persisted = readStored(); }
+      catch {
+        canWrite = false;
+        $('#practice-storage').textContent = '浏览器未能读取最新进度，本次操作仍有效，暂未保存。';
+      }
+      records = mergePracticeActions(persisted, questionIds, pending);
+      // A failed read must not overwrite other pages with an old snapshot.
+      if (!canWrite) return;
+      try {
+        localStorage.setItem(key, JSON.stringify(records));
+        persisted = records; pending = [];
+        $('#practice-storage').textContent = '';
+      } catch { $('#practice-storage').textContent = '浏览器未能保存进度，本次作答仍有效。'; }
+    }
     function record(id) { return records[id] && typeof records[id] === 'object' ? records[id] : {}; }
     function activeRecord(id) { return session ? sessionRecords[id] || {} : record(id); }
     function updateDashboard() {
@@ -133,14 +177,14 @@ if (typeof document !== 'undefined') {
         const result = gradeAnswer(grading[c.id], raw);
         const feedback = $('.answer-feedback', c);
         if (!result.valid) { feedback.textContent = answerFeedback(grading[c.id], raw); feedback.dataset.correct = 'false'; return; }
-        records[c.id] = {...record(c.id), attempts: Math.min(Number.MAX_SAFE_INTEGER, (record(c.id).attempts || 0) + 1), correct: result.correct};
+        save({type: 'answer', id: c.id, correct: result.correct});
         if (session) sessionRecords[c.id] = {attempts: (sessionRecords[c.id]?.attempts || 0) + 1, correct: result.correct};
         feedback.textContent = answerFeedback(grading[c.id], raw);
         feedback.dataset.correct = String(result.correct);
-        save(); updateDashboard();
+        updateDashboard();
         // Keep the current question visible so feedback does not disappear under a state filter.
       });
-      $('.bookmark', c).addEventListener('click', () => { records[c.id] = {...record(c.id), bookmark: !record(c.id).bookmark}; save(); updateDashboard(); });
+      $('.bookmark', c).addEventListener('click', () => { save({type: 'bookmark', id: c.id, bookmark: !record(c.id).bookmark}); updateDashboard(); });
     });
     $$('.study-toolbar input, .study-toolbar select', app).forEach(el => el.addEventListener('input', () => { filter(); syncLocation(); }));
     function mixed(reset = true, sync = true) {
@@ -177,6 +221,19 @@ if (typeof document !== 'undefined') {
     }
     if (!revealHash()) syncLocation();
     window.addEventListener('hashchange', revealHash);
+    window.addEventListener('storage', event => {
+      if (event.key !== key && event.key !== null) return;
+      try {
+        if (event.storageArea && event.storageArea !== localStorage) return;
+        // A queued event may describe an older write than our own latest save.
+        persisted = readStored();
+      } catch { return; }
+      records = mergePracticeActions(persisted, questionIds, pending);
+      // Keep inputs, selected challenge questions, session scores and solutions.
+      // As with a local answer, do not hide the current card under a state filter.
+      updateDashboard();
+      if (!pending.length) $('#practice-storage').textContent = '已同步其他页面的累计记录；当前输入、解析与本轮自测保持原样。';
+    });
     // Static HTML stays readable and safe if the module fails to load or start.
     cards.forEach(card => {
       $$('.answer-form input, .answer-form button', card).forEach(control => control.disabled = false);

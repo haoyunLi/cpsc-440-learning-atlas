@@ -17,8 +17,10 @@ export const chiCDF=(x,df)=>gammaCDF(x/2,df/2);
 export const chiQuantile=(p,df)=>invert(x=>chiCDF(x,df),p,0,Math.max(100,df*10));
 export const chiPDF=(x,df)=>x>0?Math.exp((df/2-1)*Math.log(x)-x/2-df/2*Math.log(2)-logGamma(df/2)):0;
 export const fCDF=(x,a,b)=>x<=0?0:betaCDF(a*x/(a*x+b),a/2,b/2);
+// Evaluate the upper tail directly: 1 - CDF loses small positive probabilities.
+export const fSurvival=(x,a,b)=>x<=0?1:betaCDF(b/(b+a*x),b/2,a/2);
 export function binomialPMF(k,n,p){if(k<0||k>n)return 0;if(p===0)return k===0?1:0;if(p===1)return k===n?1:0;return Math.exp(logGamma(n+1)-logGamma(k+1)-logGamma(n-k+1)+k*Math.log(p)+(n-k)*Math.log1p(-p))}
 export function regression(x,y){const n=x.length,xb=mean(x),yb=mean(y),sxx=x.reduce((s,v)=>s+(v-xb)**2,0),sxy=x.reduce((s,v,i)=>s+(v-xb)*(y[i]-yb),0),syy=y.reduce((s,v)=>s+(v-yb)**2,0);const slope=sxy/sxx,intercept=yb-slope*xb,pred=x.map(v=>intercept+slope*v),sse=y.reduce((s,v,i)=>s+(v-pred[i])**2,0);return {n,xb,yb,sxx,sxy,syy,slope,intercept,pred,sse,ssr:syy-sse,mse:sse/(n-2),r:sxy/Math.sqrt(sxx*syy),r2:1-sse/syy}}
-export function anova(groups){const all=groups.flat(),gm=mean(all),means=groups.map(mean),ssb=groups.reduce((s,g,i)=>s+g.length*(means[i]-gm)**2,0),sse=groups.reduce((s,g,i)=>s+g.reduce((a,v)=>a+(v-means[i])**2,0),0),dft=groups.length-1,dfe=all.length-groups.length,mse=sse/dfe,f=(ssb/dft)/mse;return {gm,means,ssb,sse,sst:ssb+sse,dft,dfe,mse,f,p:1-fCDF(f,dft,dfe)}}
+export function anova(groups){const all=groups.flat(),gm=mean(all),means=groups.map(mean),ssb=groups.reduce((s,g,i)=>s+g.length*(means[i]-gm)**2,0),sse=groups.reduce((s,g,i)=>s+g.reduce((a,v)=>a+(v-means[i])**2,0),0),dft=groups.length-1,dfe=all.length-groups.length,mse=sse/dfe,f=(ssb/dft)/mse;return {gm,means,ssb,sse,sst:ssb+sse,dft,dfe,mse,f,p:fSurvival(f,dft,dfe)}}
 export function seeded(seed=440){return ()=>{seed=(Math.imul(1664525,seed)+1013904223)>>>0;return (seed+.5)/4294967296}}
 export function randomNormal(rng){return Math.sqrt(-2*Math.log(rng()))*Math.cos(2*Math.PI*rng())}

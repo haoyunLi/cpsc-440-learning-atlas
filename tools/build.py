@@ -40,6 +40,8 @@ def doc(title,body,prefix='./'):
   extra+=f'<link rel="stylesheet" href="{prefix}assets/randomization.css?v={version("assets/randomization.css")}"><script type="module" src="{prefix}assets/randomization.mjs?v={version("assets/randomization.mjs")}"></script>'
  if 'data-influence' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/influence.css?v={version("assets/influence.css")}"><script type="module" src="{prefix}assets/influence.mjs?v={version("assets/influence.mjs")}"></script>'
+ if 'data-student' in body:
+  extra+=f'<link rel="stylesheet" href="{prefix}assets/student.css?v={version("assets/student.css")}"><script type="module" src="{prefix}assets/student.mjs?v={version("assets/student.mjs")}"></script>'
  if 'data-kruskal' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/kruskal.css?v={version("assets/kruskal.css")}"><script type="module" src="{prefix}assets/kruskal.mjs?v={version("assets/kruskal.mjs")}"></script>'
  if 'data-lab="factorial"' in body:

@@ -37,7 +37,7 @@ python3 -m http.server 4400
 python3 tools/build.py
 ```
 
-补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 74 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
+补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 76 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
 
 Ch04 通过完整列联表区分两种条件方向、joint 与 marginals，以及固定清单概率和样本频率；Ch05 对照 PPT 的 σ 与 notes 的样本 s 设定，分别说明精确 z、正态模型 t 与大样本 z 近似。方法向导保留配对 / 重复 / block 结构与 variance 条件，推荐对应知识点；Ch08 追加三项 Welch 检验、Bonferroni P 与近似同时区间的完整复算。
 
@@ -64,6 +64,7 @@ node tests/kruskal.mjs
 node tests/influence.mjs
 node tests/latin.mjs
 node tests/randomization.mjs
+node tests/student.mjs
 node tests/ci_geometry.mjs
 node tests/distribution_display.mjs
 node tests/search.mjs
@@ -90,7 +91,7 @@ python3 tests/practice_paths.py
 python3 tests/r_examples.py
 ```
 
-工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、74 个章节示例及 R 入门脚本，共 166 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
+工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、76 个章节示例及 R 入门脚本，共 168 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
 
 Ch08 的 Kruskal–Wallis 实验可编辑三组各3个观测，追踪 pooled ranks、ties correction 与全部1680种固定组规模标签分配；逐项浏览保留观测身份和重复统计量的分配重数，比较χ²近似与条件exact P。正文与新练习包含完整独立R枚举。Ch15 区分block内随机化、全场CRD分配和对既有RCBD数据省略block的分析，并核对两个随机化空间的大小。
 
@@ -139,3 +140,7 @@ Ch15 新实验固定15个花盆的ID、位置与环境，分别按全场CRD或bl
 Ch11 的影响度实验保留六个固定ID，可独立调整第6点的x/y并选择任意点，联动完整拟合、暂时不含选中点的敏感性线、raw residual、leverage及Cook’s D。三种预设区分高leverage在线点、高leverage偏离点与普通x处大残差；当前数据可复制到R。正文从全部原始x上的拟合变化推导Cook的尺度，保留完整模型MSE，并解释零Cook不意味着SE不变。两道新练习分别检验完整计算与估计精度的解释。
 
 影响度核验包含12组数据×全部六种选点，对照R的系数、全部行h/e/D与敏感性预测；另遍历181个合法x步长、5个代表y与六种选点，检查同一坐标下的点、残差和线段。桌面与390px手机实测预设切换、无效输入恢复、键盘调节、稳定选点、放大与R复制；新题验证错误反馈与正确判题。
+
+Ch01 用40名志愿者的完整情景区分目标总体、样本、实验单位、参数与统计量，以及 random assignment 和 random sampling；四种有序样本枚举解释 n−1 的无偏性质与 SD 的偏差。Ch05 增加同一份原始数据的 z-with-s / t 对照，明确中心 t 的零假设条件及复合零假设下 α 的上界含义。新的三种区间实验保留实际生成的 iid 正态样本，允许切换置信水平后重算同一批数据、回看任意已抽样本，并将有限模拟覆盖率与精确理论覆盖率分列。R 导出复现当前选中样本，不声称重建浏览器的随机序列。
+
+三种区间实验用 144 个 n/置信水平组合、34 组原始样本及实际导出脚本与 R 对照；检查单步与批量抽样一致、切换水平不消耗随机序列、重置重放、500 组上限、完整端点、无效状态恢复及复制反馈。桌面与390px手机验证同一数据重算、旧样本回看、R复制和新旧CI实验的独立状态。

@@ -85,5 +85,7 @@
   "p06-09": "welch",
   "p14-07": "three-way",
   "p14-08": "unbalanced",
-  "p11-07": "lack-fit"
+  "p11-07": "lack-fit",
+  "p15-10": "blocking",
+  "p08-07": "kruskal"
 }

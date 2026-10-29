@@ -4653,5 +4653,117 @@
       "标准嵌套模型 F 用较完整模型估计共同误差，而不是较简单模型的剩余SS。直线SSE可能含遗漏的curvature，quadratic SSE可能含相对cell model的剩余失配；正是这些部分进入各自分子。"
     ],
     "rCode": "# Original five-level example, with three independent units at each x.\nd <- data.frame(x=rep(0:4,each=3),\n                y=rep(c(3,4,8,13,22),each=3)+rep(c(-1,0,1),5))\nline <- lm(y~x,data=d)\nquadratic <- lm(y~x+I(x^2),data=d)\ncell <- lm(y~factor(x),data=d)\nsst <- sum((d$y-mean(d$y))^2)\nsse_line <- deviance(line)\nsse_quad <- deviance(quadratic)\nss_pe <- deviance(cell)\nmse_quad <- sse_quad/df.residual(quadratic)\nms_pe <- ss_pe/df.residual(cell)\nF_values <- c(overall=((sst-sse_quad)/2)/mse_quad,\n              extra_quadratic=(sse_line-sse_quad)/mse_quad,\n              lack_of_fit=((sse_quad-ss_pe)/2)/ms_pe)\nresults <- data.frame(test=names(F_values),F=unname(F_values),\n                      df1=c(2,1,2),df2=c(12,12,10),\n                      denominator=c(mse_quad,mse_quad,ms_pe))\nresults$P <- pf(results$F,results$df1,results$df2,lower.tail=FALSE)\nprint(c(SST=sst,SSE_line=sse_line,SSE_quadratic=sse_quad,SSPE=ss_pe))\nprint(results,digits=12)\nprint(summary(quadratic)$coefficients)\nprint(anova(line,quadratic))\nprint(anova(quadratic,cell))\n# The quadratic coefficient t corresponds to the one-df extra-term test.\nt_quad <- summary(quadratic)$coefficients[\"I(x^2)\",\"t value\"]\nstopifnot(df.residual(quadratic)==12,df.residual(cell)==10,\n          abs(mse_quad-.947619047619048)<1e-12,abs(ms_pe-1)<1e-12,\n          abs(F_values[\"extra_quadratic\"]-t_quad^2)<1e-10,\n          max(abs(F_values-c(382.341708542714,65.3517587939699,.685714285714278)))<1e-9,\n          max(abs(results$P-c(1.36026423773983e-11,3.37784818863505e-6,.525926266406393)))<1e-12)\nanswer <- 1L\nprint(answer)\n"
+  },
+  {
+    "id": "p15-10",
+    "chapter": "15",
+    "title": "设计由抽签规则决定，不由最终字母表决定",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "RCBD",
+      "CRD",
+      "randomization",
+      "experimental unit"
+    ],
+    "source": {
+      "file": "PPT/Chapter_15.pptx",
+      "locator": "slides 3–4；class notes pp.2–3、7",
+      "note": "原创设计判别题，非原题答案；固定每处理5盆，比较两种预先指定的分配机制。"
+    },
+    "prompt": "研究三种处理A、B、C对植株高度（cm）的影响。有15盆可分别接受处理的植物，按光照分成5个带、每带3盆。方案I：每个带内将A、B、C三个标签随机排到三盆。方案II：将5个A、5个B、5个C标签在全部15盆间等概率随机排列；本次恰好每个带也都是A、B、C各一次。分析者又把方案I的数据只拟合 y ~ treatment，省略block。哪项判断正确？",
+    "hint": "区分实验前实际执行的分配机制、这次出现的布局，以及事后使用的分析模型。",
+    "options": [
+      "两种方案都是RCBD，因为这次每个光照带都包含全部处理。",
+      "方案I是RCBD，方案II仍是CRD；省略block项不会改变方案I原来的随机化设计。",
+      "方案I以整个光照带为处理分配单位，所以只有5个实验单位。",
+      "只有分析发现block显著，方案I才能称为RCBD；否则应改称CRD。"
+    ],
+    "answer": 1,
+    "optionExplanations": [
+      "偶然满足平衡并不等于随机化被限制在block内。方案II允许带内处理重复，只是本次没有发生。",
+      "正确。方案I的抽签限于各block，方案II是在全场固定组大小下抽签。改变拟合公式不会改变已经执行过的分配过程。",
+      "处理是分别施加给每盆，实验单位为15盆。每个带包含三个不同处理，没有作为整体只接受一种处理。",
+      "RCBD由实验前的分配限制确定，与观测到的block P-value无关；是否保留设计项也不能仅由它是否显著来决定。"
+    ],
+    "steps": [
+      {
+        "title": "先定位处理施加的单位",
+        "body": "A、B、C分别施加给单盆，因此每盆是experimental unit。光照带是把相似单位放在一起的block。"
+      },
+      {
+        "title": "再检查允许的分配",
+        "body": "方案I每个block只有3!=6种允许排列，五个blocks共6⁵=7776种。方案II只限制全场每组5盆，允许15!/(5!5!5!)=756756种排列。"
+      },
+      {
+        "title": "把布局和模型与设计分开",
+        "body": "方案II有7776种可能结果恰好满足各block完整平衡，但原机制仍是CRD。方案I省略block只是重拟合同一份RCBD数据，不能重新执行实验前的抽签。"
+      }
+    ],
+    "conclusion": "正确选项是第二项：随机化机制决定设计；偶然平衡或修改分析公式都不能改写分配历史。",
+    "pitfall": "把“每个带看起来平衡”“模型含有block”或“block显著”当成RCBD的定义。实际设计还需记录单位、抽签范围及处理实施过程。",
+    "rCode": "# Count assignments for 15 distinct pots and fixed treatment totals of 5 each.\n# This code counts the stated randomization spaces; it does not randomize an experiment.\ntreatments <- c(\"A\",\"B\",\"C\")\nblocks <- 5\npots_per_block <- 3\nN <- blocks*pots_per_block\n# Enumerate the legal label orders for one complete block.\norders <- expand.grid(position1=treatments,position2=treatments,\n                      position3=treatments,stringsAsFactors=FALSE)\nlegal <- apply(orders,1,function(z) length(unique(z))==pots_per_block)\norders <- orders[legal,,drop=FALSE]\nprint(orders,row.names=FALSE)\nrcbd_count <- nrow(orders)^blocks\n# Choose the five A pots, then the five B pots; the remaining pots receive C.\ncrd_count <- choose(N,5)*choose(N-5,5)\ncrd_factorial_check <- factorial(N)/factorial(5)^3\n# Under the specified uniform CRD, every complete-block layout is also possible.\nchance_complete_blocks <- rcbd_count/crd_count\nprint(c(RCBD_assignments=rcbd_count,CRD_assignments=crd_count,\n        CRD_probability_of_one_each_per_block=chance_complete_blocks))\nstopifnot(nrow(orders)==6,rcbd_count==7776,crd_count==756756,\n          abs(crd_count-crd_factorial_check)<1e-8,\n          chance_complete_blocks>0,chance_complete_blocks<1)\n",
+    "unit": ""
+  },
+  {
+    "id": "p08-07",
+    "chapter": "08",
+    "title": "Kruskal–Wallis 的 ties 要跨组一起统计",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "Kruskal–Wallis",
+      "ties",
+      "rank sums",
+      "conditional permutation"
+    ],
+    "source": {
+      "file": "PPT/Chapter_8.pptx",
+      "locator": "slides 47–53；notes Chapter 8 pp.28–29",
+      "note": "针对多组rank与ties correction的原创练习；数值不同于正文。"
+    },
+    "prompt": "三个独立组 A=[2,2,4]、B=[3,5,5]、C=[4,6,6]。事先采用 Kruskal–Wallis 整体检验，零假设是三组分布相同；假定观测独立且在该零假设下组标签可交换。把全部九个值合并后使用平均秩。ties 校正后的统计量 H′=H/C 是多少？填写统计量，不是 P；保留至少四位小数。",
+    "answer": 4.57471264367816,
+    "tolerance": 0.001,
+    "unit": "H′",
+    "hint": "值4的两次观测分属A与C，但仍是同一个 pooled tied block。先核对三组 rank sums 合计45，再求C。",
+    "steps": [
+      {
+        "title": "在全部观测上分配平均秩",
+        "body": "九个记录的 ranks 按原组顺序为 A=[1.5,1.5,4.5]、B=[3,6.5,6.5]、C=[4.5,8.5,8.5]。所以 R_A=7.5、R_B=16、R_C=21.5，总和45=9×10/2。"
+      },
+      {
+        "title": "先计算未经ties校正的H",
+        "body": "H=12/(9×10)×(7.5²/3+16²/3+21.5²/3)−3×10≈4.422222222。这个值尚未处理平均秩造成的总体秩变异变化。"
+      },
+      {
+        "title": "统计跨组的ties并除以C",
+        "body": "值2、4、5、6都各出现2次，故Σ(tⱼ³−tⱼ)=4×6=24。C=1−24/(9³−9)=29/30；H′=4.422222222/(29/30)≈4.574712644。值4跨组出现，不能漏掉；也不能把校正写成H×C。"
+      },
+      {
+        "title": "区分统计量、近似P与条件exact P",
+        "body": "df=2，χ²近似P≈.101534532。给定九条记录与3+3+3组大小，枚举1,680种标签分配，有204种H′至少同样大，conditional exact P=204/1680=17/140≈.121428571。两者在预定α=.05下都不拒绝；不是证明分布相同，也不说明每一对都有相同mean或median。此题所求仍是H′，不是这两个P。"
+      }
+    ],
+    "conclusion": "H′≈4.574713。ties correction 使用全部九个观测中的重复值；它与选择 χ²近似或条件exact参考是两个不同步骤。",
+    "pitfall": "不要各组内分别排名或分别统计ties。Kruskal–Wallis 的右尾指H较大，不等于“C比A更大”的单侧结论；整体检验不直接给出成对方向。",
+    "commonMistakes": [
+      {
+        "value": 4.422222222222222,
+        "tolerance": 0.001,
+        "feedback": "这个结果与未除以ties correction的H一致。四个size-2 tied blocks给出C=29/30，所求H′还要用H除以C。"
+      },
+      {
+        "value": 4.274814814814815,
+        "tolerance": 0.001,
+        "feedback": "这个结果与H乘C一致。标准ties correction是H/C；本例C小于1，因此校正后的H′应略大于未经校正的H。"
+      },
+      {
+        "value": 4.535612535612535,
+        "tolerance": 0.001,
+        "feedback": "这个结果与只统计各组内部的三组重复值、漏掉A与C之间的两个4一致。ties按合并后的九个观测统计，跨组的同值记录也必须进入Σ(t³−t)。"
+      }
+    ],
+    "rCode": "# This teaching function is intentionally limited to three groups of size three.\nkw_three_exact <- function(groups) {\n  stopifnot(is.list(groups),length(groups)==3,\n            all(lengths(groups)==3),all(is.finite(unlist(groups))))\n  y <- unlist(groups,use.names=FALSE)\n  group <- factor(rep(c(\"A\",\"B\",\"C\"),each=3))\n  N <- length(y)\n  ranks <- rank(y,ties.method=\"average\")\n  doubled_ranks <- 2*ranks\n  rank_sums <- as.numeric(tapply(ranks,group,sum))\n  # Count equal numeric values directly, without converting them to labels.\n  tie_sizes <- rle(sort(y))$lengths\n  correction <- 1-sum(tie_sizes^3-tie_sizes)/(N^3-N)\n  if (correction<=0) stop(\"All observations are tied: H/C is undefined.\")\n  raw_H <- 12/(N*(N+1))*sum(rank_sums^2/3)-3*(N+1)\n  corrected_H <- raw_H/correction\n  # With fixed sizes 3,3,3, S=sum((2*R_j)^2) and H=S/90-30.\n  # Integer scores avoid floating-point ambiguity when including an equal boundary.\n  observed_score <- sum((2*rank_sums)^2)\n  expected_allocations <- choose(9,3)*choose(6,3)\n  null_scores <- numeric(expected_allocations)\n  allocation <- 0L\n  for (A in combn(seq_len(N),3,simplify=FALSE)) {\n    remaining <- setdiff(seq_len(N),A)\n    for (B in combn(remaining,3,simplify=FALSE)) {\n      C <- setdiff(remaining,B)\n      allocation <- allocation+1L\n      doubled_sums <- c(sum(doubled_ranks[A]),sum(doubled_ranks[B]),\n                        sum(doubled_ranks[C]))\n      null_scores[allocation] <- sum(doubled_sums^2)\n    }\n  }\n  extreme <- sum(null_scores>=observed_score)\n  exact_P <- extreme/allocation\n  approx_P <- pchisq(corrected_H,df=2,lower.tail=FALSE)\n  # Re-ranking pooled ranks is equivalent and avoids old R decimal-label merging.\n  reference <- kruskal.test(split(ranks,group))\n  stopifnot(allocation==1680,sum(rank_sums)==45,\n            all(doubled_ranks==round(doubled_ranks)),\n            abs(raw_H-(observed_score/90-30))<1e-12,\n            abs(corrected_H-unname(reference$statistic))<1e-12,\n            abs(approx_P-reference$p.value)<1e-12)\n  list(rows=data.frame(record=seq_len(N),group=group,y=y,rank=ranks),\n       summary=data.frame(R_A=rank_sums[1],R_B=rank_sums[2],R_C=rank_sums[3],\n         C=correction,H=raw_H,H_corrected=corrected_H,df=2,\n         chi_square_P=approx_P,extreme=extreme,allocations=allocation,\n         exact_P=exact_P),\n       score_frequency=as.data.frame(table(null_scores)),\n       null_scores=null_scores)\n}\n# A different original tied dataset for transfer practice.\ngroups <- list(A=c(2,2,4),B=c(3,5,5),C=c(4,6,6))\nresult <- kw_three_exact(groups)\nprint(result$rows)\nprint(result$summary,digits=12)\nanswer <- result$summary$H_corrected\n# Verify both the requested statistic and the two reference calculations.\nstopifnot(abs(answer-4.57471264367816)<1e-12,\n          abs(result$summary$H-4.42222222222222)<1e-12,\n          abs(result$summary$C-29/30)<1e-12,\n          result$summary$extreme==204,\n          abs(result$summary$exact_P-17/140)<1e-12,\n          abs(result$summary$chi_square_P-.101534531976956)<1e-12)\n# Incorrect substitutions correspond to specific feedback, not alternative answers.\nprint(c(answer=answer,omitting_correction=result$summary$H,\n        multiplying_correction=result$summary$H*result$summary$C,\n        ignoring_cross_group_tie=result$summary$H/(1-18/(9^3-9))))\n"
   }
 ]

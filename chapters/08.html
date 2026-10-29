@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>ANOVA：分解变异来比较多个 mean · CPSC 440 Atlas</title><link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="../assets/style.css?v=d3798f00b3"><link rel="stylesheet" href="../assets/learning.css?v=eb4ca6be51"><link rel="stylesheet" href="../assets/workbench.css?v=d45c4cc757"><script type="module" src="../assets/learning.mjs?v=db8202cd65"></script><script type="module" src="../assets/workbench.mjs?v=13952d3bdd"></script><script type="module" src="../assets/atlas.mjs?v=ad18a62c7a"></script><script type="module" src="../assets/contrast.mjs?v=a2eb66cefe"></script><script type="module" src="../assets/transformation.mjs?v=7bb7255a76"></script><link rel="stylesheet" href="../assets/ranks.css?v=ebb98efb25"><script type="module" src="../assets/ranks.mjs?v=8c2f4c677f"></script><link rel="stylesheet" href="../assets/conditional.css?v=d114a5fe76"><script type="module" src="../assets/conditional.mjs?v=2b1a645610"></script><script type="module" src="../assets/walkthrough.mjs?v=53f6ba509b"></script></head><body><a class="skip" href="#main">跳到正文</a><header><a class="brand" href="../index.html">CPSC 440 <span>Atlas</span></a><nav class="desktop-nav" aria-label="主导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a></nav><details class="mobile-menu"><summary>目录</summary><nav aria-label="手机导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a><a href="../sources.html">来源与使用</a></nav></details></header><main id="main" class="wrap chapter-layout"><aside class="sidebar" id="chapter-navigation"><details><summary>章节与本页目录</summary><div><nav aria-label="课程章节"><a href="01.html">01 · 从测量到数据描述</a><a href="04.html">02 · 把随机性写成概率</a><a href="05.html">03 · 从样本判断总体中心</a><a href="06.html">04 · 比较两个总体，先辨认实验结构</a><a href="07.html">05 · 把稳定性作为研究目标</a><a href="08.html" class="current" aria-current="page">06 · ANOVA：分解变异来比较多个 mean</a><a href="09.html">07 · ANOVA 之后，精确回答比较问题</a><a href="14.html">08 · 同时改变多个因素，寻找 interaction</a><a href="15.html">09 · 设计实验来分离 nuisance variation</a><a href="11.html">10 · 从解释差异到连续关系与预测</a></nav><nav class="toc" aria-label="本页目录"><a href="#model">把每个观测写成背景、处理与误差</a><a href="#ss">一项偏差拆成 treatment signal 与 residual</a><a href="#worked">一个完整的小型 ANOVA 计算</a><a href="#diagnostics">用 residuals 检查模型的条件，而非混合 raw data</a><a href="#kruskal">Kruskal–Wallis 通过 ranks 比较多个 distributions</a><a href="#transform">Transformation 改变分析尺度，也改变问题</a><a href="#practice">整体问题与 follow-up 问题需要分开</a><a href="#course-cases">把课程案例连回方法与结论</a><a href="#unbalanced-anova-worked">每组人数不同，ANOVA 的 grand mean 怎样计算？</a><a href="#welch-anova-complete">Welch ANOVA：异方差下怎样比较三个总体均值</a></nav></div></details></aside><article class="article"><div class="chapter-title"><h1>ANOVA：分解变异来比较多个 mean</h1><p class="status">学习单元 06 / 10 · Chapter 08</p><p class="english">One-way ANOVA &amp; diagnostics</p><p class="question">三种肥料是否有相同的总体平均产量？</p><p class="bridge">逐对比较会引入多重检验；ANOVA 先回答整体 mean 是否一致。</p></div><section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter=08">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#notation">公式读法</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter=08">辅助资源</a></nav></section><details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul><li>由小数据集手算 SS、df、MS、F，并读懂 ANOVA 表。</li><li>用 residual 图分别检查模型形状、variance 和极端值。</li><li>解释变换、Welch ANOVA 与 Kruskal–Wallis 改变了哪些条件或推断目标。</li></ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details><section class="lesson" id="model"><h2>把每个观测写成背景、处理与误差</h2><p>比较三种肥料时，逐对重复 t-test 不仅繁琐，还会扩大一整组比较中的误报概率。<b>One-way ANOVA</b> 先问一个整体问题：这些总体均值是否全都相同？</p>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>ANOVA：分解变异来比较多个 mean · CPSC 440 Atlas</title><link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="../assets/style.css?v=d3798f00b3"><link rel="stylesheet" href="../assets/learning.css?v=eb4ca6be51"><link rel="stylesheet" href="../assets/workbench.css?v=d45c4cc757"><script type="module" src="../assets/learning.mjs?v=db8202cd65"></script><script type="module" src="../assets/workbench.mjs?v=13952d3bdd"></script><script type="module" src="../assets/atlas.mjs?v=b4418c1569"></script><script type="module" src="../assets/contrast.mjs?v=a2eb66cefe"></script><script type="module" src="../assets/transformation.mjs?v=7bb7255a76"></script><link rel="stylesheet" href="../assets/ranks.css?v=ebb98efb25"><script type="module" src="../assets/ranks.mjs?v=8c2f4c677f"></script><link rel="stylesheet" href="../assets/conditional.css?v=d114a5fe76"><script type="module" src="../assets/conditional.mjs?v=2b1a645610"></script><script type="module" src="../assets/walkthrough.mjs?v=53f6ba509b"></script><link rel="stylesheet" href="../assets/kruskal.css?v=9ad0d18dec"><script type="module" src="../assets/kruskal.mjs?v=120a2ea542"></script></head><body><a class="skip" href="#main">跳到正文</a><header><a class="brand" href="../index.html">CPSC 440 <span>Atlas</span></a><nav class="desktop-nav" aria-label="主导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a></nav><details class="mobile-menu"><summary>目录</summary><nav aria-label="手机导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a><a href="../sources.html">来源与使用</a></nav></details></header><main id="main" class="wrap chapter-layout"><aside class="sidebar" id="chapter-navigation"><details><summary>章节与本页目录</summary><div><nav aria-label="课程章节"><a href="01.html">01 · 从测量到数据描述</a><a href="04.html">02 · 把随机性写成概率</a><a href="05.html">03 · 从样本判断总体中心</a><a href="06.html">04 · 比较两个总体，先辨认实验结构</a><a href="07.html">05 · 把稳定性作为研究目标</a><a href="08.html" class="current" aria-current="page">06 · ANOVA：分解变异来比较多个 mean</a><a href="09.html">07 · ANOVA 之后，精确回答比较问题</a><a href="14.html">08 · 同时改变多个因素，寻找 interaction</a><a href="15.html">09 · 设计实验来分离 nuisance variation</a><a href="11.html">10 · 从解释差异到连续关系与预测</a></nav><nav class="toc" aria-label="本页目录"><a href="#model">把每个观测写成背景、处理与误差</a><a href="#ss">一项偏差拆成 treatment signal 与 residual</a><a href="#worked">一个完整的小型 ANOVA 计算</a><a href="#diagnostics">用 residuals 检查模型的条件，而非混合 raw data</a><a href="#kruskal">Kruskal–Wallis 通过 ranks 比较多个 distributions</a><a href="#transform">Transformation 改变分析尺度，也改变问题</a><a href="#practice">整体问题与 follow-up 问题需要分开</a><a href="#course-cases">把课程案例连回方法与结论</a><a href="#unbalanced-anova-worked">每组人数不同，ANOVA 的 grand mean 怎样计算？</a><a href="#welch-anova-complete">Welch ANOVA：异方差下怎样比较三个总体均值</a></nav></div></details></aside><article class="article"><div class="chapter-title"><h1>ANOVA：分解变异来比较多个 mean</h1><p class="status">学习单元 06 / 10 · Chapter 08</p><p class="english">One-way ANOVA &amp; diagnostics</p><p class="question">三种肥料是否有相同的总体平均产量？</p><p class="bridge">逐对比较会引入多重检验；ANOVA 先回答整体 mean 是否一致。</p></div><section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter=08">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#notation">公式读法</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter=08">辅助资源</a></nav></section><details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul><li>由小数据集手算 SS、df、MS、F，并读懂 ANOVA 表。</li><li>用 residual 图分别检查模型形状、variance 和极端值。</li><li>解释变换、Welch ANOVA 与 Kruskal–Wallis 改变了哪些条件或推断目标。</li></ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details><section class="lesson" id="model"><h2>把每个观测写成背景、处理与误差</h2><p>比较三种肥料时，逐对重复 t-test 不仅繁琐，还会扩大一整组比较中的误报概率。<b>One-way ANOVA</b> 先问一个整体问题：这些总体均值是否全都相同？</p>
 <p><b>Completely Randomized Design（CRD，完全随机设计）</b> 把 treatments 随机分配给适合的独立实验单位。One-way 指这里用一个处理因素描述组间差别，不表示研究只能测一个观测。</p>
 <div class="equation">Yᵢⱼ=μ+τᵢ+εᵢⱼ；Στᵢ=0<br>εᵢⱼ independent Normal(0,σ²)</div>
 <p>i 标识 treatment group，j 标识组内单位。μ 是等权 baseline，τᵢ 是该组相对 baseline 的偏移，εᵢⱼ 是同处理下仍未解释的 variation。组总体均值是 μᵢ=μ+τᵢ；Στᵢ=0 是让参数表示唯一的一种约束。</p>
@@ -46,7 +46,102 @@ aggregate(rank ~ group, data=d, FUN=sum)
 kruskal.test(y ~ group, data=d)
 # Welch ANOVA keeps the population-mean target and estimates separate variances.
 oneway.test(y ~ group, data=d, var.equal=FALSE)</code></pre><p class="r-download"><a href="../downloads/chapters/chapter-08-kruskal.R" download>下载本节 R 示例</a> · 已含数据和对象定义，可在新 R 会话中运行。<a href="../handbook.html#r-start">查看运行方法</a></p>
-<p>三组 rank sums 为 6、15、24，Kruskal–Wallis 得 H=7.2、df=2、χ² 近似 P≈.02732；每组 n=3 很小，这里的近似只用于学习输出，实际小样本应评估 exact/permutation 路线。Welch ANOVA 得 F≈23.14286、df≈(2,4)、P≈.006327，检验的是总体 means。它与 ranks 检验的目标、参考分布不同。加权均值与自由度的完整计算见<a href="#welch-anova-complete">Welch ANOVA 数值推导</a>。</p><nav class="lesson-practice" aria-label="本节对应练习"><h3>读完这节，独立试一题</h3><p>先自己作答，再按需打开提示或解析。每题都有返回本节的链接。</p><ul><li><a href="../practice.html#p08-04"><span>基础</span>Kruskal–Wallis 不自动变成均值检验</a></li></ul></nav><nav class="lesson-tools" aria-label="本节阅读导航"><a href="#chapter-navigation">↑ 返回章节与本页目录</a><a href="#transform">下一节：Transformation 改变分析尺度，也改变问题 →</a></nav></section><section class="lesson" id="transform"><h2>Transformation 改变分析尺度，也改变问题</h2><p>有些响应越大，波动也越大。Transformation（变量变换）尝试换一个尺度，使误差结构更适合模型；它同时也改变了结果的解释。因此不能只找让 P-value 最小的变换。</p>
+<p>三组 rank sums 为 6、15、24，Kruskal–Wallis 得 H=7.2、df=2、χ² 近似 P≈.02732；每组 n=3 很小，这里的近似只用于学习输出，实际小样本应评估 exact/permutation 路线。Welch ANOVA 得 F≈23.14286、df≈(2,4)、P≈.006327，检验的是总体 means。它与 ranks 检验的目标、参考分布不同。加权均值与自由度的完整计算见<a href="#welch-anova-complete">Welch ANOVA 数值推导</a>。</p>
+<h3>小样本有 ties：从平均秩到 1,680 种标签分配</h3>
+<p>前例每组只有三个观测，<code>kruskal.test</code> 输出的是 χ² 近似 P。现在把“核对 exact/permutation”变成可独立运行的计算：保留前例 A=[4,5,6]、B=[7,8,9]、C=[10,11,12]，再增加一组原创 ties 数据 <b>A=[1,1,2]、B=[2,3,4]、C=[4,5,5]</b>。两例都固定三组各三个独立单位，研究在看数据前选定整体分布比较。</p>
+<p><b>先确认允许怎样排列。</b> 条件零假设是三组具有相同分布；在独立、可交换的观测模型下，给定合并观测与组大小，组标签可重新分配。每个单位仍是独立记录，相同数值不会合并成一个单位。仅有三个 median 相等不足以保证可交换性；有 pairs、blocks 或其他分配限制时，不能照用这里的任意分组。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>原创 ties 例的九个记录；平均秩按全部九个值一起计算</caption><thead><tr><th>记录</th><th>原组</th><th>Y</th><th>合并 rank</th></tr></thead><tbody>
+<tr><td>1</td><td>A</td><td>1</td><td>1.5</td></tr><tr><td>2</td><td>A</td><td>1</td><td>1.5</td></tr><tr><td>3</td><td>A</td><td>2</td><td>3.5</td></tr><tr><td>4</td><td>B</td><td>2</td><td>3.5</td></tr><tr><td>5</td><td>B</td><td>3</td><td>5</td></tr><tr><td>6</td><td>B</td><td>4</td><td>6.5</td></tr><tr><td>7</td><td>C</td><td>4</td><td>6.5</td></tr><tr><td>8</td><td>C</td><td>5</td><td>8.5</td></tr><tr><td>9</td><td>C</td><td>5</td><td>8.5</td></tr>
+</tbody></table></div>
+<ol><li><b>核对 ranks 与组和。</b> R_A=6.5、R_B=15、R_C=23.5，总和45=N(N+1)/2。不能在各组内单独排名，否则每组三个秩都会变成1、2、3，组间信息被删除。</li><li><b>先求未校正的 H。</b> H=12/(9×10)×(6.5²/3+15²/3+23.5²/3)−3×10≈6.422222。</li><li><b>再按 pooled ties 修正。</b> 值1、2、4、5各出现两次，值3出现一次，所以 Σ(tⱼ³−tⱼ)=4×(2³−2)=24，C=1−24/(9³−9)=29/30。得到 H′=H/C≈6.643678；不是 H×C。值2与4的 ties 跨组，仍必须计入。</li><li><b>明确 χ² 输出的含义。</b> df=组数−1=2，近似 P=P(χ²₂≥6.643678)≈.0360864。平均秩与 C 已处理 ties，但它们不会把每组三个观测的 χ² 近似自动变成精确分布。</li></ol>
+<h4>为什么是 1,680 种，而不是把不同 H 去重？</h4>
+<p>先从九个记录选三个归 A，再从剩下六个选三个归 B，余下三个归 C，共 <b>C(9,3)×C(6,3)=84×20=1,680</b> 种固定组规模的分配。每一种在给定零假设下等概率；两个相同数值的记录换标签，可以产生同一个 H，却仍占两份分配机会。不能将统计量取值去重后等权计数。</p>
+<p>每次保留同一组 pooled ranks，只重新相加三组 rank sums。由于组大小和 pooled ties 固定，C 对所有分配也相同。枚举全部分配后，数出 <b>H′≥观测 H′</b> 的个数，包括恰好等于观测统计量的边界；尾部个数除以1,680，就是这套条件排列检验的 exact P。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>同一个 H′，不同的参考分布；exact来自完整枚举</caption><thead><tr><th>数据</th><th>H′</th><th>χ²₂ 近似 P</th><th>同样或更大 H′ 的分配</th><th>Conditional exact P</th></tr></thead><tbody><tr><td>原例，无 ties</td><td>7.2</td><td>.02732372</td><td>6 / 1,680</td><td>.00357143</td></tr><tr><td>原创 ties 例</td><td>6.643678</td><td>.03608640</td><td>24 / 1,680</td><td>.01428571</td></tr></tbody></table></div>
+<p>无 ties 例的最极端结果是三组分别占据连续的低、中、高三个秩块；三个组名有3!=6种安排。ties 例在边界数值2与4处各有两条可交换记录，所以同样的最大 H′ 可由6×2×2=24种分配产生。代码不依赖这个捷径，而是逐一检查所有分配。</p>
+<p>两例在预定 α=.05 下，近似与 exact 都拒绝相同分布零假设，但 P 的数值差距明显。这不说明 exact 总比近似小，也不支持事后挑选较小 P。Exact 表示按本例的有限条件参考完整计算；模型、独立单位与可交换性仍必须成立。</p>
+<h4>“H 的右尾”不是某个组更大的单侧结论</h4>
+<p>H 将各组平均秩偏离总体平均秩的程度平方后汇总，所以只在 H 较大时拒绝。将 A、C 组名交换后，H′和 P 完全不变：统计量的右尾并未保存“A&lt;B&lt;C”的科学方向。整体拒绝只提供并非三组分布全部相同的证据，不证明每一对都不同，也不能在任意形状差异下直接改称 mean 或 median 都不同。若需要具体成对或有序方向结论，应另行预先定义对应比较和误差控制。</p>
+<p>代码用双倍秩避免平均秩的半整数边界问题。对本节固定的3+3+3结构，令 S=Σ(2Rⱼ)²，则 H=S/90−30；S是小整数，比较 S≥S_observed 与比较 H′≥H′_observed 完全等价。这个90只适用于本例组大小，不能复制到不同设计。若全部九个值都相同，则 C=0，标准 H/C 未定义；程序会停止并解释，不能把0/0当成有效检验结果。</p>
+<pre><code># This teaching function is intentionally limited to three groups of size three.
+kw_three_exact &lt;- function(groups) {
+  stopifnot(is.list(groups),length(groups)==3,
+            all(lengths(groups)==3),all(is.finite(unlist(groups))))
+  y &lt;- unlist(groups,use.names=FALSE)
+  group &lt;- factor(rep(c("A","B","C"),each=3))
+  N &lt;- length(y)
+  ranks &lt;- rank(y,ties.method="average")
+  doubled_ranks &lt;- 2*ranks
+  rank_sums &lt;- as.numeric(tapply(ranks,group,sum))
+  # Count equal numeric values directly, without converting them to labels.
+  tie_sizes &lt;- rle(sort(y))$lengths
+  correction &lt;- 1-sum(tie_sizes^3-tie_sizes)/(N^3-N)
+  if (correction&lt;=0) stop("All observations are tied: H/C is undefined.")
+  raw_H &lt;- 12/(N*(N+1))*sum(rank_sums^2/3)-3*(N+1)
+  corrected_H &lt;- raw_H/correction
+  # With fixed sizes 3,3,3, S=sum((2*R_j)^2) and H=S/90-30.
+  # Integer scores avoid floating-point ambiguity when including an equal boundary.
+  observed_score &lt;- sum((2*rank_sums)^2)
+  expected_allocations &lt;- choose(9,3)*choose(6,3)
+  null_scores &lt;- numeric(expected_allocations)
+  allocation &lt;- 0L
+  for (A in combn(seq_len(N),3,simplify=FALSE)) {
+    remaining &lt;- setdiff(seq_len(N),A)
+    for (B in combn(remaining,3,simplify=FALSE)) {
+      C &lt;- setdiff(remaining,B)
+      allocation &lt;- allocation+1L
+      doubled_sums &lt;- c(sum(doubled_ranks[A]),sum(doubled_ranks[B]),
+                        sum(doubled_ranks[C]))
+      null_scores[allocation] &lt;- sum(doubled_sums^2)
+    }
+  }
+  extreme &lt;- sum(null_scores&gt;=observed_score)
+  exact_P &lt;- extreme/allocation
+  approx_P &lt;- pchisq(corrected_H,df=2,lower.tail=FALSE)
+  # Re-ranking pooled ranks is equivalent and avoids old R decimal-label merging.
+  reference &lt;- kruskal.test(split(ranks,group))
+  stopifnot(allocation==1680,sum(rank_sums)==45,
+            all(doubled_ranks==round(doubled_ranks)),
+            abs(raw_H-(observed_score/90-30))&lt;1e-12,
+            abs(corrected_H-unname(reference$statistic))&lt;1e-12,
+            abs(approx_P-reference$p.value)&lt;1e-12)
+  list(rows=data.frame(record=seq_len(N),group=group,y=y,rank=ranks),
+       summary=data.frame(R_A=rank_sums[1],R_B=rank_sums[2],R_C=rank_sums[3],
+         C=correction,H=raw_H,H_corrected=corrected_H,df=2,
+         chi_square_P=approx_P,extreme=extreme,allocations=allocation,
+         exact_P=exact_P),
+       score_frequency=as.data.frame(table(null_scores)),
+       null_scores=null_scores)
+}
+# Compare the existing untied example with a new tied example.
+untied_groups &lt;- list(A=4:6,B=7:9,C=10:12)
+tied_groups &lt;- list(A=c(1,1,2),B=c(2,3,4),C=c(4,5,5))
+untied &lt;- kw_three_exact(untied_groups)
+tied &lt;- kw_three_exact(tied_groups)
+print(untied$rows)
+print(tied$rows)
+comparison &lt;- rbind(untied=untied$summary,tied=tied$summary)
+print(comparison,digits=12)
+# Frequencies retain how many label allocations produce each statistic.
+print(tied$score_frequency,row.names=FALSE)
+stopifnot(untied$summary$extreme==6,tied$summary$extreme==24,
+          abs(untied$summary$exact_P-6/1680)&lt;1e-12,
+          abs(tied$summary$exact_P-24/1680)&lt;1e-12,
+          abs(tied$summary$C-29/30)&lt;1e-12,
+          abs(tied$summary$H_corrected-6.64367816091954)&lt;1e-12)
+# Relabeling groups changes direction labels, but not the omnibus statistic.
+reversed &lt;- kw_three_exact(tied_groups[c(3,2,1)])
+stopifnot(abs(reversed$summary$H_corrected-tied$summary$H_corrected)&lt;1e-12,
+          reversed$summary$extreme==tied$summary$extreme)
+# All-tied data have no defined corrected H; do not silently report a zero P.
+all_tied &lt;- tryCatch(kw_three_exact(rep(list(rep(2,3)),3)),error=identity)
+stopifnot(inherits(all_tied,"error"))
+# These are complete conditional enumerations, not Monte Carlo simulations.
+</code></pre><p class="r-download"><a href="../downloads/chapters/chapter-08-kruskal-2.R" download>下载本节 R 示例 2</a> · 已含数据和对象定义，可在新 R 会话中运行。<a href="../handbook.html#r-start">查看运行方法</a></p>
+<p>上面的枚举只用 base R，并未要求 <code>kruskal.test</code> 提供 exact 选项；<a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/kruskal.test.html" target="_blank" rel="noopener noreferrer">R 官方文档</a>明确说明其参考分布为近似 χ²。它用该函数核对 H′ 和 χ² 近似 P，另由全部标签分配求 exact P。这里枚举全部1,680种分配，不涉及随机 seed、Monte Carlo 误差或抽样次数的近似。</p>
+<p class="source-locator">课程定位：PPT/Chapter_8.pptx 第47–50页（相同分布零假设、H与χ²近似、右尾），第52–53页（平均秩与ties correction）；classnote/440 - Chapter 8 - 2022 Fall.pdf 第28–29页。课件第49页提示各组至少5个观测时近似较合适，不能把这个经验阈值当成精确性的保证。本站将原有九观测示例与原创ties示例补成完整条件排列路线，未复刻课程原始学生数据。</p>
+
+<div id="kruskal-experiment" data-kruskal><p>启用 JavaScript 后，可编辑九个观测并逐项浏览1680种标签分配；上面的正文与R代码可独立学习全部计算。</p></div><nav class="lesson-practice" aria-label="本节对应练习"><h3>读完这节，独立试一题</h3><p>先自己作答，再按需打开提示或解析。每题都有返回本节的链接。</p><ul><li><a href="../practice.html#p08-04"><span>基础</span>Kruskal–Wallis 不自动变成均值检验</a></li><li><a href="../practice.html#p08-07"><span>综合</span>Kruskal–Wallis 的 ties 要跨组一起统计</a></li></ul></nav><nav class="lesson-tools" aria-label="本节阅读导航"><a href="#chapter-navigation">↑ 返回章节与本页目录</a><a href="#transform">下一节：Transformation 改变分析尺度，也改变问题 →</a></nav></section><section class="lesson" id="transform"><h2>Transformation 改变分析尺度，也改变问题</h2><p>有些响应越大，波动也越大。Transformation（变量变换）尝试换一个尺度，使误差结构更适合模型；它同时也改变了结果的解释。因此不能只找让 P-value 最小的变换。</p>
 <p>例如原单位上 10→20 与 100→110 都增加 10，比例却不同。Log scale 把倍数变化转成差：log(20)−log(10)=log(2)。在 log scale 上比较 means，回答的是变换后响应的中心差，不自动等价于原尺度 arithmetic means 的检验。</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>由 mean–variance pattern 选择候选尺度</caption><thead><tr><th>原尺度关系</th><th>候选变换</th><th>需要检查</th></tr></thead><tbody><tr><td>Var(Y)≈kμ</td><td>√Y；小值例也可考虑 √(Y+3/8)</td><td>非负，低值与零附近的近似</td></tr><tr><td>Var(Y)≈kμ²</td><td>log Y</td><td>正数，比例解释与零值处理</td></tr><tr><td>Var(Y)≈kμ⁴</td><td>1/Y</td><td>不能为 0，数值顺序会反转</td></tr></tbody></table></div>
 <div class="equation">Delta method：Var[g(Y)]≈[g′(μ)]²Var(Y)</div>

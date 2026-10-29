@@ -2,6 +2,20 @@ const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const key = 'cpsc440-practice-v1';
 
+export function normalizePracticeProgress(value, questionIds) {
+  const records = {};
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return records;
+  for (const id of questionIds) {
+    const saved = Object.hasOwn(value, id) ? value[id] : null;
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) continue;
+    const attempts = Number.isSafeInteger(saved.attempts) && saved.attempts > 0 ? saved.attempts : 0;
+    const correct = attempts > 0 && saved.correct === true;
+    const bookmark = saved.bookmark === true;
+    if (attempts || bookmark) records[id] = {attempts, correct, bookmark};
+  }
+  return records;
+}
+
 export function practiceLocation(href, { chapter = 'all', level = 'all', status = 'all', query = '', mixed = false, question = '' } = {}) {
   const url = new URL(href);
   for (const name of ['chapter', 'level', 'status', 'q', 'mode', 'answer']) url.searchParams.delete(name);
@@ -67,7 +81,7 @@ if (typeof document !== 'undefined') {
     const cards = $$('.exercise', app);
     const resetSolutions = new Map(cards.map(card => [card.id, addSolutionSteps(card)]));
     let records = {}, session = null, sessionRecords = {};
-    try { const saved = JSON.parse(localStorage.getItem(key) || '{}'); if (saved && typeof saved === 'object' && !Array.isArray(saved)) records = saved; }
+    try { records = normalizePracticeProgress(JSON.parse(localStorage.getItem(key) || '{}'), cards.map(card => card.id)); }
     catch { $('#practice-storage').textContent = '浏览器未能读取本地进度；仍可完成练习。'; }
     function save() { try { localStorage.setItem(key, JSON.stringify(records)); } catch { $('#practice-storage').textContent = '浏览器未能保存进度，本次作答仍有效。'; } }
     function record(id) { return records[id] && typeof records[id] === 'object' ? records[id] : {}; }
@@ -119,7 +133,7 @@ if (typeof document !== 'undefined') {
         const result = gradeAnswer(grading[c.id], raw);
         const feedback = $('.answer-feedback', c);
         if (!result.valid) { feedback.textContent = answerFeedback(grading[c.id], raw); feedback.dataset.correct = 'false'; return; }
-        records[c.id] = {...record(c.id), attempts: (Number(record(c.id).attempts) || 0) + 1, correct: result.correct};
+        records[c.id] = {...record(c.id), attempts: Math.min(Number.MAX_SAFE_INTEGER, (record(c.id).attempts || 0) + 1), correct: result.correct};
         if (session) sessionRecords[c.id] = {attempts: (sessionRecords[c.id]?.attempts || 0) + 1, correct: result.correct};
         feedback.textContent = answerFeedback(grading[c.id], raw);
         feedback.dataset.correct = String(result.correct);

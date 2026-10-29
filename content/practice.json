@@ -3540,5 +3540,243 @@
         "feedback": "20与把单列SD=3直接传给paired规划一致。本题差值SD=√13.5≈3.674235，正确结果是29对。"
       }
     ]
+  },
+  {
+    "id": "p14-05",
+    "chapter": "14",
+    "title": "Type II的SS增量与完整模型的误差分母",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "unbalanced factorial",
+      "Type II SS",
+      "nested models",
+      "F test"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 14 - 2022 Fall.pdf",
+      "locator": "46–49，特别是48；PPT Chapter 14，47–51",
+      "note": "原创改编，非原题答案。"
+    },
+    "prompt": "原创2×2实验的完整cells为：A1B1=[4,6]，A1B2=[8,9,11,12]，A2B1=[7,8,9]，A2B2=[14,16]。独立正态共同方差模型成立。完整模型为Y~A*B。要在完整ANOVA表中计算A的Type II检验：从B→A+B取SS增量，检验分母使用完整A*B模型的MSE。已知SSE(B)=60.1333333333、SSE(A+B)=18.5263157895、SSE(A*B)=16。F是多少？请保留至少两位小数。",
+    "answer": 18.2030701754386,
+    "tolerance": 0.005,
+    "unit": "F",
+    "hint": "N=11，完整模型估计4个cell means。Type II A的SS是SSE(B)−SSE(A+B)，分子df为1；不要用加性模型自己的MSE。",
+    "steps": [
+      {
+        "title": "辨认Type II的比较方向",
+        "body": "A有两个levels，含A的AB项不先加入Type II A的分子比较；先比较B与A+B。因此SS_A(II)=60.1333333333−18.5263157895=41.6070175439，分子df=1。它不是先加入A时SSE(1)−SSE(A)的Type I增量。"
+      },
+      {
+        "title": "从完整模型取得MSE",
+        "body": "四个cell计数为2、4、3、2，总N=11。A*B有4个可估计cell means，error df=11−4=7，MSEfull=16/7≈2.285714286。"
+      },
+      {
+        "title": "把SS换成F",
+        "body": "F=(SS_A/1)/MSEfull=41.6070175439/(16/7)≈18.2030701754。这个完整模型参照的F(1,7)右尾P约.00371665。"
+      },
+      {
+        "title": "区分另一套软件默认检验",
+        "body": "只比较lm(Y~B)与lm(Y~A+B)时，anova默认从较大加性模型估计误差：MSEadd=18.5263157895/8。这样F约17.966667，分母df=8，回答的是另一套模型比较，不是题目指定完整ANOVA表中的分母。"
+      }
+    ],
+    "conclusion": "完整模型误差参照下，A的Type II F≈18.20307，df=(1,7)。",
+    "pitfall": "同一SS增量可以配上不同模型的误差分母，必须明确目标。Type II adjusted假设也不自动等于跨B等权的Type III边际假设。",
+    "rCode": "# Original complete-cell data, with unequal replication.\ncells <- list(c(4,6),c(8,9,11,12),c(7,8,9),c(14,16))\nni <- lengths(cells)\nd <- data.frame(A=factor(rep(c(\"A1\",\"A1\",\"A2\",\"A2\"),ni)),\n                B=factor(rep(c(\"B1\",\"B2\",\"B1\",\"B2\"),ni)),y=unlist(cells))\nfit_B <- lm(y ~ B,data=d)\nfit_add <- lm(y ~ A+B,data=d)\nfit_full <- lm(y ~ A*B,data=d)\nss_A_II <- deviance(fit_B)-deviance(fit_add)\nnum_df <- df.residual(fit_B)-df.residual(fit_add)\nerror_df <- df.residual(fit_full)\nmse_full <- deviance(fit_full)/error_df\nanswer <- (ss_A_II/num_df)/mse_full\nprint(c(SSE_B=deviance(fit_B),SSE_add=deviance(fit_add),\n        SSE_full=deviance(fit_full),SS_A_II=ss_A_II,\n        numerator_df=num_df,error_df=error_df,MSE_full=mse_full,\n        answer=answer,p=pf(answer,num_df,error_df,lower.tail=FALSE)))\n# These alternatives are diagnostic values, not the requested full-model F.\nwrong_additive <- (ss_A_II/num_df)/(deviance(fit_add)/df.residual(fit_add))\nfit_0 <- lm(y ~ 1,data=d)\nfit_A <- lm(y ~ A,data=d)\nwrong_type_I <- (deviance(fit_0)-deviance(fit_A))/mse_full\nprint(c(additive_denominator_F=wrong_additive,\n        A_first_TypeI_F=wrong_type_I,SS_instead_of_F=ss_A_II))\nstopifnot(error_df==7,num_df==1,abs(answer-18.2030701754386)<1e-10)",
+    "commonMistakes": [
+      {
+        "value": 17.9666666666667,
+        "tolerance": 0.005,
+        "feedback": "这个值与使用加性模型MSE=18.5263157895/8一致。题目指定完整A*B模型的误差参照，应使用16/7及7个error df。"
+      },
+      {
+        "value": 7.2598484848485,
+        "tolerance": 0.005,
+        "feedback": "这个值与先加入A的Type I增量一致。Type II A应先调整B，用SSE(B)−SSE(A+B)，而不是SSE(1)−SSE(A)。"
+      },
+      {
+        "value": 41.6070175438596,
+        "tolerance": 0.005,
+        "feedback": "这与Type II A的平方和相符，但还不是F。先除以分子df=1，再除以完整模型MSE=16/7。"
+      }
+    ]
+  },
+  {
+    "id": "p15-07",
+    "chapter": "15",
+    "title": "用课程RE公式规划CRD重复数",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "relative efficiency",
+      "RCBD",
+      "CRD",
+      "replication planning"
+    ],
+    "source": {
+      "file": "classnote/440 - Chapter 15 - 2022 Fall.pdf",
+      "locator": "11–12；PPT Chapter 15，17–18、22",
+      "note": "原创改编，非原题答案。"
+    },
+    "prompt": "完整加性RCBD有t=4个固定treatments和b=5个blocks，每个treatment在每个block出现一次。ANOVA给MSblock=14、MSE_RCBD=2。按课程的规划公式RE_plan=[(b−1)MSblock+b(t−1)MSE_RCBD]/[(bt−1)MSE_RCBD]，要使假想CRD的同一处理差值SE尺度不高于当前RCBD，最少需要多少个独立重复/处理？使用r≥b×RE_plan并向上取整；本题不是要求重拟合同一数据的MSE比值，也不是精确power规划。",
+    "answer": 12,
+    "tolerance": 0,
+    "integer": true,
+    "unit": "独立重复/处理",
+    "hint": "先代入课程公式算RE_plan，再乘当前每处理的5个blocks。分母bt−1属于规划估计公式；不等于CRD拟合的residual df。",
+    "steps": [
+      {
+        "title": "计算课程规划的误差尺度",
+        "body": "MSE_plan=[(5−1)×14+5×(4−1)×2]/(5×4−1)=(56+30)/19=86/19≈4.526316。这里的19属于给定规划公式。"
+      },
+      {
+        "title": "换成相对效率",
+        "body": "RE_plan=MSE_plan/MSE_RCBD=(86/19)/2=43/19≈2.263158。它是每处理所需重复数的比例，不能直接将2.263158取整作为人数。"
+      },
+      {
+        "title": "达到SE目标并取整",
+        "body": "r≥5×43/19=215/19≈11.315789。因此至少12个独立重复/处理，总计4×12=48个实验单位。11个仍低于连续目标。"
+      },
+      {
+        "title": "区别重拟合比值",
+        "body": "同一数据忽略blocks时，error df=t(b−1)=4×4=16，SSE_refit=(b−1)MSblock+(t−1)(b−1)MSE=56+24=80，故MSE比值=(80/16)/2=2.5。若把这个不同指标代入规划会得到13个，不能替换本题指定的课程公式。"
+      }
+    ],
+    "conclusion": "按指定课程RE与相同SE尺度的规划准则，至少12个重复/处理，共48个实验单位。",
+    "pitfall": "bt−1=19只用于题给规划估计；重拟合CRD的error df是16。RE规划依赖沿用的方差尺度，不代表未来power的精确保证。",
+    "rCode": "# Summary values from an original complete RCBD planning scenario.\nt <- 4\nb <- 5\nms_block <- 14\nmse_rcbd <- 2\nmse_plan <- ((b-1)*ms_block+b*(t-1)*mse_rcbd)/(b*t-1)\nre_plan <- mse_plan/mse_rcbd\ncontinuous_reps <- b*re_plan\nanswer <- ceiling(continuous_reps)\nreps <- c(answer-1,answer)\nse_current <- sqrt(2*mse_rcbd/b)\nse_planned <- sqrt(2*mse_plan/reps)\nprint(c(MSE_plan=mse_plan,RE_plan=re_plan,continuous_reps=continuous_reps,\n        answer=answer,total_units=t*answer))\nprint(data.frame(reps=reps,planned_SE=se_planned,current_SE=se_current))\n# Re-fitting the same data without blocks gives a different MSE ratio.\nss_block <- (b-1)*ms_block\nss_error <- (t-1)*(b-1)*mse_rcbd\nrefit_df <- t*(b-1)\nrefit_ratio <- ((ss_block+ss_error)/refit_df)/mse_rcbd\nprint(c(refit_df=refit_df,refit_ratio=refit_ratio,\n        wrong_refit_based_reps=ceiling(b*refit_ratio),\n        wrong_ratio_only=ceiling(re_plan),wrong_round_down=floor(continuous_reps)))\nstopifnot(answer==12,se_planned[1]>se_current,se_planned[2]<=se_current)",
+    "commonMistakes": [
+      {
+        "value": 13,
+        "tolerance": 0,
+        "feedback": "13与把重拟合MSE比值2.5代入5×2.5后取整一致。题目指定的课程规划RE为43/19，两种CRD误差估计不能交换。"
+      },
+      {
+        "value": 3,
+        "tolerance": 0,
+        "feedback": "3与只对RE≈2.263158向上取整一致。RE是重复数比例，还需乘当前每处理的b=5。"
+      },
+      {
+        "value": 11,
+        "tolerance": 0,
+        "feedback": "11低于连续目标11.315789。要使规划SE不高于当前值，重复数必须向上取整为12。"
+      }
+    ]
+  },
+  {
+    "id": "p04-12",
+    "chapter": "04",
+    "title": "不对称二项分布的精确双侧P",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "exact binomial test",
+      "probability ordering",
+      "p-value"
+    ],
+    "source": {
+      "file": "PPT/Chapter_4.pptx",
+      "locator": "42–51、61–64；class notes 44",
+      "note": "针对PMF、尾概率与双侧检验区别的原创练习；计数和null概率重新设计。"
+    },
+    "prompt": "16个相互独立的检测单元各产生阳性或阴性结果，假定有相同的阳性概率p，观察到1个阳性。预先检验H₀:p=.30对Hₐ:p≠.30，α=.05。采用R binom.test默认的双侧概率排序法：累加null下单点概率不大于观测计数单点概率的全部结果。精确双侧P-value是多少？输入0到1的小数。",
+    "unit": "P-value",
+    "answer": 0.051785118359659,
+    "tolerance": 1e-06,
+    "hint": "先计算dbinom(k,16,.30)，k=0,…,16；找出概率不大于dbinom(1,16,.30)的k再求和。本题p₀≠.5，不能假定双侧值就是两倍左尾。",
+    "steps": [
+      {
+        "title": "建立事先指定的null模型",
+        "body": "X~Binomial(16,.30)。观察值x=1的单点概率P₀(X=1)≈.022788295，它还不是双侧P-value。"
+      },
+      {
+        "title": "按概率排序找出累计结果",
+        "body": "null下概率不大于观测点的计数是k=0、1以及9至16。它们分布在两端，不能通过从期望值4.8机械镜像得到边界。"
+      },
+      {
+        "title": "累加选中的两部分",
+        "body": "Ptwo=P₀(X≤1)+P₀(X≥9)≈.026111588+.025673530=.051785118。R binom.test(1,16,p=.30,alternative=\"two.sided\")给出相同结果。"
+      },
+      {
+        "title": "按预定显著性水平判断",
+        "body": ".051785>.05，因此未拒绝p=.30；这不证明总体阳性率正好为.30，也不是H₀为真的概率。"
+      }
+    ],
+    "conclusion": "R默认精确双侧P≈.051785；在预定α=.05下未拒绝H₀。",
+    "pitfall": "单点PMF、单侧尾概率和双侧P-value不是同一个量。两倍较小尾部也是一种双侧定义，但本题明确使用R默认概率排序法，二者在不对称分布下可能不同。",
+    "rCode": "x <- 1\nn <- 16\np0 <- .30\nalpha <- .05\n# Enumerate the probability-ordered two-sided rejection outcomes.\nk <- 0:n\nnull_mass <- dbinom(k,n,p0)\nobserved_mass <- dbinom(x,n,p0)\nselected <- null_mass<=observed_mass*(1+1e-7)\nmanual_p <- sum(null_mass[selected])\nfit <- binom.test(x,n,p=p0,alternative=\"two.sided\")\nanswer <- unname(fit$p.value)\nleft <- pbinom(x,n,p0)\nright <- pbinom(x-1,n,p0,lower.tail=FALSE)\nprint(k[selected])\nprint(c(point_mass=observed_mass,left_tail=left,\n        doubled_smaller_tail=min(1,2*min(left,right)),\n        manual_two_sided=manual_p,answer=answer))\nstopifnot(abs(manual_p-answer)<1e-12,answer>alpha,\n          identical(k[selected],c(0L,1L,9:16)))",
+    "commonMistakes": [
+      {
+        "value": 0.0227882952477264,
+        "tolerance": 1e-06,
+        "feedback": "这是P₀(X=1)的单点概率。双侧检验还要累计null下不比这个结果更可能的其他计数。"
+      },
+      {
+        "value": 0.0261115883046865,
+        "tolerance": 1e-06,
+        "feedback": "这是左尾P₀(X≤1)，对应预先左侧的检验。题目预先指定双侧，还需加上概率排序法选中的另一端X≥9。"
+      },
+      {
+        "value": 0.052223176609373,
+        "tolerance": 1e-06,
+        "feedback": "这是两倍较小单侧尾部。本题p₀=.30时二项分布不对称，R默认概率排序法得到.051785118，不能机械用两倍尾部替代。"
+      }
+    ]
+  },
+  {
+    "id": "p07-07",
+    "chapter": "07",
+    "title": "同一个方差统计量，左尾与等尾双侧结论不同",
+    "level": "综合",
+    "type": "choice",
+    "tags": [
+      "variance test",
+      "chi-square",
+      "equal-tail",
+      "confidence interval"
+    ],
+    "source": {
+      "file": "PPT/Chapter_7.pptx",
+      "locator": "15–17；class notes 13–14",
+      "note": "原创教学比较；样本量与方差重新设计。"
+    },
+    "prompt": "16个独立正态观测的样本SD为2。为理解预设方向，比较两个不同研究计划：计划A在分析前指定H₀:σ≥3对Hₐ:σ<3；计划B在分析前指定H₀:σ=3对Hₐ:σ≠3，双侧采用课程等尾约定。两个计划均用α=.05。把这组汇总数据代入后，哪项判断正确？实际研究不能看完结果后在两计划中挑选。",
+    "hint": "σ₀²=9，Q=15×2²/3²=6.666667，df=15。左尾P=F₁₅(Q)，等尾双侧P=2min{F₁₅(Q),1−F₁₅(Q)}。",
+    "options": [
+      "两个计划都拒绝H₀",
+      "左尾计划A拒绝，等尾双侧计划B不拒绝",
+      "左尾计划A不拒绝，等尾双侧计划B拒绝",
+      "两个计划都不拒绝H₀"
+    ],
+    "answer": 1,
+    "optionExplanations": [
+      "双侧P约.067503，大于.05，因此计划B不拒绝；不能把左尾P直接用作双侧P。",
+      "正确。左尾P约.033752，等尾双侧P约.067503；它们把显著性水平分配到尾部的方式不同。",
+      "本题较小的是左尾概率；等尾双侧P是它的两倍，不可能出现左尾尚不拒绝而该双侧检验已拒绝。",
+      "左尾P约.033752，小于.05，故预先指定的左尾计划A会拒绝。"
+    ],
+    "steps": [
+      {
+        "title": "先把SD基准平方",
+        "body": "s²=4、σ₀²=9，df=16−1=15，所以Q=15×4/9=6.666667。"
+      },
+      {
+        "title": "分别使用原定尾部",
+        "body": "左尾P=P(χ²₁₅≤6.666667)≈.033751750；等尾双侧P=2×.033751750≈.067503500。"
+      },
+      {
+        "title": "按α=.05决策",
+        "body": "计划A拒绝H₀，支持σ<3；计划B不拒绝H₀，尚无达到双侧5%门槛的证据。不能在看见这一结果后才把问题改成左侧。"
+      },
+      {
+        "title": "用匹配的置信集合核验",
+        "body": "variance的95%单侧上界≈8.263388，小于基准9；等尾双侧95% CI≈[2.182739,9.581392]则包含9。它们分别对应各自的检验，不矛盾。"
+      }
+    ],
+    "conclusion": "正确判断是左尾计划A拒绝、等尾双侧计划B不拒绝；必须保留研究前指定的方向。",
+    "pitfall": "同为95%的单侧上界与双侧区间不是同一个置信集合。双侧χ²检验这里明确采用等尾约定，不采用binom.test默认的概率排序规则。",
+    "rCode": "n <- 16\nsample_sd <- 2\nnull_sd <- 3\nalpha <- .05\ndf <- n-1\nQ <- df*sample_sd^2/null_sd^2\np_left <- pchisq(Q,df=df)\np_right <- pchisq(Q,df=df,lower.tail=FALSE)\np_two <- min(1,2*min(p_left,p_right))\n# Keep the pre-specified alternatives separate.\nprint(data.frame(plan=c(\"A: left\",\"B: equal-tail two-sided\"),\n                 p=c(p_left,p_two),reject=c(p_left,p_two)<alpha))\nupper_one <- df*sample_sd^2/qchisq(alpha,df=df)\nci_two <- df*sample_sd^2/qchisq(c(1-alpha/2,alpha/2),df=df)\nprint(c(Q=Q,df=df,upper_95_one_sided=upper_one))\nprint(ci_two)\nstopifnot(p_left<alpha,p_two>alpha,upper_one<null_sd^2,\n          ci_two[1]<null_sd^2,ci_two[2]>null_sd^2)",
+    "unit": ""
   }
 ]

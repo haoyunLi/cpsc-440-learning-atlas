@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>设计实验来分离 nuisance variation · CPSC 440 Atlas</title><link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="../assets/style.css?v=f1df1a4b06"><link rel="stylesheet" href="../assets/learning.css?v=7b1d349ac6"><link rel="stylesheet" href="../assets/workbench.css?v=65723d1bf9"><script type="module" src="../assets/learning.mjs?v=5917f90976"></script><script type="module" src="../assets/workbench.mjs?v=42dc64c835"></script><script type="module" src="../assets/atlas.mjs?v=2316dc87f2"></script><script type="module" src="../assets/contrast.mjs?v=a2eb66cefe"></script><script type="module" src="../assets/walkthrough.mjs?v=53f6ba509b"></script></head><body><a class="skip" href="#main">跳到正文</a><header><a class="brand" href="../index.html">CPSC 440 <span>Atlas</span></a><nav class="desktop-nav" aria-label="主导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a></nav><details class="mobile-menu"><summary>目录</summary><nav aria-label="手机导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a><a href="../sources.html">来源与使用</a></nav></details></header><main id="main" class="wrap chapter-layout"><aside class="sidebar"><details><summary>章节与本页目录</summary><div><nav aria-label="课程章节"><a href="01.html">01 · 从测量到数据描述</a><a href="04.html">02 · 把随机性写成概率</a><a href="05.html">03 · 从样本判断总体中心</a><a href="06.html">04 · 比较两个总体，先辨认实验结构</a><a href="07.html">05 · 把稳定性作为研究目标</a><a href="08.html">06 · ANOVA：分解变异来比较多个 mean</a><a href="09.html">07 · ANOVA 之后，精确回答比较问题</a><a href="14.html">08 · 同时改变多个因素，寻找 interaction</a><a href="15.html" class="current" aria-current="page">09 · 设计实验来分离 nuisance variation</a><a href="11.html">10 · 从解释差异到连续关系与预测</a></nav><nav class="toc" aria-label="本页目录"><a href="#blocking">每个 block 内都有所有 treatments</a><a href="#rcbd-anova">分解 treatment、block 与 error</a><a href="#efficiency">Relative efficiency 要同时考虑 residual reduction 与 df</a><a href="#random-effects">Fixed 与 random 的区别是推断目标</a><a href="#factorial-blocks">Factorial treatments 可以放进 RCBD</a><a href="#latin-square">Latin square 控制两个 nuisance factors</a><a href="#practice">在测量前检查设计是否能回答问题</a><a href="#course-cases">把课程案例连回方法与结论</a><a href="#factor-coding-blocks">区组编号是标签：把数字直接放进 lm 会换掉你的模型</a><a href="#latin-square-worked">把 Latin square 算到底：16 个观测、四份 SS 与处理比较</a><a href="#random-block-mean-se">Random block：单个 treatment mean 的 SE 与均值差的 SE 为什么不同？</a></nav></div></details></aside><article class="article"><div class="chapter-title"><h1>设计实验来分离 nuisance variation</h1><p class="status">学习单元 09 / 10 · Chapter 15</p><p class="english">RCBD, random effects &amp; Latin squares</p><p class="question">温室光照梯度，怎样避免被误认为品种差异？</p><p class="bridge">分析无法修复完全 confounded 的设计；blocking 在收集数据前创造可比较的条件。</p></div><section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter=15">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#notation">公式读法</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter=15">辅助资源</a></nav></section><details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul><li>画出 RCBD 或 Latin square，指出 treatment 分配和随机化位置。</li><li>计算 treatment、block 与 error 的 df，解释 nuisance variation 去向。</li><li>根据推断目标区分 fixed 与 random，并说明没有 cell replication 的限制。</li></ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details><section class="lesson" id="blocking"><h2>每个 block 内都有所有 treatments</h2><p>温室中靠窗与远离窗的位置可能光照不同。如果一种品种全放靠窗，另一种全放里面，测到的差就混合了品种与光照。<b>Blocking（区组化）</b> 先把相近环境的实验单位组成 block，再在每个 block 内比较 treatments。</p>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>设计实验来分离 nuisance variation · CPSC 440 Atlas</title><link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="../assets/style.css?v=f1df1a4b06"><link rel="stylesheet" href="../assets/learning.css?v=7b1d349ac6"><link rel="stylesheet" href="../assets/workbench.css?v=d45c4cc757"><script type="module" src="../assets/learning.mjs?v=f23ae7cb82"></script><script type="module" src="../assets/workbench.mjs?v=42dc64c835"></script><script type="module" src="../assets/atlas.mjs?v=f9f68e92ea"></script><script type="module" src="../assets/contrast.mjs?v=a2eb66cefe"></script><script type="module" src="../assets/transformation.mjs?v=7bb7255a76"></script><script type="module" src="../assets/walkthrough.mjs?v=53f6ba509b"></script></head><body><a class="skip" href="#main">跳到正文</a><header><a class="brand" href="../index.html">CPSC 440 <span>Atlas</span></a><nav class="desktop-nav" aria-label="主导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a></nav><details class="mobile-menu"><summary>目录</summary><nav aria-label="手机导航"><a href="../index.html#path">学习路径</a><a href="../practice.html">练习工坊</a><a href="../labs.html">交互实验</a><a href="../handbook.html">自学手册</a><a href="../resources.html">辅助资源</a><a href="../sources.html">来源与使用</a></nav></details></header><main id="main" class="wrap chapter-layout"><aside class="sidebar"><details><summary>章节与本页目录</summary><div><nav aria-label="课程章节"><a href="01.html">01 · 从测量到数据描述</a><a href="04.html">02 · 把随机性写成概率</a><a href="05.html">03 · 从样本判断总体中心</a><a href="06.html">04 · 比较两个总体，先辨认实验结构</a><a href="07.html">05 · 把稳定性作为研究目标</a><a href="08.html">06 · ANOVA：分解变异来比较多个 mean</a><a href="09.html">07 · ANOVA 之后，精确回答比较问题</a><a href="14.html">08 · 同时改变多个因素，寻找 interaction</a><a href="15.html" class="current" aria-current="page">09 · 设计实验来分离 nuisance variation</a><a href="11.html">10 · 从解释差异到连续关系与预测</a></nav><nav class="toc" aria-label="本页目录"><a href="#blocking">每个 block 内都有所有 treatments</a><a href="#rcbd-anova">分解 treatment、block 与 error</a><a href="#efficiency">Relative efficiency 要同时考虑 residual reduction 与 df</a><a href="#random-effects">Fixed 与 random 的区别是推断目标</a><a href="#factorial-blocks">Factorial treatments 可以放进 RCBD</a><a href="#latin-square">Latin square 控制两个 nuisance factors</a><a href="#practice">在测量前检查设计是否能回答问题</a><a href="#course-cases">把课程案例连回方法与结论</a><a href="#factor-coding-blocks">区组编号是标签：把数字直接放进 lm 会换掉你的模型</a><a href="#latin-square-worked">把 Latin square 算到底：16 个观测、四份 SS 与处理比较</a><a href="#random-block-mean-se">Random block：单个 treatment mean 的 SE 与均值差的 SE 为什么不同？</a></nav></div></details></aside><article class="article"><div class="chapter-title"><h1>设计实验来分离 nuisance variation</h1><p class="status">学习单元 09 / 10 · Chapter 15</p><p class="english">RCBD, random effects &amp; Latin squares</p><p class="question">温室光照梯度，怎样避免被误认为品种差异？</p><p class="bridge">分析无法修复完全 confounded 的设计；blocking 在收集数据前创造可比较的条件。</p></div><section class="chapter-study"><p>学 → 试 → 做 → 讲：读完一节，先用自己的话解释，再调整实验参数，最后独立做题。</p><nav aria-label="本章学习工具"><a href="../practice.html?chapter=15">本章练习与逐步解析</a><a href="../labs.html">交互工作台</a><a href="../handbook.html#notation">公式读法</a><a href="../handbook.html#method-map">方法速查</a><a href="../resources.html?chapter=15">辅助资源</a></nav></section><details class="learning-goals"><summary>这一单元，学到什么程度才算掌握？</summary><ul><li>画出 RCBD 或 Latin square，指出 treatment 分配和随机化位置。</li><li>计算 treatment、block 与 error 的 df，解释 nuisance variation 去向。</li><li>根据推断目标区分 fixed 与 random，并说明没有 cell replication 的限制。</li></ul><p class="status">先不看答案完成本章练习，并能解释所用条件；标记已读只记录阅读，不等于掌握。</p></details><section class="lesson" id="blocking"><h2>每个 block 内都有所有 treatments</h2><p>温室中靠窗与远离窗的位置可能光照不同。如果一种品种全放靠窗，另一种全放里面，测到的差就混合了品种与光照。<b>Blocking（区组化）</b> 先把相近环境的实验单位组成 block，再在每个 block 内比较 treatments。</p>
 <p><b>Randomized Complete Block Design（RCBD，随机完全区组设计）</b> 中，“complete”表示每个 block 都含所有 treatments，“randomized”表示在 block 内随机分配。课程温室例有 3 varieties 和 5 light-gradient blocks，每个 block 各放一个品种，共 15 个实验单位。</p>
 <ol><li>先识别已知 nuisance，例如光照、实验日期或地块背景。</li><li>把内部较相似的单位组成 blocks，让光照差异主要出现在 blocks 之间。</li><li>在每个 block 内随机分配所有 treatments，使每种处理都经历同一组环境。</li><li>分析时把 block term 留在模型中，避免将可解释的环境差异全部算成 error。</li></ol>
 <div class="equation">Yᵢⱼ=μ+τᵢ+βⱼ+εᵢⱼ</div>
@@ -8,13 +8,75 @@
 <p>i 指 treatment，j 指 block，t 为处理数，b 为区组数。一个 treatment mean 汇总 b 个观测，所以其偏差平方乘 b；一个 block mean 汇总 t 个观测，所以乘 t。Residual 从观测中扣去两种中心偏移，再加回被扣两次的 grand mean。</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>Complete balanced additive RCBD 的 ANOVA 分解</caption><thead><tr><th>来源</th><th>df</th><th>作用</th></tr></thead><tbody><tr><td>Treatment</td><td>t−1</td><td>研究中的处理比较</td></tr><tr><td>Block</td><td>b−1</td><td>已识别的背景差异</td></tr><tr><td>Error</td><td>(t−1)(b−1)</td><td>比较的 residual variance</td></tr><tr><td>Total</td><td>tb−1</td><td>以上三项之和</td></tr></tbody></table></div>
 <p>课程 t=3、b=5：df 为 2、4、8，总 14。Fixed-treatment 检验使用 F=MStrt/MSE。若忽略 blocks，当作 CRD，error df 会变为 15−3=12，但 error SS 也会变为 SSblock+SSE。更多 df 伴随着更多未解释 variation，不能只看 df 数量选模型。</p>
-<p>Insecticide 案例同样先解释 treatment question，再看 block variation；block 显著不等于处理显著，也不是所有情形下 blocking 成功的唯一标准。</p></section><section class="lesson" id="efficiency"><h2>Relative efficiency 要同时考虑 residual reduction 与 df</h2><p>Blocking 是否提高精度，需要同时看 residual reduction 和自由度成本。课程用 <b>relative efficiency（RE，相对效率）</b> 比较同一完整 block 数据在两个模型中的 MSE。</p>
-<div class="equation">RE(RCBD,CRD)=MSE_CRD/MSE_RCBD</div>
-<ol><li>RCBD 将 SSblock 分开，只用 SSE 估计 residual variance，df=(t−1)(b−1)。</li><li>忽略 blocks 的 CRD 将 SSblock+SSE 留在 error，df=b(t−1)。</li><li>分别除以各自 df，再取 MSE ratio。只看 SSE 下降不够，因为分母 df 也下降。</li></ol>
-<div class="equation">RE=[(b−1)MSblock+(b−1)(t−1)MSE_RCBD]<br>/[b(t−1)MSE_RCBD]</div>
-<p>在本单元原创演示中，t=3、b=5，固定 residual SSE=10。RCBD MSE=10/8=1.25。若没有 block 梯度，CRD MSE=10/12≈.833，RE≈.667；此时估计无作用的 block 消耗了 df。梯度增强时，CRD error 多出 block variation，RE 会升高。</p>
-<p>RE&gt;1 表示按这一 residual-variance 评价，RCBD 更有效率；它不是 actual power 的精确倍数，一些教材还加小样本 df adjustments。实际 randomization structure 仍必须尊重，不能仅按观察到的 RE 事后抹掉设计。</p>
-<p>完整设计中，每种 treatment 的均值包含同样的 block weights，treatment difference 中共享背景抵消。某个 cell 缺失后，权重不同，raw means 的差可能重新混入 block composition。Notes 的 missing-EU 推导强调应使用模型调整并核对 estimability，而不是随意补一个值。</p></section><section class="lesson" id="random-effects"><h2>Fixed 与 random 的区别是推断目标</h2><p><b>Fixed effect</b> 与 <b>random effect</b> 的区别在推断目标。若只关心这几个指定 levels 的均值差，可视为 fixed；若把这些 levels 看作从更大环境总体中抽出的样本，关注它们的 variance component，则使用 random-effect 结构。</p>
+<p>Insecticide 案例同样先解释 treatment question，再看 block variation；block 显著不等于处理显著，也不是所有情形下 blocking 成功的唯一标准。</p></section><section class="lesson" id="efficiency"><h2>Relative efficiency 要同时考虑 residual reduction 与 df</h2><p>Blocking 的精度收益需要同时看 residual reduction 和自由度成本。这里要区分两个可计算的量：<b>同一份观测忽略 block 后重拟合的 MSE 比值</b>，以及<b>课程用于规划 CRD 重复数的 relative efficiency（RE）估计</b>。二者都比较误差尺度，但使用的 CRD variance 估计不同，不能把两个公式或数值混用。</p>
+<h3>先把同一份数据重拟合算清楚</h3>
+<p>原创实验有 t=3 个固定 treatments、b=4 个完整 blocks，每个 block 内各处理恰好出现一次。假定按 RCBD 进行随机分配，并使用独立、共同方差误差的加性模型。下面是12个实际实验单位的完整数据。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动"><table><caption>原创3×4完整RCBD</caption><thead><tr><th>Treatment</th><th>Block1</th><th>Block2</th><th>Block3</th><th>Block4</th><th>Mean</th></tr></thead><tbody><tr><td>A</td><td>18</td><td>18</td><td>20</td><td>24</td><td>20</td></tr><tr><td>B</td><td>19</td><td>23</td><td>25</td><td>25</td><td>23</td></tr><tr><td>C</td><td>23</td><td>25</td><td>27</td><td>29</td><td>26</td></tr><tr><td>Block mean</td><td>20</td><td>22</td><td>24</td><td>26</td><td>Grand mean=23</td></tr></tbody></table></div>
+<ol><li><b>分解平方和。</b> SStrt=4[(20−23)²+(23−23)²+(26−23)²]=72；SSblock=3[(20−23)²+(22−23)²+(24−23)²+(26−23)²]=60。按 Y−treatment mean−block mean+grand mean 得到三行 residuals [1,−1,−1,1]、[−1,1,1,−1]、[0,0,0,0]，所以 SSE=8。SST=72+60+8=140。</li><li><b>RCBD 留下的误差。</b> Error df=(t−1)(b−1)=2×3=6，MSE_RCBD=8/6=4/3；block df=3，所以 MSblock=60/3=20。</li><li><b>忽略 block 后重拟合。</b> 只拟合 t 个 treatment means，error df=tb−t=<b>t(b−1)=9</b>。完整平衡布局中 SStrt 仍为72，但 error SS=SSblock+SSE=68，MSE_refit=68/9≈7.555556。</li><li><b>取两个 fitted residual MSE 的比值。</b> R_refit=(68/9)/(4/3)=17/3≈5.666667。它描述上述两次拟合的误差尺度；原实验的随机化方式仍然是 RCBD。</li></ol>
+<div class="equation">R_refit = MSE_refit / MSE_RCBD<br>= [(b−1)MSblock+(t−1)(b−1)MSE_RCBD] / [t(b−1)MSE_RCBD]</div>
+<p>注意 t 是 treatments 数，b 是 blocks 数：CRD error df 是 t(b−1)，不是 b(t−1)。本例 total df=11，忽略 block 时扣除 treatment 的2 df，余9；含 block 时再扣除3 df，余6。不能只因 SSE 降低就宣称精度一定提高，也不能根据观察到的比值事后改写设计。</p>
+<h3>再使用课程的重复数规划公式</h3>
+<p>课程另给出一个从 RCBD ANOVA 估计假想 CRD 误差尺度的公式。用 MSE_plan 单独记这个量，避免和刚才重拟合的 MSE_refit 混淆：</p>
+<div class="equation">MSE_plan = [(b−1)MSblock+b(t−1)MSE_RCBD] / (bt−1)<br>RE_plan = MSE_plan / MSE_RCBD<br>本例：MSE_plan=[3×20+4×2×(4/3)]/11=212/33≈6.424242<br>RE_plan=(212/33)/(4/3)=53/11≈4.818182</div>
+<p>这里的 bt−1=11 是这条<b>规划估计公式</b>的分母；不是声称上面的 CRD 拟合有11个 residual df。这个区分正是为什么两个比值不同。</p>
+<ol><li><b>固定要比较的精度。</b> 对有相同重复数的两个 treatment mean difference，RCBD 的方差尺度是 2MSE_RCBD/b。用课程的 CRD 规划误差尺度时，r 个重复对应 2MSE_plan/r。</li><li><b>令两个尺度相等。</b> 2MSE_plan/r=2MSE_RCBD/b，得 r/b=RE_plan。因此连续目标 r=4×53/11=212/11≈19.272727。</li><li><b>把重复数取整。</b> 按这个规划准则至少需要20个独立重复/处理，总计60个实验单位。19个重复的差值SE尺度≈.822336，高于原RCBD的√[2×(4/3)/4]≈.816497；20个时约.801514，达到目标。</li></ol>
+<p>RE_plan 不是 actual power 的精确倍数，也不自动保证未来实验具有相同方差。它是沿用指定方差估计、比较 SE 的课程规划指标；正式 power 规划还需效应大小、α、误差分布、自由度与设计条件。这一精度比较也不是 random-block 模型下单个环境总体 mean 的完整方差：后者包含 block 抽样变异，见<a href="#random-block-mean-se">单个mean与同blocks差值的SE</a>。</p>
+<h3>核对课件温室例：6.05从哪里来？</h3>
+<p>课程给 t=3、b=5、MSblock=57.375、MSE_RCBD=3.075。重拟合的CRD输出在notes第11页，MSE_refit=21.175，所以R_refit=21.175/3.075≈6.886179。第12页的规划公式则给RE_plan≈6.045296，保留两位小数即课件的6.05；PPT第18页用5个blocks得到约30.25个重复/处理，取整数应至少31个。两页计算使用不同的CRD误差估计，不能从21.175/3.075直接得到6.05。</p>
+<p>Notes第12页末句的“4×6.05=24.4”另有算术笔误，实际为24.2；本温室例应以PPT明确的5个blocks为准。复算应保留中间精度，再在最后对重复数向上取整。</p>
+<pre><code># Original complete RCBD: three fixed treatments in four complete blocks.
+d &lt;- data.frame(treatment=factor(rep(c("A","B","C"),each=4)),
+                block=factor(rep(1:4,3)),
+                y=c(18,18,20,24,19,23,25,25,23,25,27,29))
+with(d,table(treatment,block))
+fit_block &lt;- aov(y ~ treatment + block,data=d)
+fit_ignore &lt;- aov(y ~ treatment,data=d)
+tab &lt;- summary(fit_block)[[1]]
+print(tab)
+print(summary(fit_ignore))
+t &lt;- nlevels(d$treatment)
+b &lt;- nlevels(d$block)
+error_df &lt;- (t-1)*(b-1)
+ignore_df &lt;- t*(b-1)
+mse &lt;- deviance(fit_block)/error_df
+ms_block &lt;- tab["block","Mean Sq"]
+ss_block &lt;- tab["block","Sum Sq"]
+ss_error &lt;- deviance(fit_block)
+# This ratio describes re-fitting the same observed data without a block term.
+mse_refit &lt;- (ss_block+ss_error)/ignore_df
+ratio_refit &lt;- mse_refit/mse
+# The course planning formula estimates the CRD variance for replication planning.
+mse_plan &lt;- ((b-1)*ms_block+b*(t-1)*mse)/(b*t-1)
+re_plan &lt;- mse_plan/mse
+continuous_reps &lt;- b*re_plan
+required_reps &lt;- ceiling(continuous_reps)
+print(c(RCBD_df=error_df,refit_CRD_df=ignore_df,MSE_RCBD=mse,
+        MSE_refit=mse_refit,refit_ratio=ratio_refit,
+        MSE_planning=mse_plan,planning_RE=re_plan,
+        continuous_reps=continuous_reps,reps_per_treatment=required_reps))
+# Compare SE proxies for the same treatment difference, with equal replication.
+reps &lt;- c(required_reps-1,required_reps)
+print(data.frame(CRD_reps=reps,
+                 SE_difference=sqrt(2*mse_plan/reps),
+                 RCBD_SE_difference=sqrt(2*mse/b)))
+stopifnot(df.residual(fit_ignore)==ignore_df,
+          abs(deviance(fit_ignore)-(ss_block+ss_error))&lt;1e-10,
+          abs(ratio_refit-17/3)&lt;1e-10,
+          abs(re_plan-53/11)&lt;1e-10,required_reps==20)
+# Reproduce the course greenhouse calculation without rounding intermediate values.
+course_t &lt;- 3
+course_b &lt;- 5
+course_mse &lt;- 3.075
+course_msb &lt;- 57.375
+course_refit &lt;- ((course_b-1)*course_msb+
+                (course_t-1)*(course_b-1)*course_mse)/
+               (course_t*(course_b-1)*course_mse)
+course_plan &lt;- ((course_b-1)*course_msb+
+               course_b*(course_t-1)*course_mse)/
+              ((course_b*course_t-1)*course_mse)
+print(c(greenhouse_refit_ratio=course_refit,
+        greenhouse_planning_RE=course_plan,
+        greenhouse_reps=ceiling(course_b*course_plan)))</code></pre><p class="r-download"><a href="../downloads/chapters/chapter-15-efficiency.R" download>下载本节 R 示例</a> · 已含数据和对象定义，可在新 R 会话中运行。<a href="../handbook.html#r-start">查看运行方法</a></p><p>课程定位：<code>classnote/440 - Chapter 15 - 2022 Fall.pdf</code> 第11–12页；<code>PPT/Chapter_15.pptx</code> 第17–18、22页。若有缺失treatment×block cell，或科学上存在不可忽略的treatment×block interaction，上述完整加性RCBD的SS关系及规划解释都需要重新评估。</p></section><section class="lesson" id="random-effects"><h2>Fixed 与 random 的区别是推断目标</h2><p><b>Fixed effect</b> 与 <b>random effect</b> 的区别在推断目标。若只关心这几个指定 levels 的均值差，可视为 fixed；若把这些 levels 看作从更大环境总体中抽出的样本，关注它们的 variance component，则使用 random-effect 结构。</p>
 <p>“随机分配 treatments”与“random effects”不是同一概念。Fixed treatments 也应随机分配；random block 描述的是 block levels 如何代表目标总体以及它们的 covariance。</p>
 <div class="equation">βⱼ~Normal(0,σᵦ²)，εᵢⱼ~Normal(0,σₑ²)<br>同 block 不同单位：Cov(Yᵢⱼ,Yᵢ′ⱼ)=σᵦ²</div>
 <p>共享 βⱼ 的观测会一起偏高或偏低，所以同 block 相关。Balanced fixed-treatments/random-block additive RCBD 中：</p>

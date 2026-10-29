@@ -66,5 +66,9 @@
   "p08-06": "transform",
   "p11-05": "regression-anova",
   "p06-05": "independent-size-planning",
-  "p06-06": "paired-size-planning"
+  "p06-06": "paired-size-planning",
+  "p14-05": "unbalanced-ss-hypotheses",
+  "p15-07": "efficiency",
+  "p04-12": "exact-binomial-test",
+  "p07-07": "variance-ci"
 }

@@ -4,12 +4,12 @@
 
 **学习网站：** https://haoyunli.github.io/cpsc-440-learning-atlas/
 
-10 个学习单元、97 个教学段落、68 道原创改编练习（212 个解题步骤）、10 个章节实验和 5 个交互工作台。另有 20 张原创静态图与 10 组分步图解（共 40 个步骤画面）。每个单元从问题与动机进入定义、计算机制、worked examples、条件、误解与练习，并明确掌握目标。
+10 个学习单元、99 个教学段落、72 道原创改编练习（228 个解题步骤）、10 个章节实验和 6 个交互工作台。另有 20 张原创静态图与 10 组分步图解（共 40 个步骤画面）。每个单元从问题与动机进入定义、计算机制、worked examples、条件、误解与练习，并明确掌握目标。
 
 新增的自学入口：
 
-- [练习工坊](practice.html)：50 道数值题、18 道选择题；按章节、难度、题型与复习状态筛选，自动判题、逐选项解释、常见计算岔路反馈、提示、可逐步推进的解析、每章抽一题综合自测（本轮进度与累计记录分开）。每题附独立 base R 脚本；进度仅保存于本浏览器。每题回到对应知识点；筛选和自测模式与 URL 同步，脚本未就绪时自动判题控件保持禁用。
-- [交互实验室](labs.html)：分布与单双尾概率、Welch / pooled / paired 数据工作台、可暂停的 residual / Q–Q 逐点演示、研究问题与设计方法向导，以及可编辑系数、均值与样本量的 contrast 实验（普通 / Bonferroni / Scheffé 区间、正交性与当前设置 R 代码）。
+- [练习工坊](practice.html)：53 道数值题、19 道选择题；按章节、难度、题型与复习状态筛选，自动判题、逐选项解释、常见计算岔路反馈、提示、可逐步推进的解析、每章抽一题综合自测（本轮进度与累计记录分开）。每题附独立 base R 脚本；进度仅保存于本浏览器。每题回到对应知识点；筛选和自测模式与 URL 同步，脚本未就绪时自动判题控件保持禁用。
+- [交互实验室](labs.html)：分布与单双尾概率、Welch / pooled / paired 数据工作台、可暂停的 residual / Q–Q 逐点演示、研究问题与设计方法向导，以及可编辑系数、均值与样本量的 contrast 实验（普通 / Bonferroni / Scheffé 区间、正交性与当前设置 R 代码），以及可编辑观测、追踪同一点的变换与均值实验（平方根 / 对数、回变换中心、稳定二阶矩差值、当前数据 R 代码）。
 - [自学手册](handbook.html)：零基础路线、公式符号与分位数读法、11 类方法速查、完整 R 入门分析、结论写法、20 个中英术语检索。
 - [辅助资源](resources.html)：按章筛选 OpenIntro 视频与教材、Seeing Theory 可视化、NIST 方法说明和 R 官方文档，每个资源附学习任务。
 
@@ -37,7 +37,9 @@ python3 -m http.server 4400
 python3 tools/build.py
 ```
 
-补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 48 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
+补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 53 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
+
+Ch04 区分单点概率、尾概率与精确二项检验的双侧定义；Ch07 补齐左右尾 / 等尾双侧与匹配区间，并在同一总体 variance 下比较不同分布的实际错误率及 Monte Carlo 误差。Ch14 用完整不平衡数据逐步算 Type I / II / III SS 与各自假设；Ch15 分开重拟合 MSE 比值与课程规划 RE，核对自由度和整数重复数。
 
 Ch06 补齐等组、不等分配和 paired 样本量规划，取整后重新核验实际 t power，并用ρ敏感性分析说明差值 SD 的规划依据。Ch08 区分变换后中心、回变换 estimand 与原尺度 arithmetic mean；Ch11 用 coefficient covariance 连起系数 CI、mean CI 和 PI，并提供 correlation bias 的独立模拟与 MCSE。
 
@@ -54,6 +56,8 @@ node tests/numerical.mjs
 node tests/workbench.mjs
 node tests/inference.mjs
 node tests/summary.mjs
+node tests/transformation.mjs
+node tests/progress.mjs
 node tests/contrasts.mjs
 node tests/learning.mjs
 python3 tests/site.py
@@ -61,9 +65,11 @@ python3 tests/practice_paths.py
 python3 tests/r_examples.py
 ```
 
-工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。68 道题、48 个章节示例及 R 入门脚本，共 117 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
+工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。72 道题、53 个章节示例及 R 入门脚本，共 126 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
 
 数据摘要实验保留微小数值尺度，用明确标注的坐标基准处理大数附近的微小差异；常量数据的 SD/variance 正确为零。CI 重复覆盖明确为独立的双侧已知 σ 演示，说明它与单侧检验界限的区别。
+
+变换实验用 23 组独立 R 对照核验；近常数平方根数据用有理化差值计算二阶矩，避免把浮点抵消当作教学差异；对数差值不可分辨时明确提示。隔离进度测试覆盖错误 JSON 形状、重复/未知章节、无效练习字段、有效记录保留和搜索加载失败；浏览器测试使用独立端口，避免改动用户已有进度。
 
 浏览器验证覆盖桌面与手机布局、做错→待复习→重新答对、保存进度、综合自测、术语搜索、实验参数与动画。原有章节还检查了 interval 播放/暂停/重置、配对 covariance、设计平衡、prediction interval 宽度、输入错误、搜索与内部链接。浏览器字体、自定义辅助技术组合仍可能需要使用者反馈。
 

@@ -1,5 +1,9 @@
 import * as M from './math.mjs';
 import { parseSample } from './sample.mjs';
+const readingChapterIds = ['01', '04', '05', '06', '07', '08', '09', '14', '15', '11'];
+export function normalizeReadingProgress(value) {
+  return Array.isArray(value) ? [...new Set(value.filter(id => typeof id === 'string' && readingChapterIds.includes(id)))] : [];
+}
 const $=(s,r=document)=>r.querySelector(s);const fmt=(x,d=3)=>Number.isFinite(x)?x.toFixed(d):'—';const ns='http://www.w3.org/2000/svg';
 function svg(label){return `<svg viewBox="0 0 680 320" role="img" aria-label="${label}"></svg>`}
 function tag(type,attrs={},text=''){const n=document.createElementNS(ns,type);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);if(text)n.textContent=text;return n}
@@ -93,9 +97,9 @@ const builders={summary:labSummary,probability:labProbability,inference:labInfer
 if (typeof document !== 'undefined') {
 for(const host of document.querySelectorAll('[data-lab]')){const kind=host.dataset.lab,[title,intro]=instructions[kind];host.innerHTML=`<h2>${title}</h2><p class="intro">${intro}</p><div class="lab-body"></div>`;builders[kind]($('.lab-body',host))}
 const sidebar=$('.sidebar details');if(sidebar&&matchMedia('(min-width:701px)').matches)sidebar.open=true;
-function getProgress(){try{return JSON.parse(localStorage.getItem('cpsc440-progress')||'[]')}catch{return []}}function setProgress(v){try{localStorage.setItem('cpsc440-progress',JSON.stringify(v));return true}catch{return false}}
+function getProgress(){try{return normalizeReadingProgress(JSON.parse(localStorage.getItem('cpsc440-progress')||'[]'))}catch{return []}}function setProgress(v){try{localStorage.setItem('cpsc440-progress',JSON.stringify(normalizeReadingProgress(v)));return true}catch{return false}}
 const complete=$('#complete');if(complete){function refresh(){complete.setAttribute('aria-pressed',String(getProgress().includes(complete.dataset.chapter)));complete.textContent=getProgress().includes(complete.dataset.chapter)?'已标记完成 · 再点撤销':'标记本章已完成'}refresh();complete.onclick=()=>{let p=getProgress();const id=complete.dataset.chapter;p=p.includes(id)?p.filter(v=>v!==id):[...p,id];if(!setProgress(p)){$('#progress-error').textContent='浏览器未允许保存进度；正文与实验仍可使用。'}refresh()}}
-const prog=$('#progress-count');if(prog)prog.textContent=`已标记 ${getProgress().length}/10 个单元。进度只保存在此浏览器。`;
-const search=$('#search');if(search){let data=null;const render=()=>{const q=search.value.trim().toLocaleLowerCase(),result=$('#search-results');result.replaceChildren();if(q.length<2)return;if(!data){result.textContent='正在读取搜索索引…';return}const found=data.filter(v=>(v.title+' '+v.text).toLocaleLowerCase().includes(q)).slice(0,16);if(!found.length){result.textContent='没有找到对应内容，试试英文 technical term 或中文概念。';return}for(const v of found){const a=document.createElement('a');a.className='search-result';a.href=v.url;a.textContent=v.title;const s=document.createElement('span');s.textContent=v.chapter;a.append(s);result.append(a)}};search.addEventListener('input',render);fetch('./search.json').then(r=>{if(!r.ok)throw Error('Search index');return r.json()}).then(v=>{data=v;render()}).catch(()=>$('#search-results').textContent='搜索索引未载入，请从章节目录阅读。')}
+const prog=$('#progress-count');if(prog)prog.textContent=`已标记 ${getProgress().length}/${readingChapterIds.length} 个单元。进度只保存在此浏览器。`;
+const search=$('#search');if(search){let data=null,loadFailed=false;const failureMessage='搜索索引未载入，请从章节目录阅读。';const render=()=>{const q=search.value.trim().toLocaleLowerCase(),result=$('#search-results');result.replaceChildren();if(q.length<2)return;if(!data){result.textContent=loadFailed?failureMessage:'正在读取搜索索引…';return}const found=data.filter(v=>(v.title+' '+v.text).toLocaleLowerCase().includes(q)).slice(0,16);if(!found.length){result.textContent='没有找到对应内容，试试英文 technical term 或中文概念。';return}for(const v of found){const a=document.createElement('a');a.className='search-result';a.href=v.url;a.textContent=v.title;const s=document.createElement('span');s.textContent=v.chapter;a.append(s);result.append(a)}};search.addEventListener('input',render);fetch('./search.json').then(r=>{if(!r.ok)throw Error('Search index');return r.json()}).then(v=>{if(!Array.isArray(v)||!v.every(item=>item&&['title','text','chapter','url'].every(key=>typeof item[key]==='string')))throw Error('Invalid search index');data=v;render()}).catch(()=>{data=null;loadFailed=true;$('#search-results').textContent=failureMessage})}
 
 }

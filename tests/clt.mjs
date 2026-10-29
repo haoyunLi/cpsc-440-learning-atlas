@@ -171,20 +171,53 @@ try {
   }
   assert.equal(action('one'), one); assert.equal(action('hundred'), hundred); assert.equal(details.open, true);
 
-  // Evaluate the actual Chapter 4 wrapper: it must mount the new CLT region
-  // once while preserving the original binomial controls, readout and graph.
+  // Mount both real modules. Parent queries must include subsequently mounted
+  // descendants, as the browser does. CLT deliberately has no #cltn-v output.
   const source = readFileSync(new URL('../assets/atlas.mjs', import.meta.url), 'utf8').replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '');
   const binomialFields = Object.fromEntries(Object.entries({ bn: 20, bp: .85, bk: 18 }).map(([id, value]) => [id, Object.assign(new Element('input'), { id, value: String(value) })]));
   const binomialSvg = new Element('svg'), binomialReadout = new Element(), cltRoot = new Element();
   const binomialOutputs = Object.fromEntries(Object.keys(binomialFields).map(id => [`${id}-v`, new Element()]));
-  const host = { querySelector: selector => selector === 'svg' ? binomialSvg : selector === '.readout' ? binomialReadout : selector === '[data-clt]' ? cltRoot : binomialFields[selector.slice(1)] || binomialOutputs[selector.slice(1)], querySelectorAll: () => Object.values(binomialFields) };
+  const nested = Object.fromEntries(selectors.map(name => [`[data-clt-${name}]`, new Element(name === 'raw' || name === 'means' ? 'svg' : 'div')]));
+  for (const action of ['one', 'hundred', 'reset']) nested[`[data-clt-action="${action}"]`] = new Element('button');
+  const nestedN = nested['[data-clt-n]']; nestedN.id = 'cltn'; nestedN.value = '10';
+  cltRoot.querySelector = selector => nested[selector] || null;
+  const host = {
+    querySelector: selector => selector === 'svg' ? binomialSvg : selector === '.readout' ? binomialReadout : selector === '[data-clt]' ? cltRoot : selector === '#cltn' && cltRoot.dataset.cltReady ? nestedN : binomialFields[selector.slice(1)] || binomialOutputs[selector.slice(1)] || null,
+    querySelectorAll: selector => ['input[type=range]', 'input,select,textarea'].includes(selector) ? [...Object.values(binomialFields), ...(cltRoot.dataset.cltReady ? [nestedN] : [])] : []
+  };
   let mounts = 0;
-  const context = vm.createContext({ M, document: { querySelector: () => null, querySelectorAll: () => [], createElementNS: (namespace, tag) => new Element(tag) }, mountCLT: root => { assert.equal(root, cltRoot); mounts++; } });
+  const context = vm.createContext({ M, document: { querySelector: () => null, querySelectorAll: () => [], createElementNS: (namespace, tag) => new Element(tag) }, mountCLT: root => { assert.equal(root, cltRoot); mounts++; mountCLT(root); } });
   vm.runInContext(`${source}\nglobalThis.mountProbability=labProbability;`, context);
   context.mountProbability(host); assert.equal(mounts, 1);
+  assert.equal(host.querySelectorAll('input[type=range]').length, 4);
+  assert.equal(host.querySelector('#cltn-v'), null, 'Do not invent an output that is absent in the mounted DOM');
+  assert.equal(nestedN.events.input.length, 1, 'Only the CLT module handles its sample-size input');
   assert.equal(binomialSvg.children.filter(node => node.tag === 'rect').length, 21);
   assert.match(binomialReadout.textContent, /P\(Y≥18\)=0.404896/);
-  binomialFields.bk.value = '21'; await binomialFields.bk.dispatch('input'); assert.match(binomialReadout.textContent, /P\(Y≥21\)=0/);
+  const cltState = () => JSON.stringify(Object.entries(nested).map(([selector, element]) => [selector, element.value, element.textContent, element.innerHTML, element.disabled, element.children]));
+  const binomialState = () => JSON.stringify([binomialReadout.textContent, binomialSvg.children, Object.values(binomialOutputs).map(element => element.textContent)]);
+  const untouchedBinomial = binomialState();
+  await nested['[data-clt-action="one"]'].dispatch('click');
+  assert.match(nested['[data-clt-status]'].textContent, /n=10.*B=1.*nB=10/);
+  assert.equal(binomialState(), untouchedBinomial, 'Drawing a sample must not update the binomial graph or readout');
+  const untouchedCLT = cltState();
+  binomialFields.bn.value = '1'; await binomialFields.bn.dispatch('input');
+  assert.equal(binomialOutputs['bn-v'].textContent, '1');
+  assert.equal(binomialSvg.children.filter(node => node.tag === 'rect').length, 2);
+  assert.match(binomialReadout.textContent, /P\(Y≥18\)=0/);
+  assert.equal(cltState(), untouchedCLT, 'A parent range update must leave the accumulated CLT sample intact');
+  binomialFields.bk.value = '1'; await binomialFields.bk.dispatch('input');
+  assert.equal(binomialOutputs['bk-v'].textContent, '1'); assert.match(binomialReadout.textContent, /P\(Y≥1\)=0.850000/);
+  binomialFields.bp.value = '0.5'; await binomialFields.bp.dispatch('input');
+  assert.equal(binomialOutputs['bp-v'].textContent, '0.5'); assert.match(binomialReadout.textContent, /P\(Y≥1\)=0.500000/);
+  assert.equal(cltState(), untouchedCLT);
+  const changedBinomial = binomialState();
+  nestedN.value = '25'; await nestedN.dispatch('input');
+  assert.match(nested['[data-clt-status]'].textContent, /n=25.*B=0.*nB=0/);
+  assert.equal(binomialState(), changedBinomial, 'Changing CLT n must not alter binomial controls or outputs');
+  await nested['[data-clt-action="hundred"]'].dispatch('click');
+  assert.match(nested['[data-clt-status]'].textContent, /n=25.*B=100.*nB=2500/);
+  assert.equal(binomialState(), changedBinomial);
 } finally {
   for (const [key, descriptor] of Object.entries(saved)) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; }
 }

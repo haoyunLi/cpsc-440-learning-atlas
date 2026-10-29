@@ -16,7 +16,8 @@ function axes(s,xlabel,ylabel,xmin,xmax,ymin=0,ymax=1,xTickFormat=v=>fmt(v,1),yT
 function curve(s,fn,xmin,xmax,map,cl='plot-line'){let d='';for(let i=0;i<=180;i++){const v=xmin+(xmax-xmin)*i/180;d+=(i?' L':'M')+map.x(v)+','+map.y(fn(v))}add(s,'path',{d,class:cl})}
 function area(s,fn,a,b,map,color='#b9d9cc'){if(b<=a)return;let d=`M${map.x(a)},${map.y(0)}`;for(let i=0;i<=90;i++){const v=a+(b-a)*i/90;d+=` L${map.x(v)},${map.y(fn(v))}`}d+=` L${map.x(b)},${map.y(0)} Z`;add(s,'path',{d,fill:color,opacity:.7})}
 function range(id,label,min,max,step,value){return `<label for="${id}">${label} <output id="${id}-v">${value}</output><input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}"></label>`}
-function setup(el,html,fn){el.innerHTML=html;const update=()=>{el.querySelectorAll('input[type=range]').forEach(i=>{$('#'+i.id+'-v',el).textContent=i.value});fn()};el.querySelectorAll('input,select,textarea').forEach(i=>i.addEventListener('input',update));update();return update}
+// Keep nested modules out of this lab's output updates.
+function setup(el,html,fn){el.innerHTML=html;const ownedRanges=[...el.querySelectorAll('input[type=range]')];const update=()=>{ownedRanges.forEach(i=>{$('#'+i.id+'-v',el).textContent=i.value});fn()};el.querySelectorAll('input,select,textarea').forEach(i=>i.addEventListener('input',update));update();return update}
 function val(id,el){return Number($('#'+id,el).value)}
 export function chapterProbabilityLabel(value, complement = 1 - value, digits = 6) {
   if (!Number.isFinite(value) || value < 0 || value > 1) return '—';

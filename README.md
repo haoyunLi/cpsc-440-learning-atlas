@@ -67,6 +67,7 @@ node tests/randomization.mjs
 node tests/student.mjs
 node tests/paired.mjs
 node tests/anova.mjs
+node tests/study_case.mjs
 node tests/ci_geometry.mjs
 node tests/distribution_display.mjs
 node tests/search.mjs
@@ -93,7 +94,7 @@ python3 tests/practice_paths.py
 python3 tests/r_examples.py
 ```
 
-工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、77 个章节示例及 R 入门脚本，共 169 个下载脚本在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
+工作台数值测试独立对照 R，包括极小尾概率、无效输入、接近数值精度的常量数据与配对约束。推断实验还检查单侧 / 双侧模型中原假设与备择的分类，只有真值满足备择时才将不拒绝概率称为 β。91 道题、77 个章节示例及 R 入门脚本，共 170 个下载脚本（含贯穿案例）在独立、干净的 R 会话中执行，警告也视为失败；判题测试覆盖空输入、错误格式、容差、整数要求。结构测试检查所有页面内部链接、搜索锚点、来源覆盖和静态题目。
 
 Ch08 的 Kruskal–Wallis 实验可编辑三组各3个观测，追踪 pooled ranks、ties correction 与全部1680种固定组规模标签分配；逐项浏览保留观测身份和重复统计量的分配重数，比较χ²近似与条件exact P。正文与新练习包含完整独立R枚举。Ch15 区分block内随机化、全场CRD分配和对既有RCBD数据省略block的分析，并核对两个随机化空间的大小。
 
@@ -154,3 +155,5 @@ Ch06 明确 paired 可以是同一个体的重复观测，也可以是设计中�
 Ch08 从“每组 sample variance 的加权合并”推导 MSE，并在等 n 时用 n×组均值的 sample variance 解释 MStrt；明确零假设约束总体 means，不能要求每次样本 means 完全相等。正文区分真实 error 与 fitted residual，以及零和参数化的等权 baseline 和总SS的加权 grand mean。ANOVA 实验与正文共用 A=[4,5,6]、B=[7,8,9]、C=[10,11,12]，逐个观测展示带方向的偏差、交叉项、平方和与完整 ANOVA 表；滑块调整构造样本，不声称进行零假设下的随机模拟。
 
 ANOVA 实验独立对照 R 核验全部500组合法滑块设置，逐点验证总偏差、组间偏差、残差、平方与交叉项；对小 P 使用相对误差。500×9 个选中状态核对坐标与有向箭头，短段箭头不超出本段；14份实际导出R也执行检查。全部169个独立R下载脚本（77个章节示例）通过。
+
+原创贯穿案例 `case-study.html` 连接研究问题、实验单位、数据整理、Welch、诊断与结论。12盆×3株的36行CSV和完整R使用同一份教学数据；图上方选择器与表格按盆ID双向联动，六步自检支持逐项解释、改答撤销旧判定与重新检查，不写入累计进度。正确盆级结果与明确标为无效的逐株伪重复输出分别独立对照R；静态数据表、解释和R在无JavaScript时仍可阅读。来源定位包括课程experimental unit与Welch讲义，以及Penn State STAT502的公开实验设计教材。

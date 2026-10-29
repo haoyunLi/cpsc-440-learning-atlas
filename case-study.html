@@ -1,0 +1,197 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CPSC 440 农学统计学习图谱：从数据描述、概率推断，到 ANOVA、实验设计与 regression。中文逐步讲解与可操作实验。"><title>从实验单位到完整分析 · CPSC 440 Atlas</title><link rel="icon" href="./assets/favicon.svg"><link rel="stylesheet" href="./assets/style.css?v=d3798f00b3"><link rel="stylesheet" href="./assets/learning.css?v=eb4ca6be51"><link rel="stylesheet" href="./assets/workbench.css?v=d45c4cc757"><script type="module" src="./assets/learning.mjs?v=db8202cd65"></script><script type="module" src="./assets/workbench.mjs?v=9edb756dc3"></script><script type="module" src="./assets/atlas.mjs?v=e4728c60d5"></script><script type="module" src="./assets/contrast.mjs?v=a2eb66cefe"></script><script type="module" src="./assets/transformation.mjs?v=7bb7255a76"></script><link rel="stylesheet" href="./assets/ranks.css?v=ebb98efb25"><script type="module" src="./assets/ranks.mjs?v=8c2f4c677f"></script><link rel="stylesheet" href="./assets/conditional.css?v=d114a5fe76"><script type="module" src="./assets/conditional.mjs?v=2b1a645610"></script><script type="module" src="./assets/walkthrough.mjs?v=53f6ba509b"></script><link rel="stylesheet" href="./assets/study-case.css?v=5893a4d471"><script type="module" src="./assets/study-case.mjs?v=8302fd07fb"></script></head><body><a class="skip" href="#main">跳到正文</a><header><a class="brand" href="./index.html">CPSC 440 <span>Atlas</span></a><nav class="desktop-nav" aria-label="主导航"><a href="./index.html#path">学习路径</a><a href="./practice.html">练习工坊</a><a href="./labs.html">交互实验</a><a href="./handbook.html">自学手册</a><a href="./resources.html">辅助资源</a></nav><details class="mobile-menu"><summary>目录</summary><nav aria-label="手机导航"><a href="./index.html#path">学习路径</a><a href="./practice.html">练习工坊</a><a href="./labs.html">交互实验</a><a href="./handbook.html">自学手册</a><a href="./resources.html">辅助资源</a><a href="./sources.html">来源与使用</a></nav></details></header><main id="main" class="wrap study-page handbook" data-study-case><div class="study-heading"><p class="status">原创贯穿案例 · Ch 1–3 / Ch 5 / Ch 6 / Ch 8 / Ch 15</p><h1>36 行数据，究竟有多少个独立重复？</h1><p class="study-lead">从一项温室试验出发，亲手走完设计、整理、推断与结论。每一步都沿用同一份数据。</p><p>建议先学<a href="chapters/01.html#variables">实验单位</a>与<a href="chapters/06.html#welch">两独立样本 Welch</a>；不熟悉 R 时可先看<a href="handbook.html#r-start">R 入门</a>。</p></div><nav class="study-jumps" aria-label="案例六步"><a href="#case-design">01 · 研究设计</a><a href="#case-data">02 · 整理数据</a><a href="#case-method">03 · 选定方法</a><a href="#case-checks">04 · 核对条件</a><a href="#case-results">05 · 计算与输出</a><a href="#case-report">06 · 写出结论</a></nav><div class="case-learning-status"><p data-case-progress role="status">六处自检可在启用 JavaScript 后检查；所有解释、数据和 R 始终可读。</p><p class="status">自检只记录本页当前状态，刷新即重新开始；不计入练习工坊的累计记录。</p><button type="button" class="secondary" data-case-reset disabled>重新做六步自检</button></div><section id="case-design" class="lesson">
+<h2>1 · 先确定研究问题与实验单位</h2>
+<p>研究者想比较肥料 A、B 对株高的影响。设定同一温室、同一品种、同一测量时点，采用本次可用的12盆（未从更大总体随机抽取），每盆3株；处理施给整盆。研究前规定：<b>每盆三株高度的平均值是这一盆的响应</b>，单位 cm，比较方向固定为 <b>B−A</b>。下面全部数值是原创构造的教学数据，用来练习分析过程，不是实际试验结果。</p>
+<p>假设实验已将12盆完全随机分配为 A、B 各6盆，没有 block、没有预先匹配，也没有盆与盆之间的处理干扰。P01–P12 是盆的身份编号，不是 pairs 或 blocks；两组数量相同，也不会自动产生配对。株在盆内接受共同处理，所以<b>盆是 experimental unit，株是盆内 measurement / sampling unit</b>。36条株高记录不等于36个独立处理重复。</p>
+<div class="equation">响应 Y = 一盆内3株高度的平均值（cm）<br>目标参数 Δ=μB−μA；正值表示 B 的总体平均盆级响应较高</div>
+<p>这里 μA、μB 指在上述品种、温室条件、时点及测量方案下，两种处理对应的总体平均盆级响应。<b>Random assignment 不等于 random sampling：</b>随机分配帮助本实验的处理比较，却没有使这12盆自动代表所有温室、品种与季节。向更广人群或环境推广，需要额外的抽样或科学依据。</p>
+<p><b>现在做：</b>先在纸上写出“谁接受处理、每个分析值是什么、差的方向是什么、结论适用于哪些条件”，再看数字。回看<a href="chapters/01.html#population">总体与推广范围</a>、<a href="chapters/01.html#variables">实验单位与测量单位</a>；用<a href="practice.html#p01-01">实验单位题</a>检验自己是否只是在数数据行。</p>
+<div class="case-checkpoint"><form data-case-question="design"><fieldset><legend>12盆植物按盆随机分配处理A或B，各6盆；每盆按同一协议测3株。没有预设配对或blocks。处理比较的实验单位是什么？</legend><label class="answer-option"><input type="radio" name="answer" value="plant" disabled><span>36株植物，每株都是一个独立处理重复</span></label><label class="answer-option"><input type="radio" name="answer" value="pot" disabled><span>12盆植物，盆是接受处理分配的单位</span></label><label class="answer-option"><input type="radio" name="answer" value="treatment" disabled><span>A、B两个处理标签，所以样本量是2</span></label></fieldset><button type="submit" disabled>检查这一步</button><p data-case-feedback role="status" aria-live="polite"></p></form><details><summary>核对这一步的解释</summary><p>先问随机分配发生在哪一层：本例一次分配决定整盆使用A还是B，因此盆是experimental unit，株是subsample。盆ID必须保留，不能让36行表格掩盖12个独立处理单位。分析还需合理的盆间独立性条件；随机分配本身不会排除所有空间依赖、相互影响或实施偏差。</p></details></div>
+</section>
+
+<section id="case-data" class="lesson">
+<h2>2 · 从36条记录整理成12个盆级响应</h2>
+<p>每盆的三株数据依次构造为“盆均值−1、盆均值、盆均值+1”。例如 P01 接受 A，三株为11、12、13 cm，盆响应为(11+12+13)/3=12 cm；P02 接受 B，三株为15、16、17 cm，盆响应为16 cm。每行原始记录都保留 pot ID 与 treatment，不能只留下36个高度而丢掉所属盆。</p>
+<div data-case-explorer><p class="status">原始数据为本站构造的教学数据；盆编号不表示位置，也不是配对编号。每行列出同一盆的三株；CSV 中每株占一行。选择盆编号，追踪其三株如何形成一个分析值。</p>
+<div data-case-visual></div><p data-case-selected role="status" aria-live="polite">P01：三株 11、12、13 cm → 盆均值 (11+12+13)/3 = 12 cm。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="案例数据表，可横向滚动"><table><caption>12 盆的全部 36 个原始值与分析响应（cm）</caption><thead><tr><th scope="col">盆 ID</th><th scope="col">处理</th><th scope="col">株 S1</th><th scope="col">株 S2</th><th scope="col">株 S3</th><th scope="col">盆均值</th></tr></thead><tbody><tr data-pot-id="P01"><th scope="row"><button type="button" data-case-select value="P01" disabled>P01</button></th><td>A</td><td>11</td><td>12</td><td>13</td><td>12</td></tr><tr data-pot-id="P02"><th scope="row"><button type="button" data-case-select value="P02" disabled>P02</button></th><td>B</td><td>15</td><td>16</td><td>17</td><td>16</td></tr><tr data-pot-id="P03"><th scope="row"><button type="button" data-case-select value="P03" disabled>P03</button></th><td>B</td><td>17</td><td>18</td><td>19</td><td>18</td></tr><tr data-pot-id="P04"><th scope="row"><button type="button" data-case-select value="P04" disabled>P04</button></th><td>A</td><td>13</td><td>14</td><td>15</td><td>14</td></tr><tr data-pot-id="P05"><th scope="row"><button type="button" data-case-select value="P05" disabled>P05</button></th><td>A</td><td>15</td><td>16</td><td>17</td><td>16</td></tr><tr data-pot-id="P06"><th scope="row"><button type="button" data-case-select value="P06" disabled>P06</button></th><td>B</td><td>19</td><td>20</td><td>21</td><td>20</td></tr><tr data-pot-id="P07"><th scope="row"><button type="button" data-case-select value="P07" disabled>P07</button></th><td>A</td><td>17</td><td>18</td><td>19</td><td>18</td></tr><tr data-pot-id="P08"><th scope="row"><button type="button" data-case-select value="P08" disabled>P08</button></th><td>B</td><td>21</td><td>22</td><td>23</td><td>22</td></tr><tr data-pot-id="P09"><th scope="row"><button type="button" data-case-select value="P09" disabled>P09</button></th><td>B</td><td>23</td><td>24</td><td>25</td><td>24</td></tr><tr data-pot-id="P10"><th scope="row"><button type="button" data-case-select value="P10" disabled>P10</button></th><td>A</td><td>19</td><td>20</td><td>21</td><td>20</td></tr><tr data-pot-id="P11"><th scope="row"><button type="button" data-case-select value="P11" disabled>P11</button></th><td>B</td><td>25</td><td>26</td><td>27</td><td>26</td></tr><tr data-pot-id="P12"><th scope="row"><button type="button" data-case-select value="P12" disabled>P12</button></th><td>A</td><td>21</td><td>22</td><td>23</td><td>22</td></tr></tbody></table></div>
+<p><a href="downloads/study-case.csv" download>下载 36 行原始 CSV</a> · <a href="downloads/study-case.R" download>下载完整 R 脚本</a></p></div>
+<p>核对身份与处理后，先按 <b>pot ID + treatment</b> 求均值，再比较两种处理。整理出的 A 组盆响应为[12,14,16,18,20,22]，B 组为[16,18,20,22,24,26]。因此 nA=nB=6，总计12个盆级响应；统计量 ȳA=17、ȳB=21，样本均值差为4 cm。</p>
+<p><b>聚合是本例预先定义响应的实现，不是万能补救。</b> 本例每盆均有3株、没有缺失、采用相同测量方案，而且科学目标就是平均盆级响应。多测盆内的株可以帮助测量这盆的响应，但不能增加独立分配的盆数。若每盆测量数不同、存在缺失、目标是株级总量，或记录来自连续时间的 repeated measurements，就要重新明确目标、权重和误差模型，不能一律求均值了事。若每个处理实际只有一盆，聚合后仍是每组一盆，不能从盆内多株凭空得到处理层面的独立重复。</p>
+<p><b>现在做：</b>在运行检验前确认有12个唯一 pot ID、每盆仅一个 treatment、每盆恰好3条非缺失记录、A/B 各6盆。这个核对顺序把<a href="chapters/01.html#variables">数据身份</a>连接到<a href="chapters/06.html#sample-size">公式里的 n</a>；不要先把整个 CSV 的行数填进样本量。</p>
+<div class="case-checkpoint"><form data-case-question="data"><fieldset><legend>目标是比较按本例同一取样协议定义的每盆平均响应。36条记录完整，每盆恰好3株。进入两组分析前，应怎样整理数据？</legend><label class="answer-option"><input type="radio" name="answer" value="all_plants" disabled><span>直接把每组18株作为18个独立观测</span></label><label class="answer-option"><input type="radio" name="answer" value="two_means" disabled><span>按处理汇总，只留下A、B两个总均值</span></label><label class="answer-option"><input type="radio" name="answer" value="pot_means" disabled><span>核对盆ID和处理后，每盆先求三株均值，保留12行</span></label></fieldset><button type="submit" disabled>检查这一步</button><p data-case-feedback role="status" aria-live="polite"></p></form><details><summary>核对这一步的解释</summary><p>每盆三株取平均后，A组为[12,14,16,18,20,22]，B组为[16,18,20,22,24,26]；各有6个独立盆均值。两组均值分别17和21，样本variance都为14。此处聚合适用于明确的盆平均目标、相同取样协议和完整的三株记录；不能把它当成任意cluster、不同株数、重复时间点或缺失数据的通用处理办法。</p></details></div>
+</section>
+
+<section id="case-method" class="lesson">
+<h2>3 · 从设计选择方法，再写假设</h2>
+<p>现在比较的是两个独立组的<b>总体 mean</b>，不是 median，也不是同一盆的 before / after。研究前指定双侧 α=.05、95% CI，采用 <b>Welch two-sample t-test</b>：它分别估计两组盆级响应的 variance，不额外强加共同总体 variance。这里的小样本推断仍依赖各组盆级响应的近似正态性与适当的独立观测模型。</p>
+<div class="equation">H₀: Δ=μB−μA=0；Hₐ: Δ≠0<br>Δ̂=ȳB−ȳA=21−17=4 cm</div>
+<p>两组各自相对均值的偏差都是[−5,−3,−1,1,3,5]，平方和为70，所以 sA²=sB²=70/(6−1)=14 cm²。样本方差恰好相同不证明总体方差相同；这份构造数据也不能成为看过结果后改选 pooled 的理由。</p>
+<div class="equation">SE=√(sB²/nB+sA²/nA)=√(14/6+14/6)=2.160246899 cm<br>ν=[14/6+14/6]² / [(14/6)²/5+(14/6)²/5]=10<br>t=(Δ̂−0)/SE=4/2.160246899=1.851640200</div>
+<p>本例 Welch df 恰好为10，一般可以不是整数。程序应明确按 B−A 调用，例如 <code>t.test(b, a, alternative="two.sided", var.equal=FALSE, conf.level=.95)</code>，其中 a、b 含各自的6个<b>盆均值</b>。R 的 <code>mu=0</code> 表示被检验的均值差，不是某一组均值。交换输入会反转差与区间端点方向，双侧 P 保持不变。</p>
+<p><b>现在做：</b>先自己写出上述三个式子，再与<a href="chapters/06.html#welch">Welch 的 SE 与 df</a>、<a href="chapters/06.html#pvalue">尾部和差值方向</a>对照；随后做<a href="practice.html#p06-01">另一组样本量的 Welch 题</a>。不要因为本例差为正，就临时把双侧改为右侧检验。</p>
+<div class="case-checkpoint"><form data-case-question="method"><fieldset><legend>盆之间独立，A、B各6盆，原设计没有配对关系。目标为总体盆平均响应差μB−μA，预先采用双侧α=.05；没有额外依据假定两总体variance相同。哪种方法匹配本题？</legend><label class="answer-option"><input type="radio" name="answer" value="welch" disabled><span>对12个盆均值作独立两组Welch检验，固定B−A方向</span></label><label class="answer-option"><input type="radio" name="answer" value="paired" disabled><span>两组恰好各6盆，所以把两列按行配对做paired t</span></label><label class="answer-option"><input type="radio" name="answer" value="pooled_from_sample" disabled><span>两个样本SD恰好相等，因此认定总体等方差并选pooled</span></label></fieldset><button type="submit" disabled>检查这一步</button><p data-case-feedback role="status" aria-live="polite"></p></form><details><summary>核对这一步的解释</summary><p>使用B盆均值减A盆均值，差的估计为21−17=4。Welch的SE为√(sB²/nB+sA²/nA)，df使用Satterthwaite公式。本例nA=nB=6、sA²=sB²=14使Welch df恰好为10；这不意味着Welch在任意异方差小样本下都具有精确t参考分布，也不证明实际总体方差相等。</p></details></div>
+</section>
+
+<section id="case-checks" class="lesson">
+<h2>4 · 检查的是盆级模型，不是36行能否通过检验</h2>
+<p>诊断不能取代设计。先核对随机分配是否按计划施给每盆，有没有共用处理容器、跨盆影响、位置或时间依赖；若实际是整托盘统一接受处理，实验单位可能是托盘，需要回到第1步。画得整齐的 Q–Q plot 无法证明12盆独立。</p>
+<ol>
+<li><b>看盆级原始值。</b> 分组画6个 A 盆和6个 B 盆的点图，核对单位、异常值与录入错误。P01 的三株都很接近，并不能证明6个 A 盆之间变异很小。</li>
+<li><b>看组内形状。</b> 分别查看每组盆响应，或各组减去本组均值后的残差 Q–Q 图。两组中心化值在本例都是[−5,−3,−1,1,3,5]；不要混合 A、B 的原始中心后用一张图判断各组正态性。</li>
+<li><b>看 spread，但保留预定方法。</b> Welch 允许两个总体 variance 不同。不需要先让 variance test “通过”才运行它，也不应按一次 Shapiro 或 Brown–Forsythe 的 P 在方法间机械切换。小样本图形与检验都可能难以识别偏离。</li>
+</ol>
+<p><b>每组只有 n=6。</b> 这些对称、等间距的数据是为了手算而构造，不能证明真实盆级分布正态、估计长期误报率，或验证95%区间的实际覆盖率。若真实资料有严重偏态、极端值或依赖，应调查记录与设计，并评估适合原研究目标的模型；不能为显著性删除点，也不能把均值问题未经说明改成秩或 median 问题。</p>
+<p><b>现在做：</b>在报告旁写下哪些条件来自设计记录，哪些只能由图形提供有限线索。参照<a href="chapters/08.html#diagnostics">residual 与 raw data 的区别</a>及<a href="practice.html#p08-02">Q–Q 图选择题</a>。若发现设计不匹配，返回前面的单位与方法步骤，而不是继续引用下面的 P。</p>
+<div class="case-checkpoint"><form data-case-question="checks"><fieldset><legend>在解释这个小样本Welch结果之前，哪种条件核查顺序合理？</legend><label class="answer-option"><input type="radio" name="answer" value="normality_proves_design" disabled><span>对36株做正态性检验；P&gt;.05就证明36株独立</span></label><label class="answer-option"><input type="radio" name="answer" value="design_and_model" disabled><span>核对盆身份与分配，再评估盆均值的分布、极端值和依赖</span></label><label class="answer-option"><input type="radio" name="answer" value="nonsignificant_pass" disabled><span>比较结果不显著，就不再需要检查模型条件</span></label></fieldset><button type="submit" disabled>检查这一步</button><p data-case-feedback role="status" aria-live="polite"></p></form><details><summary>核对这一步的解释</summary><p>本例是在独立、近似正态的盆均值模型下学习Welch推断，并允许两组总体variance不同。需要核对每盆处理、完整记录、测量单位和盆间可能的共同环境或干扰，再查看两组盆均值的分布。数字是为教学构造的，不是随机模拟产生，也不能用整齐的数列证明模型正确。诊断发现问题时，应按实际设计和目标重新评估方法，而不是挑选更有利的P。</p></details></div>
+</section>
+
+<section id="case-results" class="lesson">
+<h2>5 · 同时读估计、区间与 P</h2>
+<p>在上述设计与模型条件合理时，用 df=10 的参考 t 分布求双侧尾概率，并使用同一 SE、df 构造均值差区间：</p>
+<div class="equation">P=2P(T₁₀≥|1.851640200|)=0.093792552<br>95% CI：4±t₀.₉₇₅,₁₀×2.160246899<br>=4±2.228138852×2.160246899<br>=[−0.813330047, 8.813330047] cm</div>
+<p>样本估计 B 高4 cm，但 P&gt;.05，区间包含0，所以在预定水平下<b>未获得充分证据支持总体平均盆级响应不同</b>。这不等于证明两种肥料相同，也不等于已经证明 B 没有实际用途；区间仍允许值得关注的正差。区间估计的是 Δ，不是95%植物的高度范围，也不是95%花盆各自的处理差。</p>
+<h3>反例：如果把36株误当成独立重复</h3>
+<p>为定位错误，我们故意把每株当成独立单位，让两组各有18条记录并重新调用 Welch。下面第二行只是<b>伪重复算法的无效输出</b>，其 P 和 CI 不能作为处理效应的证据。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="案例数据表，可横向滚动"><table><caption>同样的均值差，不同的独立性假定；第二行无效</caption><thead><tr><th>输入单位</th><th>每组 n</th><th>B−A（cm）</th><th>SE（cm）</th><th>df</th><th>双侧 P</th><th>95% CI（cm）</th></tr></thead><tbody>
+<tr><td>盆均值：对应预定响应</td><td>6盆</td><td>4</td><td>2.160247</td><td>10</td><td>.093793</td><td>[−.813330, 8.813330]</td></tr>
+<tr><td>株高：错误假定独立</td><td>18株</td><td>4</td><td>1.204566</td><td>34</td><td>.002153（无效）</td><td>[1.552026, 6.447974]（无效）</td></tr>
+</tbody></table></div>
+<p>因为本例每盆恰好3株，直接平均所有株与先平均各盆得到相同的组均值；<b>点估计没变不表示不确定性也正确</b>。错误分析忽略了盆内共享处理与环境，把行数增多当成独立信息增多，得到 t≈3.320697、较小的名义 SE 和较窄的名义区间。软件可以完成计算，却不会自动识别一个 treatment replicate 是谁。</p>
+<p><b>现在做：</b>遮住结论，先用 CI 是否包含0与 P 是否小于.05分别判断，再检查两者是否一致；接着说明为什么第二行不能覆盖第一行。参照<a href="chapters/05.html#practice">区间与检验的对应</a>、<a href="chapters/06.html#difference">均值差的不确定性</a>。</p>
+<div class="case-checkpoint"><form data-case-question="results"><fieldset><legend>按正确的盆单位分析，B−A估计为4，SE≈2.16025，Welch df=10，双侧P≈.09379，95% CI≈[−.81333,8.81333]。α=.05时应怎样读结果？</legend><label class="answer-option"><input type="radio" name="answer" value="no_effect" disabled><span>P&gt;.05，已经证明处理B没有效应，两总体均值相同</span></label><label class="answer-option"><input type="radio" name="answer" value="use_plant_p" disabled><span>改用36株的P≈.00215，才能得到显著结论</span></label><label class="answer-option"><input type="radio" name="answer" value="estimate_and_interval" disabled><span>差估计为4，但证据不足以拒绝零差；区间保留了不确定性</span></label></fieldset><button type="submit" disabled>检查这一步</button><p data-case-feedback role="status" aria-live="polite"></p></form><details><summary>核对这一步的解释</summary><p>SE=√(14/6+14/6)=2.1602469，t=4/SE=1.8516402，Welch df=10。右左两尾合计P≈.09379255；95% CI为4±t(.975,10)×SE≈[−.8133301,8.8133301]。在指定模型和α=.05下不拒绝μB−μA=0。此区间估计总体盆平均响应差，不表示95%的盆或株都落在其中。错误逐株分析虽然仍给出差4，却得到SE≈1.2045665、P≈.00215269；相同点估计不代表推断正确。</p></details></div>
+</section>
+
+<section id="case-report" class="lesson">
+<h2>6 · 写出别人能够复核的结论</h2>
+<p>下面是对本教学案例的一份完整写法。它保留响应定义、独立单位数、方向、模型和适用范围，没有让一个 P 值替代整项研究。</p>
+<blockquote><p>在同温室、同品种和固定测量时点的设计中，12盆随机分配至 A、B 各6盆，每盆3株，事先以盆内平均株高为响应。A、B 组的平均盆级响应分别为17与21 cm。按预定的双侧 Welch 检验，B−A 估计为4.00 cm，SE=2.16 cm，t=1.852，df=10，P=.0938；95% CI为[−.81,8.81] cm。在独立盆及适合小样本 t 近似的分布条件下，α=.05时未获得充分证据支持总体平均盆级响应不同；该区间也未排除有实际意义的正差。随机分配支持该实验内的处理比较，但这12盆不是从所有温室环境中随机抽取，推广到其他品种、环境或时点需要另行论证。</p></blockquote>
+<p><b>还要交代计算的边界。</b> 实际报告应记录随机化与测量流程、缺失和异常记录如何处理，以及诊断发现。本例没有缺失或删点；每组6盆不足以靠诊断证明模型正确。若研究要判断“差异小到可以视为等效”，还需在研究前规定实际等效界值并采用对应方法，不能从这里的 P&gt;.05 得出等效结论。</p>
+<p><b>独立复现。</b> 完整脚本内置同一份36行原始 CSV 文本，检查每盆3株与每组6盆，再生成盆均值、运行正确 Welch、手算核对输出并绘制诊断图。脚本也保留标明无效的36行分析，方便检查伪重复如何改变 SE；不会把它当作另一种可选结论。浏览器中的构造数据没有重复随机抽样，不能据此估计检验的长期校准。</p>
+<details id="case-r"><summary>展开完整 R：从 36 行到最终报告数值</summary><p>整段复制到 R；无需额外 packages。浏览器不会执行 R。脚本内置同一份 CSV 文本，不依赖工作目录。<a href="downloads/study-case.R" download>下载 .R 脚本</a></p><pre><code># Original teaching case: 12 pots, three plants per pot.
+# These values are constructed, not a simulated random sample.
+# Treatment was assigned to pots; plants within a pot are subsamples.
+# The prespecified response is the mean height of the three plants per pot.
+raw &lt;- read.csv(text = &quot;pot,treatment,plant,height_cm
+P01,A,S1,11
+P01,A,S2,12
+P01,A,S3,13
+P02,B,S1,15
+P02,B,S2,16
+P02,B,S3,17
+P03,B,S1,17
+P03,B,S2,18
+P03,B,S3,19
+P04,A,S1,13
+P04,A,S2,14
+P04,A,S3,15
+P05,A,S1,15
+P05,A,S2,16
+P05,A,S3,17
+P06,B,S1,19
+P06,B,S2,20
+P06,B,S3,21
+P07,A,S1,17
+P07,A,S2,18
+P07,A,S3,19
+P08,B,S1,21
+P08,B,S2,22
+P08,B,S3,23
+P09,B,S1,23
+P09,B,S2,24
+P09,B,S3,25
+P10,A,S1,19
+P10,A,S2,20
+P10,A,S3,21
+P11,B,S1,25
+P11,B,S2,26
+P11,B,S3,27
+P12,A,S1,21
+P12,A,S2,22
+P12,A,S3,23&quot;, stringsAsFactors = FALSE)
+
+# Audit identities and completeness before aggregating.
+stopifnot(nrow(raw) == 36L, !anyNA(raw),
+          all(is.finite(raw$height_cm)),
+          !anyDuplicated(raw[c(&quot;pot&quot;, &quot;plant&quot;)]),
+          all(table(raw$pot) == 3L),
+          all(tapply(raw$treatment, raw$pot,
+                     function(x) length(unique(x))) == 1L))
+pot &lt;- aggregate(height_cm ~ pot + treatment, data = raw, FUN = mean)
+stopifnot(nrow(pot) == 12L, !anyDuplicated(pot$pot),
+          all(table(pot$treatment) == 6L))
+print(raw)
+print(pot)
+
+# Six independent pot responses per group, not eighteen plant responses.
+a &lt;- pot$height_cm[pot$treatment == &quot;A&quot;]
+b &lt;- pot$height_cm[pot$treatment == &quot;B&quot;]
+group_summary &lt;- data.frame(
+  treatment = c(&quot;A&quot;, &quot;B&quot;), n = c(length(a), length(b)),
+  mean_cm = c(mean(a), mean(b)), variance_cm2 = c(var(a), var(b)),
+  sd_cm = c(sd(a), sd(b))
+)
+print(group_summary)
+
+# Inspect the pot-level response distributions and residuals.
+# With only six pots per group, plots cannot establish Normality.
+# Independence and randomization must be checked against the study protocol.
+par(mfrow = c(2, 2))
+stripchart(height_cm ~ treatment, data = pot, vertical = TRUE,
+           method = &quot;stack&quot;, pch = 16, ylab = &quot;Pot mean height (cm)&quot;)
+qqnorm(a, main = &quot;Group A: pot means&quot;); qqline(a)
+qqnorm(b, main = &quot;Group B: pot means&quot;); qqline(b)
+fitted_means &lt;- ave(pot$height_cm, pot$treatment, FUN = mean)
+plot(fitted_means, pot$height_cm - fitted_means,
+     xlab = &quot;Fitted group mean (cm)&quot;, ylab = &quot;Pot residual (cm)&quot;)
+abline(h = 0, lty = 2)
+par(mfrow = c(1, 1))
+
+# Prespecified two-sided comparison B minus A, alpha = 0.05.
+# Welch inference is conditional on a suitable independent pot-level model.
+# Similar observed variances do not prove equal population variances.
+fit &lt;- t.test(b, a, alternative = &quot;two.sided&quot;, var.equal = FALSE,
+              conf.level = 0.95)
+print(fit)
+
+# Reproduce the same calculation explicitly.
+estimate &lt;- mean(b) - mean(a)
+vb &lt;- var(b) / length(b)
+va &lt;- var(a) / length(a)
+se &lt;- sqrt(vb + va)
+df &lt;- (vb + va)^2 / (vb^2 / (length(b) - 1) +
+                      va^2 / (length(a) - 1))
+statistic &lt;- estimate / se
+p_value &lt;- 2 * pt(-abs(statistic), df)
+ci &lt;- estimate + c(-1, 1) * qt(0.975, df) * se
+print(c(estimate = estimate, se = se, df = df, t = statistic,
+        p = p_value, lower = ci[1], upper = ci[2]))
+stopifnot(abs(se - fit$stderr) &lt; 1e-10,
+          abs(p_value - fit$p.value) &lt; 1e-10,
+          max(abs(ci - fit$conf.int)) &lt; 1e-8)
+
+# Deliberately INVALID comparison: treating plants as independent replicates.
+# This calculation illustrates pseudoreplication; it is not inferential evidence.
+wrong &lt;- t.test(raw$height_cm[raw$treatment == &quot;B&quot;],
+                raw$height_cm[raw$treatment == &quot;A&quot;])
+print(data.frame(
+  analysis = c(&quot;Pot-level model&quot;, &quot;INVALID independent-plant model&quot;),
+  n_per_group = c(length(a), sum(raw$treatment == &quot;A&quot;)),
+  estimate = c(estimate, unname(wrong$estimate[1] - wrong$estimate[2])),
+  se = c(fit$stderr, wrong$stderr),
+  df = c(unname(fit$parameter), unname(wrong$parameter)),
+  p = c(fit$p.value, wrong$p.value),
+  lower = c(fit$conf.int[1], wrong$conf.int[1]),
+  upper = c(fit$conf.int[2], wrong$conf.int[2])
+))
+
+# P &gt; 0.05 is insufficient evidence of a difference, not proof of equivalence.
+# Random treatment assignment does not supply random population sampling.
+# The interval relies on the pot-level model, not an exact randomization test.
+sessionInfo()
+</code></pre></details>
+<p><a href="downloads/study-case.R" download>下载本案例完整 R 脚本</a>。写完自己的报告后，对照<a href="handbook.html#language">结论写作手册</a>；若不清楚估计值和总体真值的区别，回到<a href="chapters/01.html#population">总体与样本</a>。本例计算不需要先运行其他章节脚本。</p>
+<p class="source-locator"><b>课程定位：</b>PPT/Chapters_1_2_3.pptx 第4–6页（总体、样本与推断）；PPT/Chapter_8.pptx 第10、15页与 classnote/440 - Chapter 8 - 2022 Fall.pdf 第7页（独立性、experimental unit、CRD）；PPT/Chapter_6.pptx 第24–27页与 classnote/440 - Chapter 6 - 2022 Fall.pdf 第17页（Welch 的 SE、近似 df 与 CI）。12盆数据和贯穿流程为本站原创，不是课程原题或学生作业。</p>
+<p><b>公开依据：</b><a href="https://online.stat.psu.edu/stat502/Lesson07" target="_blank" rel="noopener noreferrer">Penn State STAT 502：Experimental Unit and Replication</a>解释处理单位、单位内 sampling units 与伪重复，并介绍先形成实验单位响应的思路。本例仅在已说明的等量完整测量与预定盆均值目标下采用聚合。<a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/t.test.html" target="_blank" rel="noopener noreferrer">R 官方 t.test 文档</a>说明 <code>var.equal=FALSE</code> 的 Welch 计算、返回的 SE、df、P 与 confidence interval。</p>
+<div class="case-checkpoint"><form data-case-question="report"><fieldset><legend>12盆在本研究中随机分配A、B，但没有说明这些盆是从所有种植环境中的植物随机抽取的。哪种报告范围最合适？</legend><label class="answer-option"><input type="radio" name="answer" value="universal" disabled><span>随机分配已保证结果代表所有植物、所有环境与时间</span></label><label class="answer-option"><input type="radio" name="answer" value="design_scope" disabled><span>报告盆平均响应差及CI；按实际设计解释处理比较，推广需另有依据</span></label><label class="answer-option"><input type="radio" name="answer" value="causal_certainty" disabled><span>差估计为4，说明每一盆使用B都会比使用A增加4</span></label></fieldset><button type="submit" disabled>检查这一步</button><p data-case-feedback role="status" aria-live="polite"></p></form><details><summary>核对这一步的解释</summary><p>可写：在12盆按盆随机分配处理、每盆按同一协议测3株的本次研究中，以每盆均值分析，B−A的平均株高差估计为4 cm，95% Welch CI为[−.8133,8.8133] cm，双侧P=.0938；在预设α=.05与给定盆均值模型下，尚无充分证据支持非零总体平均差。随机分配为处理比较提供设计依据，但其因果解释仍取决于处理实施和相互影响等条件；未说明随机抽样，不能据此宣称结论适用于所有种植条件。</p></details></div>
+</section>
+<script type="application/json" id="study-case-data">{"pots": [{"id": "P01", "treatment": "A", "values": [11, 12, 13]}, {"id": "P02", "treatment": "B", "values": [15, 16, 17]}, {"id": "P03", "treatment": "B", "values": [17, 18, 19]}, {"id": "P04", "treatment": "A", "values": [13, 14, 15]}, {"id": "P05", "treatment": "A", "values": [15, 16, 17]}, {"id": "P06", "treatment": "B", "values": [19, 20, 21]}, {"id": "P07", "treatment": "A", "values": [17, 18, 19]}, {"id": "P08", "treatment": "B", "values": [21, 22, 23]}, {"id": "P09", "treatment": "B", "values": [23, 24, 25]}, {"id": "P10", "treatment": "A", "values": [19, 20, 21]}, {"id": "P11", "treatment": "B", "values": [25, 26, 27]}, {"id": "P12", "treatment": "A", "values": [21, 22, 23]}], "questions": {"design": {"prompt": "12盆植物按盆随机分配处理A或B，各6盆；每盆按同一协议测3株。没有预设配对或blocks。处理比较的实验单位是什么？", "options": [{"value": "plant", "label": "36株植物，每株都是一个独立处理重复"}, {"value": "pot", "label": "12盆植物，盆是接受处理分配的单位"}, {"value": "treatment", "label": "A、B两个处理标签，所以样本量是2"}], "answer": "pot", "feedback": {"plant": "处理分配给整盆，同盆三株共享该次处理分配和盆内环境。36条测量记录不等于36个独立处理重复；不能仅凭株的数量决定推断中的n。", "pot": "正确。盆才接受独立的处理分配。12个盆对应12个处理重复，每组6盆；每盆三株提供盆内的子样本信息。", "treatment": "A和B是处理水平，不是被随机分配的单位。每个处理都有6盆独立重复，不能把6盆先合成一个没有重复信息的处理记录。"}, "explanation": "先问随机分配发生在哪一层：本例一次分配决定整盆使用A还是B，因此盆是experimental unit，株是subsample。盆ID必须保留，不能让36行表格掩盖12个独立处理单位。分析还需合理的盆间独立性条件；随机分配本身不会排除所有空间依赖、相互影响或实施偏差。"}, "data": {"prompt": "目标是比较按本例同一取样协议定义的每盆平均响应。36条记录完整，每盆恰好3株。进入两组分析前，应怎样整理数据？", "options": [{"value": "all_plants", "label": "直接把每组18株作为18个独立观测"}, {"value": "two_means", "label": "按处理汇总，只留下A、B两个总均值"}, {"value": "pot_means", "label": "核对盆ID和处理后，每盆先求三株均值，保留12行"}], "answer": "pot_means", "feedback": {"all_plants": "这会把同一盆内的子样本当作额外处理重复。各盆株数相等时，两种算法碰巧给出相同处理均值，但标准误与自由度不会因此正确。", "two_means": "只留下两个处理总均值会丢掉盆间变异，无法从这两个数估计两组均值差的标准误。应先保留每盆的结果，再在组内估计变异。", "pot_means": "正确。先确认每个盆ID只对应一种处理且有3条完整记录，再得到A组6个盆均值和B组6个盆均值。这样保留了独立单位之间的变异。"}, "explanation": "每盆三株取平均后，A组为[12,14,16,18,20,22]，B组为[16,18,20,22,24,26]；各有6个独立盆均值。两组均值分别17和21，样本variance都为14。此处聚合适用于明确的盆平均目标、相同取样协议和完整的三株记录；不能把它当成任意cluster、不同株数、重复时间点或缺失数据的通用处理办法。"}, "method": {"prompt": "盆之间独立，A、B各6盆，原设计没有配对关系。目标为总体盆平均响应差μB−μA，预先采用双侧α=.05；没有额外依据假定两总体variance相同。哪种方法匹配本题？", "options": [{"value": "welch", "label": "对12个盆均值作独立两组Welch检验，固定B−A方向"}, {"value": "paired", "label": "两组恰好各6盆，所以把两列按行配对做paired t"}, {"value": "pooled_from_sample", "label": "两个样本SD恰好相等，因此认定总体等方差并选pooled"}], "answer": "welch", "feedback": {"welch": "正确。独立单位是盆，目标是两组盆均值的总体差；Welch分别保留两组variance估计。先固定B−A与双侧方向，再计算统计量。", "paired": "相同样本量不创造配对关系。盆的排列顺序或相邻编号不是匹配依据；本例不能为了使用paired公式而自行配成6对。", "pooled_from_sample": "样本SD相等不证明总体variance相等。本构造数据中pooled与Welch结果可能数值相同，但这种巧合不能代替选择模型所需的依据。"}, "explanation": "使用B盆均值减A盆均值，差的估计为21−17=4。Welch的SE为√(sB²/nB+sA²/nA)，df使用Satterthwaite公式。本例nA=nB=6、sA²=sB²=14使Welch df恰好为10；这不意味着Welch在任意异方差小样本下都具有精确t参考分布，也不证明实际总体方差相等。"}, "checks": {"prompt": "在解释这个小样本Welch结果之前，哪种条件核查顺序合理？", "options": [{"value": "normality_proves_design", "label": "对36株做正态性检验；P>.05就证明36株独立"}, {"value": "design_and_model", "label": "核对盆身份与分配，再评估盆均值的分布、极端值和依赖"}, {"value": "nonsignificant_pass", "label": "比较结果不显著，就不再需要检查模型条件"}], "answer": "design_and_model", "feedback": {"normality_proves_design": "正态性检验不能证明独立性，也不能改变处理随机化的层级。这里用于两组推断的是12个盆均值；对36株混合数据作检验并不能验证该分析模型。", "design_and_model": "正确。独立性首先来自实验单位、取样和处理实施信息；盆均值的图形与背景知识帮助评估分布和极端值。每组只有6盆，诊断检验不显著也不能证明条件成立。", "nonsignificant_pass": "P值无论大或小，都依赖指定的模型。没有达到显著门槛不会让错误的分析单位、严重异常值或相关误差自动消失。"}, "explanation": "本例是在独立、近似正态的盆均值模型下学习Welch推断，并允许两组总体variance不同。需要核对每盆处理、完整记录、测量单位和盆间可能的共同环境或干扰，再查看两组盆均值的分布。数字是为教学构造的，不是随机模拟产生，也不能用整齐的数列证明模型正确。诊断发现问题时，应按实际设计和目标重新评估方法，而不是挑选更有利的P。"}, "results": {"prompt": "按正确的盆单位分析，B−A估计为4，SE≈2.16025，Welch df=10，双侧P≈.09379，95% CI≈[−.81333,8.81333]。α=.05时应怎样读结果？", "options": [{"value": "no_effect", "label": "P>.05，已经证明处理B没有效应，两总体均值相同"}, {"value": "use_plant_p", "label": "改用36株的P≈.00215，才能得到显著结论"}, {"value": "estimate_and_interval", "label": "差估计为4，但证据不足以拒绝零差；区间保留了不确定性"}], "answer": "estimate_and_interval", "feedback": {"no_effect": "未拒绝零差不等于证明相同或无效。这个区间既容许略为负的差，也容许较大的正差；如果要证明足够接近，需要另设等效界值和相应方法。", "use_plant_p": "逐株分析把18株/组错误地计为18个独立处理重复，使本例SE降为约1.20457、df变为34。这个较小P来自错误的独立性假设，不能用于替换盆单位结果。", "estimate_and_interval": "正确。4是数据给出的总体差点估计，区间包含0，双侧P高于预设.05。应同时报告估计、区间、方向和模型条件，而不是把不显著写成无差异。"}, "explanation": "SE=√(14/6+14/6)=2.1602469，t=4/SE=1.8516402，Welch df=10。右左两尾合计P≈.09379255；95% CI为4±t(.975,10)×SE≈[−.8133301,8.8133301]。在指定模型和α=.05下不拒绝μB−μA=0。此区间估计总体盆平均响应差，不表示95%的盆或株都落在其中。错误逐株分析虽然仍给出差4，却得到SE≈1.2045665、P≈.00215269；相同点估计不代表推断正确。"}, "report": {"prompt": "12盆在本研究中随机分配A、B，但没有说明这些盆是从所有种植环境中的植物随机抽取的。哪种报告范围最合适？", "options": [{"value": "universal", "label": "随机分配已保证结果代表所有植物、所有环境与时间"}, {"value": "design_scope", "label": "报告盆平均响应差及CI；按实际设计解释处理比较，推广需另有依据"}, {"value": "causal_certainty", "label": "差估计为4，说明每一盆使用B都会比使用A增加4"}], "answer": "design_scope", "feedback": {"universal": "Random assignment帮助处理组的可比性；random sampling关系到总体代表性。二者不是同一件事，随机分配不能自动支持跨植物、环境和时间的推广。", "design_scope": "正确。应说明处理分配给盆、每盆测3株、分析使用12个盆均值、方向为B−A，并报告估计与区间。因果和总体推广都应限于实际设计与额外科学依据支持的范围。", "causal_certainty": "4是组平均差的估计，不是每盆的确定效应。观察到的组差还含随机波动；随机分配也不会让个体效应都相同，或消除估计的不确定性。"}, "explanation": "可写：在12盆按盆随机分配处理、每盆按同一协议测3株的本次研究中，以每盆均值分析，B−A的平均株高差估计为4 cm，95% Welch CI为[−.8133,8.8133] cm，双侧P=.0938；在预设α=.05与给定盆均值模型下，尚无充分证据支持非零总体平均差。随机分配为处理比较提供设计依据，但其因果解释仍取决于处理实施和相互影响等条件；未说明随机抽样，不能据此宣称结论适用于所有种植条件。"}}}</script></main><footer><span>CPSC 440 · Applied Statistical Methods I<br>中文解释 · English technical terms · 原创交互</span><span><a href="./resources.html">辅助学习资源</a> · <a href="./sources.html">来源、模型假设与内容边界</a></span></footer></body></html>

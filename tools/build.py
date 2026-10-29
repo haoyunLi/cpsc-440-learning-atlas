@@ -1,5 +1,6 @@
 from pathlib import Path
 import json,re,html,hashlib
+from r_examples import add_r_downloads
 root=Path(__file__).resolve().parents[1]; ch=sum([json.loads((root/f'content/part{i}.json').read_text()) for i in range(1,4)],[])
 for addition in json.loads((root/'content/deepening.json').read_text()) if (root/'content/deepening.json').exists() else []:
  c=next(c for c in ch if c['id']==addition['chapter'])
@@ -43,6 +44,7 @@ for i,c in enumerate(ch):
  for l in c['lessons']:
   # Normalize intentional code line breaks from the authored JSON.
   body=l['body'].replace('\\n','\n')
+  body=add_r_downloads(root,c['id'],l,body)
   if l.get('source'):
    body+='<p class="source-locator">课程定位：'+'；'.join(esc(v['file'])+'，'+esc(str(v['pages'])) for v in l['source'])+'。讲解与例题为重新编写。</p>'
   body=re.sub(r'(<table\b.*?</table>)',r'<div class="table-scroll" tabindex="0" role="region" aria-label="教学数据表，可横向滚动">\1</div>',body,flags=re.S)

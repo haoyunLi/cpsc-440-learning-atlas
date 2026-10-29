@@ -2836,5 +2836,213 @@
       "正确。Type I error 必须同时满足 H₀ 真和拒绝；这里没有拒绝。若真实 μ>10，这次不拒绝则属于 Type II error。",
       "不显著不等于证实 H₀；样本量小、噪声大或真实效应较小时，即使 μ>10 也可能不拒绝。"
     ]
+  },
+  {
+    "id": "p04-10",
+    "chapter": "04",
+    "title": "连续性校正让整数的最后半格也被保留",
+    "level": "应用",
+    "type": "numeric",
+    "tags": [
+      "continuity correction",
+      "normal approximation",
+      "binomial"
+    ],
+    "source": {
+      "file": "PPT/Chapter_4.pptx",
+      "locator": "56–60",
+      "note": "针对本章概念的原创练习；数据与情境重新设计。"
+    },
+    "prompt": "X~Binomial(80,0.40)。用带 continuity correction 的正态近似计算 P(X≤38)，输入概率（不是百分数）。",
+    "unit": "近似概率",
+    "answer": 0.931017942238,
+    "tolerance": 0.0005,
+    "hint": "把整数 38 看成从 37.5 到 38.5 的一格。“至多 38”要保留整格。",
+    "steps": [
+      {
+        "title": "检查近似并写出均值与方差",
+        "body": "np=32、n(1−p)=48 均较大；使用 Y~N(32,19.2)，SD=√19.2≈4.38178。条件支持近似，但不会让近似与 exact 完全相同。"
+      },
+      {
+        "title": "先校正边界，再标准化",
+        "body": "P(X≤38)≈P(Y≤38.5)。z=(38.5−32)/√19.2≈1.48342；加 .5 保留 X=38 对应的整格。"
+      },
+      {
+        "title": "计算并与 exact 结果比较",
+        "body": "Φ(z)≈0.931018；exact binomial CDF 为 0.930078，差约 0.000940。未校正的 Φ((38−32)/√19.2)≈0.914548，偏差更大。"
+      }
+    ],
+    "conclusion": "带连续性校正的正态近似为 0.9310，约93.10%；最终报告应注明使用了近似。",
+    "pitfall": "X≤k 用 k+.5；X≥k 用 k−.5。严格大于 k 则先写成 X≥k+1。本题目标是近似值，精确二项概率用于核验误差。",
+    "rCode": "n <- 80; p <- .4; k <- 38\nmu <- n*p\nsigma <- sqrt(n*p*(1-p))\nanswer <- pnorm(k+.5, mu, sigma)\nprint(c(corrected=answer, exact=pbinom(k,n,p),\n        uncorrected=pnorm(k,mu,sigma), z=(k+.5-mu)/sigma))",
+    "commonMistakes": [
+      {
+        "value": 0.914548239885,
+        "tolerance": 0.0003,
+        "feedback": "这个值对应未作连续性校正。X=38 的一格延伸到38.5，所以累计上界应加 .5。"
+      },
+      {
+        "value": 0.895296468578,
+        "tolerance": 0.0003,
+        "feedback": "这个值把上界设为37.5，排除了X=38对应的整格，相当于用正态面积近似P(X≤37)。题目要求至多38，上界应为38.5。"
+      }
+    ]
+  },
+  {
+    "id": "p04-11",
+    "chapter": "04",
+    "title": "概率为零的单点能否被观察到",
+    "level": "基础",
+    "type": "choice",
+    "tags": [
+      "continuous",
+      "density",
+      "zero probability"
+    ],
+    "source": {
+      "file": "PPT/Chapter_4.pptx",
+      "locator": "3、13、65",
+      "note": "针对本章概念的原创练习；数据与情境重新设计。"
+    },
+    "prompt": "理想模型 Y~Uniform(0,1)。关于某个精确点 Y=0.4，哪句话正确？",
+    "options": [
+      "P(Y=0.4)=0，所以0.4不属于可能的取值范围。",
+      "P(Y=0.4)=0，但这不等于该点不属于取值空间；区间概率由面积给出。",
+      "密度 f(0.4)=1，所以 P(Y=0.4)=1。",
+      "每个单点概率为0，所以整个区间(0,1)的概率也为0。"
+    ],
+    "answer": 1,
+    "hint": "连续模型有无穷多个可能取值。高度是 density，横向宽度乘高度才给小区间的面积。",
+    "steps": [
+      {
+        "title": "区分事件是否为空与概率大小",
+        "body": "空事件的概率为0；连续模型中的非空单点也可以有概率0。Y=0.4 属于这个模型的样本空间。"
+      },
+      {
+        "title": "给单点与小区间分别计算",
+        "body": "连续 CDF 没有跳跃，所以 P(Y=0.4)=0。P(0.4≤Y≤0.41)=0.41−0.4=0.01。"
+      },
+      {
+        "title": "解释实际测量",
+        "body": "仪器显示0.40通常代表一个舍入区间，例如四舍五入到两位小数约对应[0.395,0.405)，不能把显示值当作无限精度的单点事件。"
+      }
+    ],
+    "conclusion": "零概率不等于逻辑上不可能；连续概率看区间面积，离散概率则可以集中在单点。",
+    "pitfall": "可列可加性允许把可数个互斥事件的概率相加；不能把不可数个零概率点像有限和一样相加来求整个区间。",
+    "rCode": "# Uniform density is a height, not a point probability.\nprint(c(density_at_04=dunif(.4),\n        interval_probability=punif(.41)-punif(.4),\n        zero_width_probability=punif(.4)-punif(.4)))",
+    "optionExplanations": [
+      "“空事件概率为0”不能反推“概率为0的事件一定为空”。连续模型中的0.4是样本空间中的一个点。",
+      "正确。单点的宽度为0，因此面积为0；任何正长度的小区间仍可以有正概率。",
+      "密度是单位横轴长度上的概率量，不是该点的概率。这里密度为1，而单点面积仍为0。",
+      "整个(0,1)的概率为1。不能对不可数多个单点沿用有限或可数求和的推理。"
+    ]
+  },
+  {
+    "id": "p05-13",
+    "chapter": "05",
+    "title": "从目标置信度选中位数区间的真实端点",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "median CI",
+      "order statistics",
+      "binomial coverage"
+    ],
+    "source": {
+      "file": "PPT/Chapter_5.pptx",
+      "locator": "83–88",
+      "note": "针对本章概念的原创练习；数据与情境重新设计。"
+    },
+    "prompt": "11个独立、来自连续总体的观测为 12,4,21,7,18,2,25,9,16,5,14。在对称等尾区间 [Y₍ₖ₎,Y₍ₙ₋ₖ₊₁₎] 中，选择覆盖率至少95%的最大 k。该区间的下端点是多少？",
+    "unit": "数据值",
+    "answer": 4,
+    "tolerance": 1e-06,
+    "hint": "先用二项概率选k，再排序取第k个观测。索引k与端点的数据值不是同一个数。",
+    "steps": [
+      {
+        "title": "按从小到大排列观测",
+        "body": "排序为 2,4,5,7,9,12,14,16,18,21,25，n=11。"
+      },
+      {
+        "title": "寻找仍满足覆盖要求的最大k",
+        "body": "coverage(k)=1−2P{Binomial(11,.5)≤k−1}。k=1、2、3时分别为0.999023、0.988281、0.934570；因此选k=2。再增大k会达不到95%。"
+      },
+      {
+        "title": "把索引变成观测端点",
+        "body": "下索引2、上索引11−2+1=10；区间为[Y₍₂₎,Y₍₁₀₎]=[4,21]。题目所求下端点为4，实际覆盖率98.828125%。"
+      }
+    ],
+    "conclusion": "在所指定的对称等尾区间族中，选[4,21]；其覆盖率至少95%，离散索引使它不能恰好等于95%。",
+    "pitfall": "不是用样本median±1.96×SD，也不是把95%乘n直接当索引。该精确覆盖计算需要独立同分布抽样、连续总体及总体median两侧各有一半概率。",
+    "rCode": "y <- c(12,4,21,7,18,2,25,9,16,5,14)\nn <- length(y)\nk_values <- seq_len(floor((n+1)/2))\ncoverage <- 1-2*pbinom(k_values-1,n,.5)\nk <- max(k_values[coverage >= .95])\ninterval <- sort(y)[c(k,n-k+1)]\nanswer <- interval[1]\nprint(data.frame(k=k_values,coverage=coverage))\nprint(c(k=k,lower=answer,upper=interval[2]))",
+    "commonMistakes": [
+      {
+        "value": 2,
+        "tolerance": 1e-06,
+        "feedback": "2是正确的索引k，不是区间端点。排序后取第2个观测，它的值为4。"
+      },
+      {
+        "value": 5,
+        "tolerance": 1e-06,
+        "feedback": "5是第3个排序观测；k=3的覆盖率约93.46%，未满足“至少95%”。应退回k=2。"
+      },
+      {
+        "value": 12,
+        "tolerance": 1e-06,
+        "feedback": "12是样本median（第6个排序观测），题目问的是总体median置信区间的下端点。先用二项覆盖概率选索引k。"
+      }
+    ]
+  },
+  {
+    "id": "p05-14",
+    "chapter": "05",
+    "title": "未知σ时为单侧单样本t检验规划n",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "sample size",
+      "power.t.test",
+      "noncentral t"
+    ],
+    "source": {
+      "file": "PPT/Chapter_5.pptx",
+      "locator": "59–63、74–75",
+      "note": "针对本章概念的原创练习；数据与情境重新设计。"
+    },
+    "prompt": "规划独立正态观测的单样本右侧 t 检验 H₀:μ≤20 vs H₁:μ>20。在 μ=23 时目标 power≥0.80，α=.05，规划总体 SD=5。用 noncentral-t 功效计算，最小整数样本量 n 是多少？",
+    "unit": "独立观测数",
+    "integer": true,
+    "answer": 19,
+    "tolerance": 0,
+    "hint": "指定 type=\"one.sample\" 和 alternative=\"one.sided\"。反求n后向上取整，再检查n和n−1的power。",
+    "steps": [
+      {
+        "title": "固定研究设计与目标效应",
+        "body": "Δ=23−20=3，规划σ=5，单样本右侧检验；这些信息不能交给函数默认值猜测。"
+      },
+      {
+        "title": "逆求并取整",
+        "body": "power.t.test(delta=3,sd=5,sig.level=.05,power=.8,type=\"one.sample\",alternative=\"one.sided\") 得到n≈18.603768，因此候选样本量为19。"
+      },
+      {
+        "title": "验证最小整数解",
+        "body": "n=19时power≈0.807909，n=18时≈0.787391。因此19达标而18不足；非中心参数为3√n/5，临界值使用t₍.95,n−1₎。"
+      }
+    ],
+    "conclusion": "在指定规划SD、效应和正态独立模型下，至少需要19个独立观测。改变预期效应或SD应重新规划。",
+    "pitfall": "规划σ是关于未来总体变异的假设，不能等同于分析时已知σ。默认power.t.test是双样本双侧设计，返回每组n，与本题不同；单侧方向需事先确定。",
+    "rCode": "planning <- power.t.test(delta=3,sd=5,sig.level=.05,power=.8,\n                         type=\"one.sample\",alternative=\"one.sided\")\nanswer <- ceiling(planning$n)\nns <- c(answer-1,answer)\npower <- sapply(ns,function(n) power.t.test(n=n,delta=3,sd=5,sig.level=.05,\n                  type=\"one.sample\",alternative=\"one.sided\")$power)\nprint(planning)\nprint(data.frame(n=ns,power=power))\nstopifnot(power[1]<.8,power[2]>=.8)",
+    "commonMistakes": [
+      {
+        "value": 18,
+        "tolerance": 0,
+        "feedback": "18的noncentral-t功效只有约0.7874。它可能来自向下取整，或把已知σ的z公式套给t检验；应按t分布核验目标power。"
+      },
+      {
+        "value": 45,
+        "tolerance": 0,
+        "feedback": "45与power.t.test默认双样本双侧设计的每组样本量一致。本题必须显式指定one.sample与one.sided，目标是总计19个独立观测。"
+      }
+    ]
   }
 ]

@@ -76,15 +76,28 @@ export function distributionPlot(kind, df1 = 10, df2 = 20) {
   return { lo, hi, samples, density, densityCap, yMax: densityCap * 1.14, singular, omittedMass: d.cdf(lo) + d.survival(hi) };
 }
 
+function stableSummary(values) {
+  // Center first so repeated decimals and a large common offset do not create
+  // artificial variance through summation roundoff.
+  const offsets = values.map(value => value - values[0]);
+  const center = M.mean(offsets);
+  return { mean: values[0] + center, variance: offsets.reduce((sum, value) => sum + (value - center) ** 2, 0) / (values.length - 1) };
+}
+
 export function twoSample(a, b, method = 'welch', confidence = .95) {
   if (!['welch', 'pooled', 'paired'].includes(method) || !(confidence > 0 && confidence < 1)) throw Error('分析设置无效。');
   if (a.length < 2 || b.length < 2 || [...a, ...b].some(x => !Number.isFinite(x))) throw Error('每组至少需要两个有效观测。');
   if (method === 'paired' && a.length !== b.length) throw Error('配对分析要求两组长度相同，且每个位置来自同一个实验单位；不能截短或重新排序凑成配对。');
-  const n1 = a.length, n2 = b.length, meanA = M.mean(a), meanB = M.mean(b), varA = M.variance(a), varB = M.variance(b);
-  const estimate = meanA - meanB;
+  const n1 = a.length, n2 = b.length, summaryA = stableSummary(a), summaryB = stableSummary(b);
+  const meanA = summaryA.mean, meanB = summaryB.mean, varA = summaryA.variance, varB = summaryB.variance;
+  let estimate = meanA - meanB;
+  let scale = Math.max(Math.abs(meanA), Math.abs(meanB));
   let se, df;
   if (method === 'paired') {
-    se = Math.sqrt(M.variance(a.map((v, i) => v - b[i])) / n1);
+    const differences = stableSummary(a.map((v, i) => v - b[i]));
+    estimate = differences.mean;
+    scale = Math.max(scale, Math.abs(estimate));
+    se = Math.sqrt(differences.variance / n1);
     df = n1 - 1;
   } else if (method === 'pooled') {
     df = n1 + n2 - 2;
@@ -95,7 +108,7 @@ export function twoSample(a, b, method = 'welch', confidence = .95) {
     se = Math.sqrt(u + v);
     df = (u + v) ** 2 / (u * u / (n1 - 1) + v * v / (n2 - 1));
   }
-  if (!(se > 0) || !Number.isFinite(se) || !Number.isFinite(df)) throw Error('标准误为 0 或无法稳定计算：数据（或配对差值）没有可用变异，常规 t 检验与区间不适用。请检查数据与实验设计。');
+  if (!(se > 0) || !Number.isFinite(se) || !Number.isFinite(df) || se < 10 * Number.EPSILON * scale) throw Error('标准误为 0 或接近数值精度：数据（或配对差值）没有可用变异，常规 t 检验与区间无法稳定计算。请检查数据与实验设计。');
   const t = estimate / se, p = clamp(M.betaCDF(df / (df + t * t), df / 2, .5)), critical = M.studentQuantile((1 + confidence) / 2, df);
   return { n1, n2, meanA, meanB, varA, varB, estimate, se, df, t, p, low: estimate - critical * se, high: estimate + critical * se, critical };
 }

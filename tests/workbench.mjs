@@ -82,6 +82,22 @@ assert.throws(() => parseSample('0x20,2'), /请输入/);
 assert.throws(() => twoSample([1, 2, 3], [1, 2], 'paired'), /长度相同/);
 assert.throws(() => twoSample([1, 1], [2, 2]), /标准误为 0/);
 assert.throws(() => twoSample([1, 2], [2, 3], 'paired'), /标准误为 0/);
+// R rejects these as "data are essentially constant". Decimal roundoff must
+// not become an enormous t statistic with a spurious tiny P-value.
+for (const method of ['welch', 'pooled', 'paired']) {
+  assert.throws(() => twoSample([.1, .1, .1], [.2, .2, .2], method), /标准误为 0/);
+}
+assert.throws(() => twoSample([.1, .2, .3], [.2, .3, .4], 'paired'), /数值精度/);
+assert.throws(() => twoSample([1, 1 + Number.EPSILON, 1], [2, 2, 2]), /数值精度/);
+// A relative guard preserves legitimate variation expressed in small units.
+const small = twoSample([1e-12, 2e-12, 4e-12], [2e-12, 4e-12, 7e-12]);
+near(small.t, -1.1766968108291038, 1e-12);
+near(small.p, .3172190772883431, 1e-12);
+const shifted = twoSample([1e6, 1e6 + 1, 1e6 + 3], [1e6 + 1, 1e6 + 3, 1e6 + 4], 'paired');
+near(shifted.t, -4, 1e-12);
+near(shifted.p, .05719095841793663, 1e-12);
+near(shifted.low, -2.767550909916487, 1e-10);
+near(shifted.high, .10088424324982062, 1e-10);
 assert.throws(() => tailProbability('chi', -1, 'left'), /不能为负数/);
 assert.throws(() => distribution('f', 0, 20), /自由度/);
 for (const mode of ['normal', 'skew', 'outlier', 'unequal']) {

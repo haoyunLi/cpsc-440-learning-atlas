@@ -206,7 +206,7 @@ for chapter_id, lessons in chapters.items():
             assert child["level"] == 4 and "局部变化率" in child["text"]
             assert "R²=r² 的 SLR 边界" not in child["text"]
             assert exact["id"] != lesson["id"]
-assert (lesson_count, heading_count, outline_count, explicit_count) == (104, 140, 57, 18)
+assert (lesson_count, heading_count, outline_count, explicit_count) == (104, 141, 58, 19)
 assert code_hashes_before == code_hashes_after
-assert code_count >= 81
+assert code_count >= 82
 print(f"Authored outlines: {lesson_count} lessons, {heading_count} subsection anchors, {outline_count} static outlines, {explicit_count} preserved heading IDs and {code_count} byte-identical code blocks; scope, collision/reordering stability, search boundaries and no-JS nesting passed.")

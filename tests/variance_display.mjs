@@ -18,7 +18,7 @@ const context = vm.createContext({ M, document: {
   querySelectorAll: () => [], querySelector: () => null,
   createElementNS: (namespace, tag) => new Element(tag)
 } });
-vm.runInContext(`${source}\nglobalThis.testMounts={axes,labVariance,labRegression,labMultiple};`, context);
+vm.runInContext(`${source}\nglobalThis.testMounts={axes,labVariance,labMultiple};`, context);
 function mount(kind, settings) {
   const fields = Object.fromEntries(Object.entries(settings).map(([id, value]) => [id, Object.assign(new Element(id === 'band' ? 'select' : 'input'), { id, value: String(value) })]));
   const graph = new Element('svg'), readout = new Element();
@@ -81,12 +81,9 @@ context.testMounts.axes(customX, 'x', 'y', 0, 1, 0, 1, value => `x:${value}`);
 assert.deepEqual(customX.children.filter(el => el.tag === 'text' && el.attrs.class === 'plot-muted' && el.attrs['text-anchor'] === 'middle').map(el => el.textContent), ['x:0', 'x:0.25', 'x:0.5', 'x:0.75', 'x:1']);
 assert.deepEqual(labels(customX), ['0.0', '0.3', '0.5', '0.8', '1.0']);
 
-const regression = mount('labRegression', { ry: 26, rx: 4, band: 'mean' });
-assert.deepEqual(labels(regression.graph), ['-15.0', '0.8', '16.5', '32.3', '48.0']);
-assert.match(regression.readout.textContent, /95% mean CI=\[8.549,19.451\]/);
-regression.change({ band: 'prediction' });
-assert.match(regression.readout.textContent, /95% PI=\[0.649,27.351\]/);
+// The regression lab now has independent numerical, geometry and UI tests
+// in regression.mjs; shared axes are still verified above.
 const multiple = mount('labMultiple', { mm: 20, ma: .05 });
 assert.deepEqual(labels(multiple.graph), ['0.0', '0.3', '0.5', '0.8', '1.0']);
 assert.match(multiple.readout.textContent, /corrected FWER=0.0488/);
-console.log('Variance density ticks: all n=4..100 distinct and accurate; CI/reference geometry, default axes, custom horizontal ticks, regression and multiplicity mounts preserved.');
+console.log('Variance density ticks: all n=4..100 distinct and accurate; CI/reference geometry, default axes, custom horizontal ticks and multiplicity mount preserved.');

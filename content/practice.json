@@ -4953,5 +4953,65 @@
       }
     ],
     "rCode": "# Original teaching data, with four independent units per group.\nd <- data.frame(id=c(paste0(\"A\",1:4),paste0(\"B\",1:4),paste0(\"C\",1:4)),\n                group=factor(rep(c(\"A\",\"B\",\"C\"),each=4)),\n                y=c(3,7,10,12,11,15,18,24,21,22,28,29))\nfit <- lm(y ~ group,data=d)\n# Direct group subtraction preserves exact ties in these integer data.\nd$fitted <- ave(d$y,d$group,FUN=mean)\nd$residual <- d$y-d$fitted\nstopifnot(max(abs(d$fitted-fitted(fit)))<1e-10,\n          max(abs(d$residual-residuals(fit)))<1e-10)\nn <- nrow(d)\n# Keep IDs when sorting; break exact residual ties by original record order.\nordered <- order(d$residual,seq_len(n))\nprobability <- ppoints(n)\nstopifnot(max(abs(probability-(seq_len(n)-.5)/n))<1e-12)\nqq_table <- data.frame(d[ordered,],position=seq_len(n),\n                       probability=probability,theoretical=qnorm(probability))\nprint(qq_table,digits=12,row.names=FALSE)\nselected <- qq_table[qq_table$id==\"A3\",]\nprint(selected,digits=12,row.names=FALSE)\n# Independently check the selected point against base R's Q-Q calculation.\nqq <- qqnorm(d$residual,plot.it=FALSE)\nselected_row <- which(d$id==\"A3\")\nstopifnot(selected$fitted==8,selected$residual==2,selected$position==8,\n          selected$probability==.625,\n          abs(selected$theoretical-.318639363964375)<1e-12,\n          abs(qq$x[selected_row]-selected$theoretical)<1e-12,\n          qq$y[selected_row]==selected$residual)\n# Compute plausible wrong routes rather than treating them as valid coordinates.\nraw_position <- match(selected_row,order(d$y,seq_len(n)))\nreverse_position <- match(selected_row,order(-d$residual,seq_len(n)))\nwrong_raw <- qnorm(probability[raw_position])\nwrong_reverse <- qnorm(probability[reverse_position])\nprint(c(raw_position=raw_position,wrong_raw=wrong_raw,\n        reverse_position=reverse_position,wrong_reverse=wrong_reverse),digits=12)\nstopifnot(raw_position==3,reverse_position==5,\n          abs(wrong_raw-(-.812217801499913))<1e-12,\n          abs(wrong_reverse-(-.318639363964375))<1e-12)\n# A plotting probability is not a test P-value or proof of any assumption.\nanswer <- unname(selected$theoretical)\nprint(answer,digits=12)\n"
+  },
+  {
+    "id": "p11-10",
+    "chapter": "11",
+    "title": "离开 x̄ 后的两种区间：新个体应该与谁比较",
+    "level": "综合",
+    "type": "choice",
+    "tags": [
+      "mean confidence interval",
+      "prediction interval",
+      "prediction away from xbar",
+      "future observation",
+      "interval interpretation"
+    ],
+    "source": {
+      "file": "PPT/Chapter_11.pptx",
+      "locator": "slides 37–41；class notes Chapter 11 pp.23–27",
+      "note": "参考课程 mean CI 与 individual PI 题型的原创迁移练习；数据与课程及正文例不同，非原题答案。"
+    },
+    "prompt": "<p>六个独立实验单位给出原创数据 x=[0,1,2,3,4,5]、Y=[2,6,7,9,12,12]。只用这六点拟合含截距的 SLR，得到 ŷ=3+2x、SSE=4。假定固定 x 下的总体均值关系线性，旧观测与未来新单位的 errors 独立正态、具有相同 variance。</p><p>在看到新响应之前，事先指定 x₀=5，并构造该处总体平均响应的95% mean CI，以及一个独立新单位的95% prediction interval（PI）。随后观测到这个新单位 Ynew=10.5；<b>不要把它加入原模型重新拟合</b>。以下计算与解释哪项正确？</p>",
+    "options": [
+      "n和置信水平未变，所以x₀=5与x̄处的半宽相同；在5处mean CI约为[11.8665,14.1335]，PI约为[10.0011,15.9989]。",
+      "在5处mean CI约为[10.9906,15.0094]。Ynew=10.5落在它外面，因此已足以判定这个新个体违反了回归模型。",
+      "在5处mean CI约为[10.9906,15.0094]，PI约为[9.5727,16.4273]。10.5在mean CI外、PI内；mean CI不是个体范围，而单次落入PI也不能证明模型条件成立。",
+      "在5处PI约为[9.5727,16.4273]。Ynew=10.5落在其中，因而这次验证已经证明线性、正态、共同variance与独立性全部成立。"
+    ],
+    "answer": 2,
+    "unit": "",
+    "hint": "先算n、x̄和Sxx。在x₀=5时距离项不为0；两种SE分别是√(MSE·h₀)与√[MSE(1+h₀)]。最后确认区间所覆盖的目标是总体均值还是一个新单位。",
+    "steps": [
+      {
+        "title": "用原六点确定拟合与误差自由度",
+        "body": "n=6，x̄=2.5，Ȳ=8，Sxx=Σ(x−x̄)²=17.5，Sxy=35。因此b₁=35/17.5=2，b₀=8−2×2.5=3。六个residuals为[−1,1,0,0,1,−1]，SSE=4；估计了截距与斜率，所以error df=6−2=4，MSE=4/4=1。未来Ynew不参与这些计算。"
+      },
+      {
+        "title": "在非中心位置保留距离项",
+        "body": "在x₀=5处，ŷ₀=3+2×5=13，h₀=1/6+(5−2.5)²/17.5=1/6+5/14=<b>11/21≈.523809524</b>。这大于x₀=x̄时的1/6。x₀=5仍在已观测范围[0,5]内；区间变宽来自离设计中心更远，并不要求发生外推。"
+      },
+      {
+        "title": "为不同目标写出不同SE",
+        "body": "总体均值估计的SEmean=√(1×11/21)≈.723746864。独立新单位除了拟合均值的不确定性，还有自身error variance，所以SEnew=√[1×(1+11/21)]=√(32/21)≈1.234426800。两者都使用t₀.₉₇₅,₄≈2.776445105；不能在PI中省掉额外的1。"
+      },
+      {
+        "title": "形成区间，并与中心位置比较半宽",
+        "body": "Mean CI=13±2.776445105×.723746864=13±2.009443439≈<b>[10.990557,15.009443]</b>。Individual PI=13±2.776445105×1.234426800=13±3.427318246≈<b>[9.572682,16.427318]</b>。同一模型在x̄=2.5处，两种半宽分别约1.133479与2.998903；移到5后两者都变宽。把中心处的半宽直接搬到5，会漏掉距离项。"
+      },
+      {
+        "title": "把新观测与正确目标比较，并限制结论",
+        "body": "Ynew=10.5低于mean CI下限10.990557，却位于individual PI内。Mean CI估计的是未知总体均值E(Y|x=5)，不是要求每个新Y都落入的范围，故这个比较不能据此判定新个体违反模型。PI回答一个事先指定x₀处的新单位问题；单次落入PI同样不能证明线性、正态、共同variance或独立性。两类95%区间均为该x₀处的pointwise区间，不保证所有位置或所有未来个体同时覆盖。"
+      }
+    ],
+    "conclusion": "x₀=5处的h₀=11/21；mean CI约[10.9906,15.0094]，individual PI约[9.5727,16.4273]。新个体10.5在前者外、后者内，与两个区间回答不同问题一致，不能由一次覆盖判断模型为真。",
+    "pitfall": "不要把x₀=x̄的简化公式用于所有预测位置，也不要把mean CI当作95%的个体范围。相同置信水平不意味着相同宽度；新个体落入或落出一个PI，都不能单独证明或推翻全部模型条件。",
+    "optionExplanations": [
+      "这两组端点正是把中心处的h₀=1/6直接套到x₀=5所得。n和置信水平不变，但(5−2.5)²/Sxx=5/14不为0，因此两种半宽都必须增大。",
+      "Mean CI的数值正确，但比较目标错了。它针对E(Y|5)，不是一个独立新Y；10.5落在mean CI外不等于这个个体违反模型。本例它仍在应采用的individual PI内。",
+      "正确。保留距离项得到h₀=11/21，PI再增加新单位自身的误差variance。10.5的位置符合两种区间目标不同；这个单次结果本身不验证全部模型假设。",
+      "PI的数值与成员判断正确，证据解释过强。一个新单位落入一个95% PI很常见；即便模型存在问题也可能发生，不能据此证明均值形式、误差分布、共同variance或设计独立性。"
+    ],
+    "rCode": "# Original training data; the future response is kept out of the fitted model.\nd <- data.frame(x=0:5,y=c(2,6,7,9,12,12))\nfit <- lm(y ~ x,data=d)\nn <- nrow(d)\nxbar <- mean(d$x)\nybar <- mean(d$y)\nsxx <- sum((d$x-xbar)^2)\nsxy <- sum((d$x-xbar)*(d$y-ybar))\nerror_df <- df.residual(fit)\nsse <- deviance(fit)\nmse <- sse/error_df\ncritical <- qt(.975,error_df)\nprint(c(n=n,xbar=xbar,ybar=ybar,Sxx=sxx,Sxy=sxy,\n        SSE=sse,error_df=error_df,MSE=mse,critical=critical),digits=12)\nprint(coef(fit),digits=12)\n# Compare the design center with a prespecified position at the observed edge.\nx0 <- c(xbar,5)\nfitted_mean <- unname(coef(fit)[1]+coef(fit)[2]*x0)\nh0 <- 1/n+(x0-xbar)^2/sxx\nse_mean <- sqrt(mse*h0)\nse_new <- sqrt(mse*(1+h0))\nmean_half <- critical*se_mean\nprediction_half <- critical*se_new\nmanual <- data.frame(x0=x0,fitted=fitted_mean,h0=h0,SE_mean=se_mean,SE_new=se_new,\n                     mean_lower=fitted_mean-mean_half,mean_upper=fitted_mean+mean_half,\n                     prediction_lower=fitted_mean-prediction_half,\n                     prediction_upper=fitted_mean+prediction_half)\nprint(manual,digits=12,row.names=FALSE)\n# Check both formula calculations against independent predict.lm calls.\nci <- predict(fit,newdata=data.frame(x=x0),interval=\"confidence\",level=.95)\npi <- predict(fit,newdata=data.frame(x=x0),interval=\"prediction\",level=.95)\nprint(ci,digits=12)\nprint(pi,digits=12)\nstopifnot(n==6,error_df==4,abs(xbar-2.5)<1e-12,abs(sxx-17.5)<1e-12,\n          abs(sxy-35)<1e-12,abs(sse-4)<1e-12,abs(mse-1)<1e-12,\n          max(abs(coef(fit)-c(3,2)))<1e-12,\n          abs(h0[2]-11/21)<1e-12,\n          max(abs(ci[,c(\"lwr\",\"upr\")]-as.matrix(manual[,c(\"mean_lower\",\"mean_upper\")])))<1e-12,\n          max(abs(pi[,c(\"lwr\",\"upr\")]-as.matrix(manual[,c(\"prediction_lower\",\"prediction_upper\")])))<1e-12,\n          max(abs(ci[2,c(\"lwr\",\"upr\")]-c(10.9905565607796,15.0094434392204)))<1e-10,\n          max(abs(pi[2,c(\"lwr\",\"upr\")]-c(9.57268175425703,16.427318245743)))<1e-10,\n          mean_half[2]>mean_half[1],prediction_half[2]>prediction_half[1])\n# The future response is compared with the two targets without refitting.\ny_new <- 10.5\nmembership <- c(mean_CI=y_new>=ci[2,\"lwr\"] && y_new<=ci[2,\"upr\"],\n                individual_PI=y_new>=pi[2,\"lwr\"] && y_new<=pi[2,\"upr\"])\nprint(membership)\nstopifnot(!membership[[\"mean_CI\"]],membership[[\"individual_PI\"]])\n# Diagnose the wrong route that drops the distance from xbar.\nwrong_no_distance <- rbind(\n  mean_CI=fitted_mean[2]+c(-1,1)*critical*sqrt(mse/n),\n  individual_PI=fitted_mean[2]+c(-1,1)*critical*sqrt(mse*(1+1/n)))\ncolnames(wrong_no_distance) <- c(\"lower\",\"upper\")\nprint(wrong_no_distance,digits=12)\nstopifnot(max(abs(wrong_no_distance[1,]-c(11.8665210322362,14.1334789677638)))<1e-10,\n          max(abs(wrong_no_distance[2,]-c(10.0010965349749,15.9989034650251)))<1e-10)\n# One successful prediction does not establish the model assumptions as true.\nanswer <- 2L\nprint(answer)"
   }
 ]

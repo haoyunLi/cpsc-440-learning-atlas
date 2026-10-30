@@ -90,5 +90,6 @@
   "p08-07": "kruskal",
   "p11-08": "leverage-influence",
   "p11-09": "leverage-influence",
-  "p08-08": "diagnostics"
+  "p08-08": "diagnostics",
+  "p11-10": "prediction"
 }

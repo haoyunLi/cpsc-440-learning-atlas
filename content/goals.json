@@ -8,5 +8,5 @@
  "09":["把科学问题写成系数和为零的 contrast，并算 SE。","区分单次 Type I error 与一个 family 的 FWER。","按比较目的选择校正，解释不显著与字母分组的边界。"],
  "14":["从 cell means 算 main effects、simple effects 和 difference-of-differences。","解释为什么 interaction 不需要线条交叉。","说明 unbalanced data 中 raw means、LSMeans 与 sums of squares 依赖的问题。"],
  "15":["画出 RCBD 或 Latin square，指出 treatment 分配和随机化位置。","计算 treatment、block 与 error 的 df，解释 nuisance variation 去向。","根据推断目标区分 fixed 与 random，并说明没有 cell replication 的限制。"],
- "11":["由 Sxx、Sxy 算回归线，并从 residual 得到 SSE。","分别解释 slope、R²、correlation 及其推断条件。","区分 mean CI 与 new-observation PI，识别外推与缺拟合风险。","区分 leverage、residual 与 influence；比较含/暂时不含某点的拟合，并解释为什么诊断不能自动决定删点。"]
+ "11":["由 Sxx、Sxy 算回归线，并从 residual 得到 SSE。","分别解释 slope、R²、correlation 及其推断条件。","在给定 x₀ 逐项计算 h₀、mean CI 与 new-observation PI，解释二者目标并识别外推与缺拟合风险。","区分 leverage、residual 与 influence；比较含/暂时不含某点的拟合，并解释为什么诊断不能自动决定删点。"]
 }

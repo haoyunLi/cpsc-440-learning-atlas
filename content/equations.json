@@ -1,0 +1,634 @@
+[
+  {
+    "chapter": "01",
+    "lesson": "histogram",
+    "index": 0,
+    "source": "density height = frequency / (n × bin width)",
+    "tex": "\\text{density height}=\\frac{\\text{frequency}}{n\\times\\text{bin width}}",
+    "reading": "柱子的面积才对应所占比例；组距变宽时，高度要相应缩小。"
+  },
+  {
+    "chapter": "01",
+    "lesson": "center",
+    "index": 0,
+    "source": "sample mean：ȳ = (Y₁+Y₂+…+Yₙ)/n",
+    "tex": "\\bar y=\\frac{y_1+y_2+\\cdots+y_n}{n}=\\frac1n\\sum_{i=1}^n y_i",
+    "reading": "把每个观测加起来，再除以个数，就是样本均值。"
+  },
+  {
+    "chapter": "01",
+    "lesson": "spread",
+    "index": 0,
+    "source": "s² = Σ(Yᵢ−ȳ)²/(n−1)；s=√s²",
+    "tex": "s^2=\\frac{\\sum_{i=1}^n(y_i-\\bar y)^2}{n-1},\\qquad s=\\sqrt{s^2}",
+    "reading": "先算离中心多远，再平方并加总。样本方差除以 n−1；标准差再开平方。"
+  },
+  {
+    "chapter": "01",
+    "lesson": "spread",
+    "index": 1,
+    "source": "s² = [ΣYᵢ²−(ΣYᵢ)²/n]/(n−1)",
+    "tex": "s^2=\\frac{\\sum_i y_i^2-\\dfrac{(\\sum_i y_i)^2}{n}}{n-1}",
+    "reading": ""
+  },
+  {
+    "chapter": "01",
+    "lesson": "spread",
+    "index": 2,
+    "source": "Σ(Yᵢ−Ȳ)²=Σ(Yᵢ−μ)²−n(Ȳ−μ)²<br>E(SS)=nσ²−n·Var(Ȳ)=nσ²−σ²=(n−1)σ²",
+    "tex": "\\begin{aligned}\\sum_i(Y_i-\\bar Y)^2&=\\sum_i(Y_i-\\mu)^2-n(\\bar Y-\\mu)^2\\\\ E(\\mathrm{SS})&=n\\sigma^2-n\\operatorname{Var}(\\bar Y)=(n-1)\\sigma^2\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "01",
+    "lesson": "practice",
+    "index": 0,
+    "source": "CV(Y)=100s/ȳ%；CV(Y+a)=100s/(ȳ+a)%<br>当 b&gt;0：CV(bY)=100bs/(bȳ)%=CV(Y)",
+    "tex": "\\begin{aligned}\\mathrm{CV}(Y)&=\\frac{100s}{\\bar y}\\%\\\\\\mathrm{CV}(Y+a)&=\\frac{100s}{\\bar y+a}\\%\\\\\\mathrm{CV}(bY)&=\\frac{100bs}{b\\bar y}\\%=\\mathrm{CV}(Y),\\quad b>0\\end{aligned}",
+    "reading": "相对波动是标准差占均值的百分之几；加常数和成比例换单位的作用不同。"
+  },
+  {
+    "chapter": "04",
+    "lesson": "events",
+    "index": 0,
+    "source": "P(Aᶜ)=1−P(A)<br>P(A∪B)=P(A)+P(B)−P(A∩B)",
+    "tex": "\\begin{aligned}P(A^c)&=1-P(A)\\\\P(A\\cup B)&=P(A)+P(B)-P(A\\cap B)\\end{aligned}",
+    "reading": "至少一个发生＝各自的概率相加，再减掉被算了两遍的重叠部分。"
+  },
+  {
+    "chapter": "04",
+    "lesson": "conditional",
+    "index": 0,
+    "source": "P(A|B)=P(A∩B)/P(B)，要求 P(B)&gt;0<br>P(A∩B)=P(A|B)P(B)",
+    "tex": "P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)},\\quad P(B)>0;\\qquad P(A\\cap B)=P(A\\mid B)P(B)",
+    "reading": "条件是 B，就在 B 的范围内计算 A 所占的比例。"
+  },
+  {
+    "chapter": "04",
+    "lesson": "conditional",
+    "index": 1,
+    "source": "同一个交集 18：<br>joint → 18/200=.09<br>fraud given fire → 18/60=.30<br>fire given fraud → 18/40=.45<br>独立要求 joint=.20×.30=.06；本表为 .09",
+    "tex": "\\begin{aligned}P(\\text{fraud}\\cap\\text{fire})&=18/200=0.09\\\\P(\\text{fraud}\\mid\\text{fire})&=18/60=0.30\\\\P(\\text{fire}\\mid\\text{fraud})&=18/40=0.45\\\\P(\\text{fraud})P(\\text{fire})&=0.20\\times0.30=0.06\\ne0.09\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "04",
+    "lesson": "binomial",
+    "index": 0,
+    "source": "P(Y=k)=C(n,k)pᵏ(1−p)ⁿ⁻ᵏ<br>E(Y)=np；Var(Y)=np(1−p)；SD(Y)=√[np(1−p)]",
+    "tex": "\\begin{aligned}P(Y=k)&=\\binom nk p^k(1-p)^{n-k}\\\\E(Y)&=np\\\\\\operatorname{Var}(Y)&=np(1-p),\\quad\\operatorname{SD}(Y)=\\sqrt{np(1-p)}\\end{aligned}",
+    "reading": "先数成功发生在哪些位置，再乘每一种排列的概率。"
+  },
+  {
+    "chapter": "04",
+    "lesson": "binomial",
+    "index": 1,
+    "source": "阶乘：k!=k×(k−1)×…×1；例如3!=3×2×1=6；规定0!=1<br>有序选k个：n×(n−1)×…×(n−k+1)=n!/(n−k)!<br>不计组内顺序：C(n,k)=n!/[k!(n−k)!]",
+    "tex": "\\begin{aligned}k!&=k(k-1)\\cdots1,\\quad 0!=1\\\\3!&=3\\times2\\times1=6\\\\\\text{ordered choices}&=\\frac{n!}{(n-k)!}\\\\\\binom nk&=\\frac{n!}{k!(n-k)!}\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "04",
+    "lesson": "binomial",
+    "index": 2,
+    "source": "E(Y)=Σⱼyⱼqⱼ，qⱼ=P(Y=yⱼ)，Σⱼqⱼ=1",
+    "tex": "E(Y)=\\sum_j y_jq_j,\\qquad q_j=P(Y=y_j),\\qquad\\sum_jq_j=1",
+    "reading": ""
+  },
+  {
+    "chapter": "04",
+    "lesson": "binomial",
+    "index": 3,
+    "source": "E(X)=E(I₁)+…+E(Iₙ)=p₁+…+pₙ<br>所有 pᵢ=p 时，E(X)=np",
+    "tex": "E(X)=\\sum_{i=1}^n E(I_i)=\\sum_{i=1}^n p_i;\\qquad p_i=p\\ \\Longrightarrow\\ E(X)=np",
+    "reading": ""
+  },
+  {
+    "chapter": "04",
+    "lesson": "binomial",
+    "index": 4,
+    "source": "同一个 I 复制两遍：Var(2I)=4p(1−p)=.84<br>两个独立 Bernoulli(p)：Var(I₁+I₂)=2p(1−p)=.42<br>两种设计都有 E(总数)=2p=.6",
+    "tex": "\\begin{aligned}\\operatorname{Var}(2I)&=4p(1-p)=0.84\\\\\\operatorname{Var}(I_1+I_2)&=2p(1-p)=0.42\\quad (I_1\\perp I_2)\\\\ E(2I)&=E(I_1+I_2)=2p=0.6\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "04",
+    "lesson": "density",
+    "index": 0,
+    "source": "P(a≤Y≤b)=∫ₐᵇ f(y)dy；CDF F(y)=P(Y≤y)",
+    "tex": "P(a\\le Y\\le b)=\\int_a^b f(y)\\,dy,\\qquad F(y)=P(Y\\le y)",
+    "reading": "连续变量的概率看曲线下面的面积；标准化是减中心、除以波动尺度。"
+  },
+  {
+    "chapter": "04",
+    "lesson": "density",
+    "index": 1,
+    "source": "Y~Normal(μ,σ²)；Z=(Y−μ)/σ~Normal(0,1)",
+    "tex": "Y\\sim N(\\mu,\\sigma^2)\\quad\\Longrightarrow\\quad Z=\\frac{Y-\\mu}{\\sigma}\\sim N(0,1)",
+    "reading": ""
+  },
+  {
+    "chapter": "04",
+    "lesson": "clt",
+    "index": 0,
+    "source": "E(ȳ)=μ；Var(ȳ)=σ²/n；SE(ȳ)=σ/√n",
+    "tex": "E(\\bar Y)=\\mu,\\qquad\\operatorname{Var}(\\bar Y)=\\frac{\\sigma^2}{n},\\qquad\\operatorname{SE}(\\bar Y)=\\frac{\\sigma}{\\sqrt n}",
+    "reading": "反复抽样时，样本均值仍以总体均值为中心，但它的波动比个体小。"
+  },
+  {
+    "chapter": "04",
+    "lesson": "clt",
+    "index": 1,
+    "source": "LLN：对固定ε&gt;0，P(|Ȳₙ−μ|&gt;ε)→0<br>经典CLT：√n(Ȳₙ−μ)/σ 的分布→Normal(0,1)",
+    "tex": "\\begin{aligned}\\text{LLN: }&P(|\\bar Y_n-\\mu|>\\epsilon)\\longrightarrow0,\\quad\\epsilon>0\\\\\\text{CLT: }&\\frac{\\sqrt n(\\bar Y_n-\\mu)}{\\sigma}\\xrightarrow{d}N(0,1)\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "05",
+    "lesson": "ci",
+    "index": 0,
+    "source": "已知总体 σ：ȳ±z₁₋α/₂σ/√n<br>未知 σ、独立正态观测：ȳ±t₁₋α/₂,ₙ₋₁s/√n<br>未知 σ 的 large-sample z approximation：ȳ±z₁₋α/₂s/√n",
+    "tex": "\\begin{aligned}\\text{known }\\sigma:\\quad&\\bar y\\pm z_{1-\\alpha/2}\\frac{\\sigma}{\\sqrt n}\\\\\\text{unknown }\\sigma:\\quad&\\bar y\\pm t_{1-\\alpha/2,n-1}\\frac{s}{\\sqrt n}\\\\\\text{large }n:\\quad&\\bar y\\pm z_{1-\\alpha/2}\\frac{s}{\\sqrt n}\\end{aligned}",
+    "reading": "区间＝这次估到的中心 ± 留给抽样波动的余地。已知总体标准差用 z；独立正态且标准差未知时用 t。"
+  },
+  {
+    "chapter": "05",
+    "lesson": "testing",
+    "index": 0,
+    "source": "Z=(ȳ−μ₀)/(σ/√n)；t=(ȳ−μ₀)/(s/√n)，df=n−1",
+    "tex": "Z=\\frac{\\bar y-\\mu_0}{\\sigma/\\sqrt n},\\qquad t=\\frac{\\bar y-\\mu_0}{s/\\sqrt n},\\quad\\mathrm{df}=n-1",
+    "reading": "把观察到的偏离除以标准误，才能判断偏离相对抽样波动有多大。"
+  },
+  {
+    "chapter": "05",
+    "lesson": "errors",
+    "index": 0,
+    "source": "右侧：c=μ₀+z₁₋αSE；β(μₐ)=Φ((c−μₐ)/SE)<br>双侧：β=Φ((cᵤ−μₐ)/SE)−Φ((cₗ−μₐ)/SE)",
+    "tex": "\\begin{aligned}c&=\\mu_0+z_{1-\\alpha}\\mathrm{SE}\\\\\\beta(\\mu_a)&=\\Phi\\!\\left(\\frac{c-\\mu_a}{\\mathrm{SE}}\\right)\\quad\\text{(right-sided)}\\\\\\beta(\\mu_a)&=\\Phi\\!\\left(\\frac{c_u-\\mu_a}{\\mathrm{SE}}\\right)-\\Phi\\!\\left(\\frac{c_l-\\mu_a}{\\mathrm{SE}}\\right)\\quad\\text{(two-sided)}\\end{aligned}",
+    "reading": "先固定拒绝的门槛，再在指定的真实均值下计算错过它的概率。"
+  },
+  {
+    "chapter": "05",
+    "lesson": "power-n",
+    "index": 0,
+    "source": "右侧 z 规划：n≈σ²(z₁₋α+z₁₋β)²/Δ²<br>双侧常用近似：n≈σ²(z₁₋α/₂+z₁₋β)²/Δ²",
+    "tex": "\\begin{aligned}n_{\\text{right}}&\\approx\\frac{\\sigma^2(z_{1-\\alpha}+z_{1-\\beta})^2}{\\Delta^2}\\\\n_{\\text{two-sided}}&\\approx\\frac{\\sigma^2(z_{1-\\alpha/2}+z_{1-\\beta})^2}{\\Delta^2}\\end{aligned}",
+    "reading": "差异越难分辨、波动越大，需要的独立样本通常越多。这里的 z 公式是规划近似。"
+  },
+  {
+    "chapter": "05",
+    "lesson": "power-n",
+    "index": 1,
+    "source": "df=n−1；λ=Δ√n/σ<br>拒绝域：T&gt;t₁₋α,n−1<br>power(n)=P[Tₙ₋₁,λ&gt;t₁₋α,n−1]",
+    "tex": "\\nu=n-1,\\quad\\lambda=\\frac{\\Delta\\sqrt n}{\\sigma},\\qquad\\operatorname{power}(n)=P(T_{\\nu,\\lambda}>t_{1-\\alpha,\\nu})",
+    "reading": ""
+  },
+  {
+    "chapter": "05",
+    "lesson": "student",
+    "index": 0,
+    "source": "T=(Ȳ−μ₀)/(S/√n)<br>独立正态观测，且真实 μ=μ₀ 时：T~Student’s t(n−1)",
+    "tex": "T=\\frac{\\bar Y-\\mu_0}{S/\\sqrt n}\\sim t_{n-1}\\quad\\text{under }\\mu=\\mu_0\\text{ and independent normal observations}",
+    "reading": "用样本标准差代替未知总体标准差，也增加了不确定性；t 分布承认这一步。"
+  },
+  {
+    "chapter": "05",
+    "lesson": "student",
+    "index": 1,
+    "source": "P(μ∈[Ȳ−z₀.₉₇₅S/√n, Ȳ+z₀.₉₇₅S/√n])<br>= P(|T*|≤z₀.₉₇₅)=2F<sub>t₄</sub>(1.959964)−1=0.878440<br>P(|T*|≤t₄,₀.₉₇₅)=0.95",
+    "tex": "\\begin{aligned}P\\!\\left(\\mu\\in\\left[\\bar Y-z_{0.975}\\frac S{\\sqrt n},\\bar Y+z_{0.975}\\frac S{\\sqrt n}\\right]\\right)&=2F_{t_4}(1.959964)-1=0.878440\\\\P(|T^*|\\le t_{4,0.975})&=0.95\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "05",
+    "lesson": "median",
+    "index": 0,
+    "source": "coverage(k)=P(k≤B≤n−k)=1−2P(B≤k−1)<br>选满足2P(B≤k−1)≤α的最大整数k<br>CI=[Y₍ₖ₎,Y₍ₙ₋ₖ₊₁₎]",
+    "tex": "\\begin{aligned}\\operatorname{coverage}(k)&=P(k\\le B\\le n-k)=1-2P(B\\le k-1)\\\\k&=\\max\\{j:2P(B\\le j-1)\\le\\alpha\\}\\\\\\mathrm{CI}&=[Y_{(k)},Y_{(n-k+1)}]\\end{aligned}",
+    "reading": "先选排序后的两个端点，使区间覆盖总体中位数的概率达到要求。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "difference",
+    "index": 0,
+    "source": "D̂=ȳ₁−ȳ₂；E(D̂)=μ₁−μ₂<br>独立样本：Var(D̂)=σ₁²/n₁+σ₂²/n₂",
+    "tex": "\\widehat D=\\bar y_1-\\bar y_2,\\quad E(\\widehat D)=\\mu_1-\\mu_2,\\qquad\\operatorname{Var}(\\widehat D)=\\frac{\\sigma_1^2}{n_1}+\\frac{\\sigma_2^2}{n_2}",
+    "reading": "独立两组作差时，波动不会互相抵消：两边的不确定性要相加。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "pooled",
+    "index": 0,
+    "source": "sₚ²=[(n₁−1)s₁²+(n₂−1)s₂²]/(n₁+n₂−2)<br>SE=sₚ√(1/n₁+1/n₂)<br>t=[(ȳ₁−ȳ₂)−D₀]/SE；df=n₁+n₂−2",
+    "tex": "\\begin{aligned}s_p^2&=\\frac{(n_1-1)s_1^2+(n_2-1)s_2^2}{n_1+n_2-2}\\\\\\mathrm{SE}&=s_p\\sqrt{\\frac1{n_1}+\\frac1{n_2}}\\\\t&=\\frac{(\\bar y_1-\\bar y_2)-D_0}{\\mathrm{SE}},\\qquad\\mathrm{df}=n_1+n_2-2\\end{aligned}",
+    "reading": "共同方差的假设允许把两组的组内波动合起来估计。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "welch",
+    "index": 0,
+    "source": "a=s₁²/n₁，b=s₂²/n₂；SE=√(a+b)<br>ν≈(a+b)²/[a²/(n₁−1)+b²/(n₂−1)]<br>t=[(ȳ₁−ȳ₂)−D₀]/SE",
+    "tex": "\\begin{aligned}a&=s_1^2/n_1,\\quad b=s_2^2/n_2,\\quad\\mathrm{SE}=\\sqrt{a+b}\\\\\\nu&\\approx\\frac{(a+b)^2}{a^2/(n_1-1)+b^2/(n_2-1)}\\\\t&=\\frac{(\\bar y_1-\\bar y_2)-D_0}{\\mathrm{SE}}\\end{aligned}",
+    "reading": "先各自估两组均值的波动，再相加；自由度也随两组贡献调整。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "welch",
+    "index": 1,
+    "source": "ν=1/[c²/(n₁−1)+(1−c)²/(n₂−1)]<br>=(n₁−1)(n₂−1)/[c²(n₂−1)+(1−c)²(n₁−1)]",
+    "tex": "\\nu=\\frac1{c^2/(n_1-1)+(1-c)^2/(n_2-1)}=\\frac{(n_1-1)(n_2-1)}{c^2(n_2-1)+(1-c)^2(n_1-1)}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "welch",
+    "index": 2,
+    "source": "Var(Ȳ₁−Ȳ₂)=σ₁²/n₁+σ₂²/n₂<br>E(估计 SE²pooled)=[((n₁−1)σ₁²+(n₂−1)σ₂²)/(n₁+n₂−2)]×(1/n₁+1/n₂)",
+    "tex": "\\begin{aligned}\\operatorname{Var}(\\bar Y_1-\\bar Y_2)&=\\frac{\\sigma_1^2}{n_1}+\\frac{\\sigma_2^2}{n_2}\\\\E(\\widehat{\\mathrm{SE}}_{\\text{pooled}}^2)&=\\frac{(n_1-1)\\sigma_1^2+(n_2-1)\\sigma_2^2}{n_1+n_2-2}\\left(\\frac1{n_1}+\\frac1{n_2}\\right)\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "welch",
+    "index": 3,
+    "source": "r̂=拒绝次数/B；MCSE(r̂)≈√[r̂(1−r̂)/B]",
+    "tex": "\\hat r=\\frac{\\text{rejections}}B,\\qquad\\operatorname{MCSE}(\\hat r)\\approx\\sqrt{\\frac{\\hat r(1-\\hat r)}B}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "rank-sum",
+    "index": 0,
+    "source": "E(W)=n₁(N+1)/2；无 ties 时 Var(W)=n₁n₂(N+1)/12<br>有 ties 时 Var(W)=n₁n₂/12×[N+1−Σ(tⱼ³−tⱼ)/(N(N−1))]",
+    "tex": "\\begin{aligned}E(W)&=\\frac{n_1(N+1)}2\\\\\\operatorname{Var}(W)_{\\text{no ties}}&=\\frac{n_1n_2(N+1)}{12}\\\\\\operatorname{Var}(W)_{\\text{ties}}&=\\frac{n_1n_2}{12}\\left[N+1-\\frac{\\sum_j(t_j^3-t_j)}{N(N-1)}\\right]\\end{aligned}",
+    "reading": "先合并排序，再加总一组的秩；并列值会改变秩和的参考波动。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "paired-t",
+    "index": 0,
+    "source": "Dᵢ=Yᵢ₂−Yᵢ₁；t=(D̄−D₀)/(sᴅ/√n)，df=n−1<br>CI=D̄±t₁₋α/₂,ₙ₋₁sᴅ/√n<br>Var(D)=σ₁²+σ₂²−2Cov(Y₁,Y₂)",
+    "tex": "\\begin{aligned}D_i&=Y_{i2}-Y_{i1}\\\\t&=\\frac{\\bar D-D_0}{s_D/\\sqrt n},\\quad\\mathrm{df}=n-1\\\\\\mathrm{CI}&=\\bar D\\pm t_{1-\\alpha/2,n-1}\\frac{s_D}{\\sqrt n}\\\\\\operatorname{Var}(D)&=\\sigma_1^2+\\sigma_2^2-2\\operatorname{Cov}(Y_1,Y_2)\\end{aligned}",
+    "reading": "每一对先作差，再把这些差值当成一个样本分析。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "paired-t",
+    "index": 1,
+    "source": "Dᵢ−D̄=(Bᵢ−B̄)−(Aᵢ−Ā)<br>s<sub>D</sub>²=s<sub>A</sub>²+s<sub>B</sub>²−2s<sub>AB</sub><br>=90+96.5−2×93=0.5<br>估计 SE(D̄)=√(0.5/5)=0.316228",
+    "tex": "\\begin{aligned}D_i-\\bar D&=(B_i-\\bar B)-(A_i-\\bar A)\\\\s_D^2&=s_A^2+s_B^2-2s_{AB}=90+96.5-2(93)=0.5\\\\\\widehat{\\mathrm{SE}}(\\bar D)&=\\sqrt{0.5/5}=0.316228\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "signed-rank",
+    "index": 0,
+    "source": "E(W⁺)=m(m+1)/4<br>Var(W⁺)=m(m+1)(2m+1)/24−Σ(tⱼ³−tⱼ)/48",
+    "tex": "\\begin{aligned}E(W^+)&=\\frac{m(m+1)}4\\\\\\operatorname{Var}(W^+)&=\\frac{m(m+1)(2m+1)}{24}-\\frac{\\sum_j(t_j^3-t_j)}{48}\\end{aligned}",
+    "reading": "差值有正有负；先把绝对值排序，再把正差的秩加起来。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "sample-size",
+    "index": 0,
+    "source": "独立、共同 planning σ、每组相同 n：<br>n≈2σ²(z₁₋α/₂+z₁₋β)²/Δ²<br>配对：n pairs≈σᴅ²(z₁₋α/₂+z₁₋β)²/Δ²",
+    "tex": "\\begin{aligned}n_{\\text{per independent group}}&\\approx\\frac{2\\sigma^2(z_{1-\\alpha/2}+z_{1-\\beta})^2}{\\Delta^2}\\\\n_{\\text{pairs}}&\\approx\\frac{\\sigma_D^2(z_{1-\\alpha/2}+z_{1-\\beta})^2}{\\Delta^2}\\end{aligned}",
+    "reading": "两组独立单位和一组配对差值，有不同的规划方差。"
+  },
+  {
+    "chapter": "07",
+    "lesson": "chisquare",
+    "index": 0,
+    "source": "独立正态观测：Q=(n−1)s²/σ²~χ²(ν=n−1)",
+    "tex": "Q=\\frac{(n-1)s^2}{\\sigma^2}\\sim\\chi^2_\\nu,\\qquad\\nu=n-1",
+    "reading": "在独立正态样本下，用总体方差标准化样本平方和，会得到卡方分布。"
+  },
+  {
+    "chapter": "07",
+    "lesson": "variance-ci",
+    "index": 0,
+    "source": "σ² CI=[(n−1)s²/χ²₁₋α/₂,ν，(n−1)s²/χ²α/₂,ν]",
+    "tex": "\\mathrm{CI}_{\\sigma^2}=\\left[\\frac{(n-1)s^2}{\\chi^2_{1-\\alpha/2,\\nu}},\\frac{(n-1)s^2}{\\chi^2_{\\alpha/2,\\nu}}\\right]",
+    "reading": "分母是不同的卡方分位数，所以方差区间通常左右不对称。"
+  },
+  {
+    "chapter": "07",
+    "lesson": "variance-ci",
+    "index": 1,
+    "source": "Q=(n−1)s²/σ₀²=9×4/12=3；ν=n−1=9<br>Fν(q)=P(χ²ν≤q)",
+    "tex": "Q=\\frac{(n-1)s^2}{\\sigma_0^2}=\\frac{9\\times4}{12}=3,\\quad\\nu=9,\\qquad F_\\nu(q)=P(\\chi^2_\\nu\\le q)",
+    "reading": ""
+  },
+  {
+    "chapter": "07",
+    "lesson": "variance-ci",
+    "index": 2,
+    "source": "U₁₋α=(n−1)s²/χ²α,ν<br>U.95=36/3.325113≈10.826700",
+    "tex": "U_{1-\\alpha}=\\frac{(n-1)s^2}{\\chi^2_{\\alpha,\\nu}},\\qquad U_{0.95}=\\frac{36}{3.325113}\\approx10.826700",
+    "reading": ""
+  },
+  {
+    "chapter": "07",
+    "lesson": "f-distribution",
+    "index": 0,
+    "source": "独立正态样本：(s₁²/σ₁²)/(s₂²/σ₂²)~F(n₁−1,n₂−1)<br>H₀:σ₁²=σ₂² 时，Fcalc=s₁²/s₂²",
+    "tex": "\\frac{s_1^2/\\sigma_1^2}{s_2^2/\\sigma_2^2}\\sim F_{n_1-1,n_2-1};\\qquad H_0:\\sigma_1^2=\\sigma_2^2\\ \\Longrightarrow\\ F_{\\mathrm{calc}}=\\frac{s_1^2}{s_2^2}",
+    "reading": "两个独立方差估计分别除以各自的真方差，再取比值，得到 F 分布。"
+  },
+  {
+    "chapter": "07",
+    "lesson": "f-distribution",
+    "index": 1,
+    "source": "σ₁²/σ₂² 的 CI=[R/F₁₋α/₂,ν₁,ν₂，R/Fα/₂,ν₁,ν₂]<br>Fₚ(a,b)=1/F₁₋ₚ(b,a)",
+    "tex": "\\mathrm{CI}_{\\sigma_1^2/\\sigma_2^2}=\\left[\\frac{R}{F_{1-\\alpha/2,\\nu_1,\\nu_2}},\\frac{R}{F_{\\alpha/2,\\nu_1,\\nu_2}}\\right],\\qquad F_p(a,b)=\\frac1{F_{1-p}(b,a)}",
+    "reading": ""
+  },
+  {
+    "chapter": "07",
+    "lesson": "hartley",
+    "index": 0,
+    "source": "Fmax=max(sᵢ²)/min(sᵢ²)",
+    "tex": "F_{\\max}=\\frac{\\max_i s_i^2}{\\min_i s_i^2}",
+    "reading": "最大样本方差除以最小样本方差；正式判断需要相应的分组数、自由度和条件。"
+  },
+  {
+    "chapter": "07",
+    "lesson": "brown-forsythe",
+    "index": 0,
+    "source": "整组平移：Y′=Y+c，M′=M+c ⇒ Z′=Z<br>围绕中心放大：Y′=M+a(Y−M)，a&gt;0 ⇒ Z′=aZ",
+    "tex": "\\begin{aligned}Y^\\prime=Y+c,\\ M^\\prime=M+c&\\ \\Longrightarrow\\ Z^\\prime=Z\\\\Y^\\prime=M+a(Y-M),\\ a>0&\\ \\Longrightarrow\\ Z^\\prime=aZ\\end{aligned}",
+    "reading": "整组平移不改变离中心的距离；围绕中心放大则会放大这些距离。"
+  },
+  {
+    "chapter": "08",
+    "lesson": "model",
+    "index": 0,
+    "source": "Yᵢⱼ=μ+τᵢ+εᵢⱼ；Στᵢ=0<br>εᵢⱼ independent Normal(0,σ²)",
+    "tex": "\\begin{aligned}Y_{ij}&=\\mu+\\tau_i+\\epsilon_{ij},\\qquad\\sum_i\\tau_i=0\\\\\\epsilon_{ij}&\\overset{\\mathrm{ind}}\\sim N(0,\\sigma^2)\\end{aligned}",
+    "reading": "一次测量＝共同背景＋这一组的平均偏移＋同组个体自己的波动。"
+  },
+  {
+    "chapter": "08",
+    "lesson": "ss",
+    "index": 0,
+    "source": "Yᵢⱼ−ȳ..=(ȳᵢ.−ȳ..)+(Yᵢⱼ−ȳᵢ.)",
+    "tex": "\\underbrace{y_{ij}-\\bar y_{\\cdot\\cdot}}_{\\text{total deviation}}=\\underbrace{\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot}}_{\\text{between groups}}+\\underbrace{y_{ij}-\\bar y_{i\\cdot}}_{\\text{within group}}",
+    "reading": "先从总中心走到组中心，再从组中心走到这个点。"
+  },
+  {
+    "chapter": "08",
+    "lesson": "ss",
+    "index": 1,
+    "source": "SST=ΣᵢΣⱼ(Yᵢⱼ−ȳ..)²<br>SStrt=Σᵢnᵢ(ȳᵢ.−ȳ..)²<br>SSE=ΣᵢΣⱼ(Yᵢⱼ−ȳᵢ.)²<br>SST=SStrt+SSE",
+    "tex": "\\begin{aligned}\\mathrm{SST}&=\\sum_i\\sum_j(y_{ij}-\\bar y_{\\cdot\\cdot})^2\\\\\\mathrm{SS}_{\\mathrm{trt}}&=\\sum_i n_i(\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot})^2\\\\\\mathrm{SSE}&=\\sum_i\\sum_j(y_{ij}-\\bar y_{i\\cdot})^2\\\\\\mathrm{SST}&=\\mathrm{SS}_{\\mathrm{trt}}+\\mathrm{SSE}\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "08",
+    "lesson": "ss",
+    "index": 2,
+    "source": "MSE=SSE/(N−k)=Σᵢ(nᵢ−1)sᵢ²/(N−k)<br>N=Σᵢnᵢ，k=处理组数",
+    "tex": "\\mathrm{MSE}=\\frac{\\mathrm{SSE}}{N-k}=\\frac{\\sum_i(n_i-1)s_i^2}{N-k},\\qquad N=\\sum_i n_i",
+    "reading": ""
+  },
+  {
+    "chapter": "08",
+    "lesson": "ss",
+    "index": 3,
+    "source": "s²<sub>group means</sub>=Σᵢ(ȳᵢ.−ȳ..)²/(k−1)<br>MStrt=n·s²<sub>group means</sub><br>H₀ 下：E(MStrt)=E(MSE)=σ²",
+    "tex": "\\begin{aligned}s_{\\text{group means}}^2&=\\frac{\\sum_i(\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot})^2}{k-1}\\\\\\mathrm{MS}_{\\mathrm{trt}}&=n\\,s_{\\text{group means}}^2\\\\H_0:&\\quad E(\\mathrm{MS}_{\\mathrm{trt}})=E(\\mathrm{MSE})=\\sigma^2\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "08",
+    "lesson": "kruskal",
+    "index": 0,
+    "source": "H=12/[N(N+1)]×Σ(Rᵢ²/nᵢ)−3(N+1)<br>C=1−Σ(tⱼ³−tⱼ)/(N³−N)；Hcorrected=H/C",
+    "tex": "\\begin{aligned}H&=\\frac{12}{N(N+1)}\\sum_i\\frac{R_i^2}{n_i}-3(N+1)\\\\ C&=1-\\frac{\\sum_j(t_j^3-t_j)}{N^3-N},\\qquad H_{\\mathrm{corrected}}=\\frac H C\\end{aligned}",
+    "reading": "先比较各组的秩和；有并列值时，还要校正参考尺度。"
+  },
+  {
+    "chapter": "08",
+    "lesson": "transform",
+    "index": 0,
+    "source": "Delta method：Var[g(Y)]≈[g′(μ)]²Var(Y)",
+    "tex": "\\operatorname{Var}[g(Y)]\\approx[g^\\prime(\\mu)]^2\\operatorname{Var}(Y)",
+    "reading": "在均值附近，变换函数的斜率决定局部波动会被放大多少。"
+  },
+  {
+    "chapter": "09",
+    "lesson": "multiplicity",
+    "index": 0,
+    "source": "独立且 null 全真实：FWER=1−(1−αᵢ)ᵐ<br>Bonferroni：单个阈值 α/m；adjusted P=min(1,mP)",
+    "tex": "\\begin{aligned}\\mathrm{FWER}_{\\text{independent}}&=1-(1-\\alpha_i)^m\\\\\\alpha_{\\text{per test}}&=\\alpha/m\\\\p_{\\text{Bonferroni}}&=\\min(1,mp)\\end{aligned}",
+    "reading": "独立时可计算整批误报概率；Bonferroni 把整批风险预算分给每次比较。"
+  },
+  {
+    "chapter": "09",
+    "lesson": "contrast",
+    "index": 0,
+    "source": "L=Σaᵢμᵢ；L̂=Σaᵢȳᵢ；contrast 要求 Σaᵢ=0<br>SE(L̂)=√[MSE×Σ(aᵢ²/nᵢ)]",
+    "tex": "\\begin{aligned}L&=\\sum_i a_i\\mu_i,\\quad\\widehat L=\\sum_i a_i\\bar y_i,\\quad\\sum_i a_i=0\\\\\\mathrm{SE}(\\widehat L)&=\\sqrt{\\mathrm{MSE}\\sum_i\\frac{a_i^2}{n_i}}\\end{aligned}",
+    "reading": "系数就是比较时各组被加减的份额；系数和为零，才能把共同背景抵消掉。"
+  },
+  {
+    "chapter": "09",
+    "lesson": "contrast",
+    "index": 1,
+    "source": "SScontrast=L̂²/Σ(aᵢ²/nᵢ)；1-df F=t²（检验 L₀=0）",
+    "tex": "\\mathrm{SS}_{\\mathrm{contrast}}=\\frac{\\widehat L^2}{\\sum_i a_i^2/n_i},\\qquad F=t^2\\quad (L_0=0,\\ 1\\text{ numerator df})",
+    "reading": ""
+  },
+  {
+    "chapter": "09",
+    "lesson": "contrast",
+    "index": 2,
+    "source": "L̂=−4；SE=√(4/3)≈1.154701<br>tobs=−3.464102；F=tobs²=12<br>P双侧=2P(t₁₂≥|tobs|)≈.004681605<br>95% CI：−4±t.975,12×1.154701<br>=[−6.515876,−1.484124]",
+    "tex": "\\begin{aligned}\\widehat L&=-4,\\quad\\mathrm{SE}=\\sqrt{4/3}\\approx1.154701\\\\t_{\\mathrm{obs}}&=-3.464102,\\quad F=t_{\\mathrm{obs}}^2=12\\\\p&=2P(t_{12}\\ge|t_{\\mathrm{obs}}|)\\approx0.004681605\\\\\\mathrm{CI}_{0.95}&=-4\\pm t_{0.975,12}(1.154701)=[-6.515876,-1.484124]\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "09",
+    "lesson": "orthogonal",
+    "index": 0,
+    "source": "Cov(L̂ₐ,L̂ᵦ)=σ²Σ(aᵢbᵢ/nᵢ)<br>正交条件：Σ(aᵢbᵢ/nᵢ)=0",
+    "tex": "\\operatorname{Cov}(\\widehat L_a,\\widehat L_b)=\\sigma^2\\sum_i\\frac{a_ib_i}{n_i},\\qquad\\text{orthogonal: }\\sum_i\\frac{a_ib_i}{n_i}=0",
+    "reading": "看两个比较是否沿独立方向利用组均值信息；样本量不同时要按 n 加权。"
+  },
+  {
+    "chapter": "09",
+    "lesson": "orthogonal",
+    "index": 1,
+    "source": "Σaᵢbᵢ/nᵢ=0；两个方向正交<br>SSa+SSb=40.5+13.5=54=SStrt<br>1+1=2=treatment df",
+    "tex": "\\sum_i\\frac{a_ib_i}{n_i}=0,\\qquad\\mathrm{SS}_a+\\mathrm{SS}_b=40.5+13.5=54=\\mathrm{SS}_{\\mathrm{trt}},\\quad1+1=2\\text{ df}",
+    "reading": ""
+  },
+  {
+    "chapter": "09",
+    "lesson": "lsd",
+    "index": 0,
+    "source": "LSD=t₁₋α/₂,ν√(2MSE/n)",
+    "tex": "\\mathrm{LSD}=t_{1-\\alpha/2,\\nu}\\sqrt{\\frac{2\\mathrm{MSE}}n}",
+    "reading": "两组样本均值要相隔多远，普通的双侧 t 比较才会拒绝相等？"
+  },
+  {
+    "chapter": "14",
+    "lesson": "factorial",
+    "index": 0,
+    "source": "Yᵢⱼₖ=μ+αᵢ+βⱼ+(αβ)ᵢⱼ+εᵢⱼₖ",
+    "tex": "Y_{ijk}=\\mu+\\alpha_i+\\beta_j+(\\alpha\\beta)_{ij}+\\epsilon_{ijk}",
+    "reading": "同时记录两个因素，并允许一个因素的效果随着另一个因素变化。"
+  },
+  {
+    "chapter": "14",
+    "lesson": "interaction",
+    "index": 0,
+    "source": "I=(μ₂₂−μ₁₂)−(μ₂₁−μ₁₁)<br>cell interaction deviation=μᵢⱼ−μᵢ.−μ.ⱼ+μ..",
+    "tex": "\\begin{aligned}I&=(\\mu_{22}-\\mu_{12})-(\\mu_{21}-\\mu_{11})\\\\\\text{cell deviation}&=\\mu_{ij}-\\mu_{i\\cdot}-\\mu_{\\cdot j}+\\mu_{\\cdot\\cdot}\\end{aligned}",
+    "reading": "先在每个条件内作差，再把两个差值相减。"
+  },
+  {
+    "chapter": "14",
+    "lesson": "factorial-ss",
+    "index": 0,
+    "source": "SSA=brΣ(ȳᵢ..−ȳ...)²<br>SSB=arΣ(ȳ.ⱼ.−ȳ...)²<br>SSAB=rΣᵢΣⱼ(ȳᵢⱼ.−ȳᵢ..−ȳ.ⱼ.+ȳ...)²<br>SSE=ΣᵢΣⱼΣₖ(Yᵢⱼₖ−ȳᵢⱼ.)²",
+    "tex": "\\begin{aligned}\\mathrm{SS}_A&=br\\sum_i(\\bar y_{i\\cdot\\cdot}-\\bar y_{\\cdot\\cdot\\cdot})^2\\\\\\mathrm{SS}_B&=ar\\sum_j(\\bar y_{\\cdot j\\cdot}-\\bar y_{\\cdot\\cdot\\cdot})^2\\\\\\mathrm{SS}_{AB}&=r\\sum_i\\sum_j(\\bar y_{ij\\cdot}-\\bar y_{i\\cdot\\cdot}-\\bar y_{\\cdot j\\cdot}+\\bar y_{\\cdot\\cdot\\cdot})^2\\\\\\mathrm{SSE}&=\\sum_i\\sum_j\\sum_k(y_{ijk}-\\bar y_{ij\\cdot})^2\\end{aligned}",
+    "reading": "平衡设计把两个主效应、交互与剩余波动分开计算。"
+  },
+  {
+    "chapter": "14",
+    "lesson": "three-way",
+    "index": 0,
+    "source": "Y=μ+A+B+C+AB+AC+BC+ABC+ε",
+    "tex": "Y=\\mu+A+B+C+AB+AC+BC+ABC+\\epsilon",
+    "reading": "二因素之间的交互，会不会又随着第三个条件改变？"
+  },
+  {
+    "chapter": "14",
+    "lesson": "three-way",
+    "index": 1,
+    "source": "ΔAB|Ck=(μ₂₂k−μ₁₂k)−(μ₂₁k−μ₁₁k)<br>L=ΔAB|C2−ΔAB|C1；H₀:L=0，Hₐ:L≠0",
+    "tex": "\\begin{aligned}\\Delta_{AB\\mid C_k}&=(\\mu_{22k}-\\mu_{12k})-(\\mu_{21k}-\\mu_{11k})\\\\L&=\\Delta_{AB\\mid C_2}-\\Delta_{AB\\mid C_1}\\\\H_0&:L=0,\\qquad H_a:L\\ne0\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "blocking",
+    "index": 0,
+    "source": "Yᵢⱼ=μ+τᵢ+βⱼ+εᵢⱼ",
+    "tex": "Y_{ij}=\\mu+\\tau_i+\\beta_j+\\epsilon_{ij}",
+    "reading": "一次测量同时受肥料、田块共同环境和剩余波动影响。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "rcbd-anova",
+    "index": 0,
+    "source": "SStrt=bΣᵢ(ȳᵢ.−ȳ..)²<br>SSblock=tΣⱼ(ȳ.ⱼ−ȳ..)²<br>SSE=ΣᵢΣⱼ(Yᵢⱼ−ȳᵢ.−ȳ.ⱼ+ȳ..)²",
+    "tex": "\\begin{aligned}\\mathrm{SS}_{\\mathrm{trt}}&=b\\sum_i(\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot})^2\\\\\\mathrm{SS}_{\\mathrm{block}}&=t\\sum_j(\\bar y_{\\cdot j}-\\bar y_{\\cdot\\cdot})^2\\\\\\mathrm{SSE}&=\\sum_i\\sum_j(y_{ij}-\\bar y_{i\\cdot}-\\bar y_{\\cdot j}+\\bar y_{\\cdot\\cdot})^2\\end{aligned}",
+    "reading": "先各自分出处理和田块的中心偏移，剩下的才进误差。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "random-effects",
+    "index": 0,
+    "source": "βⱼ~Normal(0,σᵦ²)，εᵢⱼ~Normal(0,σₑ²)<br>同 block 不同单位：Cov(Yᵢⱼ,Yᵢ′ⱼ)=σᵦ²",
+    "tex": "\\begin{aligned}\\beta_j&\\sim N(0,\\sigma_b^2),\\quad\\epsilon_{ij}\\sim N(0,\\sigma_e^2)\\\\\\operatorname{Cov}(Y_{ij},Y_{i^\\prime j})&=\\sigma_b^2\\quad(i\\ne i^\\prime)\\end{aligned}",
+    "reading": "同一田块的单位共享一份环境波动，所以它们可能相关。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "random-effects",
+    "index": 1,
+    "source": "E(MSE)=σₑ²；E(MSblock)=σₑ²+tσᵦ²<br>moment estimate：σ̂ᵦ²=(MSblock−MSE)/t",
+    "tex": "E(\\mathrm{MSE})=\\sigma_e^2,\\quad E(\\mathrm{MS}_{\\mathrm{block}})=\\sigma_e^2+t\\sigma_b^2,\\qquad\\widehat{\\sigma_b^2}=\\frac{\\mathrm{MS}_{\\mathrm{block}}-\\mathrm{MSE}}t",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "factorial-blocks",
+    "index": 0,
+    "source": "Yᵢⱼₖ=μ+Aᵢ+Bⱼ+ABᵢⱼ+Blockₖ+εᵢⱼₖ",
+    "tex": "Y_{ijk}=\\mu+A_i+B_j+(AB)_{ij}+\\mathrm{Block}_k+\\epsilon_{ijk}",
+    "reading": "处理结构可以是多因素；实验设计仍然可以用田块控制环境差异。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "latin-square",
+    "index": 0,
+    "source": "Y=μ+Treatment+Row+Column+ε<br>df treatment=row=column=t−1<br>error df=(t−1)(t−2)；total df=t²−1",
+    "tex": "\\begin{aligned}Y&=\\mu+\\mathrm{Treatment}+\\mathrm{Row}+\\mathrm{Column}+\\epsilon\\\\\\mathrm{df}_{\\mathrm{trt}}=\\mathrm{df}_{\\mathrm{row}}=\\mathrm{df}_{\\mathrm{column}}&=t-1\\\\\\mathrm{df}_{\\mathrm{error}}&=(t-1)(t-2),\\qquad\\mathrm{df}_{\\mathrm{total}}=t^2-1\\end{aligned}",
+    "reading": "用行和列分离两个环境方向，但会消耗自由度。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "slr",
+    "index": 0,
+    "source": "Yᵢ=β₀+β₁xᵢ+εᵢ<br>E(Y|x)=β₀+β₁x；Var(Y|x)=σₑ²",
+    "tex": "\\begin{aligned}Y_i&=\\beta_0+\\beta_1x_i+\\epsilon_i\\\\E(Y\\mid x)&=\\beta_0+\\beta_1x,\\qquad\\operatorname{Var}(Y\\mid x)=\\sigma_e^2\\end{aligned}",
+    "reading": "直线描述同一 x 下的平均响应；个体还会围绕它上下波动。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "least-squares",
+    "index": 0,
+    "source": "Sxx=Σ(xᵢ−x̄)²；Sxy=Σ(xᵢ−x̄)(Yᵢ−ȳ)<br>b₁=Sxy/Sxx；b₀=ȳ−b₁x̄<br>ŷᵢ=b₀+b₁xᵢ；eᵢ=Yᵢ−ŷᵢ",
+    "tex": "\\begin{aligned}S_{xx}&=\\sum_i(x_i-\\bar x)^2\\\\S_{xy}&=\\sum_i(x_i-\\bar x)(y_i-\\bar y)\\\\b_1&=S_{xy}/S_{xx},\\quad b_0=\\bar y-b_1\\bar x\\\\\\hat y_i&=b_0+b_1x_i,\\quad e_i=y_i-\\hat y_i\\end{aligned}",
+    "reading": "先量 x 的散开和 x、Y 的共同变化，再确定斜率；残差是点到预测线的竖向差。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "regression-anova",
+    "index": 0,
+    "source": "SST=Syy=Σ(Yᵢ−ȳ)²<br>SSR=Σ(ŷᵢ−ȳ)²=b₁²Sxx；SSE=SST−SSR<br>MSE=SSE/(n−2)；F=(SSR/1)/MSE",
+    "tex": "\\begin{aligned}\\mathrm{SST}=S_{yy}&=\\sum_i(y_i-\\bar y)^2\\\\\\mathrm{SSR}&=\\sum_i(\\hat y_i-\\bar y)^2=b_1^2S_{xx}\\\\\\mathrm{SSE}&=\\mathrm{SST}-\\mathrm{SSR}\\\\\\mathrm{MSE}&=\\frac{\\mathrm{SSE}}{n-2},\\qquad F=\\frac{\\mathrm{SSR}/1}{\\mathrm{MSE}}\\end{aligned}",
+    "reading": "总波动分成直线解释掉的部分和直线仍解释不了的部分。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "regression-anova",
+    "index": 1,
+    "source": "SE(b₁)=√(MSE/Sxx)<br>SE(b₀)=√[MSE(1/n+x̄²/Sxx)]<br>t=(bⱼ−βⱼ,₀)/SE(bⱼ)，df=n−2",
+    "tex": "\\begin{aligned}\\mathrm{SE}(b_1)&=\\sqrt{\\frac{\\mathrm{MSE}}{S_{xx}}}\\\\\\mathrm{SE}(b_0)&=\\sqrt{\\mathrm{MSE}\\left(\\frac1n+\\frac{\\bar x^2}{S_{xx}}\\right)}\\\\t&=\\frac{b_j-\\beta_{j,0}}{\\mathrm{SE}(b_j)},\\quad\\mathrm{df}=n-2\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "11",
+    "lesson": "regression-anova",
+    "index": 2,
+    "source": "Var̂(b₀)=14.666667；Var̂(b₁)=.733333；Cov̂(b₀,b₁)=−2.933333<br>Var̂(ŷ₀)=Var̂(b₀)+x₀²Var̂(b₁)+2x₀Cov̂(b₀,b₁)",
+    "tex": "\\begin{aligned}\\widehat{\\operatorname{Var}}(b_0)&=14.666667,\\quad\\widehat{\\operatorname{Var}}(b_1)=0.733333\\\\\\widehat{\\operatorname{Cov}}(b_0,b_1)&=-2.933333\\\\\\widehat{\\operatorname{Var}}(\\hat y_0)&=\\widehat{\\operatorname{Var}}(b_0)+x_0^2\\widehat{\\operatorname{Var}}(b_1)+2x_0\\widehat{\\operatorname{Cov}}(b_0,b_1)\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "11",
+    "lesson": "prediction",
+    "index": 0,
+    "source": "ŷ₀=b₀+b₁x₀<br>h₀=1/n+(x₀−x̄)²/Sxx<br>Mean CI：ŷ₀±t₁₋α/₂,n₋₂√(MSE h₀)<br>New-observation PI：ŷ₀±t₁₋α/₂,n₋₂√[MSE(1+h₀)]",
+    "tex": "\\begin{aligned}\\hat y_0&=b_0+b_1x_0\\\\h_0&=\\frac1n+\\frac{(x_0-\\bar x)^2}{S_{xx}}\\\\\\mathrm{CI}_{\\text{mean}}&=\\hat y_0\\pm t_{1-\\alpha/2,n-2}\\sqrt{\\mathrm{MSE}\\,h_0}\\\\\\mathrm{PI}_{\\text{new}}&=\\hat y_0\\pm t_{1-\\alpha/2,n-2}\\sqrt{\\mathrm{MSE}(1+h_0)}\\end{aligned}",
+    "reading": "同一个预测中心，新个体的区间多包含一份自身误差；离 x 中心越远，两类区间都越宽。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "correlation",
+    "index": 0,
+    "source": "r=Sxy/√(Sxx Syy)<br>R²=SSR/SST；含 intercept 的 SLR 中 R²=r²",
+    "tex": "r=\\frac{S_{xy}}{\\sqrt{S_{xx}S_{yy}}},\\qquad R^2=\\frac{\\mathrm{SSR}}{\\mathrm{SST}};\\quad R^2=r^2\\ \\text{in SLR with intercept}",
+    "reading": "相关系数描述线性共同变化；平方后可对应含截距单一直线回归解释的波动比例。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "correlation",
+    "index": 1,
+    "source": "检验 H₀:ρ=0：t=r√[(n−2)/(1−r²)]，df=n−2",
+    "tex": "H_0:\\rho=0,\\qquad t=r\\sqrt{\\frac{n-2}{1-r^2}},\\quad\\mathrm{df}=n-2",
+    "reading": ""
+  },
+  {
+    "chapter": "11",
+    "lesson": "correlation-bias",
+    "index": 0,
+    "source": "Bias(r)=E(r)−ρ",
+    "tex": "\\operatorname{Bias}(r)=E(r)-\\rho",
+    "reading": "偏差看反复抽样的平均估计，是否对准真实参数。"
+  }
+]

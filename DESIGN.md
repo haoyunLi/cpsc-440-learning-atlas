@@ -148,7 +148,7 @@ The palette places dark green text on a light paper ground, with a rust counterp
 
 ## Typography
 
-The frontmatter records the actual role sizes; it does not imply a uniform modular scale. The primary Chinese display and lesson headings use the body sans-serif stack. AtlasSerif, with Georgia fallback, is used for the English identity, English chapter subtitles and route numbers. Equations use Georgia and Times New Roman; code uses the platform monospace stack.
+The frontmatter records the actual role sizes; it does not imply a uniform modular scale. The primary Chinese display and lesson headings use the body sans-serif stack. AtlasSerif, with Georgia fallback, is used for the English identity, English chapter subtitles and route numbers. Core equations use locally bundled KaTeX fonts with HTML and MathML; remaining legacy notation uses Georgia and Times New Roman. Code uses the platform monospace stack.
 
 Large page headings establish hierarchy. Lesson titles settle to the repeated lesson-headline role, while smaller subheadings, labels and captions support long-form reading. Article width stops at approximately (75ch), and explanatory paragraphs stop at (72ch). Equations permit horizontal overflow when necessary.
 
@@ -227,3 +227,5 @@ Answer and complete-step disclosures use native details and summary elements wit
 - **Don't** communicate statistical comparisons through color alone.
 - **Don't** shrink mobile selectors into narrow columns when their options need a complete row.
 - **Don't** replace authored SVG navigation arrows with text glyph icons.
+
+The first teaching section in every chapter is a concrete, original story. One question, a prediction choice and a single control connect a shared-scale diagram to a plain-language observation. The formula is an optional disclosure after the observation. Core static LaTeX is rendered during the build, and formula regions contain their own horizontal overflow on small screens.

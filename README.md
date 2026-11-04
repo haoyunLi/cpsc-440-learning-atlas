@@ -8,6 +8,9 @@
 
 新增的自学入口：
 
+- 十章直觉故事：每章先用一个具体问题起步，先判断、再改变一个条件、再看图与数字解释原因。均值与标准差、雨天分母、样本量、配对身份、稳定性、ANOVA、整批误报、交互、区组及预测目标都有可操作的小例子。所有故事提供不依赖 JavaScript 的初始图和文字；按钮反馈不写入练习成绩。
+- 本地 LaTeX 排版：79 组核心公式以 KaTeX 0.16.22 在构建时生成 HTML 与 MathML，网页无需外部 CDN；10 个故事中的公式随参数更新。长式子限制在公式区域内滚动。原有 R 代码和下载内容保持不变，后续继续迁移进阶公式与练习中的行内记号。
+
 - 章节导读与搜索：58 节提供可展开的本节导读，141 个推导、例题与条件说明可直接定位；搜索结果同时显示所属大节，查询词保存在页面地址中，返回或重新打开时恢复。保留原有章节入口和 19 个显式小节链接，122 个补充锚点依据标题生成，插入无关主题不会重新编号。目录与链接不依赖 JavaScript。
 - [练习工坊](practice.html)：64 道数值题、29 道选择题；按章节、难度、题型与复习状态筛选，自动判题、逐选项解释、常见计算岔路反馈、提示、可逐步推进的解析、每章抽一题综合自测（本轮进度与累计记录分开）。每题附独立 base R 脚本；进度仅保存于本浏览器。每题回到对应知识点，61 个知识点也直接列出相应题目；各节提供下一节或章节实验与返回目录入口；筛选和自测模式与 URL 同步，脚本未就绪时自动判题控件保持禁用。
 - [交互实验室](labs.html)：分布与单双尾概率、Welch / pooled / paired 数据工作台、可暂停的 residual / Q–Q 逐点演示、研究问题与设计方法向导，以及可编辑系数、均值与样本量的 contrast 实验（普通 / Bonferroni / Scheffé 区间、正交性与当前设置 R 代码），以及可编辑观测、追踪同一点的变换与均值实验（平方根 / 对数、回变换中心、稳定二阶矩差值、当前数据 R 代码），以及精确秩检验实验（20 个组标签与 32 个符号分配、含 ties 重数与删零、单双侧尾部计数、可暂停播放），以及可编辑六格频数的条件概率实验（行 / 列条件、边际与联合概率、有限表独立性、面积图和当前表的 R 代码）。
@@ -37,6 +40,8 @@ python3 -m http.server 4400
 ```sh
 python3 tools/build.py
 ```
+
+构建需要 Python 3 与 Node.js；KaTeX 程序和字体已存于 `assets/vendor/katex/`，无需在线安装依赖。`content/equations.json` 逐式绑定原公式与审核过的 LaTeX；原式变动会使构建失败，避免错配。`content/intuition.json` 保存十个故事的叙事与控件设置。
 
 补充内容在 `content/deepening.json`，来源映射在 `content/coverage.json`，题库在 `content/practice.json`。`tools/build_learning.py` 生成练习、实验、手册和资源页，并为每道题生成 `downloads/*.R`。`tools/r_examples.py` 从章节正文生成 82 个独立 R 示例下载，放在 `downloads/chapters/`；每段代码包含所需数据或课程汇总统计量，SAS 模板不作为 R 下载。R 代码需要在自己的 R 环境运行；浏览器实验使用 JavaScript 数值计算。
 
@@ -80,6 +85,8 @@ node tests/answer_feedback.mjs
 node tests/brown_forsythe.mjs
 node tests/workbench.mjs
 node tests/diagnostics.mjs
+node tests/intuition.mjs
+python3 tests/typesetting.py
 node tests/regression.mjs
 node tests/chooser.mjs
 node tests/conditional.mjs
@@ -180,3 +187,5 @@ Ch14 追加整格缺失的完整例题：同一组观测可由两套参数同样
 Ch11 回归实验在同一尺度上同时显示 mean CI 与 individual PI，并以当前 x₀ 的剖面连接 h₀ 两项、variance、SE 与 t critical。90/95/99% 区间、中心/边界/外推位置、末点敏感性与可暂停位置扫描均可操作；当前完整数据和两类区间可复制为 R。正文追加 x₀=4/7/8 的完整复算；p11-10 用原创数据检查非中心位置和未来个体的正确区间目标。
 
 回归模块独立对照 17,745 组 R 预测、65 份五行 fitted/residual 表、35,490 个同尺度几何状态与 45 份实际运行的当前设置 R 导出；端点最大绝对误差约 2.98×10⁻¹³。180 组主图/剖面 SVG 状态检查精确点位和端点；真实树顺序的 DOM fixture 覆盖外推提示与曲线标记的选择器冲突、稳定控件/表格、动画停止、复制版本与错误恢复。桌面和手机浏览器验证位置/置信水平切换、同尺度比较、离屏暂停、完整 R 复制、放大滚动及新题逐项反馈。
+
+直觉故事验证全部137个可选状态、383个数值，对照独立base R的方差、正态分位数、配对差、ANOVA、RCBD及回归预测计算；所有动态LaTeX严格解析通过。静态测试检查79个原式绑定、MathML、10个无脚本故事、锚点和本地字体。浏览器逐章验证全部十个入口，另检查手机布局、错误判断反馈、公式区域滚动和当前数字更新。

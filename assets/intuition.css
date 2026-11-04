@@ -1,0 +1,23 @@
+.intuition-story{margin:48px 0 72px;padding-top:26px;border-top:3px solid var(--accent);min-width:0}
+.intuition-story .story-kicker{font-size:14px;color:var(--accent);letter-spacing:.08em;margin:0 0 14px}
+.intuition-story h2{font-size:clamp(25px,3vw,34px);line-height:1.5;margin:0 0 25px;text-wrap:balance}
+.story-question{font-size:21px;line-height:1.8;font-weight:600;max-width:40ch}
+.story-prediction{padding:18px 0 10px;margin:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.story-prediction p{margin:8px 0 15px}.story-choices{display:flex;flex-wrap:wrap;gap:12px}
+.story-choices button{text-align:left;max-width:100%;line-height:1.6;white-space:normal}
+.story-choices [aria-pressed=true]{background:var(--wash);border-width:2px}
+.intuition-story button,.intuition-story summary{min-height:44px}.intuition-story label{display:block;font-weight:600;margin-top:25px}
+.intuition-story output{float:right;font-variant-numeric:tabular-nums;color:var(--accent)}
+.intuition-story input[type=range]{width:100%;min-height:44px;display:block;accent-color:var(--accent);margin:10px 0}
+.intuition-story figure{margin:30px 0 20px}.intuition-story svg{display:block;width:100%;height:auto;background:white;border:1px solid var(--line);font:18px -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif;fill:var(--ink)}
+.story-axis{stroke:var(--line)}.story-mean{font-size:15px}.intuition-story figcaption{font-size:17px;line-height:1.9;margin:18px 0}
+.story-takeaway{font-size:19px;border-left:3px solid var(--accent);padding:6px 0 6px 18px;margin-top:30px}
+.intuition-story details{margin:22px 0}.intuition-story summary{cursor:pointer;line-height:1.7;padding:10px 0}
+.story-zoom>div{overflow-x:auto;max-width:100%}.story-zoom svg{width:640px;max-width:none}
+.story-next{display:inline-block;min-height:44px;padding:10px 0}
+.typeset-equation{font-family:inherit;line-height:1.8;overflow-x:auto;max-width:100%;padding:22px 20px}
+.typeset-equation .katex-display{margin:.3em 0;text-align:left}.typeset-equation .katex-display>.katex{text-align:left}
+.equation-reading{font-size:16px;color:var(--muted);margin-top:-4px!important;line-height:1.9}
+.story-zoom>div:focus-visible,.typeset-equation:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+@media(max-width:700px){.intuition-story{margin:36px 0 50px}.story-question{font-size:19px}.typeset-equation{font-size:16px;padding:18px 14px}.story-choices{display:grid;grid-template-columns:1fr}.intuition-story svg{font-size:20px}.intuition-story .story-mean{font-size:17px}}
+@media print{.story-prediction,.intuition-story input,.intuition-story label,.intuition-story button,.story-zoom{display:none}}

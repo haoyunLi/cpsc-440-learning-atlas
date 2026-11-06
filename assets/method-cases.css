@@ -57,3 +57,11 @@
 }
 .mc-raw-a { stroke: #156b67; stroke-width: 1.8; }
 .mc-raw-b { stroke: #994b30; stroke-width: 1.8; stroke-dasharray: 4 3; }
+.mc-profile-1 { stroke: #156b67; stroke-width: 2.6; }
+.mc-profile-2 { stroke: #994b30; stroke-width: 2.6; stroke-dasharray: 6 4; }
+.mc-contrast { stroke: var(--ink); stroke-width: 1.7; }
+@media (max-width: 520px) {
+  [data-method-case="factorial"] .mc-output .mc-buttons { grid-template-columns: 1fr 1fr 1.5fr; }
+  [data-method-case="factorial"] .mc-evidence .mc-metric:last-child { grid-column: 1 / -1; }
+  [data-method-case="factorial"] .mc-output button { padding: 6px; text-align: center; font-size: .84em; }
+}

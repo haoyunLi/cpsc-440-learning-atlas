@@ -1,7 +1,7 @@
 # Run from the repository root: Rscript tests/method_cases.R
 # Export the browser inputs and results, then compare against base R fits.
 js <- "
-import { anovaCase, blockCase, regressionCase } from './assets/method-cases.mjs';
+import { anovaCase, blockCase, factorialCase, regressionCase } from './assets/method-cases.mjs';
 const row = (...x) => console.log(x.map(a => Array.isArray(a) ? a.map(v => v ?? 'NA').join(',') : a).join('|'));
 for (const i of [0,1]) {
   const a = anovaCase(i);
@@ -12,9 +12,11 @@ for (const i of [0,1]) {
 for (const i of [0,1,2]) {
   const r = regressionCase(i);
   row('r',r.x,r.y,[r.fit.slope,r.slopeP,r.fit.sse,r.ssPE,r.ssLOF,r.dfPE,r.dfLOF,r.lofF,r.lofP]);
+  const f = factorialCase(i);
+  row('f', f.cells.flat(), [f.sse,f.mse,f.df], ...f.contrasts.map(c => [c.estimate,c.se,c.t,c.f,c.p]));
 }"
 rows <- system2("node", c("--input-type=module", "-e", shQuote(js)), stdout=TRUE)
-stopifnot(length(rows) == 7)
+stopifnot(length(rows) == 10)
 parse <- function(s) {
   fields <- strsplit(s, ",", fixed=TRUE)[[1]]
   fields[fields == "NA"] <- NA_character_
@@ -40,6 +42,21 @@ for (row in rows) {
     paired <- t.test(b,a,paired=TRUE)
     same(parse(f[4]), c(mean(b,na.rm=TRUE)-mean(a),adjusted[1:2],paired$parameter,
                         adjusted[3:4],paired$conf.int))
+  } else if (f[1] == "f") {
+    d <- data.frame(height=parse(f[2]),
+                    variety=factor(rep(1:2,each=6)), dose=factor(rep(rep(1:2,each=3),2)))
+    fit <- lm(height ~ 0 + interaction(dose,variety), data=d)
+    tab <- anova(lm(height ~ variety * dose, data=d))
+    same(parse(f[3]), c(deviance(fit),sigma(fit)^2,df.residual(fit)))
+    weights <- rbind(c(-.5,-.5,.5,.5), c(1,-1,-1,1), c(0,-1,0,1))
+    estimates <- drop(weights %*% coef(fit))
+    se <- sqrt(diag(weights %*% vcov(fit) %*% t(weights)))
+    t <- estimates/se
+    p <- 2*pt(-abs(t),df.residual(fit))
+    for (i in seq_along(t)) {
+      same(parse(f[i+3]), c(estimates[i],se[i],t[i],t[i]^2,p[i]))
+    }
+    same(t[1:2]^2, tab[c(1,3),"F value"])
   } else {
     d <- data.frame(x=parse(f[2]),y=parse(f[3]))
     straight <- lm(y ~ x, data=d)
@@ -51,4 +68,4 @@ for (row in rows) {
     same(parse(f[4]), expect)
   }
 }
-cat("Seven ANOVA, block and regression scenarios agree with base R.\n")
+cat("Ten one-way ANOVA, factorial, block and regression scenarios agree with base R.\n")

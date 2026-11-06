@@ -48,7 +48,54 @@ export function regressionCase(scenario) {
     slopeP:fSurvival(slopeF,1,fit.n-2),lofF,lofP:lofF===null ? null : fSurvival(lofF,dfLOF,dfPE)};
 }
 
+export function factorialCase(shape) {
+  const centers = [
+    [[10,14],[14,18]], // parallel: both variety gaps are +4
+    [[10,18],[14,14]], // crossing: +4 and -4 cancel in the marginal mean
+    [[10,12],[14,20]], // nonparallel: +4 and +8, no reversal
+  ][shape];
+  const cells = centers.flat().map(m => [m-1,m,m+1]);
+  const r = cells[0].length, df = cells.length*(r-1);
+  const sse = sum(cells.map(g => (r-1)*variance(g))), mse = sse/df;
+  const marginal = centers.map(mean);
+  const low = centers[1][0]-centers[0][0], high = centers[1][1]-centers[0][1];
+  const contrasts = [
+    [-.5,-.5,.5,.5], // V2 minus V1 averaged over doses
+    [1,-1,-1,1], // high-dose gap minus low-dose gap
+    [0,-1,0,1], // V2 minus V1 at high dose
+  ].map(weights => {
+    const estimate = sum(centers.flat().map((m,i) => weights[i]*m));
+    const weightSquares = sum(weights.map(w => w*w));
+    const se = Math.sqrt(mse*weightSquares/r), t = estimate/se;
+    return {estimate,weights,weightSquares,se,t,f:t*t,p:2*studentCDF(-Math.abs(t),df)};
+  });
+  return {centers,cells,marginal,low,high,r,df,sse,mse,contrasts};
+}
+
 const cases = {
+  factorial:{
+    scenarios:[
+      ['问题一：两档都考虑','若低肥和高肥各占一半，种 V2 比种 V1 平均能多长多少？'],
+      ['问题二：换肥量会怎样','从低肥换到高肥时，V2 相对 V1 的优势会变大、变小，还是不变？'],
+      ['问题三：只用高肥','如果你的温室只用高肥，V2 比 V1 平均高多少？'],
+    ],
+    scenarioLabel:'选择研究问题',
+    prompt:'先选问题，再决定怎么比',
+    question:'要回答这个问题，该比较哪几个数字？',
+    answerLabel:'选择要比较的量',
+    choices:['固定高肥，只比较这一档的 V2 和 V1','先对每个品种的两档均值取平均，再比 V2 和 V1','先在低肥和高肥各算一次 V2−V1，再比较这两个差'],
+    correct:[1,2,0],
+    hints:[
+      '只看高肥能回答高肥条件下的问题。再看看这题是否还需要低肥的信息。',
+      '把两档先平均会丢掉每档各自的差。想想这题问的是某一档，还是两档之间的变化。',
+      '两个差再相减，回答的是效果有没有随肥量改变。看看这题是否在问这种变化。',
+    ],
+    views:['平行线','交叉线','张开但不交叉'],
+    viewLabel:'切换数据线形',
+    viewsChangeAnalysis:true,
+    render:showFactorial,
+  },
+
   anova:{
     scenarios:[
       ['各组波动接近','每盆独立种一株。三种肥料各用 5 盆。过往同条件试验支持组内波动相近，且各组高度近似正态。'],
@@ -214,6 +261,75 @@ function showRegression(scenario,view) {
   };
 }
 
+function showFactorial(question,shape) {
+  const d = factorialCase(shape);
+  const x = [65,260], y = v => 182-(v-8)*12;
+  const signed = v => v>0 ? '+'+fmt(v) : fmt(v);
+  const [[aL,aH],[bL,bH]] = d.centers, [a,b] = d.marginal;
+  const [l,h] = x, mid = (l+h)/2;
+  const tickMarks = [8,12,16,20].map(v => line(44,y(v),305,y(v))+label(34,y(v)+5,v,'end')).join('');
+  const profiles = line(l,y(aL),h,y(aH),'mc-profile-1')+line(l,y(bL),h,y(bH),'mc-profile-2')
+    + dot(l,y(aL),colors[0],5)+dot(h,y(aH),colors[0],5)
+    + diamond(l,y(bL),colors[1])+diamond(h,y(bH),colors[1]);
+  const measure = (x,from,to,gap) => line(x,y(from),x,y(to),'mc-contrast')
+    + line(x-4,y(from),x+4,y(from),'mc-contrast')+line(x-4,y(to),x+4,y(to),'mc-contrast')
+    + label(x+9,(y(from)+y(to))/2+5,signed(gap),'start');
+  const marked = question===0
+    ? dot(mid,y(a),colors[0],7)+diamond(mid,y(b),colors[1])+measure(mid+12,a,b,b-a)
+    : (question===1 ? measure(l+17,aL,bL,d.low) : '')+measure(h+17,aH,bH,d.high);
+  const c = d.contrasts[question];
+  const name = [tex`D_V`,tex`I`,tex`\Delta_H`][question];
+  const estimate = [
+    eq('主效应：每个品种先对低肥、高肥等权平均',
+      tex`\bar y_{1\cdot}=(${aL}+${aH})/2=${a}`,
+      tex`\bar y_{2\cdot}=(${bL}+${bH})/2=${b}`,
+      tex`\widehat D_V=${b}-${a}=${number(c.estimate)}`),
+    eq('交互作用：先在每档算 V2−V1，再用高肥的差减去低肥的差',
+      tex`\widehat\Delta_L=${bL}-${aL}=${d.low}`,
+      tex`\widehat\Delta_H=${bH}-${aH}=${d.high}`,
+      tex`\widehat I=${d.high}-(${d.low})=${c.estimate}`),
+    eq('简单效应：固定高肥，只用高肥这一列的两个均值',
+      tex`\widehat\Delta_H=${bH}-${aH}=${c.estimate}`),
+  ][question];
+  const weights = c.weights.map(w => w===.5 ? '1/2' : w===-.5 ? '-1/2' : w).join(',');
+  const statistic = '<p>本例每格的三盆分别离本格均值 −1、0、+1 cm。四格各贡献 2，组内平方和共 8。每格用掉一个自由度来估计均值，所以误差自由度是 4×(3−1)=8。以下检验假设各盆误差独立、近似正态且共用方差。</p>'
+    + eq('对比系数按 V1 低、V1 高、V2 低、V2 高排列',
+      tex`c=(${weights}),\quad \sum_i c_i^2=${c.weightSquares}`)
+    + eq('四格共用同一个组内误差；对所选比较做双侧检验',
+    tex`MS_E=\frac{${d.sse}}{${d.df}}=${d.mse},\quad H_0:\ ${name}=0`,
+    tex`SE=\sqrt{MS_E\cdot\frac{${c.weightSquares}}{${d.r}}}=${number(c.se)}`,
+    tex`t=\frac{${c.estimate}}{${number(c.se)}}\approx ${number(c.t)},\quad df=${d.df}`)
+    + (question===2 ? '' : eq('这个比较有 1 个自由度，和 ANOVA 表对应',
+      tex`F_{1,${d.df}}=t^2=${number(c.f)}`));
+  const conclusion = [
+    shape===1
+      ? '两种品种的等权平均都是 14 cm，品种主效应的估计为 0。低肥时 V2 高 4 cm，高肥时却矮 4 cm；两种条件下的效果在平均时抵消了。'
+      : '按两种肥量各占一半计算，有证据表明 V2 平均更高，估计高 '+fmt(c.estimate)+' cm。这个平均值只回答两档合起来的问题；想知道每一档的表现，要分别比较。',
+    [
+      '两个肥量下，V2 都比 V1 高 4 cm，差的差是 0。这组数据没有提供品种优势随肥量变化的证据。',
+      '低肥时 V2 高 4 cm，高肥时 V2 矮 4 cm，品种优势减了 8 cm。检验支持品种效果随肥量改变。',
+      '两档都是 V2 更高，但优势从 4 cm 增到 8 cm，检验也支持交互作用。两条线只要在样本图上不平行，就表示两个样本差不同；是否有证据说总体差不同，还要看误差和检验。',
+    ][shape],
+    '只在高肥条件下，数据支持 V2 比 V1 '+(d.high>0 ? '高 ' : '矮 ')+fmt(Math.abs(d.high))+' cm 左右。这个结论适用于高肥；想知道高肥和低肥下的品种差是否一样，去做交互作用那一问。',
+  ][question];
+  return {
+    plot:svg(218,'肥量与苗高的交互图。低肥 V1 '+aL+'、V2 '+bL+'；高肥 V1 '+aH+'、V2 '+bH+' 厘米。',
+      tickMarks+label(19,24,'cm','start')+profiles+marked+label(l,205,'低肥')+label(h,205,'高肥')),
+    reading:'圆点实线是 V1，菱形虚线是 V2。'+[
+      '看图中央的两个标记：它们是各品种对两档取的平均，没有第三个肥量。',
+      '看低肥和高肥各自的竖括号：数值带正负号，表示 V2−V1，再用右边的差减左边的差。',
+      '只看右侧高肥的竖括号，计算 V2−V1。换线形后，这一档的差可以改变方向。',
+    ][question],
+    evidence:metrics(
+      metric('低肥 · V1 / V2',aL+' / '+bL+' cm'),
+      metric('高肥 · V1 / V2',aH+' / '+bH+' cm'),
+      metric(['主效应 · 两档平均差','交互作用 · 高肥差 − 低肥差','简单效应 · 只比高肥'][question],signed(c.estimate)+' cm')),
+    formulas:estimate+statistic,
+    result:metrics(metric('单个预定比较 · 双侧','p = '+pval(c.p))),
+    conclusion,
+  };
+}
+
 const buttons = (options,kind) => options.map((text,i) => `<button type="button" data-mc-${kind}="${i}" aria-pressed="false">${text}</button>`).join('');
 const group = (name,buttons) => `<div class="mc-buttons" role="group" aria-label="${name}">${buttons}</div>`;
 function setPressed(ui,kind,active) {
@@ -224,13 +340,13 @@ function mount(root) {
   const c = cases[root.dataset.methodCase];
   if (!c) return;
   const ui = document.createElement('div');
-  ui.innerHTML = `<p class="mc-stage">① 先选情境，再判断</p>
-    ${group('选择情境',buttons(c.scenarios.map(s=>s[0]),'scenario'))}
+  ui.innerHTML = `<p class="mc-stage">① ${c.prompt ?? '先选情境，再判断'}</p>
+    ${group(c.scenarioLabel ?? '选择情境',buttons(c.scenarios.map(s=>s[0]),'scenario'))}
     <p class="mc-story" aria-live="polite"></p><p><b>${c.question}</b></p>
-    ${group('选择统计方法',buttons(c.choices,'answer'))}
+    ${group(c.answerLabel ?? '选择统计方法',buttons(c.choices,'answer'))}
     <p class="mc-feedback" role="status"></p>
     <div class="mc-output" hidden><p class="mc-stage">② 操作图形，核对你的判断</p>
-    ${group('改变图形显示',buttons(c.views,'view'))}
+    ${group(c.viewLabel ?? '改变图形显示',buttons(c.views,'view'))}
     <figure class="mc-figure"><div class="mc-chart"></div><figcaption class="mc-reading"></figcaption></figure>
     <div class="mc-evidence" aria-live="polite"></div>
     <details class="mc-derivation"><summary>③ 展开 LaTeX 推导与结论</summary><div class="mc-calculation"></div></details></div>`;
@@ -281,7 +397,7 @@ function mount(root) {
       }
     } else if ('mcView' in b.dataset && solved) {
       view = Number(b.dataset.mcView);
-      draw(false);
+      draw(c.viewsChangeAnalysis);
     }
   });
   reset();

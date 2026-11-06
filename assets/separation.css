@@ -1,5 +1,5 @@
 .separation-lab { margin-block: 24px; padding-block: 20px; border-block: 1px solid var(--line); }
-.sep-actions, .sep-row-label, .sep-letters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.sep-actions, .sep-row-label { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 .sep-actions { margin-bottom: 18px; }
 .sep-actions [aria-pressed=true], .sep-row-label [aria-pressed=true] { background: var(--accent); color: white; }
 .sep-row { margin-bottom: 18px; }
@@ -11,7 +11,9 @@
 .sep-line { inset: -2px auto -2px var(--threshold); border-left: 3px dashed var(--alert); transition: left .2s ease; }
 .sep-ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; }
 .sep-key { color: var(--muted); font-size: 14px; }
-.sep-letters > div { display: flex; flex: 1 1 85px; align-items: baseline; gap: 6px; padding: 8px; background: var(--wash); }
-.sep-letters strong { color: var(--accent); font-size: 20px; margin-left: auto; }
+.sep-letters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.sep-letters > div { display: grid; grid-template-columns: auto 1fr; gap: 2px 6px; padding: 8px; background: var(--wash); }
+.sep-letters > div span { justify-self: end; white-space: nowrap; font-size: .88em; }
+.sep-letters strong { grid-column: 1 / -1; justify-self: center; color: var(--accent); font-size: 20px; white-space: nowrap; }
 .sep-readout { margin: 14px 0 0; }
 @media (prefers-reduced-motion: reduce) { .sep-line { transition: none; } }

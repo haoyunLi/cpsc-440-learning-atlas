@@ -19,7 +19,7 @@ const context = vm.createContext({ M, equationHTML, document: {
   querySelectorAll: () => [], querySelector: () => null,
   createElementNS: (namespace, tag) => new Element(tag)
 } });
-vm.runInContext(`${source}\nglobalThis.testMounts={axes,labVariance,labMultiple};`, context);
+vm.runInContext(`${source}\nglobalThis.testMounts={axes,labVariance,labMultiple,labContinuity};`, context);
 function mount(kind, settings) {
   const fields = Object.fromEntries(Object.entries(settings).map(([id, value]) => [id, Object.assign(new Element(id === 'band' ? 'select' : 'input'), { id, value: String(value) })]));
   const graph = new Element('svg'), readout = new Element();
@@ -29,13 +29,17 @@ function mount(kind, settings) {
     '[data-variance-explanation]': explanation, '#vq-a': buttons.a, '#vq-b': buttons.b };
   const multiples = Object.fromEntries(['rate="raw"', 'rate="adjusted"', 'grid="raw"', 'grid="adjusted"', 'math'].map(key => [key, new Element()]));
   for (const [key, element] of Object.entries(multiples)) extra[`[data-multiple-${key}]`] = element;
+  const cuts = ['integer', 'edge'].map(value => Object.assign(new Element('button'), {dataset:{continuityCut:value}}));
+  cuts.forEach(button => { extra[`[data-continuity-cut="${button.dataset.continuityCut}"]`] = button; });
+  const continuityMath = extra['[data-continuity-equation]'] = new Element();
   const outputs = Object.fromEntries(Object.keys(fields).map(id => [`${id}-v`, new Element()]));
   const host = {
+    classList: {add(){}},
     querySelector: selector => selector === 'svg' ? graph : selector === '.readout' ? readout : extra[selector] || fields[selector.slice(1)] || outputs[selector.slice(1)],
-    querySelectorAll: selector => Object.values(fields).filter(el => selector !== 'input[type=range]' || el.tag === 'input')
+    querySelectorAll: selector => selector === '[data-continuity-cut]' ? cuts : Object.values(fields).filter(el => selector !== 'input[type=range]' || el.tag === 'input')
   };
   context.testMounts[kind](host);
-  return { graph, readout, interval, formula, explanation, buttons, multiples, change(patch) {
+  return { graph, readout, interval, formula, explanation, buttons, multiples, cuts, continuityMath, change(patch) {
     for (const [key, value] of Object.entries(patch)) fields[key].value = String(value);
     Object.values(fields)[0].events.input();
   } };
@@ -127,4 +131,24 @@ assert.match(multiple.readout.textContent, /5\.00%.*5\.00%/);
 multiple.change({ mm: 100, ma: .1 });
 checkGrids(100, 10);
 assert.match(multiple.readout.textContent, /99\.997%.*9\.52%/);
-console.log('Variance density ticks: all n=4..100 distinct and accurate; reciprocal endpoint geometry, both selectable formulas, default axes and multiplicity mount passed.');
+
+const continuity = mount('labContinuity', { 'continuity-k': 38 });
+assert.match(continuity.readout.textContent, /0\.930078.*0\.931018/);
+assert.match(continuity.continuityMath.innerHTML, /38\.5/);
+continuity.cuts[0].events.click();
+assert.match(continuity.readout.textContent, /0\.930078.*0\.914548/);
+for (let k = 25; k <= 42; k++) {
+  continuity.change({'continuity-k':k});
+  const marks = () => {
+    const cell = mark(continuity.graph, 'data-continuity-cell', String(k));
+    const line = continuity.graph.children.find(el => 'data-continuity-line' in el.attrs);
+    return { cell, cut: Number(line.attrs.x1) };
+  };
+  continuity.cuts[0].events.click();
+  const midpoint = marks();
+  near(midpoint.cut, Number(midpoint.cell.attrs.x) + Number(midpoint.cell.attrs.width)/2);
+  continuity.cuts[1].events.click();
+  const edge = marks();
+  near(edge.cut, Number(edge.cell.attrs.x) + Number(edge.cell.attrs.width));
+}
+console.log('Variance axes, reciprocal endpoints, multiplicity grids and all continuity-correction cut positions passed.');

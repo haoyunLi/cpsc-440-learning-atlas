@@ -87,8 +87,8 @@ const instructions={summary:['只改一个数，数据图会怎么变？','先�
 function labSummary(el) {
   const examples = { near: [2, 3, 3, 4, 5], far: [2, 3, 3, 4, 18] };
   const update=setup(el, `<p>五个人的零花钱里，只有最后一个人的钱从 5 元变成 18 元。如果全体平分，每人分到的钱会变多少？排在中间的那个人会变吗？</p>
-    <div class="lab-actions summary-examples" role="group" aria-label="切换第五个人的零花钱"><button type="button" class="secondary" data-summary-example="near" aria-pressed="false">第五个人有 5 元</button><button type="button" class="secondary" data-summary-example="far" aria-pressed="true">第五个人有 18 元</button></div>
-    <figure class="summary-demo" data-summary-demo><svg viewBox="0 0 680 235" role="img"></svg><figcaption>棕色点是第五个人。切换时数轴保持 0 到 20 元，所以能看到只有这个点移动。</figcaption>
+    <div class="lab-actions experiment-choices" role="group" aria-label="切换第五个人的零花钱"><button type="button" class="secondary" data-summary-example="near" aria-pressed="false">第五个人有 5 元</button><button type="button" class="secondary" data-summary-example="far" aria-pressed="true">第五个人有 18 元</button></div>
+    <figure class="experiment-figure" data-summary-demo><svg viewBox="0 0 680 235" role="img"></svg><figcaption>棕色点是第五个人。切换时数轴保持 0 到 20 元，所以能看到只有这个点移动。</figcaption>
       <div class="equation typeset-equation" data-summary-mean tabindex="0" role="region" aria-label="五个人平分零花钱的算式，可横向滚动"></div>
       <p>把所有钱加起来再平分，就是均值。按钱数从小到大排，第 3 个始终是 3 元，所以中位数留在原处。</p>
     </figure>
@@ -148,6 +148,48 @@ function labProbability(el) {
   el.innerHTML = '<div data-binomial></div><div data-clt></div>';
   mountBinomial(el.querySelector('[data-binomial]'));
   mountCLT(el.querySelector('[data-clt]'));
+}
+function labContinuity(el) {
+  el.classList.add('lab');
+  const sd = Math.sqrt(19.2);
+  const density = value => M.normalPDF((value - 32) / sd) / sd;
+  const probabilities = Array.from({length: 43}, (_, j) => M.binomialPMF(j, 80, .4));
+  let corrected = true;
+  const update = setup(el, `<h3>要把第 38 格整格算进去，线该画在哪？</h3>
+    <p>80 个独立检测单元各有 40% 的成功概率。用均值为 32、方差为 19.2 的正态变量 Y 近似成功数。要算「成功数不超过 k」，绿色整数格包含 k。试试把截线画在这一格的中间，或移到它的右边。</p>
+    <div class="controls">${range('continuity-k','最后一个要计入的整数 k',25,42,1,38)}</div>
+    <div class="lab-actions experiment-choices" role="group" aria-label="选择连续近似的截线"><button type="button" class="secondary" data-continuity-cut="integer" aria-pressed="false">切在格子中间 k</button><button type="button" class="secondary" data-continuity-cut="edge" aria-pressed="true">切在右边界 k + 0.5</button></div>
+    <figure class="experiment-figure">${svg('同一条数轴上的正态面积与整数格')}<figcaption>下排绿格是准确的整数事件，每格宽 1。上图的浅绿面积是当前正态近似；两图共用横轴。图只放大 20 到 45 附近，计算使用完整左尾。</figcaption></figure>
+    <p class="readout" aria-live="polite"></p>
+    <div class="equation typeset-equation" data-continuity-equation tabindex="0" role="region" aria-label="当前连续近似的算式，可横向滚动"></div>`, () => {
+    const k = val('continuity-k', el), boundary = k + (corrected ? .5 : 0);
+    const approximate = M.normalCDF((boundary - 32) / sd);
+    const exact = probabilities.slice(0, k + 1).reduce((sum, value) => sum + value, 0);
+    const s = $('svg', el), low = 19.5, high = 45.5;
+    const map = {x: value => 85 + (value - low) / (high - low) * 550,
+      y: value => 188 - value / density(32) * 133};
+    s.replaceChildren();
+    area(s, density, low, boundary, map);
+    curve(s, density, low, high, map);
+    add(s, 'line', {x1:85,x2:635,y1:188,y2:188,class:'plot-axis'});
+    for (let j = 20; j <= 45; j++) {
+      add(s, 'rect', {x:map.x(j-.5),y:213,width:550/(high-low),height:37,fill:j<=k?'#b9d9cc':'#f0f3ef',stroke:j===k?'#086f68':'#91a69b','stroke-width':j===k?2:1,'data-continuity-cell':j});
+      if (j % 5 === 0) add(s,'text',{x:map.x(j),y:275,'text-anchor':'middle',class:'plot-muted'},String(j));
+    }
+    const cutX=map.x(boundary);
+    add(s,'line',{x1:cutX,x2:cutX,y1:36,y2:252,stroke:'#9a472e','stroke-width':2,'stroke-dasharray':'5 4','data-continuity-line':boundary});
+    add(s,'text',{x:cutX,y:26,'text-anchor':'middle',class:'plot-label'},'截线 '+boundary);
+    add(s,'text',{x:85,y:26,class:'plot-label'},'正态近似');
+    add(s,'text',{x:350,y:310,'text-anchor':'middle',class:'plot-label'},'成功次数');
+    s.setAttribute('aria-label', `计数不超过 ${k}，整数格的右边界为 ${k+.5}，当前正态截线 ${boundary}。`);
+    $('.readout',el).textContent = `精确二项概率约为 ${fmt(exact,6)}。当前正态近似约为 ${fmt(approximate,6)}。${corrected ? '截线包住了最后一整格。' : '截线穿过最后一格的中间。'}`;
+    $('[data-continuity-equation]',el).innerHTML=equationHTML(String.raw`\begin{gathered}P(Y\leq ${boundary})=\Phi\left(\frac{${boundary}-32}{\sqrt{19.2}}\right)\\ \approx ${fmt(approximate,6)}\end{gathered}`);
+    $('[data-continuity-cut="edge"]',el).setAttribute('aria-pressed',String(corrected));
+    $('[data-continuity-cut="integer"]',el).setAttribute('aria-pressed',String(!corrected));
+  });
+  for(const button of el.querySelectorAll('[data-continuity-cut]')) button.addEventListener('click', () => {
+    corrected = button.dataset.continuityCut === 'edge'; update();
+  });
 }
 function labInference(el){const update=setup(el,`<div class="controls">${range('in','n',4,200,1,25)}${range('is','Known σ',1,20,.5,10)}${range('id','True μ−μ₀',-8,8,.25,4)}${range('ia','α',.01,.2,.01,.05)}<label for="tail">Alternative<select id="tail"><option value="right">Right-tail: μ&gt;0</option><option value="left">Left-tail: μ&lt;0</option><option value="two">Two-tail: μ≠0</option></select></label></div>${svg('Null 边界与指定真实均值的 sample-mean densities，标出拒绝与不拒绝区域')}<div class="readout" aria-live="polite"></div><p class="caption inference-caption"></p><h3>双侧已知 σ CI 的重复覆盖</h3><p>本段独立演示：从 Normal(0,σ²) 抽样，始终构造双侧区间 ȳ ± z₁₋α/₂σ/√n。真实均值固定为 0；区间使用上方 n、σ 与 α，但不随备择方向改变。每条横线是新 sample 的 CI；实线覆盖 μ=0，虚线未覆盖。图示最新 24 条区间，覆盖率按当前保留的最多 1000 条计算。横轴通常保持 ±5SE；需要时会扩展并留白，显示最新区间的完整端点。</p><p class="caption ci-relation">同一数据、模型与 α 下，双侧检验拒绝 H₀: μ=μ₀，对应双侧 CI 不含 μ₀。单侧检验应对照同置信度的单侧界限，不能直接对照这里的双侧区间。<a href="#testing">查看单侧与双侧检验的拒绝域 →</a></p><div class="lab-actions"><button id="ci-step">生成 1 个 interval</button><button id="ci-play" class="secondary">播放 50 个 intervals</button><button id="ci-reset" class="secondary">重置</button></div><div id="ci-plot">${svg('双侧已知σ置信区间的重复覆盖；纵线是固定的μ=0，不随上方备择方向改变')}</div><p id="ci-readout" class="readout" aria-live="polite">尚未生成 intervals</p>`,()=>{const n=val('in',el),sigma=val('is',el),delta=val('id',el),alpha=val('ia',el),tail=$('#tail',el).value,result=inferenceProbabilities({n,sigma,delta,alpha,tail}),{se,lower,upper}=result;const lo=Math.min(-4*se,delta-4*se),hi=Math.max(4*se,delta+4*se),s=$('svg',el),map=axes(s,'Sample mean ȳ（μ₀=0）','Density',lo,hi,0,.46/se);const nul=v=>M.normalPDF(v/se)/se,alt=v=>M.normalPDF((v-delta)/se)/se;if(lower!==-Infinity)area(s,nul,lo,lower,map);if(upper!==Infinity)area(s,nul,upper,hi,map);area(s,alt,Math.max(lo,lower),Math.min(hi,upper),map,'#dfbba9');curve(s,nul,lo,hi,map);curve(s,alt,lo,hi,map,'plot-alt');[lower,upper].filter(Number.isFinite).forEach(c=>add(s,'line',{x1:map.x(c),x2:map.x(c),y1:45,y2:265,stroke:'#50655f','stroke-dasharray':'3 3'}));const probabilityText=result.classification==='alternative'?`β(μₐ=${delta})=${fmt(result.beta,4)} · power=${fmt(result.power,4)}`:result.classification==='boundary'?`真值 μ=μ₀：P(拒绝 H₀)=α=${fmt(result.rejection,4)} · P(不拒绝 H₀)=${fmt(result.nonRejection,4)}`:`真值 μ=${delta} 属于 H₀：P(拒绝 H₀)=${fmt(result.rejection,4)} · P(不拒绝 H₀)=${fmt(result.nonRejection,4)}`;$('.readout',el).textContent=`SE=${fmt(se)} · critical ȳ=${tail==='right'?fmt(upper):tail==='left'?fmt(lower):`${fmt(lower)}, ${fmt(upper)}`} · ${probabilityText}`;$('.inference-caption',el).textContent=`实线为 null 边界 μ₀=0，绿色区域是该边界的拒绝概率 α；虚线为指定真值 μ=${delta}，brown 区域是该真值下不拒绝的概率。${result.classification==='alternative'?'该真值满足 Hₐ，因此 brown 面积称为 β，拒绝概率称为 power。':'该真值满足 H₀，不属于本次 Hₐ，因此不把 brown 面积标为 Type II error β；这里报告拒绝与不拒绝概率。'}Known σ 的 z model。`});let rng=M.seeded(440),records=[],timer=null;const play=$('#ci-play',el);function stop(){if(timer)clearInterval(timer);timer=null;play.textContent='播放 50 个 intervals'}function reset(){stop();records=[];rng=M.seeded(440);$('#ci-plot svg',el).replaceChildren();$('#ci-readout',el).textContent='尚未生成 intervals'}function step(){const se=val('is',el)/Math.sqrt(val('in',el)),z=M.normalQuantile(1-val('ia',el)/2),m=M.randomNormal(rng)*se;records.push({m,lo:m-z*se,hi:m+z*se,hit:Math.abs(m)<=z*se});if(records.length>1000)records.shift();const shown=records.slice(-24),padding=.25*se,xmin=Math.min(-5*se,...shown.map(r=>r.lo-padding)),xmax=Math.max(5*se,...shown.map(r=>r.hi+padding)),s=$('#ci-plot svg',el),map=axes(s,'双侧 CI endpoints（known σ）','最新 24 个 sample intervals',xmin,xmax,0,25);add(s,'line',{x1:map.x(0),x2:map.x(0),y1:40,y2:265,stroke:'#50655f'});shown.forEach((r,i)=>{add(s,'line',{x1:map.x(r.lo),x2:map.x(r.hi),y1:map.y(i+1),y2:map.y(i+1),stroke:r.hit?'#086f68':'#9a472e','stroke-width':2,'stroke-dasharray':r.hit?'':'4 3'});add(s,'circle',{cx:map.x(r.m),cy:map.y(i+1),r:2,fill:'#183a37'})});const hits=records.filter(r=>r.hit).length;$('#ci-readout',el).textContent=`${hits}/${records.length} intervals 覆盖 μ=0；observed coverage=${fmt(hits/records.length,3)}，双侧标称覆盖率=${fmt(1-val('ia',el),2)}。有限模拟不会总是恰好达到 nominal rate。`}
 $('#ci-step',el).onclick=()=>{stop();step()};$('#ci-reset',el).onclick=reset;play.onclick=()=>{if(timer){stop();return}let left=50;play.textContent='暂停';timer=setInterval(()=>{step();if(--left===0)stop()},250)};el.querySelectorAll('.controls input').forEach(i=>i.addEventListener('input',reset));document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});window.addEventListener('pagehide',stop)}
@@ -266,6 +308,7 @@ function labDesign(el){let seed=440;setup(el,`<div class="controls">${range('dg'
 function labRegression(el){mountRegression(el)}
 const builders={summary:labSummary,probability:labProbability,inference:labInference,paired:labPaired,variance:labVariance,anova:labAnova,multiple:labMultiple,factorial:labFactorial,design:labDesign,regression:labRegression};
 if (typeof document !== 'undefined') {
+for(const host of document.querySelectorAll('[data-continuity]')) labContinuity(host);
 for(const host of document.querySelectorAll('[data-lab]')){const kind=host.dataset.lab,[title,intro]=instructions[kind];host.innerHTML=`<h2>${title}</h2><p class="intro">${intro}</p><div class="lab-body"></div>`;builders[kind]($('.lab-body',host))}
 const sidebar=$('.sidebar details');if(sidebar&&matchMedia('(min-width:701px)').matches)sidebar.open=true;
 function getProgress(){try{return normalizeReadingProgress(JSON.parse(localStorage.getItem('cpsc440-progress')||'[]'))}catch{return []}}function setProgress(v){try{localStorage.setItem('cpsc440-progress',JSON.stringify(normalizeReadingProgress(v)));return true}catch{return false}}

@@ -1,7 +1,8 @@
 import { betaCDF, studentQuantile } from './math.mjs';
+import { equationHTML } from './formulas.mjs';
 
 const originalA = [8, 14, 20, 26, 32], originalB = [9, 16, 23, 28, 34];
-const modes = { correct: '原始配对', reorder: '两列整行反序', shuffle: '仅反转 B：故意错误匹配' };
+const modes = { correct: '原始配对', reorder: '两列整行反序', shuffle: '只倒过来 B 列 · 故意错配' };
 const show = value => value === 0 ? '0' : Math.abs(value) < .0001 ? value.toExponential(4) : Number(value.toPrecision(8)).toString();
 const ids = ['P1', 'P2', 'P3', 'P4', 'P5'];
 function checkSelected(id) { if (!ids.includes(id)) throw Error('请选择 P1–P5 中一个原始 A 观测。'); }
@@ -121,21 +122,27 @@ export function drawPaired(svg, result, selectedAId = 'P1') {
   svg.setAttribute('aria-label', `${result.title}。固定横向 A、B 与纵轴 0–40；P1–P5 是设计确定的原始 pair ID。${result.validPairing ? '所有连线保留相同 pair ID。' : '虚线连接不同原始 pair ID，是故意错误匹配；中间 P3 仍匹配，但整套映射无效。'}当前追踪 A 的 ${current.aId}=${current.a} → B 的 ${current.bId}=${current.b}，D=B−A=${current.difference}。`);
 }
 
+function pairMath(tex) {
+  return '<div class="equation typeset-equation" tabindex="0" role="region" aria-label="配对计算公式，可横向滚动">' + equationHTML(tex) + '</div>';
+}
+
 export function mountPaired(root) {
   if (root.dataset.pairedReady) return;
   root.classList.add('pair-lab');
-  root.innerHTML = `<p>五个设计事先确定的 pairs 保留固定身份 P1–P5。配对可以来自同一单位的两次测量，也可以来自设计中匹配的两个不同单位；不能靠排序后看起来相近就创造配对。</p>
-    <div class="pair-controls"><label for="pair-mode">操作对应关系<select id="pair-mode" data-pair-mode><option value="correct">原始配对：保留 pair ID</option><option value="reorder">两列整行反序：仍保留 pair ID</option><option value="shuffle">仅反转 B：故意错误匹配</option></select></label><button type="button" class="secondary" data-pair-reset>恢复原始配对</button></div>
+  root.innerHTML = `<p>把 P1–P5 想成五台仪器的编号，A 是校准前，B 是校准后。先看每台仪器自己的变化。预测一下，整行换序与只打乱校准后的编号，会怎样改变这些差值？配对也可以来自设计中匹配的两个不同单位，配对关系由研究设计确定。</p>
+    <div class="pair-controls"><label for="pair-mode">选择两列怎么对齐<select id="pair-mode" data-pair-mode><option value="correct">原始配对 · 同编号相连</option><option value="reorder">整行倒过来 · 同编号相连</option><option value="shuffle">只倒过来 B 列 · 故意错配</option></select></label><button type="button" class="secondary" data-pair-reset>恢复原始配对</button></div>
     <p class="pair-error" data-pair-error role="alert"></p><p class="pair-readout" data-pair-status role="status"></p>
-    <div data-pair-results><figure><svg data-pair-plot="main" viewBox="0 0 680 375" role="img"></svg><figcaption>每个点始终保留原始 ID；粗线与外圈标出表中选中的连接。实线连接同一 pair ID，虚线连接不同 ID。三个模式共用固定纵轴，数值没有改写。</figcaption></figure>
+    <div data-pair-results><figure><svg data-pair-plot="main" viewBox="0 0 680 375" role="img"></svg><figcaption>实线连接同一个原始编号，虚线连接不同编号。图上共用相同刻度。展开逐行核对，可以选一行跟踪对应的连线。</figcaption></figure>
     <details class="pair-enlarge"><summary>放大查看连线与观测 ID</summary><div class="pair-large-wrap" tabindex="0" role="region" aria-label="放大的配对图，可横向滚动"><svg data-pair-plot="large" viewBox="0 0 680 375" role="img"></svg></div></details>
-    <h3>逐行核对：连的是谁，差值是多少？</h3><p class="pair-note">点击“追踪”可高亮对应观测。后两列是求和前的分子贡献；各自求和后除以 n−1=4，才得到 sample covariance 与差值 sample variance。窄屏请在表内横向滚动。</p>
+    <h3>每个编号作一次差，再看差值有多分散</h3><div data-pair-identity></div>
+    <div class="pair-readout" data-pair-inference></div>
+    <details><summary>逐行核对配对差与方差的贡献</summary><p class="pair-note">点击“追踪”可高亮对应观测。后两列是求和前的分子贡献；各自求和后除以 n−1=4，才得到 sample covariance 与差值 sample variance。窄屏请在表内横向滚动。</p>
     <div class="pair-table-wrap" tabindex="0" role="region" aria-label="当前连接、差值与方差贡献，可横向滚动"><table><thead><tr><th scope="col">追踪 A ID → B ID</th><th scope="col">A</th><th scope="col">B</th><th scope="col">D=B−A</th><th scope="col">(A−Ā)(B−B̄)</th><th scope="col">(D−D̄)²</th></tr></thead><tbody>${ids.map((id, i) => `<tr data-pair-table-row="${i}"><th scope="row"><button type="button" class="secondary" data-pair-select="${i}" aria-pressed="false"></button></th>${['a', 'b', 'difference', 'crossProduct', 'squaredDeviation'].map(key => `<td data-pair-cell="${i}-${key}"></td>`).join('')}</tr>`).join('')}</tbody><tfoot><tr><th scope="row" colspan="4">分子贡献之和</th><td data-pair-cross-sum></td><td data-pair-difference-ss></td></tr></tfoot></table></div>
     <p class="pair-readout" data-pair-selected aria-live="polite"></p>
-    <h3>同一恒等式，指出变化来自哪里</h3><div data-pair-identity></div><p data-pair-invariants></p><p class="pair-note">“独立公式值”仅为忽略配对的算式对照，不表示这份配对数据可以合法改用独立样本检验。样本 covariance 是当前数据的描述，不等于已知总体 Cov。</p>
-    <div class="pair-readout" data-pair-inference></div></div>
+    </details>
+    <details><summary>用协方差解释标准误为什么变了</summary><div data-pair-covariance></div><p data-pair-invariants></p><p class="pair-note">样本协方差描述当前对应关系。独立公式值作为算式对照，正式推断仍依据原研究设计。</p></details></div>
     <details><summary>复制当前 ID 映射到 base R 核对</summary><button type="button" class="secondary" data-pair-copy>复制当前 R 代码</button><pre data-pair-code></pre><p class="pair-note" data-pair-copy-status role="status"></p></details>
-    <p class="pair-note">真实配对必须由研究设计或可靠 ID 确定。不同 pairs 须独立；精确小样本 t 推断的正态条件针对 differences。n=5 指五个独立 pairs，不是把十次测量当作十个独立差值。需要输入自己的原始数据时，可用<a href="../labs.html#two-sample">两样本工作台</a>；核对其 A−B 与本实验 B−A 的方向。</p>`;
+    <p class="pair-note">用研究设计或可靠编号确认配对。各对之间须独立，小样本精确 t 推断要求差值来自正态总体。n=5 指五个独立 pairs，每对贡献一个差值。需要输入自己的原始数据时，可用<a href="../labs.html#two-sample">两样本工作台</a>；核对其 A−B 与本实验 B−A 的方向。</p>`;
   const $ = selector => root.querySelector(selector), mode = $('[data-pair-mode]'), copy = $('[data-pair-copy]');
   let selectedAId = 'P1', result = null, revision = 0;
   function update() {
@@ -157,11 +164,31 @@ export function mountPaired(root) {
       $('[data-pair-cross-sum]').textContent = show(result.crossSum); $('[data-pair-difference-ss]').textContent = show(result.differenceSS);
       const row = result.rows.find(item => item.aId === selectedAId);
       $('[data-pair-selected]').textContent = `当前第 ${row.index + 1} 行：A 的 ${row.aId}=${row.a}，连接 B 的 ${row.bId}=${row.b}。D=${row.b}−${row.a}=${row.difference}；协方差分子贡献=(${row.a}−${result.meanA})×(${row.b}−${result.meanB})=${row.crossProduct}；差值方差分子贡献=(${row.difference}−${result.meanD})²=${row.squaredDeviation}。${row.matched ? '这条连接保留原始 pair ID。' : `这是错误的跨 ID 连接；${row.aId} 原本对应的 B 值是 ${originalB[row.ai]}。`}`;
-      $('[data-pair-identity]').innerHTML = `<p>Ā=${result.meanA}，B̄=${result.meanB}，D̄=B̄−Ā=${result.meanD}；sA²=${result.varA}，sB²=${result.varB}。</p><p class="pair-equation">sAB=Σ(A−Ā)(B−B̄)/(n−1)=${result.crossSum}/4=${result.covariance}<br>sD²=sA²+sB²−2sAB=${result.varA}+${result.varB}−2×(${result.covariance})=${result.identity}<br>直接算差值方差：Σ(D−D̄)²/(n−1)=${result.differenceSS}/4=${result.varD}<br>SE 算式=√(sD²/n)=√(${result.varD}/5)≈${show(result.se)}</p><p>当前 sample correlation r≈${show(result.correlation)}。${result.validPairing ? '正 covariance 在差值方差中被减去，共享背景因此抵消。' : '错配把 covariance 从原始的 93 改为 −93；两组各自的均值和方差没有变，差值的离散却大幅增加。'}</p>`;
-      $('[data-pair-invariants]').textContent = `三个模式都保留 A=[${originalA.join(', ')}]、B=[${originalB.join(', ')}] 各自的全部数值与边际分布；D̄ 始终为 2。忽略配对的独立公式值 √(sA²/5+sB²/5)=√(90/5+96.5/5)≈${show(result.independentFormulaSE)} 也不变。只有保持 ID 对应的整行换序才保留原始差值、covariance 和 paired SE。`;
-      $('[data-pair-inference]').textContent = result.inference
-        ? `在独立 pairs 与正态差值模型下，H₀: μD=0，方向 B−A。t=D̄/SE≈${show(result.inference.t)}，df=n−1=4；双侧 P≈${show(result.inference.p)}。95% CI=2±${show(result.inference.critical)}×${show(result.se)}≈[${show(result.inference.low)}, ${show(result.inference.high)}]。本例在这些条件下支持正的总体平均差。`
-        : `此映射不是原研究的配对：D̄/SE≈${show(result.ratio)} 只是错误连接后的算术比值。本实验不将它报告为有效配对检验，也不给出其 P 值或置信区间。不能通过试配对来挑选有利结论。`;
+      const differences = result.rows.map(item => item.difference).join('、');
+      const differenceFormula = String.raw`\begin{aligned}
+        s_D^2&=\frac{\sum_i(D_i-\bar D)^2}{5-1}\\
+          &=\frac{${result.differenceSS}}4=${result.varD}\\
+        \mathrm{SE}(\bar D)&=\sqrt{\frac{${result.varD}}5}\approx${show(result.se)}
+        \end{aligned}`;
+      $('[data-pair-identity]').innerHTML = `<p>当前五个差值是 ${differences}，平均差为 ${result.meanD}。先算差值本身的方差，再换算成平均差的标准误。</p>` + pairMath(differenceFormula);
+      const covarianceFormula = String.raw`\begin{aligned}
+        s_{AB}&=\frac{\sum_i(A_i-\bar A)(B_i-\bar B)}{5-1}\\
+          &=\frac{${result.crossSum}}4=${result.covariance}\\
+        s_D^2&=s_A^2+s_B^2-2s_{AB}\\
+          &=${result.varA}+${result.varB}-2(${result.covariance})=${result.identity}
+        \end{aligned}`;
+      $('[data-pair-covariance]').innerHTML = pairMath(covarianceFormula) + `<p>${result.validPairing
+        ? '同一编号的前后读数往往一起偏高或偏低。作差时，共同波动抵消了一部分。'
+        : '只倒过来 B 列，让高读数和低读数交叉相连。协方差由 93 变为 −93，因此原本可抵消的波动反而加进差值。'}</p>`;
+      $('[data-pair-invariants]').textContent = `两列各自的均值和方差在三个模式中都相同，平均差始终是 2。忽略配对时，用两组各自的方差得到的标准误约为 ${show(result.independentFormulaSE)}。改变对应关系影响的是差值的分散与配对标准误。`;
+      const inference = result.inference;
+      $('[data-pair-inference]').innerHTML = inference
+        ? '<p>在独立配对、正态差值模型下，检验平均变化是否为零。这个例子支持总体平均读数上升。</p>' + pairMath(String.raw`\begin{aligned}
+          t&=\frac{\bar D}{\mathrm{SE}}\approx${show(inference.t)},\quad \nu=4\\
+          p_{\mathrm{two\text{-}sided}}&\approx${show(inference.p)}\\
+          \mathrm{CI}_{95\%}&\approx[${show(inference.low)},${show(inference.high)}]
+          \end{aligned}`)
+        : `<p>当前是错配演示。算术比值约为 ${show(result.ratio)}。恢复原始编号配对即可查看正式推断。</p>`;
       $('[data-pair-code]').textContent = pairedRCode(result.mode, selectedAId);
     } catch (error) {
       result = null; mode.setAttribute('aria-invalid', 'true'); $('[data-pair-error]').textContent = error.message + ' 当前不显示旧结果。';

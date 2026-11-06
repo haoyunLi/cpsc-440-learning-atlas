@@ -1128,16 +1128,19 @@
     "hint": "两个独立估计之差的 variance 相加：SE²=s₁²/n₁+s₂²/n₂。",
     "steps": [
       {
-        "title": "选择匹配设计的方法",
-        "body": "题干明确两组观测相互独立，且没有预先定义的配对关系，因此采用独立样本方法；不假设共同 variance，使用 Welch。参数为 μA−μB。不同个体也可能按设计配对，不能仅凭“不是同一对象”排除 paired。"
+        "title": "两组各有自己的误差尺度",
+        "body": "两组独立，目标是 A 的总体均值减去 B 的总体均值。采用 Welch，分别估计两组均值的抽样方差。",
+        "latex": "\\widehat D=18-14=4,\\quad a=\\frac{4^2}{12},\\quad b=\\frac{6^2}{8}"
       },
       {
-        "title": "计算 SE 与 t",
-        "body": "SE=√(16/12+36/8)=√(35/6)≈2.41523。t=(18−14)/2.41523≈1.65616。"
+        "title": "用标准误当尺子量这 4 个单位",
+        "body": "把两份方差相加再开平方。估计差距为 4，约等于 1.66 个标准误。",
+        "latex": "\\begin{aligned}\\mathrm{SE}&=\\sqrt{a+b}=\\sqrt{35/6}\\approx2.41523\\\\ t&=\\frac{4-0}{\\mathrm{SE}}\\approx1.65616\\end{aligned}"
       },
       {
-        "title": "匹配参考自由度",
-        "body": "Welch df=[s₁²/n₁+s₂²/n₂]²/[(s₁²/n₁)²/(n₁−1)+(s₂²/n₂)²/(n₂−1)]≈11.1403。双侧 P≈0.1256，在 5% 水平不拒绝。"
+        "title": "让参考曲线与两份方差估计相匹配",
+        "body": "B 组的均值方差贡献较大，而且只有 8 个观测。Welch 公式用两组各自的贡献和自由度决定参考曲线。双侧 P 值约 0.126，在 5% 水平不拒绝均值相等。",
+        "latex": "\\nu=\\frac{(a+b)^2}{a^2/(12-1)+b^2/(8-1)}\\approx11.14"
       }
     ],
     "conclusion": "Welch t≈1.6562；均值差估计为 4，但证据不足以在 5% 水平支持非零差异。",
@@ -1157,7 +1160,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与 pooled t 计算一致。本题未假设共同总体 variance，应分别保留 s₁²/n₁ 与 s₂²/n₂，按 Welch 的 SE 计算。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "两批各自抽样的对象，平均值差 4。用两批均值各自的抽样波动来衡量这 4 个单位。",
+      "start": "先分别用每组方差除以该组样本量。两组独立，所以把这两份均值方差相加，最后开平方。",
+      "link": {
+        "url": "chapters/06.html#welch",
+        "label": "看 Welch 怎样保留两组各自的方差"
+      }
+    }
   },
   {
     "id": "p06-02",
@@ -1178,16 +1189,19 @@
     "hint": "先计算共同 s²p，再计算均值差的 SE。",
     "steps": [
       {
-        "title": "估计共同误差方差",
-        "body": "s²p=[(6−1)×2²+(6−1)×4²]/(6+6−2)=(20+80)/10=10。"
+        "title": "用两组观测估同一个方差",
+        "body": "两组各估计过一个均值，因此每组留下 5 个自由度。把两组组内平方和加起来，再除以总共 10 个自由度。",
+        "latex": "s_p^2=\\frac{5(2^2)+5(4^2)}{5+5}=10"
       },
       {
-        "title": "计算统计量",
-        "body": "SE=√[10(1/6+1/6)]=√(10/3)≈1.82574，t=(15−11)/1.82574≈2.19089。"
+        "title": "把共同方差换成均值差的标准误",
+        "body": "两组均值各用 6 个观测估计，各贡献共同方差的六分之一。差距 4 再除以合起来的标准误。",
+        "latex": "\\begin{aligned}\\mathrm{SE}&=\\sqrt{10(1/6+1/6)}=\\sqrt{10/3}\\\\t&=\\frac{15-11}{\\sqrt{10/3}}\\approx2.19089\\end{aligned}"
       },
       {
-        "title": "判断证据",
-        "body": "df=6+6−2=10，双侧 P≈0.05326。虽然统计量超过 1.96，正确 t 临界值约为 2.22814，因此 5% 水平不拒绝。"
+        "title": "按自由度 10 的曲线读双尾",
+        "body": "自由度 10 的 95% 双侧临界值约 2.22814，观测统计量约 2.19，刚好还在中间区域。双侧 P 值约 0.05326。",
+        "latex": "\\nu=10,\\quad p=2\\Pr(T_{10}\\ge 2.19089)\\approx0.05326"
       }
     ],
     "conclusion": "pooled t≈2.1909，双侧 P≈0.0533。",
@@ -1207,7 +1221,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与 pooled variance 的分母使用 n₁+n₂ 一致。两个组均值分别被估计，合并误差自由度应为 n₁+n₂−2=10。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "题目给了共同总体方差的模型。两组样本标准差分别为 2 和 4，是对同一个波动尺度的两份估计。",
+      "start": "把标准差平方。每组 6 个观测给方差估计贡献 5 个自由度，用它们给两个方差加权。",
+      "link": {
+        "url": "chapters/06.html#pooled",
+        "label": "查看合并方差的来源"
+      }
+    }
   },
   {
     "id": "p06-03",
@@ -1228,16 +1250,19 @@
     "hint": "样本量是 5 对；对差值做 one-sample t-test。",
     "steps": [
       {
-        "title": "保留配对信息",
-        "body": "每台仪器的前后读数存在设计上的配对关系，不能默认对内独立。先定义 d=after−before，避免把十次测量当十个独立对象；配对并不要求总体 correlation 必须非零。"
+        "title": "按仪器编号作差",
+        "body": "同一台仪器的前后读数共享自身基线。逐台相减就把比较的单位落在同一台上。五台仪器给出五个差值。",
+        "latex": "d_i=y_{i,\\mathrm{after}}-y_{i,\\mathrm{before}},\\qquad n=5"
       },
       {
-        "title": "计算差值统计量",
-        "body": "d̄=3，s²d=[(−1)²+0²+(−2)²+1²+2²]/4=2.5；SE=s_d/√5=√0.5≈0.707107。"
+        "title": "用五个差值计算平均变化的标准误",
+        "body": "平均变化是 3。每个差值到 3 的距离先平方，再用 4 个自由度估计差值方差。五台独立仪器的平均值有标准误。",
+        "latex": "\\begin{aligned}\\bar d&=3\\\\s_d^2&=\\frac{1+0+4+1+4}{5-1}=2.5\\\\\\mathrm{SE}&=\\frac{s_d}{\\sqrt5}=\\sqrt{0.5}\\end{aligned}"
       },
       {
-        "title": "完成推断",
-        "body": "t=3/0.707107≈4.24264，df=4；双侧 P≈0.01324，95% CI≈(1.0368,4.9632)。支持总体平均读数增加。"
+        "title": "把结果说回校准问题",
+        "body": "平均增加量约为 4.24 个标准误。独立仪器与正态差值模型下，95% 区间约从 1.04 到 4.96，支持总体平均读数增加。",
+        "latex": "\\begin{aligned}t&=\\frac{3}{\\sqrt{0.5}}\\approx4.24264,\\quad \\nu=4\\\\p&\\approx0.01324\\\\\\mathrm{CI}_{95\\%}&\\approx[1.0368,4.9632]\\end{aligned}"
       }
     ],
     "conclusion": "paired t≈4.2426；分析单位是仪器的配对差值。",
@@ -1257,7 +1282,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与把前后 10 次读数都当独立样本量一致。配对后只有 5 个独立差值，因此 SE 中使用 √5。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "每台仪器都贡献一个“校准后减校准前”的变化。真正独立的是五台仪器。",
+      "start": "把五个差值当成一个样本。先算平均变化，再问这份平均变化有多少抽样波动。",
+      "link": {
+        "url": "chapters/06.html#lab-paired",
+        "label": "操作前后测量的配对连线"
+      }
+    }
   },
   {
     "id": "p06-04",
@@ -1279,16 +1312,17 @@
     "hint": "配对结构先决定使用差值；signed-rank 的位置解释还需要差值分布对称。",
     "steps": [
       {
-        "title": "先判断配对",
-        "body": "前后测量来自同一对象，不能用两个独立样本的 rank-sum 直接代替 paired t。"
+        "title": "先在每个人内部作差",
+        "body": "用同一个人的处理后读数减去处理前读数。研究对象变成每个人的变化，设计属于配对。"
       },
       {
-        "title": "区分 sign 与 signed-rank",
-        "body": "Sign test 只用差值正负，对连续总体 median 进行检验；signed-rank 还用绝对差排序，常用的位置检验解释依赖对称性。"
+        "title": "用正负号回答中位数问题",
+        "body": "在连续总体中，零是中位数时，正变化和负变化各占一半。符号检验就数正负次数。符号秩检验还使用绝对差的排序，常见的位置解释需要差值分布对称。",
+        "latex": "H_0:\\Pr(D>0)=\\Pr(D<0)=1/2"
       },
       {
-        "title": "使目标与条件一致",
-        "body": "题目强调差值严重偏态且目标为 median。若独立对象和连续分布假设合理，sign test 是直接匹配目标的选择。"
+        "title": "让条件和研究问题对得上",
+        "body": "题目给出的严重偏态让对称性缺少依据。若各对象独立且差值分布连续，符号检验直接针对题目关心的中位数。"
       }
     ],
     "conclusion": "优先考虑对配对差值作 sign test，并说明其使用的信息较少。",
@@ -1307,7 +1341,15 @@
       "Signed-rank 使用差值大小的秩和方向，其常用 median/位置解释需要差值分布对称等条件；严重偏态时不能无条件沿用该解释。",
       "正确。以每个独立对象的前后差为单位，sign test 通过正负号检验连续总体的 median，直接匹配本题目标；同时要妥善处理零差。",
       "合并前后原始读数会消除“同一对象改变了多少”这一对比。研究目标是配对差值的 median，不是合并读数的中心。"
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "研究对象是每个人自己的前后变化。问题问典型变化的中位数，并且差值严重偏态。",
+      "start": "先在每个人内部作差，再决定要用差值的方向、大小，还是两者。",
+      "link": {
+        "url": "chapters/06.html#paired-median-target",
+        "label": "比较配对中位数的检验目标"
+      }
+    }
   },
   {
     "id": "p07-01",
@@ -3578,20 +3620,23 @@
     "hint": "每个候选nA先计算整数nB，再用df=nA+nB−2、λ=1/[2√(1/nA+1/nB)]计算两个拒绝尾部。题目问A组人数。",
     "steps": [
       {
-        "title": "固定模型与分配规则",
-        "body": "分析采用共同方差pooled t；nB=ceil(1.5nA)允许取整后的实际比例稍微超过1.5。它不同于要求比例严格为3:2。"
+        "title": "把每个候选人数配成两组",
+        "body": "例如 A 组 53 人时，B 组的人数按 79.5 向上取整为 80。每个候选设计都使用它自己的整数人数。",
+        "latex": "n_B=\\lceil 1.5n_A\\rceil"
       },
       {
-        "title": "建立功效计算",
-        "body": "给定nA、nB，ν=nA+nB−2，λ=1/[2√(1/nA+1/nB)]，c=t₍.975,ν₎。power=P(Tν,λ<−c)+P(Tν,λ>c)。"
+        "title": "在真实差值为 1 时算检测机会",
+        "body": "共同标准差设为 2。真实差值除以设计的标准误得到非中心参数。检验仍用零差假设下的双侧临界值，把非中心参考分布落在两端的概率相加。",
+        "latex": "\\begin{aligned}\\nu&=n_A+n_B-2\\\\\\lambda&=\\frac{1}{2\\sqrt{1/n_A+1/n_B}}\\\\c&=t_{0.975,\\nu}\\\\\\mathrm{power}&=\\Pr(T_{\\nu,\\lambda}<-c)+\\Pr(T_{\\nu,\\lambda}>c)\\end{aligned}"
       },
       {
-        "title": "按整数约束逐个核验",
-        "body": "nA=52时nB=78，power≈.791569；nA=53时nB=ceil(79.5)=80，power≈.800216。所有更小候选均未达标，因此A组最少53个单位。"
+        "title": "从小到大找到第一个达标设计",
+        "body": "按整数规则枚举，52 人的候选功效约 0.791569。53 人第一次达到 0.80，且所有更小候选均低于目标。",
+        "latex": "\\begin{aligned}(52,78)&\\longmapsto0.791569\\\\(53,80)&\\longmapsto0.800216\\end{aligned}"
       },
       {
-        "title": "回到完整设计",
-        "body": "最终nA=53、nB=80，总计133个独立单位。power以真实效应1、共同σ=2和指定正态独立模型为条件。"
+        "title": "把结果写成可执行的招募计划",
+        "body": "A 组 53 个独立单位，B 组 80 个，总共 133 个。该功效对应指定的真实差 1、共同标准差 2 与独立正态模型。"
       }
     ],
     "conclusion": "A组至少53个独立单位；B组80个，总计133个。",
@@ -3613,7 +3658,15 @@
         "tolerance": 0,
         "feedback": "133是两组总人数53+80；本题只问A组人数。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "两组研究预算按约 1 比 1.5 分配。希望真实差 1 存在时，至少八成研究能检测到。",
+      "start": "每选一个 A 组整数人数，就按题意向上取整算 B 组人数。用这两个实际人数算功效。",
+      "link": {
+        "url": "chapters/06.html#independent-size-planning",
+        "label": "查看不等分配的样本量规划"
+      }
+    }
   },
   {
     "id": "p06-06",
@@ -3640,20 +3693,23 @@
     "hint": "先算σD²=3²+3²−2ρ×3×3，再将σD传给power.t.test(type=\"paired\")的sd；n是pairs数。",
     "steps": [
       {
-        "title": "把前后变异换成差值变异",
-        "body": "Cov(after,before)=.25×3×3=2.25。σD²=9+9−2×2.25=13.5，因此σD=√13.5≈3.674235。"
+        "title": "先把两次读数变成一次变化",
+        "body": "相关性 0.25 让前后读数共享一部分波动。算差值方差时，两份边际方差相加，再减两份协方差。",
+        "latex": "\\begin{aligned}\\operatorname{Cov}(A,B)&=0.25(3)(3)=2.25\\\\ \\sigma_D^2&=9+9-2(2.25)=13.5\\\\ \\sigma_D&=\\sqrt{13.5}\\approx3.674235\\end{aligned}"
       },
       {
-        "title": "按paired t模型逆求",
-        "body": "Δ=2，df=n−1，λ=2√n/√13.5。双侧noncentral-t连续解n≈28.470338，向上取整为29个完整pairs。"
+        "title": "把真实变化放到差值的标准误尺度",
+        "body": "要发现的平均变化是 2。非中心参数以差值标准误为尺，自由度由完整配对数决定。连续解约为 28.470338，先向上取整。",
+        "latex": "\\lambda=\\frac{2\\sqrt n}{\\sqrt{13.5}},\\qquad \\nu=n-1"
       },
       {
-        "title": "检查前一个整数",
-        "body": "28对的power≈.792926，29对≈.807717，所以29达到至少.80而28尚未达到。"
+        "title": "用相邻整数核对门槛",
+        "body": "28 对的功效不足 0.80，29 对达到要求。",
+        "latex": "\\begin{aligned}\\mathrm{power}(28)&\\approx0.792926\\\\ \\mathrm{power}(29)&\\approx0.807717\\end{aligned}"
       },
       {
-        "title": "解释观测数量",
-        "body": "29对对应29个独立仪器、58次测量和29个差值；实际t检验使用df=28。不能把58当成独立差值数。"
+        "title": "按完整配对准备数据",
+        "body": "29 对需要 29 台独立仪器，每台前后各测一次，共 58 次测量。最后用于检验的是 29 个差值，自由度 28。"
       }
     ],
     "conclusion": "至少29个完整pairs；在指定模型、效应和变异假定下，power约.807717。",
@@ -3675,7 +3731,15 @@
         "tolerance": 0,
         "feedback": "20与把单列SD=3直接传给paired规划一致。本题差值SD=√13.5≈3.674235，正确结果是29对。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "一台仪器前后测两次。读数常一起偏高或偏低，因此相减后能扣掉一部分共同波动。",
+      "start": "先用相关性算出差值的总体标准差，再用差值的尺度规划需要多少台仪器。",
+      "link": {
+        "url": "chapters/06.html#paired-size-planning",
+        "label": "看配对差的波动怎样进入功效"
+      }
+    }
   },
   {
     "id": "p14-05",
@@ -4110,20 +4174,24 @@
     "hint": "合并排序为2,2,3,6,7,8，秩为1.5,1.5,3,4,5,6。两个值为2的观测仍是不同记录，共C(6,3)=20种分配。",
     "steps": [
       {
-        "title": "先取得observed statistic",
-        "body": "A使用秩1.5、1.5、4，raw rank sum T_A=7。R双样本统计量的平移版本U=7−3×4/2=1。左侧alternative由较小的T或U支持。"
+        "title": "排出 A 组的三个秩",
+        "body": "两个 2 分占前两位，所以都取平均秩 1.5。A 组的 6 排第四。左尾要找秩和等于或小于观测值的分法。R 的平移写法给出同样顺序。",
+        "latex": "T_A=1.5+1.5+4=7,\\quad U=7-\\frac{3(4)}2=1"
       },
       {
-        "title": "固定数据并枚举标签",
-        "body": "在null下，从6条记录中选3条归A，共20种等可能分配。相同值的记录仍各自可以获得不同标签，不能合并掉其出现机会。"
+        "title": "把相同的数值当作不同记录",
+        "body": "在两组分布相同且标签可交换的条件下，每次从六条记录里挑三条贴 A，所有挑法等概率。",
+        "latex": "\\binom63=20"
       },
       {
-        "title": "数包含边界的左尾",
-        "body": "T_A≤7只有两种记录组合：两个1.5秩加rank 3，T=6；两个1.5秩加rank 4，T=7。Exact左尾P=2/20=.10。"
+        "title": "数出小到 7 的分法",
+        "body": "要让和小到 7，两个 1.5 都得选。第三个秩可以是 3 或 4，得到秩和 6 或 7。",
+        "latex": "p_{\\mathrm{left}}=\\Pr(T_A\\le7)=\\frac{2}{20}=0.10"
       },
       {
-        "title": "辨认不同参考结果",
-        "body": "无连续性校正的normal近似约.060592，加R的.5连续性校正约.092019，均不是此题要求的枚举概率。不同的统计量取值也并非等概率，不能只对unique(T)计数。"
+        "title": "把概率和枚举规则一起报告",
+        "body": "分母是 20 种标签分法。一个秩和值可能由多种分法得到。正态近似的结果会随连续性校正改变，此题按全部标签分法给出精确左尾。",
+        "latex": "p_{\\mathrm{normal}}\\approx0.060592,\\quad p_{\\mathrm{corrected}}\\approx0.092019"
       }
     ],
     "conclusion": "Conditional exact左尾P=.10；在预定α=.05下不拒绝相同分布null。",
@@ -4150,7 +4218,15 @@
         "tolerance": 0.0005,
         "feedback": "这个数值是本例双倍较小尾部的双侧P。题目在分析前指定左侧alternative，只需要包含观测边界的左尾概率。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "六条记录要重新贴 A、B 标签。两条值为 2 的记录可以用不同编号区分，即使它们的秩相同。",
+      "start": "先合并排序，把并列记录给平均秩。枚举每种标签分法时保留记录编号。",
+      "link": {
+        "url": "labs.html#ranks",
+        "label": "在秩检验工作台里数标签分配"
+      }
+    }
   },
   {
     "id": "p06-08",
@@ -4176,20 +4252,24 @@
     "hint": "删去0后m=6；绝对秩为1.5,1.5,3.5,3.5,5,6。枚举的是2^6=64个符号分配，重复秩仍属于不同pairs。",
     "steps": [
       {
-        "title": "按删零约定取得有效样本",
-        "body": "原来7对中有1个零差，先删零再排名，m=6。|d|中的两个1平均秩1.5，两个2平均秩3.5，4和5的秩分别为5、6。"
+        "title": "删掉零差后再分配秩",
+        "body": "余下六个绝对值是 1、1、2、2、4、5。两个 1 平分前两位，两个 2 平分第三、四位，剩余两个各占一位。",
+        "latex": "m=6,\\qquad r=(1.5,1.5,3.5,3.5,5,6)"
       },
       {
-        "title": "核对三种统计量",
-        "body": "正差1、2、4、5贡献W⁺=1.5+3.5+5+6=16；负差贡献W⁻=1.5+3.5=5，总和21=6×7/2。SAS中心化S=16−6×7/4=5.5。"
+        "title": "把正变化的秩加起来",
+        "body": "正差是 1、2、4、5，负差是 −1、−2。SAS 的中心化统计量从正秩和减去零假设下的均值。",
+        "latex": "\\begin{aligned}W^+&=1.5+3.5+5+6=16\\\\W^-&=1.5+3.5=5\\\\W^++W^-&=21\\\\S&=16-\\frac{6(7)}4=5.5\\end{aligned}"
       },
       {
-        "title": "枚举对称null的符号",
-        "body": "六个非零观测各有±两种符号，共64种等可能分配。按实际平均秩重新求W⁺，其中11种满足W⁺≥16，故exact右尾P=11/64=.171875。"
+        "title": "每个秩试两种符号",
+        "body": "在对称零假设下，给定这些非零大小，各符号独立且正负等概率。64 种分法中有 11 种的正秩和达到或超过 16。",
+        "latex": "p_{\\mathrm{right}}=\\frac{11}{2^6}=0.171875"
       },
       {
-        "title": "与近似及双侧区分",
-        "body": "两个大小为2的tie blocks使Var(W⁺)=6×7×13/24−2×(2³−2)/48=22.5。无修正normal右尾约.123126，加.5修正约.145920；双侧exact P=.34375。它们都不是题目指定的exact右尾。"
+        "title": "读清当前问题指定的尾部",
+        "body": "题目预先选右尾。由于枚举分布对称，相同规则的双侧结果为 0.34375。正态近似还需要用并列秩修正方差。",
+        "latex": "\\begin{aligned}\\operatorname{Var}(W^+)&=\\frac{6(7)(13)}{24}-\\frac{2(2^3-2)}{48}=22.5\\\\ p_{\\mathrm{normal}}&\\approx0.123126\\\\ p_{\\mathrm{corrected}}&\\approx0.145920\\end{aligned}"
       }
     ],
     "conclusion": "Exact右尾P=.171875；在预定α=.05下不拒绝对称null。",
@@ -4211,7 +4291,15 @@
         "tolerance": 0.0005,
         "feedback": "这与将右尾11/64加倍得到的双侧P一致。本题的正向alternative已经事先确定，不需要加倍。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "前后一样的那一对先按题意删掉。留下的六对按变化大小排秩，再看正变化拿到多少秩。",
+      "start": "先删零，再按绝对值求平均秩。然后让六个秩各自换正负号，数正秩和至少和观测一样大的分法。",
+      "link": {
+        "url": "labs.html#ranks",
+        "label": "在秩检验工作台里数符号分配"
+      }
+    }
   },
   {
     "id": "p06-09",
@@ -4243,20 +4331,24 @@
     "hint": "先问生成模型中H₀是否为真，再区分“一个研究的P”和“很多独立研究的拒绝次数比例”。",
     "steps": [
       {
-        "title": "确认null在每次生成中为真",
-        "body": "两总体mean均固定为0，因此μ₁−μ₂=0在本模拟中成立。拒绝它属于Type I error；这里没有设置非零真实效应，不能把这些频率称为备择下的power。"
+        "title": "先看每次研究的真相",
+        "body": "两个总体的均值都固定为 0，拒绝零差属于第一类错误。20,000 次研究构成一个观察长期误报的模拟。",
+        "latex": "\\mu_1-\\mu_2=0"
       },
       {
-        "title": "识别报告的随机量",
-        "body": "每次研究都有自己的P；把P<.05记为1再跨20000次平均，才得到表中的拒绝比例。它不是某一份样本的P，也不是null为真的概率。"
+        "title": "用误报次数除以研究次数",
+        "body": "每次研究各有自己的 P 值。把低于 0.05 的结果记一次，然后除以总模拟次数。",
+        "latex": "\\begin{aligned}\\widehat p_{\\mathrm{pooled}}&=\\frac{5173}{20000}=0.25865\\\\\\widehat p_{\\mathrm{Welch}}&=\\frac{1000}{20000}=0.05000\\end{aligned}"
       },
       {
-        "title": "保留相同estimand，解释方法差别",
-        "body": "两方法都检验总体均值差为0。小样本组的variance更大时，pooled的权重可能低估差值的不确定性；Welch保留s₁²/n₁+s₂²/n₂并调整df，没有把mean换成median。"
+        "title": "把较大的方差放回较小的一组",
+        "body": "标准差 3 的组只有 8 个观测，其均值贡献的抽样方差远大于另一组。共同方差的合并权重偏向较大的样本组，在这项模拟里低估了均值差的波动。Welch 分别计入两个贡献。",
+        "latex": "\\operatorname{Var}(\\bar Y_1-\\bar Y_2)=\\frac{9}{8}+\\frac{1}{32}"
       },
       {
-        "title": "给模拟结果保留数值误差与适用范围",
-        "body": "两个拒绝比例的MCSE分别约.003096和.001541。一次结果恰好.05000不证明Welch在所有模型下精确维持.05，也不能根据单次哪个P更小来选择程序。"
+        "title": "给模拟比例留出抽样误差",
+        "body": "两项拒绝比例的 Monte Carlo 标准误约为 0.003096 和 0.001541。这里的表现取决于指定的正态模型、样本量与方差配置。研究前应按设计和方差假设选方法。",
+        "latex": "\\mathrm{MCSE}=\\sqrt{\\frac{\\widehat p(1-\\widehat p)}{20000}}"
       }
     ],
     "conclusion": "本例比较同一均值null下的长期误报率，支持检查程序校准；它既不是单次P比较，也不是更换了目标量后的power比较。",
@@ -4267,7 +4359,15 @@
       "目标同为μ₁−μ₂，比较的是程序在指定null生成模型下的拒绝概率；有限模拟频率必须结合MCSE解释。",
       "Welch和pooled都针对mean difference。它们的区别在variance估计与reference df，不是把均值目标替换为median。"
     ],
-    "rCode": "# Original calibration experiment under a true equal-means null.\nRNGkind(\"Mersenne-Twister\",\"Inversion\",\"Rejection\")\nset.seed(607441)\nB <- 20000\nn1 <- 8\nn2 <- 32\nx <- matrix(rnorm(n1*B,mean=0,sd=3),nrow=n1)\ny <- matrix(rnorm(n2*B,mean=0,sd=1),nrow=n2)\nmx <- colMeans(x)\nmy <- colMeans(y)\nvx <- colSums(sweep(x,2,mx,\"-\")^2)/(n1-1)\nvy <- colSums(sweep(y,2,my,\"-\")^2)/(n2-1)\nsp2 <- ((n1-1)*vx+(n2-1)*vy)/(n1+n2-2)\np_pooled <- 2*pt(-abs((mx-my)/sqrt(sp2*(1/n1+1/n2))),df=n1+n2-2)\na <- vx/n1\nb <- vy/n2\ndf_welch <- (a+b)^2/(a^2/(n1-1)+b^2/(n2-1))\np_welch <- 2*pt(-abs((mx-my)/sqrt(a+b)),df=df_welch)\ncounts <- c(sum(p_pooled<.05),sum(p_welch<.05))\nrate <- counts/B\nprint(data.frame(method=c(\"pooled\",\"Welch\"),rejections=counts,\n                 B=B,rejection_rate=rate,MCSE=sqrt(rate*(1-rate)/B)))\n# Verify both formulas against independent base-R t.test calls.\nstopifnot(abs(p_pooled[1]-t.test(x[,1],y[,1],var.equal=TRUE)$p.value)<1e-12,\n          abs(p_welch[1]-t.test(x[,1],y[,1],var.equal=FALSE)$p.value)<1e-12)\n# Both procedures test the same mean difference; the null is true here.\nanswer <- 2L\nprint(answer)\n"
+    "rCode": "# Original calibration experiment under a true equal-means null.\nRNGkind(\"Mersenne-Twister\",\"Inversion\",\"Rejection\")\nset.seed(607441)\nB <- 20000\nn1 <- 8\nn2 <- 32\nx <- matrix(rnorm(n1*B,mean=0,sd=3),nrow=n1)\ny <- matrix(rnorm(n2*B,mean=0,sd=1),nrow=n2)\nmx <- colMeans(x)\nmy <- colMeans(y)\nvx <- colSums(sweep(x,2,mx,\"-\")^2)/(n1-1)\nvy <- colSums(sweep(y,2,my,\"-\")^2)/(n2-1)\nsp2 <- ((n1-1)*vx+(n2-1)*vy)/(n1+n2-2)\np_pooled <- 2*pt(-abs((mx-my)/sqrt(sp2*(1/n1+1/n2))),df=n1+n2-2)\na <- vx/n1\nb <- vy/n2\ndf_welch <- (a+b)^2/(a^2/(n1-1)+b^2/(n2-1))\np_welch <- 2*pt(-abs((mx-my)/sqrt(a+b)),df=df_welch)\ncounts <- c(sum(p_pooled<.05),sum(p_welch<.05))\nrate <- counts/B\nprint(data.frame(method=c(\"pooled\",\"Welch\"),rejections=counts,\n                 B=B,rejection_rate=rate,MCSE=sqrt(rate*(1-rate)/B)))\n# Verify both formulas against independent base-R t.test calls.\nstopifnot(abs(p_pooled[1]-t.test(x[,1],y[,1],var.equal=TRUE)$p.value)<1e-12,\n          abs(p_welch[1]-t.test(x[,1],y[,1],var.equal=FALSE)$p.value)<1e-12)\n# Both procedures test the same mean difference; the null is true here.\nanswer <- 2L\nprint(answer)\n",
+    "readQuestion": {
+      "meaning": "模拟反复制造“均值真的相同”的研究。每次检验若说有差，就记一次误报。",
+      "start": "先看生成数据时的真实均值，再解释跨 20,000 次的拒绝比例。每次研究才有自己的 P 值。",
+      "link": {
+        "url": "chapters/06.html#welch",
+        "label": "回到两个方差尺度与模拟"
+      }
+    }
   },
   {
     "id": "p09-05",

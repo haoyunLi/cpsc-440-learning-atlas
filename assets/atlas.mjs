@@ -6,7 +6,7 @@ import { boxplotAnalysis, drawBoxplot, boxplotRCode } from './boxplot.mjs';
 import { mountCLT } from './clt.mjs';
 import { mountBinomial, chapterProbabilityLabel as binomialProbabilityLabel, binomialTailSummary as summarizeBinomialTail } from './binomial.mjs';
 import { mountFactorial } from './factorial.mjs';
-import { mountPaired } from './paired.mjs';
+import { mountPaired } from './paired.mjs?v=readout-1';
 import { mountAnova } from './anova.mjs';
 import { mountRegression } from './regression.mjs';
 const readingChapterIds = ['01', '04', '05', '06', '07', '08', '09', '14', '15', '11'];

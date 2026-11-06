@@ -126,7 +126,7 @@ try {
   }
   drawPaired(graph, null); assert.equal(graph.children.length, 0); assert.match(graph.attrs['aria-label'], /等待/);
   const elements = {};
-  for (const key of ['mode', 'reset', 'error', 'status', 'results', 'cross-sum', 'difference-ss', 'selected', 'identity', 'invariants', 'inference', 'copy', 'code', 'copy-status']) elements[`[data-pair-${key}]`] = new Element();
+  for (const key of ['mode', 'reset', 'error', 'status', 'results', 'cross-sum', 'difference-ss', 'selected', 'identity', 'covariance', 'invariants', 'inference', 'copy', 'code', 'copy-status']) elements[`[data-pair-${key}]`] = new Element();
   for (const key of ['main', 'large']) elements[`[data-pair-plot="${key}"]`] = new Element('svg');
   for (let i = 0; i < 5; i++) {
     elements[`[data-pair-select="${i}"]`] = new Element('button'); elements[`[data-pair-table-row="${i}"]`] = new Element('tr');
@@ -137,8 +137,11 @@ try {
   get('mode').value = 'correct'; mountPaired(root); mountPaired(root);
   const main = elements['[data-pair-plot="main"]'], large = elements['[data-pair-plot="large"]'];
   assert.equal(get('mode').events.change.length, 1); assert.equal(select(0).events.click.length, 1);
-  assert.match(get('inference').textContent, /t=D̄\/SE≈6.3245553.*df=n−1=4.*P≈0.0031982022.*95% CI/);
-  assert.match(get('identity').innerHTML, /372\/4=93/); assert.match(get('identity').innerHTML, /90\+96.5−2×\(93\)=0.5/);
+  assert.match(get('inference').innerHTML, /application\/x-tex/);
+  assert.match(get('inference').innerHTML, /6\.3245553/); assert.match(get('inference').innerHTML, /0\.0031982022/);
+  assert.ok(get('inference').innerHTML.includes(String.raw`\mathrm{CI}_{95\%}`));
+  assert.ok(get('identity').innerHTML.includes(String.raw`\frac{2}4=0.5`));
+  assert.ok(get('covariance').innerHTML.includes(String.raw`\frac{372}4=93`));
   const stableMode = get('mode'), stableButton = select(3), stableRow = elements['[data-pair-table-row="3"]'];
   stableButton.focus(); await stableButton.dispatch('click');
   assert.equal(document.activeElement, stableButton); assert.equal(select(3), stableButton); assert.equal(elements['[data-pair-table-row="3"]'], stableRow);
@@ -149,27 +152,27 @@ try {
   assert.match(get('selected').textContent, /当前第 2 行.*A 的 P4=26.*B 的 P4=28/); assert.equal(select(1).attrs['aria-pressed'], 'true');
   assert.equal(select(0).textContent, 'P5 → P5'); assert.equal(select(4).textContent, 'P1 → P1');
   assert.equal(get('code').textContent, pairedRCode('reorder', 'P4')); assert.match(get('status').textContent, /推断保持一致/);
-  const validInference = get('inference').textContent;
+  const validInference = get('inference').innerHTML;
   get('mode').value = 'shuffle'; await get('mode').dispatch('change');
   assert.match(get('selected').textContent, /当前第 4 行.*A 的 P4=26.*B 的 P2=16.*P4 原本对应的 B 值是 28/);
-  assert.equal(select(3).attrs['aria-pressed'], 'true'); assert.match(get('identity').innerHTML, /−2×\(-93\)=372.5/);
-  assert.match(get('inference').textContent, /算术比值/); assert.doesNotMatch(get('inference').textContent, /双侧 P≈|95% CI=/);
+  assert.equal(select(3).attrs['aria-pressed'], 'true'); assert.ok(get('covariance').innerHTML.includes('90+96.5-2(-93)=372.5'));
+  assert.match(get('inference').innerHTML, /算术比值/); assert.doesNotMatch(get('inference').innerHTML, /application\/x-tex/);
   assert.match(get('status').textContent, /有四行.*不提供.*正式 P/); assert.match(main.attrs['aria-label'], /错误匹配/);
   assert.equal(JSON.stringify(main.children), JSON.stringify(large.children));
   await get('copy').dispatch('click'); assert.equal(copied, pairedRCode('shuffle', 'P4')); assert.doesNotMatch(copied, /t\.test\(/); assert.match(get('copy-status').textContent, /不会进行正式/);
   await select(2).dispatch('click'); assert.match(get('selected').textContent, /P3=20.*P3=23.*保留原始 pair ID/);
-  assert.match(get('status').textContent, /故意错误匹配/); assert.doesNotMatch(get('inference').textContent, /双侧 P≈|95% CI=/); // One surviving real pair does not validate the whole mapping.
+  assert.match(get('status').textContent, /故意错误匹配/); assert.doesNotMatch(get('inference').innerHTML, /application\/x-tex/); // One surviving real pair does not validate the whole mapping.
   failCopy = true; await get('copy').dispatch('click'); assert.match(get('copy-status').textContent, /选中上方/); failCopy = false;
   waitCopy = true; const pending = get('copy').dispatch('click'); await get('reset').dispatch('click'); resolveCopy(); await pending; waitCopy = false;
   assert.equal(get('copy-status').textContent, ''); assert.equal(get('mode').value, 'correct'); assert.equal(select(0).attrs['aria-pressed'], 'true');
-  assert.equal(get('inference').textContent, validInference); assert.equal(get('code').textContent, pairedRCode('correct', 'P1'));
+  assert.equal(get('inference').innerHTML, validInference); assert.equal(get('code').textContent, pairedRCode('correct', 'P1'));
   await get('copy').dispatch('click'); assert.equal(copied, pairedRCode('correct', 'P1')); assert.match(get('copy-status').textContent, /配对推断/);
   get('mode').value = 'invalid'; await get('mode').dispatch('change');
   assert.equal(get('results').hidden, true); assert.equal(get('copy').disabled, true); assert.equal(select(0).disabled, true); assert.equal(get('code').textContent, '');
   assert.equal(main.children.length, 0); assert.equal(large.children.length, 0); assert.match(get('error').textContent, /当前不显示旧结果/);
   await get('reset').dispatch('click'); assert.equal(get('results').hidden, false); assert.equal(get('copy').disabled, false); assert.equal(select(0).disabled, false); assert.equal(get('error').textContent, '');
   assert.equal(get('code').textContent, pairedRCode('correct', 'P1'));
-  assert.match(root.innerHTML, /匹配的两个不同单位/); assert.match(root.innerHTML, /不能靠排序/);
+  assert.match(root.innerHTML, /匹配的两个不同单位/); assert.match(root.innerHTML, /配对关系由研究设计确定/);
   assert.match(root.innerHTML, /n=5 指五个独立 pairs/); assert.match(root.innerHTML, /A−B 与本实验 B−A/);
 } finally {
   if (previousDocument === undefined) delete globalThis.document; else globalThis.document = previousDocument;

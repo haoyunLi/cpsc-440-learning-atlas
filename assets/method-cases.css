@@ -81,8 +81,9 @@
   [data-method-case="unbalanced"] .mc-output .mc-buttons button { padding: 6px; text-align: center; font-size: .84em; }
 }
 .mc-ss-other { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 4 3; }
-.method-case .mc-ss-table { width: 100%; min-width: 0; table-layout: auto; margin-block: 12px; font-size: .88em; font-variant-numeric: tabular-nums; }
+.method-case .mc-ss-table { display: table; width: 100%; min-width: 0; table-layout: fixed; overflow: visible; margin-block: 12px; font-size: .88em; font-variant-numeric: tabular-nums; }
 .method-case .mc-ss-table caption { text-align: left; font-weight: 650; padding-block: 5px; }
-.method-case .mc-ss-table th, .method-case .mc-ss-table td { padding: 5px 6px; white-space: nowrap; }
+.method-case .mc-ss-table th, .method-case .mc-ss-table td { min-width: 0; padding: 5px 4px; white-space: nowrap; }
+.method-case .mc-ss-table th:first-child { width: 18%; }
 .method-case .mc-ss-table :is(td,th):not(:first-child) { text-align: right; }
 .mc-ss-table small { display: block; color: var(--muted); font-size: .84em; font-weight: 500; }

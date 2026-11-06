@@ -67,6 +67,6 @@
 <!-- CASE_R -->
 <p><a href="downloads/study-case.R" download>下载本案例完整 R 脚本</a>。写完自己的报告后，对照<a href="handbook.html#language">结论写作手册</a>；若不清楚估计值和总体真值的区别，回到<a href="chapters/01.html#population">总体与样本</a>。本例计算不需要先运行其他章节脚本。</p>
 <p class="source-locator"><b>课程定位：</b>PPT/Chapters_1_2_3.pptx 第4–6页（总体、样本与推断）；PPT/Chapter_8.pptx 第10、15页与 classnote/440 - Chapter 8 - 2022 Fall.pdf 第7页（独立性、experimental unit、CRD）；PPT/Chapter_6.pptx 第24–27页与 classnote/440 - Chapter 6 - 2022 Fall.pdf 第17页（Welch 的 SE、近似 df 与 CI）。12盆数据和贯穿流程为本站原创，不是课程原题或学生作业。</p>
-<p><b>公开依据：</b><a href="https://online.stat.psu.edu/stat502/Lesson07" target="_blank" rel="noopener noreferrer">Penn State STAT 502：Experimental Unit and Replication</a>解释处理单位、单位内 sampling units 与伪重复，并介绍先形成实验单位响应的思路。本例仅在已说明的等量完整测量与预定盆均值目标下采用聚合。<a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/t.test.html" target="_blank" rel="noopener noreferrer">R 官方 t.test 文档</a>说明 <code>var.equal=FALSE</code> 的 Welch 计算、返回的 SE、df、P 与 confidence interval。</p>
+<p><b>公开依据：</b><a href="https://psfaculty.plantsciences.ucdavis.edu/PLS120/PLS120Book/docs/chEdesign.html" target="_blank" rel="noopener noreferrer">UC Davis 农学统计教材第 10.4 节</a>用玉米田说明，肥料分配给田块，田块内抽测的植株共享这块田的误差成分。本例仅在已说明的等量完整测量与预定盆均值目标下采用聚合。<a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/t.test.html" target="_blank" rel="noopener noreferrer">R 官方 t.test 文档</a>说明 <code>var.equal=FALSE</code> 的 Welch 计算、返回的 SE、df、P 与 confidence interval。</p>
 <div data-case-question-slot="report"></div>
 </section>

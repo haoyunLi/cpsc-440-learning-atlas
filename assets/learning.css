@@ -51,3 +51,28 @@
     overflow-wrap: anywhere;
   }
 }
+
+.inline-equation { position: relative; }
+.method-table th[scope=row] { background: transparent; }
+.method-label { display: none; }
+
+@media (max-width: 700px) {
+  .table-scroll .method-table, .method-table tbody, .method-table tr,
+  .method-table th[scope=row], .method-table td { display: block; }
+  .method-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .method-table tr { border-top: 1px solid var(--line); padding-block: 16px; }
+  .method-table th[scope=row], .method-table td {
+    min-width: 0;
+    padding: 6px 0;
+    border: 0;
+  }
+  .method-table th[scope=row] { font-size: 17px; }
+  .method-label { display: block; font-size: 13px; color: var(--muted); }
+}

@@ -7,7 +7,7 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
-from math_typesetting import RECORDS, WALKS, PRACTICE, PATTERN, validate_sources
+from math_typesetting import RECORDS, WALKS, PRACTICE, PATTERN, INLINE_PATTERN, validate_sources
 
 chapters=sum([json.loads((ROOT/f'content/part{i}.json').read_text()) for i in range(1,4)],[])
 for lesson in json.loads((ROOT/'content/deepening.json').read_text()):
@@ -31,7 +31,10 @@ for c in chapters:
     assert len(doc.ids)==len(set(doc.ids)),c['id']
     walks=[w for w in WALKS if w['chapter']==c['id']]
     expected=sum(r['chapter']==c['id'] for r in RECORDS)+1+sum(1+len(w['frames']) for w in walks)
-    assert doc.maths==expected,(c['id'],doc.maths,expected)
+    inline = sum(len(INLINE_PATTERN.findall(lesson['body'])) for lesson in c['lessons'])
+    assert source.count('class="inline-equation"') == inline, c['id']
+    assert 'data-tex=' not in source, c['id']
+    assert doc.maths == expected + inline, (c['id'], doc.maths, expected + inline)
     assert not PATTERN.search(source),c['id']
     for w in walks:
         assert w['id'] in doc.ids
@@ -47,7 +50,12 @@ for name, expected in [('handbook.html', 1), ('case-study.html', 4)]:
     source = (ROOT / name).read_text()
     doc = Inspect()
     doc.feed(source)
-    assert doc.maths == expected, (name, doc.maths, expected)
+    content_name = 'study-case.html' if name == 'case-study.html' else name
+    authored = (ROOT / 'content' / content_name).read_text()
+    inline = len(INLINE_PATTERN.findall(authored))
+    assert source.count('class="inline-equation"') == inline, name
+    assert 'data-tex=' not in source, name
+    assert doc.maths == expected + inline, (name, doc.maths, expected + inline)
     assert not PATTERN.search(source), name
     assert 'katex-error' not in source, name
 css=ROOT/'assets/vendor/katex/katex.min.css'
@@ -61,4 +69,4 @@ assert sum('latex' in s for q in PRACTICE for s in q['steps'])==241
 assert doc.maths==241+sum('promptLatex' in q for q in PRACTICE)
 for q in PRACTICE:
     assert 'readQuestion' in q
-print('133 chapter and auxiliary LaTeX source bindings, 40 staged formulas, 241 solution formulas, 93 plain-language guides, prompt MathML and all local math fonts passed.')
+print('133 chapter and auxiliary LaTeX source bindings, 40 staged formulas, 241 solution formulas, 93 plain-language guides, prompt and inline MathML, and local math fonts passed.')

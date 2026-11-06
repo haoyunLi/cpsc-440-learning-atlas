@@ -266,7 +266,7 @@ const handbook = readFileSync(new URL('../content/handbook.html', import.meta.ur
 const methodMap = handbook.match(/<section id="method-map"[\s\S]*?<\/section>/)[0];
 assert.match(methodMap, /独立、正态、共同 residual variance/);
 assert.match(methodMap, /不要求先拒绝 omnibus/);
-assert.match(methodMap, /SE=√\[cᵀCov\(β̂\)c\]/);
+assert.ok(methodMap.includes(String.raw`data-tex="\mathrm{SE}=\sqrt{c^{\mathsf T}\widehat{\operatorname{Cov}}(\hat\beta)c}"`));
 assert.match(methodMap, /每单位记录一对 \(X,Y\) 本身不意味着误差相关/);
 assert.match(methodMap, /独立组 Brown–Forsythe 都不能直接分析相关原始行/);
 for (const match of methodMap.matchAll(/href="chapters\/(\d+)\.html#([^"]+)"/g)) assert.ok(anchors.get(match[1])?.has(match[2]), match[0]);

@@ -12,6 +12,7 @@ AUXILIARY_SOURCES = ('handbook.html', 'study-case.html')
 STORIES = json.loads((ROOT / 'content/intuition.json').read_text())
 WALKS = json.loads((ROOT / 'content/walkthroughs.json').read_text())
 PRACTICE = json.loads((ROOT / 'content/practice.json').read_text())
+INLINE_PATTERN = re.compile(r'<span data-tex="([^"]+)">[^<]*</span>')
 PATTERN = re.compile(r'<div class="equation">(.*?)</div>', re.S)
 
 
@@ -47,7 +48,18 @@ for record in ALL_RECORDS:
 
 
 def typeset_equations(body):
-    return PATTERN.sub(lambda match: BY_SOURCE.get(match.group(1), match.group(0)), body)
+    body = PATTERN.sub(lambda match: BY_SOURCE.get(match.group(1), match.group(0)), body)
+    # Inline expressions are authored explicitly. Leave adjacent prose and R code
+    # intact, and render the unique expressions in this page in a single batch.
+    sources = dict.fromkeys(INLINE_PATTERN.findall(body))
+    if not sources:
+        return body
+    items = [{'tex': html.unescape(source), 'display': False} for source in sources]
+    rendered = dict(zip(sources, render_batch(items)))
+    return INLINE_PATTERN.sub(
+        lambda match: '<span class="inline-equation">' + rendered[match.group(1)] + '</span>',
+        body,
+    )
 
 
 def validate_sources(chapters):

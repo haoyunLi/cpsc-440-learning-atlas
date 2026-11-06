@@ -83,32 +83,62 @@ export function inferenceProbabilities({ n, sigma, delta, alpha, tail }) {
   const classification = inAlternative ? 'alternative' : delta === 0 ? 'boundary' : 'null';
   return { se, lower, upper, nonRejection, rejection, classification, beta: inAlternative ? nonRejection : null, power: inAlternative ? rejection : null };
 }
-const instructions={summary:['数据摘要实验室','改变数据或 bin 数，追踪每个点如何改变 center 与 spread。'],probability:['Binomial 与 CLT 实验室','每一根柱是某个 count 的 probability；再亲自反复抽样观察 mean 的分布。'],inference:['Type I、Type II 与 power 实验室','先固定 rejection rule，再看指定真实均值下的拒绝与不拒绝概率。'],paired:['Pairing 的信息在哪里？','保留观测身份，比较整行排序与单列重排，追踪 difference、covariance 与 SE。'],variance:['χ² 与 variance CI 实验室','df 改变 reference distribution，并改变 variance interval 的不对称性。'],anova:['九株苗怎样变成一张 ANOVA 表？','改变组间距离或组内散布，再追踪一株苗对计算的贡献。'],multiple:['一百次研究里，会有几次误报？','改变每次研究的比较数，看看至少误报一次的风险会涨多快。'],factorial:['Interaction 与不同权重的 marginal means','先改变 cell means，再保持它们不变只改样本数，区分条件效应与样本构成。'],design:['Blocking 与 Latin square 实验室','沿光照梯度，比较各 treatment 在每个 block 中均出现的结构。'],regression:['同一个 x₀，两种不同的预测问题','在同一尺度上比较总体 mean 的 CI 与新个体的 PI；逐项追踪 h₀、variance、SE 与临界值。']};
+const instructions={summary:['只改一个数，数据图会怎么变？','先比较均值与中位数，再看同一组数据如何进入直方图和箱线图。'],probability:['Binomial 与 CLT 实验室','每一根柱是某个 count 的 probability；再亲自反复抽样观察 mean 的分布。'],inference:['Type I、Type II 与 power 实验室','先固定 rejection rule，再看指定真实均值下的拒绝与不拒绝概率。'],paired:['Pairing 的信息在哪里？','保留观测身份，比较整行排序与单列重排，追踪 difference、covariance 与 SE。'],variance:['χ² 与 variance CI 实验室','df 改变 reference distribution，并改变 variance interval 的不对称性。'],anova:['九株苗怎样变成一张 ANOVA 表？','改变组间距离或组内散布，再追踪一株苗对计算的贡献。'],multiple:['一百次研究里，会有几次误报？','改变每次研究的比较数，看看至少误报一次的风险会涨多快。'],factorial:['Interaction 与不同权重的 marginal means','先改变 cell means，再保持它们不变只改样本数，区分条件效应与样本构成。'],design:['Blocking 与 Latin square 实验室','沿光照梯度，比较各 treatment 在每个 block 中均出现的结构。'],regression:['同一个 x₀，两种不同的预测问题','在同一尺度上比较总体 mean 的 CI 与新个体的 PI；逐项追踪 h₀、variance、SE 与临界值。']};
 function labSummary(el) {
-  const update=setup(el, `<label for="data-values">原创示例数据；逗号或空格分隔，至少 2 个数，最多 500 个</label><textarea id="data-values">2, 3, 3, 4, 18</textarea><div class="controls">${range('bins','Bins',3,20,1,7)}</div><p class="error" role="alert"></p>${svg('示例数据 histogram 与统计量')}<p class="caption" data-summary-scale></p><div class="readout" aria-live="polite"></div><p class="caption">Histogram 纵轴为 count。改变 bins 只改分组显示，不改观测或统计量。所有观测相同时，SD 与 variance 为 0；图中会留出横轴空间显示这一根柱。≈0 表示计算结果接近本组数据尺度的浮点舍入精度。</p>
-    <h3>同一组数据：箱体、须和围栏分别在哪里？</h3><p>先预测：把最后一个值移远时，mean 与 median 谁更敏感？须会伸到围栏，还是围栏内最远的实际观测？下方与 histogram 使用同一组数据；两个图各自缩放并标明刻度。</p>
+  const examples = { near: [2, 3, 3, 4, 5], far: [2, 3, 3, 4, 18] };
+  const update=setup(el, `<p>五个人的零花钱里，只有最后一个人的钱从 5 元变成 18 元。如果全体平分，每人分到的钱会变多少？排在中间的那个人会变吗？</p>
+    <div class="lab-actions summary-examples" role="group" aria-label="切换第五个人的零花钱"><button type="button" class="secondary" data-summary-example="near" aria-pressed="false">第五个人有 5 元</button><button type="button" class="secondary" data-summary-example="far" aria-pressed="true">第五个人有 18 元</button></div>
+    <figure class="summary-demo" data-summary-demo><svg viewBox="0 0 680 235" role="img"></svg><figcaption>棕色点是第五个人。切换时数轴保持 0 到 20 元，所以能看到只有这个点移动。</figcaption>
+      <div class="equation typeset-equation" data-summary-mean tabindex="0" role="region" aria-label="五个人平分零花钱的算式，可横向滚动"></div>
+      <p>把所有钱加起来再平分，就是均值。按钱数从小到大排，第 3 个始终是 3 元，所以中位数留在原处。</p>
+    </figure>
+    <details><summary>换成自己的测量数据</summary><label for="data-values">逗号或空格分隔，至少 2 个数，最多 500 个</label><textarea id="data-values">2, 3, 3, 4, 18</textarea></details>
+    <h3>换一种看法，把观测放进直方图的格子</h3>
+    <div class="controls">${range('bins','分组数',3,20,1,7)}</div><p class="error" role="alert"></p><div data-summary-histogram>${svg('当前数据的直方图')}</div><p class="caption" data-summary-scale></p><div class="readout" aria-live="polite"></div><p class="caption">柱高是区间内的观测数。试着改变分组数，观察柱子怎么变，再核对上面的均值和中位数。所有观测相同时，SD 与方差为 0，图上会留出横轴空间显示这一根柱。≈0 表示结果接近这组数据尺度下的浮点舍入精度。</p>
+    <h3>同一组数据：箱体、须和围栏分别在哪里？</h3><p>箱体两端是下、上四分位数。试着切换规则，看远端的点有没有越过围栏。直方图与箱线图各自缩放，读图时请对照各自的刻度。</p>
     <label for="box-rule">箱体规则<select id="box-rule"><option value="type7">R type 7（线性插值）</option><option value="hinges">Tukey hinges（R 箱线图）</option></select></label>
     <div class="lab-actions"><button type="button" id="box-example" class="secondary">载入规则差异例 [2,3,4,12]</button><button type="button" id="summary-reset" class="secondary">恢复初始数据</button></div>
     <div data-box-plot>${svg('同一组数据的箱线图、实际须端点、内围栏与原始观测；异常候选为空心点')}</div><p class="caption" data-box-scale></p><div data-box-result class="readout" aria-live="polite"></div>
     <p class="caption">实线短竖线是须端点；棕色虚线是 1.5×IQR 内围栏，围栏不一定是观测值。下方每点保留一条原始观测：实心点在围栏内，空心点为异常值候选；相同数值竖向错开，超过 5 个时仍会重叠，纵向位置不代表另一变量。恰好在围栏上的点仍在范围内。候选标签不是删除指令。</p>
     <details><summary>规则为何可能改变箱体和异常候选？</summary><p>Type 7 对 p 分位数取排序位置 h=1+(n−1)p，在相邻观测间线性插值。Tukey hinges 分别取排序数据下半部与上半部的中位数，奇数 n 时把总中位数包含在两半中；这是 R 的 boxplot 使用的规则。median 与原始数据并未因选择规则而改变。</p><p>先载入 [2,3,4,12]：type 7 的 Q1=2.75、Q3=6，上围栏=10.875，因此 12 被标出；Tukey 的下/上 hinge=2.5、8，上围栏=16.25，因此须可伸到 12。两种计算目标规则不同，不能只凭标记不同认定软件算错。课程或题目指定规则时，应按该规则报告。</p><p><a href="#boxplot">回到逐步箱线图讲解</a> · <a href="https://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/boxplot.stats.html" target="_blank" rel="noopener noreferrer">R 官方：hinges 与 whiskers</a></p></details>
     <details><summary>用当前数据与规则在 R 中复算</summary><button type="button" id="box-copy" class="secondary">复制当前 R 代码</button><pre data-box-code></pre><p data-box-copy-status class="status" role="status"></p></details>`, () => {
-    const err = $('.error',el), scaleNote = $('[data-summary-scale]',el);
+    const err = $('.error',el), scaleNote = $('[data-summary-scale]',el), demo = $('[data-summary-demo]',el);
     let r, box, values;
     try { values=parseSample($('textarea',el).value, {maxAbs:1e10}); r=summaryAnalysis(values,val('bins',el)); box=boxplotAnalysis(values,$('#box-rule',el).value); }
-    catch(error) { err.textContent=error.message; el.querySelectorAll('svg').forEach(s=>s.replaceChildren()); $('.readout',el).textContent='等待有效数据'; scaleNote.textContent=''; $('[data-box-result]',el).textContent='等待有效数据'; $('[data-box-scale]',el).textContent=''; $('[data-box-code]',el).textContent=''; $('#box-copy',el).disabled=true; $('[data-box-copy-status]',el).textContent=''; return; }
+    catch(error) { err.textContent=error.message; demo.hidden=true; el.querySelectorAll('[data-summary-histogram] svg,[data-box-plot] svg').forEach(s=>s.replaceChildren()); for(const button of el.querySelectorAll('[data-summary-example]'))button.setAttribute('aria-pressed','false'); $('.readout',el).textContent='等待有效数据'; scaleNote.textContent=''; $('[data-box-result]',el).textContent='等待有效数据'; $('[data-box-scale]',el).textContent=''; $('[data-box-code]',el).textContent=''; $('#box-copy',el).disabled=true; $('[data-box-copy-status]',el).textContent=''; return; }
     err.textContent=''; scaleNote.textContent=r.scaleNote;
-    const s=$('svg',el), axis=r.axis, axisSpan=axis.end-axis.start;
-    const map=axes(s,axis.label,'Frequency（count）',axis.start,axis.end,0,Math.max(...r.counts)*1.2,v=>formatSummaryTick(v,axisSpan));
+    const example = Object.keys(examples).find(name => examples[name].join() === values.join());
+    demo.hidden = !example;
+    for (const button of el.querySelectorAll('[data-summary-example]')) button.setAttribute('aria-pressed', String(button.dataset.summaryExample === example));
+    if (example) {
+      const dots = $('svg',demo), x = value => 85 + value / 20 * 550;
+      const mean = fmt(r.mean, 1).replace(/\.0$/, '');
+      dots.replaceChildren();
+      add(dots,'line',{x1:85,x2:635,y1:145,y2:145,class:'plot-axis'});
+      for (const tick of [0,5,10,15,20]) add(dots,'text',{x:x(tick),y:174,'text-anchor':'middle',class:'plot-muted'},String(tick));
+      add(dots,'line',{x1:x(3),x2:x(3),y1:63,y2:145,stroke:'#086f68','stroke-dasharray':'4 4'});
+      add(dots,'text',{x:x(3),y:48,'text-anchor':'middle',class:'plot-label'},'中位数 3 元');
+      values.forEach((value,i)=>add(dots,'circle',{cx:x(value),cy:i===2?94:114,r:7,fill:i===4?'#9a472e':'#086f68','data-summary-dot':i+1}));
+      add(dots,'line',{x1:x(r.mean),x2:x(r.mean),y1:145,y2:192,stroke:'#9a472e','stroke-width':2});
+      add(dots,'text',{x:x(r.mean),y:216,'text-anchor':'middle',class:'plot-label'},'均值 '+mean+' 元');
+      dots.setAttribute('aria-label',`五个人的零花钱 ${values.join('、')} 元，均值 ${mean} 元，中位数 3 元；横轴 0 到 20 元。`);
+      $('[data-summary-mean]',el).innerHTML=equationHTML(String.raw`\bar x=\frac{${values.join('+')}}{5}=${mean}`);
+    }
+    const s=$('[data-summary-histogram] svg',el), axis=r.axis, axisSpan=axis.end-axis.start;
+    const countLimit = 4 * Math.ceil(Math.max(...r.counts) / 4);
+    const map=axes(s,axis.label,'观测数',axis.start,axis.end,0,countLimit,v=>formatSummaryTick(v,axisSpan),String);
     r.counts.forEach((v,i)=>add(s,'rect',{x:map.x(axis.start+i*axisSpan/r.counts.length)+1,y:map.y(v),width:550/r.counts.length-2,height:map.y(0)-map.y(v),fill:'#086f68'}));
     add(s,'line',{x1:map.x(r.meanPosition),x2:map.x(r.meanPosition),y1:40,y2:265,stroke:'#9a472e','stroke-dasharray':'6 4'});
-    add(s,'text',{x:map.x(r.meanPosition),y:36,'text-anchor':'middle',class:'plot-label'},'Mean');
+    add(s,'text',{x:map.x(r.meanPosition),y:36,'text-anchor':'middle',class:'plot-label'},'均值');
     const centerText=value=>formatSummaryNumber(value,r.spread);
     $('.readout',el).textContent=`n=${r.n} · mean=${centerText(r.mean)} · median=${centerText(box.median)} · s²=${r.varianceText} · SD=${r.sdText}`;
     drawBoxplot($('[data-box-plot] svg',el),box,formatSummaryTick);
     $('[data-box-scale]',el).textContent=box.scaleNote+' 本图包含全部观测和围栏；横轴范围可能与 histogram 不同。';
     $('[data-box-result]',el).textContent=`${box.convention==='type7'?'R type 7':'Tukey hinges'} · 下/上箱边=[${[box.q1,box.q3].map(centerText).join(', ')}] · median=${centerText(box.median)} · IQR=${formatSummaryNumber(box.iqr)} · 内围栏=[${box.fences.map(centerText).join(', ')}] · 实际须端点=[${box.whiskers.map(centerText).join(', ')}] · 异常候选 ${box.outliers.length}/${box.n}${box.outliers.length?`：${box.outliers.slice(0,12).map(centerText).join(', ')}${box.outliers.length>12?'…（仅列前12个）':''}`:'。'}`;
     $('[data-box-code]',el).textContent=boxplotRCode(values,box.convention); $('#box-copy',el).disabled=false; $('[data-box-copy-status]',el).textContent='';
+  });
+  for (const button of el.querySelectorAll('[data-summary-example]')) button.addEventListener('click', () => {
+    $('textarea',el).value = examples[button.dataset.summaryExample].join(', '); update();
   });
   $('#box-example',el).onclick=()=>{$('textarea',el).value='2, 3, 4, 12';$('#box-rule',el).value='type7';update();};
   $('#summary-reset',el).onclick=()=>{$('textarea',el).value='2, 3, 3, 4, 18';$('#box-rule',el).value='type7';$('#bins',el).value='7';update();};

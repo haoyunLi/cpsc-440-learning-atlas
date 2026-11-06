@@ -1,3 +1,5 @@
+import { equationHTML } from './formulas.mjs';
+
 // Diagrams advance only after an explicit reader action. Static HTML is complete.
 const hosts=[...document.querySelectorAll('[data-walkthrough]')];
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -7,6 +9,12 @@ function mount(host,walk){
   const scene=host.querySelector('.scene'),counter=host.querySelector('.step-counter');
   const caption=host.querySelector('.step-caption'),equation=host.querySelector('.step-equation');
   const controls=host.querySelector('.walk-controls');
+  const stages=host.querySelector('.walk-stages');
+  const jumps=walk.frames.map((frame,i)=>{
+    const b=document.createElement('button');b.type='button';b.className='secondary';
+    b.textContent=`${i+1}. ${frame.title}`;
+    b.addEventListener('click',()=>{stop();show(i);});stages.append(b);return b;
+  });
   function button(label,action,secondary=true){
     const b=document.createElement('button');b.type='button';b.textContent=label;
     if(secondary)b.className='secondary';b.addEventListener('click',action);controls.append(b);return b;
@@ -31,8 +39,9 @@ function mount(host,walk){
   function show(value){
     index=Math.max(0,Math.min(walk.frames.length-1,value));
     const f=walk.frames[index];scene.innerHTML=f.svg;host.querySelector('.zoom-scene').innerHTML=f.svg;
-    counter.textContent=`第 ${index+1} / ${walk.frames.length} 步`;
-    caption.textContent=decode(f.caption);equation.textContent=decode(f.equation);
+    counter.textContent=`第 ${index+1} / ${walk.frames.length} 步 · ${f.title}`;
+    caption.textContent=decode(f.caption);equation.innerHTML=equationHTML(f.latex);
+    jumps.forEach((b,i)=>b.setAttribute('aria-current',i===index?'step':'false'));
     prev.disabled=index===0;next.disabled=index===walk.frames.length-1;
     host.dataset.step=String(index+1);
   }

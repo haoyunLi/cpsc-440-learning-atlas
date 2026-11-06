@@ -630,5 +630,397 @@
     "source": "Bias(r)=E(r)−ρ",
     "tex": "\\operatorname{Bias}(r)=E(r)-\\rho",
     "reading": "偏差看反复抽样的平均估计，是否对准真实参数。"
+  },
+  {
+    "chapter": "09",
+    "lesson": "procedures",
+    "index": 0,
+    "source": "Δ̂ᵢ=ȳᵢ−ȳcontrol=[2,4,6]<br>SEᵢ=√[MSE(1/nᵢ+1/ncontrol)]=√2≈1.414214<br>Tobs=[1.414214,2.828427,4.242641]",
+    "tex": "\\begin{aligned}\\widehat\\Delta_i&=\\bar y_i-\\bar y_{\\mathrm{control}}=[2,4,6]\\\\\\mathrm{SE}_i&=\\sqrt{\\mathrm{MSE}\\left(\\frac1{n_i}+\\frac1{n_{\\mathrm{control}}}\\right)}=\\sqrt2\\approx1.414214\\\\T_{\\mathrm{obs}}&=[1.414214,2.828427,4.242641]\\end{aligned}",
+    "reading": "三个差都减去了同一个对照组，所以它们共享一份误差，不能当成三个独立比较。"
+  },
+  {
+    "chapter": "09",
+    "lesson": "procedures",
+    "index": 1,
+    "source": "U=νMSE/σ²<br>Tᵢ=(Zᵢ−Z₀)/√(2U/ν)",
+    "tex": "U=\\frac{\\nu\\,\\mathrm{MSE}}{\\sigma^2},\\qquad T_i=\\frac{Z_i-Z_0}{\\sqrt{2U/\\nu}}",
+    "reading": ""
+  },
+  {
+    "chapter": "09",
+    "lesson": "procedures",
+    "index": 2,
+    "source": "H(c)=∫₀∞ fχ²ν(u)∫₋∞∞ φ(z)[Φ(z+h)]ᵐ dz du<br>G(c)=P(max|Tᵢ|≤c)<br>=∫₀∞ fχ²ν(u)∫₋∞∞ φ(z)[Φ(z+h)−Φ(z−h)]ᵐ dz du，c≥0",
+    "tex": "\\begin{aligned}h&=c\\sqrt{2u/\\nu}\\\\H(c)&=\\int_0^\\infty f_{\\chi^2_\\nu}(u)\\!\\int_{-\\infty}^\\infty\\phi(z)[\\Phi(z+h)]^m\\,dz\\,du\\\\G(c)&=P(\\max_i|T_i|\\le c)\\\\&=\\int_0^\\infty f_{\\chi^2_\\nu}(u)\\!\\int_{-\\infty}^\\infty\\phi(z)[\\Phi(z+h)-\\Phi(z-h)]^m\\,dz\\,du,\\quad c\\ge0\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "14",
+    "lesson": "unbalanced",
+    "index": 0,
+    "source": "设 w 为目标 High 比例：<br>D(w)=(1−w)(μ₂,Low−μ₁,Low)+w(μ₂,High−μ₁,High)<br>本例 D̂(.25)=.75×2+.25×(−2)=1",
+    "tex": "\\begin{aligned}D(w)&=(1-w)(\\mu_{2,\\mathrm{Low}}-\\mu_{1,\\mathrm{Low}})+w(\\mu_{2,\\mathrm{High}}-\\mu_{1,\\mathrm{High}})\\\\\\widehat D(0.25)&=0.75(2)+0.25(-2)=1\\end{aligned}",
+    "reading": "先说清目标人群中两种条件各占多少，再给各条件下的效果加权。"
+  },
+  {
+    "chapter": "14",
+    "lesson": "unbalanced",
+    "index": 1,
+    "source": "E(Y|A,B)=β₀+βA I(A2)+βB I(B2)+γ I(A2)I(B2)<br>μ₁₁=β₀；μ₁₂=β₀+βB；μ₂₁=β₀+βA；μ₂₂=β₀+βA+βB+γ",
+    "tex": "\\begin{aligned}E(Y\\mid A,B)&=\\beta_0+\\beta_A I(A_2)+\\beta_B I(B_2)+\\gamma I(A_2)I(B_2)\\\\\\mu_{11}&=\\beta_0,\\quad\\mu_{12}=\\beta_0+\\beta_B\\\\\\mu_{21}&=\\beta_0+\\beta_A,\\quad\\mu_{22}=\\beta_0+\\beta_A+\\beta_B+\\gamma\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "14",
+    "lesson": "unbalanced",
+    "index": 2,
+    "source": "等权边际A差=(μ₂₁+μ₂₂−μ₁₁−μ₁₂)/2=βA+γ/2<br>两套参数分别给出3+0/2=3与3+8/2=7",
+    "tex": "\\begin{aligned}\\frac{\\mu_{21}+\\mu_{22}-\\mu_{11}-\\mu_{12}}2&=\\beta_A+\\frac\\gamma2\\\\3+0/2&=3,\\qquad3+8/2=7\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "14",
+    "lesson": "unbalanced",
+    "index": 3,
+    "source": "SE(μ̂₂₁−μ̂₁₁)=√[MSE(1/2+1/2)]=√2≈1.414214<br>t=3/√2≈2.121320，df=3，双侧P≈.124027<br>95% CI=3±t₀.₉₇₅,₃√2≈[−1.500659,7.500659]",
+    "tex": "\\begin{aligned}\\mathrm{SE}(\\hat\\mu_{21}-\\hat\\mu_{11})&=\\sqrt{\\mathrm{MSE}(1/2+1/2)}=\\sqrt2\\approx1.414214\\\\t&=3/\\sqrt2\\approx2.121320,\\quad\\mathrm{df}=3,\\quad p_{\\mathrm{two}}\\approx0.124027\\\\\\mathrm{CI}_{0.95}&=3\\pm t_{0.975,3}\\sqrt2\\approx[-1.500659,7.500659]\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "efficiency",
+    "index": 0,
+    "source": "R_refit = MSE_refit / MSE_RCBD<br>= [(b−1)MSblock+(t−1)(b−1)MSE_RCBD] / [t(b−1)MSE_RCBD]",
+    "tex": "R_{\\mathrm{refit}}=\\frac{\\mathrm{MSE}_{\\mathrm{refit}}}{\\mathrm{MSE}_{\\mathrm{RCBD}}}=\\frac{(b-1)\\mathrm{MS}_{\\mathrm{block}}+(t-1)(b-1)\\mathrm{MSE}_{\\mathrm{RCBD}}}{t(b-1)\\mathrm{MSE}_{\\mathrm{RCBD}}}",
+    "reading": "这条比值比较同一份观测的两次拟合；下面的规划比值则使用另一种误差估计。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "efficiency",
+    "index": 1,
+    "source": "MSE_plan = [(b−1)MSblock+b(t−1)MSE_RCBD] / (bt−1)<br>RE_plan = MSE_plan / MSE_RCBD<br>本例：MSE_plan=[3×20+4×2×(4/3)]/11=212/33≈6.424242<br>RE_plan=(212/33)/(4/3)=53/11≈4.818182",
+    "tex": "\\begin{aligned}\\mathrm{MSE}_{\\mathrm{plan}}&=\\frac{(b-1)\\mathrm{MS}_{\\mathrm{block}}+b(t-1)\\mathrm{MSE}_{\\mathrm{RCBD}}}{bt-1}\\\\\\mathrm{RE}_{\\mathrm{plan}}&=\\frac{\\mathrm{MSE}_{\\mathrm{plan}}}{\\mathrm{MSE}_{\\mathrm{RCBD}}}\\\\\\mathrm{MSE}_{\\mathrm{plan}}&=\\frac{3(20)+4(2)(4/3)}{11}=\\frac{212}{33}\\approx6.424242\\\\\\mathrm{RE}_{\\mathrm{plan}}&=\\frac{212/33}{4/3}=\\frac{53}{11}\\approx4.818182\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "11",
+    "lesson": "lack-fit",
+    "index": 0,
+    "source": "SSPE=ΣⱼΣₖ(Yⱼₖ−ȳⱼ)²，dfPE=n−g<br>SSLOF=SSE−SSPE，dfLOF=g−p<br>FLOF=[SSLOF/(g−p)]/[SSPE/(n−g)]",
+    "tex": "\\begin{aligned}\\mathrm{SS}_{\\mathrm{PE}}&=\\sum_j\\sum_k(y_{jk}-\\bar y_j)^2,\\quad\\mathrm{df}_{\\mathrm{PE}}=n-g\\\\\\mathrm{SS}_{\\mathrm{LOF}}&=\\mathrm{SSE}-\\mathrm{SS}_{\\mathrm{PE}},\\quad\\mathrm{df}_{\\mathrm{LOF}}=g-p\\\\F_{\\mathrm{LOF}}&=\\frac{\\mathrm{SS}_{\\mathrm{LOF}}/(g-p)}{\\mathrm{SS}_{\\mathrm{PE}}/(n-g)}\\end{aligned}",
+    "reading": "重复测同一个 x，能看到同一条件内的自然波动；再检查直线有没有留下额外的系统偏离。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "lack-fit",
+    "index": 1,
+    "source": "Quadratic：E(Y|x)=β₀+β₁x+β₂x²<br>SST=448.25；SSE(line)=26.9；SSE(quadratic)=8.15；SSPE=8<br>MSE(quadratic)=8.15/9≈.905556；MSPE=8/8=1",
+    "tex": "\\begin{aligned}E(Y\\mid x)&=\\beta_0+\\beta_1x+\\beta_2x^2\\\\\\mathrm{SST}&=448.25,\\quad\\mathrm{SSE}_{\\mathrm{line}}=26.9\\\\\\mathrm{SSE}_{\\mathrm{quadratic}}&=8.15,\\quad\\mathrm{SS}_{\\mathrm{PE}}=8\\\\\\mathrm{MSE}_{\\mathrm{quadratic}}&=8.15/9\\approx0.905556,\\quad\\mathrm{MS}_{\\mathrm{PE}}=8/8=1\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "04",
+    "lesson": "without-replacement",
+    "index": 0,
+    "source": "P(Y=k)=C(6,k)C(4,3−k)/C(10,3)<br>P(Y=2)=60/120=.5<br>P(Y≥1)=1−C(4,3)/C(10,3)=29/30≈.9667",
+    "tex": "\\begin{aligned}P(Y=k)&=\\frac{\\binom6k\\binom4{3-k}}{\\binom{10}3}\\\\P(Y=2)&=\\frac{60}{120}=0.5\\\\P(Y\\ge1)&=1-\\frac{\\binom43}{\\binom{10}3}=\\frac{29}{30}\\approx0.9667\\end{aligned}",
+    "reading": "每抽走一个对象，剩余构成都会变；所以按不放回的组合来数。"
+  },
+  {
+    "chapter": "05",
+    "lesson": "power-from-region",
+    "index": 0,
+    "source": "Power(54)=Φ[(46.080072−54)/2]<br>+1−Φ[(53.919928−54)/2]≈.516005",
+    "tex": "\\operatorname{Power}(54)=\\Phi\\!\\left(\\frac{46.080072-54}2\\right)+1-\\Phi\\!\\left(\\frac{53.919928-54}2\\right)\\approx0.516005",
+    "reading": "拒绝门槛保持不变，换到真实均值 54 的世界，计算落在门槛外的面积。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "rank-statistic-output",
+    "index": 0,
+    "source": "Var(W)=n_A n_B/12 × [N+1−Σ(tⱼ³−tⱼ)/(N(N−1))]<br>=9/12 × [7−(2³−2)/(6×5)]=5.1",
+    "tex": "\\begin{aligned}\\operatorname{Var}(W)&=\\frac{n_A n_B}{12}\\left[N+1-\\frac{\\sum_j(t_j^3-t_j)}{N(N-1)}\\right]\\\\&=\\frac9{12}\\left[7-\\frac{2^3-2}{6(5)}\\right]=5.1\\end{aligned}",
+    "reading": "并列值共用平均秩；参考方差也要按并列组的大小调整。"
+  },
+  {
+    "chapter": "08",
+    "lesson": "unbalanced-anova-worked",
+    "index": 0,
+    "source": "ȳ..=Σnᵢȳᵢ/N<br>SS_between=Σnᵢ(ȳᵢ−ȳ..)²<br>SS_error=ΣΣ(Yᵢⱼ−ȳᵢ)²",
+    "tex": "\\begin{aligned}\\bar y_{\\cdot\\cdot}&=\\frac{\\sum_i n_i\\bar y_i}{N}\\\\\\mathrm{SS}_{\\mathrm{between}}&=\\sum_i n_i(\\bar y_i-\\bar y_{\\cdot\\cdot})^2\\\\\\mathrm{SS}_{\\mathrm{error}}&=\\sum_i\\sum_j(y_{ij}-\\bar y_i)^2\\end{aligned}",
+    "reading": "人多的组贡献更多观测，因此总平均按各组人数加权。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "leverage-influence",
+    "index": 0,
+    "source": "hᵢ=1/n+(xᵢ−x̄)²/Sxx<br>加入 x=10 后，该点 h≈.868421",
+    "tex": "h_i=\\frac1n+\\frac{(x_i-\\bar x)^2}{S_{xx}},\\qquad h_{x=10}\\approx0.868421",
+    "reading": "x 离数据中心越远，越可能有能力拉动拟合线；实际拉动多少还与残差有关。"
+  },
+  {
+    "chapter": "11",
+    "lesson": "leverage-influence",
+    "index": 1,
+    "source": "hᵢ=1/n+(xᵢ−x̄)²/Sxx，Sxx=Σⱼ(xⱼ−x̄)²<br>Σᵢhᵢ=p=2，本例平均h=2/6<br>MSE_full=Σᵢeᵢ²/(n−p)<br>Dᵢ=[eᵢ²/(p MSE_full)]×hᵢ/(1−hᵢ)²",
+    "tex": "\\begin{aligned}h_i&=\\frac1n+\\frac{(x_i-\\bar x)^2}{S_{xx}},\\quad S_{xx}=\\sum_j(x_j-\\bar x)^2\\\\\\sum_i h_i&=p=2,\\qquad\\bar h=2/6\\\\\\mathrm{MSE}_{\\mathrm{full}}&=\\frac{\\sum_i e_i^2}{n-p}\\\\D_i&=\\frac{e_i^2}{p\\,\\mathrm{MSE}_{\\mathrm{full}}}\\frac{h_i}{(1-h_i)^2}\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "11",
+    "lesson": "leverage-influence",
+    "index": 2,
+    "source": "Dᵢ=Σⱼ₌₁ⁿ[ŷⱼ−ŷⱼ(−i)]²/(p MSE_full)",
+    "tex": "D_i=\\frac{\\sum_{j=1}^n[\\hat y_j-\\hat y_{j(-i)}]^2}{p\\,\\mathrm{MSE}_{\\mathrm{full}}}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "signed-rank-exact",
+    "index": 0,
+    "source": "右侧 p=P(W⁺≥14 | symmetric null)=.0625<br>对称参考下的双侧 p=2×.0625=.125",
+    "tex": "\\begin{aligned}p_{\\mathrm{right}}&=P(W^+\\ge14\\mid\\text{symmetric null})=0.0625\\\\p_{\\mathrm{two}}&=2(0.0625)=0.125\\end{aligned}",
+    "reading": "P 值要把当前及更极端的分配都算上，不只数恰好等于当前统计量的分配。"
+  },
+  {
+    "chapter": "07",
+    "lesson": "hartley-complete-decision",
+    "index": 0,
+    "source": "H₀下：Xᵢ=νsᵢ²/σ² 独立服从 χ²ν<br>Fmax=max(Xᵢ)/min(Xᵢ)",
+    "tex": "X_i=\\frac{\\nu s_i^2}{\\sigma^2}\\overset{\\mathrm{ind}}\\sim\\chi^2_\\nu,\\qquad F_{\\max}=\\frac{\\max_i X_i}{\\min_i X_i}",
+    "reading": "先在共同方差的零假设下标准化，最大值与最小值的比就不再含未知共同方差。"
+  },
+  {
+    "chapter": "07",
+    "lesson": "hartley-complete-decision",
+    "index": 1,
+    "source": "G(r)=P(Fmax≤r)<br>=k ∫₀∞ fν(x)[Fν(rx)−Fν(x)]ᵏ⁻¹ dx",
+    "tex": "G(r)=P(F_{\\max}\\le r)=k\\int_0^\\infty f_\\nu(x)[F_\\nu(rx)-F_\\nu(x)]^{k-1}\\,dx",
+    "reading": ""
+  },
+  {
+    "chapter": "08",
+    "lesson": "welch-anova-complete",
+    "index": 0,
+    "source": "ȳw=Σwᵢȳᵢ/W≈10.559471",
+    "tex": "\\bar y_w=\\frac{\\sum_i w_i\\bar y_i}{W}\\approx10.559471",
+    "reading": "波动较小、均值估得更准的组，在 Welch 的加权中心里占更大份额。"
+  },
+  {
+    "chapter": "08",
+    "lesson": "welch-anova-complete",
+    "index": 1,
+    "source": "U=Σ[(1−wᵢ/W)²/(nᵢ−1)]≈.359133<br>A=Σwᵢ(ȳᵢ−ȳw)²/(k−1)≈4.070485<br>C=1+[2(k−2)/(k²−1)]U≈1.089783<br>FWelch=A/C≈3.735132",
+    "tex": "\\begin{aligned}U&=\\sum_i\\frac{(1-w_i/W)^2}{n_i-1}\\approx0.359133\\\\A&=\\frac{\\sum_i w_i(\\bar y_i-\\bar y_w)^2}{k-1}\\approx4.070485\\\\C&=1+\\frac{2(k-2)}{k^2-1}U\\approx1.089783\\\\F_{\\mathrm{Welch}}&=A/C\\approx3.735132\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "08",
+    "lesson": "welch-anova-complete",
+    "index": 2,
+    "source": "ν₁=k−1=2<br>ν₂=(k²−1)/(3U)≈7.425282<br>p=P[F(2,7.425282)≥3.735132]≈.075424",
+    "tex": "\\nu_1=k-1=2,\\quad\\nu_2=\\frac{k^2-1}{3U}\\approx7.425282,\\qquad p=P(F_{2,7.425282}\\ge3.735132)\\approx0.075424",
+    "reading": ""
+  },
+  {
+    "chapter": "08",
+    "lesson": "welch-anova-complete",
+    "index": 3,
+    "source": "dᵢⱼ=ȳᵢ−ȳⱼ，SEᵢⱼ=√(vᵢ+vⱼ)<br>νᵢⱼ=(vᵢ+vⱼ)²/[vᵢ²/(nᵢ−1)+vⱼ²/(nⱼ−1)]<br>tᵢⱼ=dᵢⱼ/SEᵢⱼ，pᵢⱼ=2P(Tνᵢⱼ≥|tᵢⱼ|)<br>Bonferroni adjusted p=min(1,3pᵢⱼ)<br>Bonferroni CI：dᵢⱼ±t₁₋.05/(2×3),νᵢⱼ SEᵢⱼ",
+    "tex": "\\begin{aligned}d_{ij}&=\\bar y_i-\\bar y_j,\\quad\\mathrm{SE}_{ij}=\\sqrt{v_i+v_j}\\\\\\nu_{ij}&=\\frac{(v_i+v_j)^2}{v_i^2/(n_i-1)+v_j^2/(n_j-1)}\\\\t_{ij}&=d_{ij}/\\mathrm{SE}_{ij},\\quad p_{ij}=2P(T_{\\nu_{ij}}\\ge|t_{ij}|)\\\\p_{\\mathrm{Bonferroni}}&=\\min(1,3p_{ij})\\\\\\mathrm{CI}_{\\mathrm{Bonferroni}}&=d_{ij}\\pm t_{1-0.05/(2\\times3),\\nu_{ij}}\\mathrm{SE}_{ij}\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "14",
+    "lesson": "factorial-simple-effects",
+    "index": 0,
+    "source": "H₀,1：μA1,B1=μA1,B2=μA1,B3<br>H₀,2：μA2,B1=μA2,B2=μA2,B3<br>每个Hₐ：该A条件下，至少一个B总体均值不同",
+    "tex": "\\begin{aligned}H_{0,1}:&\\ \\mu_{A_1,B_1}=\\mu_{A_1,B_2}=\\mu_{A_1,B_3}\\\\H_{0,2}:&\\ \\mu_{A_2,B_1}=\\mu_{A_2,B_2}=\\mu_{A_2,B_3}\\\\H_{a,i}:&\\ \\text{at least one B mean differs within }A_i\\end{aligned}",
+    "reading": "先固定 A 的一种条件，再问这一条件内三个 B 的总体均值是否相同。"
+  },
+  {
+    "chapter": "14",
+    "lesson": "factorial-simple-effects",
+    "index": 1,
+    "source": "V̂=(MSE/r)[2，1；1，2]<br>=[5/6，5/12；5/12，5/6]<br>F=(d̂ᵀV̂⁻¹d̂)/2=38.4",
+    "tex": "\\widehat V=\\frac{\\mathrm{MSE}}r\\begin{bmatrix}2&1\\\\1&2\\end{bmatrix}=\\begin{bmatrix}5/6&5/12\\\\5/12&5/6\\end{bmatrix},\\qquad F=\\frac{\\widehat d^{\\mathsf T}\\widehat V^{-1}\\widehat d}{2}=38.4",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "latin-square-worked",
+    "index": 0,
+    "source": "Yijk=μ+Rowi+Columnj+Treatmentk+εijk<br>ŷijk=row meani+column meanj+treatment meank−2×grand mean",
+    "tex": "\\begin{aligned}Y_{ijk}&=\\mu+\\mathrm{Row}_i+\\mathrm{Column}_j+\\mathrm{Treatment}_k+\\epsilon_{ijk}\\\\\\hat y_{ijk}&=\\bar y_{i\\cdot\\cdot}+\\bar y_{\\cdot j\\cdot}+\\bar y_{\\cdot\\cdot k}-2\\bar y_{\\cdot\\cdot\\cdot}\\end{aligned}",
+    "reading": "一格的预测同时考虑行、列和处理；重复加进来的总体中心要减回去。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "random-block-mean-se",
+    "index": 0,
+    "source": "Yij=μ+τi+Bj+εij<br>E(Bj)=0，Var(Bj)=σB²；E(εij)=0，Var(εij)=σe²<br>Var(Ȳi.)=(σB²+σe²)/b<br>Cov(Ȳi.,Ȳk.)=σB²/b，i≠k<br>Var(Ȳi.−Ȳk.)=2σe²/b",
+    "tex": "\\begin{aligned}Y_{ij}&=\\mu+\\tau_i+B_j+\\epsilon_{ij}\\\\E(B_j)&=0,\\quad\\operatorname{Var}(B_j)=\\sigma_B^2\\\\E(\\epsilon_{ij})&=0,\\quad\\operatorname{Var}(\\epsilon_{ij})=\\sigma_e^2\\\\\\operatorname{Var}(\\bar Y_{i\\cdot})&=\\frac{\\sigma_B^2+\\sigma_e^2}{b}\\\\\\operatorname{Cov}(\\bar Y_{i\\cdot},\\bar Y_{k\\cdot})&=\\frac{\\sigma_B^2}{b},\\quad i\\ne k\\\\\\operatorname{Var}(\\bar Y_{i\\cdot}-\\bar Y_{k\\cdot})&=\\frac{2\\sigma_e^2}{b}\\end{aligned}",
+    "reading": "同一批田块中的两种处理，共享的环境起伏在作差时抵消；单个均值却仍包含这份起伏。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "independent-size-planning",
+    "index": 0,
+    "source": "n≈2σ²(z₁₋α/₂+z₁₋β)²/Δ²<br>=2×.8²×(1.959964+1.281552)²/.5²<br>≈53.798006 → 每组54",
+    "tex": "\\begin{aligned}n&\\approx\\frac{2\\sigma^2(z_{1-\\alpha/2}+z_{1-\\beta})^2}{\\Delta^2}\\\\&=\\frac{2(0.8)^2(1.959964+1.281552)^2}{(0.5)^2}\\approx53.798006\\\\n_{\\mathrm{per\\ group}}&=54\\end{aligned}",
+    "reading": "要让两个独立均值的差足够精确，两组自身的抽样波动都要计入。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "independent-size-planning",
+    "index": 1,
+    "source": "ν=n₁+n₂−2；λ=Δ/[σ√(1/n₁+1/n₂)]<br>c=t₁₋α/₂,ν<br>power=P(Tν,λ&lt;−c)+P(Tν,λ&gt;c)",
+    "tex": "\\begin{aligned}\\nu&=n_1+n_2-2,\\quad\\lambda=\\frac{\\Delta}{\\sigma\\sqrt{1/n_1+1/n_2}}\\\\c&=t_{1-\\alpha/2,\\nu}\\\\\\operatorname{power}&=P(T_{\\nu,\\lambda}<-c)+P(T_{\\nu,\\lambda}>c)\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "independent-size-planning",
+    "index": 2,
+    "source": "n₁≈σ²(1+1/1.4)(z₁₋α/₂+z₁₋β)²/Δ²≈46.112577<br>n₁=ceil(46.112577)=47<br>n₂=ceil(1.4×47)=66",
+    "tex": "\\begin{aligned}n_1&\\approx\\frac{\\sigma^2(1+1/1.4)(z_{1-\\alpha/2}+z_{1-\\beta})^2}{\\Delta^2}\\approx46.112577\\\\n_1&=\\lceil46.112577\\rceil=47,\\qquad n_2=\\lceil1.4(47)\\rceil=66\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "paired-size-planning",
+    "index": 0,
+    "source": "Var(D)=σafter²+σbefore²−2Cov(after,before)<br>=σafter²+σbefore²−2ρσafterσbefore<br>=.8²+.8²−2×.6×.8×.8=.512<br>σD=√.512≈.715542",
+    "tex": "\\begin{aligned}\\operatorname{Var}(D)&=\\sigma_{\\mathrm{after}}^2+\\sigma_{\\mathrm{before}}^2-2\\operatorname{Cov}(\\mathrm{after},\\mathrm{before})\\\\&=\\sigma_{\\mathrm{after}}^2+\\sigma_{\\mathrm{before}}^2-2\\rho\\sigma_{\\mathrm{after}}\\sigma_{\\mathrm{before}}\\\\&=0.8^2+0.8^2-2(0.6)(0.8)(0.8)=0.512\\\\\\sigma_D&=\\sqrt{0.512}\\approx0.715542\\end{aligned}",
+    "reading": "配对样本量的波动尺度来自差值；前后高度相关时，差值可能稳定得多。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "paired-size-planning",
+    "index": 1,
+    "source": "z 近似：n≈σD²(z₁₋α/₂+z₁₋β)²/Δ²≈21.519202 → 22 pairs<br>实际 t 模型：ν=n−1；λ=Δ√n/σD；c=t₁₋α/₂,n−1<br>power(n)=P(Tν,λ&lt;−c)+P(Tν,λ&gt;c)",
+    "tex": "\\begin{aligned}n_z&\\approx\\frac{\\sigma_D^2(z_{1-\\alpha/2}+z_{1-\\beta})^2}{\\Delta^2}\\approx21.519202\\ \\longrightarrow\\ 22\\text{ pairs}\\\\\\nu&=n-1,\\quad\\lambda=\\frac{\\Delta\\sqrt n}{\\sigma_D},\\quad c=t_{1-\\alpha/2,n-1}\\\\\\operatorname{power}(n)&=P(T_{\\nu,\\lambda}<-c)+P(T_{\\nu,\\lambda}>c)\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "14",
+    "lesson": "unbalanced-ss-hypotheses",
+    "index": 0,
+    "source": "H₀A: (μ11+μ12)/2=(μ21+μ22)/2=(μ31+μ32)/2<br>C_A=[−½,−½,½,½,0,0；−½,−½,0,0,½,½]<br>L̂=C_A m̂=[2.5,8]ᵀ<br>V₀=diag(1/3,1/2,1/2,1/4,1,1/3)<br>Cov(m̂)=σ²V₀<br>W=C_A V₀ C_Aᵀ=[19/48,5/24；5/24,13/24]<br>SS_A(III)=L̂ᵀW⁻¹L̂=119.208122<br>F_A(III)=[119.208122/2]/(8/3)=22.351523，df=(2,9)",
+    "tex": "\\begin{aligned}H_{0A}:\\quad\\frac{\\mu_{11}+\\mu_{12}}2&=\\frac{\\mu_{21}+\\mu_{22}}2=\\frac{\\mu_{31}+\\mu_{32}}2\\\\C_A&=\\begin{bmatrix}-1/2&-1/2&1/2&1/2&0&0\\\\-1/2&-1/2&0&0&1/2&1/2\\end{bmatrix}\\\\\\widehat L=C_A\\widehat m&=[2.5,8]^{\\mathsf T}\\\\V_0&=\\operatorname{diag}(1/3,1/2,1/2,1/4,1,1/3)\\\\\\operatorname{Cov}(\\widehat m)&=\\sigma^2 V_0\\\\W=C_A V_0 C_A^{\\mathsf T}&=\\begin{bmatrix}19/48&5/24\\\\5/24&13/24\\end{bmatrix}\\\\\\mathrm{SS}_A^{(\\mathrm{III})}&=\\widehat L^{\\mathsf T}W^{-1}\\widehat L=119.208122\\\\F_A^{(\\mathrm{III})}&=\\frac{119.208122/2}{8/3}=22.351523,\\quad\\mathrm{df}=(2,9)\\end{aligned}",
+    "reading": "先写出要比较的等权边际均值，再用矩阵把这个同一问题带入拟合结果。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "factorial-rcbd-worked",
+    "index": 0,
+    "source": "Yijk=μ+αi+βj+(αβ)ij+Uk+εijk<br>Uk~N(0,σblock²)，εijk~N(0,σe²)，彼此独立<br>每个block对所有六个cells施加同一个Uk",
+    "tex": "\\begin{aligned}Y_{ijk}&=\\mu+\\alpha_i+\\beta_j+(\\alpha\\beta)_{ij}+U_k+\\epsilon_{ijk}\\\\U_k&\\sim N(0,\\sigma_{\\mathrm{block}}^2),\\quad\\epsilon_{ijk}\\sim N(0,\\sigma_e^2)\\quad\\text{independently}\\\\&\\text{The same }U_k\\text{ enters all six cells in block }k\\end{aligned}",
+    "reading": "同一田块的六个处理组合都共享同一个环境加成；两个因素的处理结构仍然单独描述。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "factorial-rcbd-worked",
+    "index": 1,
+    "source": "E(MSE)=σe²<br>E(MSA)=σe²+[br/(a−1)]Σαi²<br>E(MSB)=σe²+[ar/(b−1)]Σβj²<br>E(MSAB)=σe²+{r/[(a−1)(b−1)]}Σ(αβ)ij²<br>E(MSblock)=σe²+abσblock²",
+    "tex": "\\begin{aligned}E(\\mathrm{MSE})&=\\sigma_e^2\\\\E(\\mathrm{MS}_A)&=\\sigma_e^2+\\frac{br}{a-1}\\sum_i\\alpha_i^2\\\\E(\\mathrm{MS}_B)&=\\sigma_e^2+\\frac{ar}{b-1}\\sum_j\\beta_j^2\\\\E(\\mathrm{MS}_{AB})&=\\sigma_e^2+\\frac{r}{(a-1)(b-1)}\\sum_i\\sum_j(\\alpha\\beta)_{ij}^2\\\\E(\\mathrm{MS}_{\\mathrm{block}})&=\\sigma_e^2+ab\\sigma_{\\mathrm{block}}^2\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "factorial-rcbd-worked",
+    "index": 2,
+    "source": "SSA=brΣ(Ȳi..−Ȳ...)²=9(4+4)=72<br>SSB=arΣ(Ȳ.j.−Ȳ...)²=6(12.25+0+12.25)=147<br>SSAB=rΣ(Ȳij.−Ȳi..−Ȳ.j.+Ȳ...)²=27<br>SSblock=abΣ(Ȳ..k−Ȳ...)²=6(16+0+16)=192<br>SSE=Σ[Yijk−Ȳij.−Ȳ..k+Ȳ...]²=12",
+    "tex": "\\begin{aligned}\\mathrm{SS}_A&=br\\sum_i(\\bar Y_{i\\cdot\\cdot}-\\bar Y_{\\cdot\\cdot\\cdot})^2=9(4+4)=72\\\\\\mathrm{SS}_B&=ar\\sum_j(\\bar Y_{\\cdot j\\cdot}-\\bar Y_{\\cdot\\cdot\\cdot})^2=6(12.25+0+12.25)=147\\\\\\mathrm{SS}_{AB}&=r\\sum_i\\sum_j(\\bar Y_{ij\\cdot}-\\bar Y_{i\\cdot\\cdot}-\\bar Y_{\\cdot j\\cdot}+\\bar Y_{\\cdot\\cdot\\cdot})^2=27\\\\\\mathrm{SS}_{\\mathrm{block}}&=ab\\sum_k(\\bar Y_{\\cdot\\cdot k}-\\bar Y_{\\cdot\\cdot\\cdot})^2=6(16+0+16)=192\\\\\\mathrm{SSE}&=\\sum_{ijk}[Y_{ijk}-\\bar Y_{ij\\cdot}-\\bar Y_{\\cdot\\cdot k}+\\bar Y_{\\cdot\\cdot\\cdot}]^2=12\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "factorial-rcbd-worked",
+    "index": 3,
+    "source": "SE(A2−A1 | Bj)=√(2MSE/r)=√.8≈.894427<br>t=差/SE，df=10<br>Bonferroni adjusted P=min(1,3Praw)<br>同时区间：差±t₁₋.05/(2×3),10×SE",
+    "tex": "\\begin{aligned}\\mathrm{SE}(A_2-A_1\\mid B_j)&=\\sqrt{2\\mathrm{MSE}/r}=\\sqrt{0.8}\\approx0.894427\\\\t&=\\frac{\\text{difference}}{\\mathrm{SE}},\\quad\\mathrm{df}=10\\\\p_{\\mathrm{Bonferroni}}&=\\min(1,3p_{\\mathrm{raw}})\\\\\\mathrm{CI}_{\\mathrm{simultaneous}}&=\\text{difference}\\pm t_{1-0.05/(2\\times3),10}\\mathrm{SE}\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "missing-block-cell-worked",
+    "index": 0,
+    "source": "Yij=μ+τi+βj+εij<br>参考编码的系数顺序：b=[intercept,τ2−τ1,τ3−τ1,β2−β1,β3−β1,β4−β1]ᵀ<br>N=11，design matrix X有6列，rank(X)=6<br>error df=N−rank(X)=11−6=5",
+    "tex": "\\begin{aligned}Y_{ij}&=\\mu+\\tau_i+\\beta_j+\\epsilon_{ij}\\\\b&=[\\mathrm{intercept},\\tau_2-\\tau_1,\\tau_3-\\tau_1,\\beta_2-\\beta_1,\\beta_3-\\beta_1,\\beta_4-\\beta_1]^{\\mathsf T}\\\\N&=11,\\quad X\\text{ has 6 columns},\\quad\\operatorname{rank}(X)=6\\\\\\mathrm{df}_{\\mathrm{error}}&=N-\\operatorname{rank}(X)=11-6=5\\end{aligned}",
+    "reading": "缺一格后，先看实际设计矩阵还能估计哪些参数，再计算自由度。"
+  },
+  {
+    "chapter": "15",
+    "lesson": "missing-block-cell-worked",
+    "index": 1,
+    "source": "Cov̂(b̂)=MSE(XᵀX)⁻¹<br>Lᵀ(XᵀX)⁻¹L=5/8<br>Var̂(Lᵀb̂)=1.2×5/8=.75<br>SE=√.75≈.866025",
+    "tex": "\\begin{aligned}\\widehat{\\operatorname{Cov}}(\\widehat b)&=\\mathrm{MSE}(X^{\\mathsf T}X)^{-1}\\\\L^{\\mathsf T}(X^{\\mathsf T}X)^{-1}L&=5/8\\\\\\widehat{\\operatorname{Var}}(L^{\\mathsf T}\\widehat b)&=1.2(5/8)=0.75\\\\\\mathrm{SE}&=\\sqrt{0.75}\\approx0.866025\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "missing-block-cell-worked",
+    "index": 2,
+    "source": "ΣwᵢYᵢ=−7(7+10+13)/24−14/8<br>+(14+17+17)/3−(9+9+12)/24+14/8=6<br>Σwᵢ²=3(7/24)²+(1/8)²+3(1/3)²+3(1/24)²+(1/8)²=5/8<br>独立且共同variance的误差下：Var(ΣwᵢYᵢ)=σe²Σwᵢ²",
+    "tex": "\\begin{aligned}\\sum_i w_iY_i&=-\\frac{7(7+10+13)}{24}-\\frac{14}{8}\\\\&\\quad+\\frac{14+17+17}{3}-\\frac{9+9+12}{24}+\\frac{14}{8}=6\\\\\\sum_i w_i^2&=3(7/24)^2+(1/8)^2+3(1/3)^2+3(1/24)^2+(1/8)^2=5/8\\\\\\operatorname{Var}\\!\\left(\\sum_i w_iY_i\\right)&=\\sigma_e^2\\sum_i w_i^2\\quad\\text{(independent, common-variance errors)}\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "15",
+    "lesson": "missing-block-cell-worked",
+    "index": 3,
+    "source": "t=6/.866025≈6.928203，df=5<br>双侧P≈.000961253<br>95% CI=6±t.975,5×.866025<br>≈[3.773811,8.226189]",
+    "tex": "\\begin{aligned}t&=6/0.866025\\approx6.928203,\\quad\\mathrm{df}=5\\\\p_{\\mathrm{two}}&\\approx0.000961253\\\\\\mathrm{CI}_{0.95}&=6\\pm t_{0.975,5}(0.866025)\\approx[3.773811,8.226189]\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "rank-sum-ties-exact",
+    "index": 0,
+    "source": "E(T_A)=3×7/2=10.5<br>Var(T_A)=3×3/12 × [7−(2³−2)/(6×5)]=5.1<br>Z_no=(8−10.5)/√5.1≈−1.107019，P_left≈.134142942<br>Z_cc=(8−10.5+.5)/√5.1≈−.885615，P_left≈.187912544",
+    "tex": "\\begin{aligned}E(T_A)&=3(7)/2=10.5\\\\\\operatorname{Var}(T_A)&=\\frac{3(3)}{12}\\left[7-\\frac{2^3-2}{6(5)}\\right]=5.1\\\\Z_{\\mathrm{no}}&=\\frac{8-10.5}{\\sqrt{5.1}}\\approx-1.107019,\\quad p_{\\mathrm{left}}\\approx0.134142942\\\\Z_{\\mathrm{cc}}&=\\frac{8-10.5+0.5}{\\sqrt{5.1}}\\approx-0.885615,\\quad p_{\\mathrm{left}}\\approx0.187912544\\end{aligned}",
+    "reading": "先用并列值校正后的方差标准化；是否做连续性校正要明确报告。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "signed-rank-zero-ties",
+    "index": 0,
+    "source": "W⁺=2.5+2.5+4+5=14；W⁻=1<br>W⁺+W⁻=15=m(m+1)/2<br>R的单样本/paired统计量V=W⁺=14<br>SAS PROC UNIVARIATE的中心化统计量S=W⁺−m(m+1)/4=14−7.5=6.5",
+    "tex": "\\begin{aligned}W^+&=2.5+2.5+4+5=14,\\quad W^-=1\\\\W^++W^-&=15=m(m+1)/2\\\\V_{\\mathrm R}&=W^+=14\\\\S_{\\mathrm{SAS}}&=W^+-m(m+1)/4=14-7.5=6.5\\end{aligned}",
+    "reading": "不同软件可能报告同一组秩的不同写法，先核对统计量定义，再比较数值。"
+  },
+  {
+    "chapter": "06",
+    "lesson": "signed-rank-zero-ties",
+    "index": 1,
+    "source": "E(W⁺)=m(m+1)/4=7.5<br>Var(W⁺)=m(m+1)(2m+1)/24−Σ(tⱼ³−tⱼ)/48<br>=5×6×11/24−(2³−2)/48=13.625",
+    "tex": "\\begin{aligned}E(W^+)&=m(m+1)/4=7.5\\\\\\operatorname{Var}(W^+)&=\\frac{m(m+1)(2m+1)}{24}-\\frac{\\sum_j(t_j^3-t_j)}{48}\\\\&=\\frac{5(6)(11)}{24}-\\frac{2^3-2}{48}=13.625\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "06",
+    "lesson": "signed-rank-zero-ties",
+    "index": 2,
+    "source": "Z_no=(14−7.5)/√13.625≈1.760942；右尾P≈.039124093<br>Z_cc=(14−7.5−.5)/√13.625≈1.625485；右尾P≈.052029617",
+    "tex": "\\begin{aligned}Z_{\\mathrm{no}}&=\\frac{14-7.5}{\\sqrt{13.625}}\\approx1.760942,\\quad p_{\\mathrm{right}}\\approx0.039124093\\\\Z_{\\mathrm{cc}}&=\\frac{14-7.5-0.5}{\\sqrt{13.625}}\\approx1.625485,\\quad p_{\\mathrm{right}}\\approx0.052029617\\end{aligned}",
+    "reading": ""
+  },
+  {
+    "chapter": "09",
+    "lesson": "unequal-n-pairwise",
+    "index": 0,
+    "source": "SEᵢⱼ=√[MSE(1/nᵢ+1/nⱼ)]<br>LSDᵢⱼ=t.975,13×SEᵢⱼ；t.975,13≈2.160369<br>ordinary CI=(ȳⱼ−ȳᵢ)±LSDᵢⱼ<br>ordinary P=2P(t₁₃≥|ȳⱼ−ȳᵢ|/SEᵢⱼ)",
+    "tex": "\\begin{aligned}\\mathrm{SE}_{ij}&=\\sqrt{\\mathrm{MSE}(1/n_i+1/n_j)}\\\\\\mathrm{LSD}_{ij}&=t_{0.975,13}\\mathrm{SE}_{ij},\\quad t_{0.975,13}\\approx2.160369\\\\\\mathrm{CI}_{\\mathrm{ordinary}}&=(\\bar y_j-\\bar y_i)\\pm\\mathrm{LSD}_{ij}\\\\p_{\\mathrm{ordinary}}&=2P\\!\\left(t_{13}\\ge\\frac{|\\bar y_j-\\bar y_i|}{\\mathrm{SE}_{ij}}\\right)\\end{aligned}",
+    "reading": "每对的样本量不同，差值的标准误也不同；不能给所有比较套同一个原单位半宽。"
+  },
+  {
+    "chapter": "09",
+    "lesson": "unequal-n-pairwise",
+    "index": 1,
+    "source": "qcrit=q.95(g=3,ν=13)≈3.734142<br>scaleᵢⱼ=√[(MSE/2)(1/nᵢ+1/nⱼ)]=SEᵢⱼ/√2<br>halfᵢⱼ=qcrit×scaleᵢⱼ<br>qobsᵢⱼ=|ȳⱼ−ȳᵢ|/scaleᵢⱼ<br>adjusted P=P(Qg,ν≥qobsᵢⱼ)",
+    "tex": "\\begin{aligned}q_{\\mathrm{crit}}&=q_{0.95}(g=3,\\nu=13)\\approx3.734142\\\\\\mathrm{scale}_{ij}&=\\sqrt{\\frac{\\mathrm{MSE}}2(1/n_i+1/n_j)}=\\mathrm{SE}_{ij}/\\sqrt2\\\\\\mathrm{half}_{ij}&=q_{\\mathrm{crit}}\\mathrm{scale}_{ij}\\\\q_{\\mathrm{obs},ij}&=\\frac{|\\bar y_j-\\bar y_i|}{\\mathrm{scale}_{ij}}\\\\p_{\\mathrm{adjusted}}&=P(Q_{g,\\nu}\\ge q_{\\mathrm{obs},ij})\\end{aligned}",
+    "reading": ""
   }
 ]

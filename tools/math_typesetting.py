@@ -8,6 +8,8 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 RECORDS = json.loads((ROOT / 'content/equations.json').read_text())
 STORIES = json.loads((ROOT / 'content/intuition.json').read_text())
+WALKS = json.loads((ROOT / 'content/walkthroughs.json').read_text())
+PRACTICE = json.loads((ROOT / 'content/practice.json').read_text())
 PATTERN = re.compile(r'<div class="equation">(.*?)</div>', re.S)
 
 
@@ -17,11 +19,25 @@ def render_batch(items):
     return json.loads(result.stdout)
 
 
-rendered = render_batch([{'tex': r['tex']} for r in RECORDS])
+authored_tex = list(dict.fromkeys([r['tex'] for r in RECORDS]
+                                 + [f['latex'] for w in WALKS for f in w['frames']]
+                                 + [s['latex'] for q in PRACTICE for s in q['steps'] if 'latex' in s]))
+rendered_by_tex = dict(zip(authored_tex, render_batch([{'tex': tex} for tex in authored_tex])))
+
+
+def panel_html(rendered, extra_class=''):
+    css = f'equation typeset-equation {extra_class}'.rstrip()
+    return f'<div class="{css}" tabindex="0" role="region" aria-label="公式，可横向滚动">{rendered}</div>'
+
+
+def math_panel(tex, extra_class=''):
+    return panel_html(rendered_by_tex[tex], extra_class)
+
+
 BY_SOURCE = {}
-for record, math in zip(RECORDS, rendered):
+for record in RECORDS:
     source = record['source'].replace('\\n', '\n')
-    replacement = '<div class="equation typeset-equation" tabindex="0" role="region" aria-label="公式，可横向滚动">' + math + '</div>' + ('<p class="equation-reading">' + html.escape(record['reading']) + '</p>' if record['reading'] else '')
+    replacement = math_panel(record['tex']) + ('<p class="equation-reading">' + html.escape(record['reading']) + '</p>' if record['reading'] else '')
     if source in BY_SOURCE and BY_SOURCE[source] != replacement:
         raise ValueError('Conflicting explicit LaTeX mapping')
     BY_SOURCE[source] = replacement
@@ -32,12 +48,16 @@ def typeset_equations(body):
 
 
 def validate_sources(chapters):
-    actual = {(c['id'], l['id']): PATTERN.findall(l['body'].replace('\\n', '\n'))
-              for c in chapters for l in c['lessons']}
-    for record in RECORDS:
-        source = actual[(record['chapter'], record['lesson'])][record['index']]
-        if source != record['source'].replace('\\n', '\n'):
-            raise ValueError(f"Stale LaTeX source: {record['chapter']}/{record['lesson']}")
+    actual = {(c['id'], l['id'], i): source for c in chapters for l in c['lessons']
+              for i, source in enumerate(PATTERN.findall(l['body'].replace('\\n', '\n')))}
+    expected = {(r['chapter'], r['lesson'], r['index']): r['source'].replace('\\n', '\n') for r in RECORDS}
+    if len(expected) != len(RECORDS):
+        raise ValueError('Duplicate LaTeX source location')
+    if actual.keys() != expected.keys():
+        raise ValueError(f'Unmapped formula blocks: {sorted(actual.keys()-expected.keys())}; stale locations: {sorted(expected.keys()-actual.keys())}')
+    for key, source in actual.items():
+        if source != expected[key]:
+            raise ValueError(f'Stale LaTeX source: {key}')
 
 
 def story_sections():

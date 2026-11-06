@@ -1,6 +1,7 @@
 """Build the self-study layer as readable static HTML with progressive enhancement."""
 import json
 import re
+from math_typesetting import math_panel
 
 
 def build_learning(root, chapters, doc, esc):
@@ -31,7 +32,13 @@ def build_learning(root, chapters, doc, esc):
         # Enable answering only after the client has installed its handlers.
         # A missing/failed script must never turn checking into a GET reload.
         inputs = inputs.replace('<input ', '<input disabled ')
-        steps = ''.join(f'<li><h4>{esc(s["title"])}</h4>{s["body"]}</li>' for s in q['steps'])
+        steps = ''.join(f'<li><h4>{esc(s["title"])}</h4>{s["body"]}{math_panel(s["latex"]) if "latex" in s else ""}</li>' for s in q['steps'])
+        reading = q.get('readQuestion')
+        plain_reading = ''
+        if reading:
+            example = reading.get('link')
+            linked_example = f'<p><a href="{esc(example["url"])}">{esc(example["label"])} →</a></p>' if example else ''
+            plain_reading = f'<details class="exercise-translation"><summary>先用白话拆开题目</summary><p><b>在问什么：</b>{esc(reading["meaning"])}</p><p><b>第一步：</b>{esc(reading["start"])}</p>{linked_example}</details>'
         source = q['source']
         rcode = q.get('rCode', '').replace('\\n', '\n')
         (root / 'downloads' / f'{qid}.R').write_text(rcode + '\n')
@@ -43,12 +50,12 @@ def build_learning(root, chapters, doc, esc):
             alternatives += '<details class="mistake-explanations"><summary>对照常见计算岔路</summary><ul>'+''.join(f'<li><b>若算得约 {m["value"]:.6g}：</b>{esc(m["feedback"])}</li>' for m in q['commonMistakes'])+'</ul><p class="status">相近结果只是检查线索，不能唯一确定你的计算过程。</p></details>'
         cards.append(f'''<article class="exercise" id="{qid}" data-question="{qid}" data-chapter="{q['chapter']}" data-level="{q['level']}">
 <div class="exercise-meta"><span>{n:02d} / Ch {"1–3" if q['chapter'] == '01' else int(q['chapter'])} · {esc(q['level'])}</span><span class="exercise-state">尚未作答</span></div>
-<h2>{esc(q['title'])}</h2><div class="exercise-prompt">{q['prompt']}</div><p class="status">{' · '.join(esc(t) for t in q['tags'])}</p>
+<h2>{esc(q['title'])}</h2><div class="exercise-prompt">{q['prompt']}</div>{plain_reading}<p class="status">{' · '.join(esc(t) for t in q['tags'])}</p>
 <form class="answer-form"><p class="answer-availability status">自动判题需要 JavaScript；按钮未启用时，可直接阅读下方提示、完整解析与 R。</p>{inputs}<div class="study-actions"><button type="submit" disabled>检查答案</button><button type="button" class="secondary bookmark" aria-pressed="false" disabled>加入复习</button></div><p class="answer-feedback" role="status" aria-live="polite"></p></form>
 <details class="exercise-hint"><summary>先给我一个提示</summary><p>{esc(q['hint'])}</p></details>
 <details class="exercise-solution"><summary>展开完整解题过程</summary><ol class="solution-steps">{steps}</ol><div class="solution-tail"><p class="solution-conclusion"><b>结论：</b>{q['conclusion']}</p><p class="pitfall"><b>易错点：</b>{q['pitfall']}</p>{alternatives}{code}</div></details>
 <p class="exercise-source">题型参考：{esc(source['file'])} · {esc(source['locator'])}。{esc(source['note'].rstrip('。'))}。<a href="chapters/{q['chapter']}.html#{esc(anchor)}">回到对应知识点：{esc(lesson_title)}</a></p></article>''')
-        searches.append({'chapter': '练习工坊', 'title': q['title'], 'text': re.sub('<[^>]+>', ' ', q['prompt'] + ' ' + ' '.join(q['tags'])), 'url': f'practice.html#{qid}'})
+        searches.append({'chapter': '练习工坊', 'title': q['title'], 'text': re.sub('<[^>]+>', ' ', q['prompt'] + ' ' + (reading['meaning'] if reading else '') + ' ' + ' '.join(q['tags'])), 'url': f'practice.html#{qid}'})
     grading = {q['id']: {k: q[k] for k in ('type', 'answer', 'tolerance', 'integer', 'optionExplanations', 'commonMistakes') if k in q} for q in questions}
     practice = f'''<main id="main" class="wrap study-page"><div class="study-heading"><h1>把“看懂了”变成“会做了”。</h1><p class="study-lead">{len(questions)} 道分层练习，从方法选择到完整推断。先独立作答，再按需打开提示、逐步解析和 R 复现。</p><p class="status">根据 Homework 0–8、Quiz 1–9 的题型及后续课件原创改编。数值和情境已重写；不作为课程原题答案。</p></div>
 <div id="practice-app"><div class="study-toolbar"><label>章节<select id="practice-chapter"><option value="all">全部章节</option>{options}</select></label><label>难度<select id="practice-level"><option value="all">全部难度</option><option>基础</option><option>应用</option><option>综合</option></select></label><label>练习状态<select id="practice-status"><option value="all">全部题目</option><option value="unanswered">尚未作答</option><option value="review">待复习</option><option value="correct">已答对</option></select></label><label>搜索题型<input id="practice-search" type="search" placeholder="例如：power、配对"></label></div>

@@ -7,9 +7,11 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
-from math_typesetting import RECORDS, validate_sources
+from math_typesetting import RECORDS, WALKS, PRACTICE, PATTERN, validate_sources
 
 chapters=sum([json.loads((ROOT/f'content/part{i}.json').read_text()) for i in range(1,4)],[])
+for lesson in json.loads((ROOT/'content/deepening.json').read_text()):
+    next(c for c in chapters if c['id']==lesson['chapter'])['lessons'].append(lesson)
 validate_sources(chapters)
 class Inspect(HTMLParser):
     def __init__(self):
@@ -21,13 +23,21 @@ class Inspect(HTMLParser):
         if tag=='script' and 'src' in a:self.scripts.append(a['src'])
         if 'id' in a:self.ids.append(a['id'])
 
-assert len(RECORDS)==79
+assert len(RECORDS)==128
+assert len(WALKS)==10 and sum(len(w['frames']) for w in WALKS)==40
 for c in chapters:
     source=(ROOT/f'chapters/{c["id"]}.html').read_text();doc=Inspect();doc.feed(source)
     assert doc.stories==1
     assert len(doc.ids)==len(set(doc.ids)),c['id']
-    expected=sum(r['chapter']==c['id'] for r in RECORDS)+1
-    assert doc.maths>=expected,(c['id'],doc.maths,expected)
+    walks=[w for w in WALKS if w['chapter']==c['id']]
+    expected=sum(r['chapter']==c['id'] for r in RECORDS)+1+sum(1+len(w['frames']) for w in walks)
+    assert doc.maths==expected,(c['id'],doc.maths,expected)
+    assert not PATTERN.search(source),c['id']
+    for w in walks:
+        assert w['id'] in doc.ids
+        assert 'class="walk-stages"' in source
+        for f in w['frames']:
+            assert f['title'] in source
     assert 'data-story-plot' in source and 'data-story-summary' in source
     assert 'data-story-config' in source and 'story-input-'+c['id'] in source
     assert 'katex-error' not in source
@@ -37,4 +47,10 @@ css=ROOT/'assets/vendor/katex/katex.min.css'
 for ref in re.findall(r'url\(([^)]+)\)',css.read_text()):assert (css.parent/ref.strip('"\'')).is_file(),ref
 assert (css.parent/'LICENSE').is_file()
 assert '0.16.22' in (css.parent/'VERSION').read_text()
-print('79 explicit LaTeX source bindings, static MathML, 10 story fallbacks, unique IDs and all local math fonts passed.')
+
+practice=(ROOT/'practice.html').read_text();doc=Inspect();doc.feed(practice)
+assert practice.count('class="exercise-translation"')==15
+assert doc.maths==sum('latex' in s for q in PRACTICE for s in q['steps'])==16
+for q in PRACTICE:
+    assert ('readQuestion' in q)==(q['chapter']=='05')
+print('128 explicit LaTeX source bindings, 40 staged formulas, 16 solution formulas, 15 plain-language prompts, static MathML and all local math fonts passed.')

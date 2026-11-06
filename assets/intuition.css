@@ -21,3 +21,10 @@
 .story-zoom>div:focus-visible,.typeset-equation:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 @media(max-width:700px){.intuition-story{margin:36px 0 50px}.story-question{font-size:19px}.typeset-equation{font-size:16px;padding:18px 14px}.story-choices{display:grid;grid-template-columns:1fr}.intuition-story svg{font-size:20px}.intuition-story .story-mean{font-size:17px}}
 @media print{.story-prediction,.intuition-story input,.intuition-story label,.intuition-story button,.story-zoom{display:none}}
+
+.walk-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:20px 0}.walk-stages:empty{display:none}
+.walk-stages button{min-height:44px;padding:8px 10px;text-align:left;font-size:14px;line-height:1.6}
+.walk-stages [aria-current=step]{background:var(--wash);border-bottom:3px solid var(--accent);font-weight:600}
+.exercise-translation{border-left:3px solid var(--accent);padding:0 16px;margin:20px 0}.exercise-translation summary{padding:10px 0;cursor:pointer}.exercise-translation p{margin:6px 0 14px;line-height:1.9}
+@media(max-width:700px){.walk-stages{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media print{.walk-stages{display:none}}

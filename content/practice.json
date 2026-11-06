@@ -1680,16 +1680,19 @@
     "hint": "组均值为 5、8、9；grand mean=22/3。",
     "steps": [
       {
-        "title": "写出模型与假设",
-        "body": "Yᵢⱼ=μ+τᵢ+εᵢⱼ，i=1,2,3，j=1,2,3；误差独立 N(0,σ²)。H₀:μA=μB=μC；Hₐ:并非全部均值相等。"
+        "title": "找三个组的中心和所有点的中心",
+        "body": "<p>A、B、C 的组均值为 5、8、9。每组都有三个点，所以总平均恰好是三个组均值的简单平均。零假设问三个总体均值是否都相同。</p>",
+        "latex": "\\bar y_A=5,\\quad\\bar y_B=8,\\quad\\bar y_C=9,\\qquad\\bar y=\\frac{5+8+9}{3}=\\frac{22}{3}"
       },
       {
-        "title": "分解平方和",
-        "body": "SSB=3[(5−22/3)²+(8−22/3)²+(9−22/3)²]=26。每组组内平方和均为 2，SSE=6；SST=26+6=32。"
+        "title": "用两把尺分别量组间与组内",
+        "body": "<p>算组间时，把每组中心到总平均的差平方，按组大小计三次。算组内时，每组的观测到自己中心的差是 −1、0、1，每组平方和是 2。</p>",
+        "latex": "\\begin{aligned}SS_B&=3\\left[(5-22/3)^2+(8-22/3)^2+(9-22/3)^2\\right]=26\\\\ SS_E&=3(1+0+1)=6\\\\ SS_T&=26+6=32\\end{aligned}"
       },
       {
-        "title": "除以对应 df 再取比值",
-        "body": "dfB=2，dfE=6，dfT=8；MSB=13，MSE=1，所以 F=13。P≈0.00659，5% 水平拒绝 H₀。整体检验不指出具体哪一对不同。"
+        "title": "换成均方后相除",
+        "body": "<p>三组中心比较有 2 个自由度，九个观测减去三个拟合中心，留下 6 个组内自由度。F 大到右尾约只剩 0.00659。在给定独立正态与共同方差模型下，5% 水平拒绝总体均值全相同。</p>",
+        "latex": "F=\\frac{26/2}{6/6}=13,\\qquad p=\\Pr(F_{2,6}\\geq13)\\approx0.00659"
       }
     ],
     "conclusion": "F=13，P≈.00659；在给定模型下，5% 水平有证据认为三个总体均值并非全部相等。整体检验不确定具体哪一对不同。",
@@ -1709,7 +1712,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与把 MSE/MSB 作为 F 一致。one-way ANOVA 使用 MSB/MSE；处理均值差异增强时，统计量应趋向右尾。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "三组的中心看起来不同。同一组的三个观测也有高低差。F 要比较这两种差距。",
+      "start": "先算三个组平均，再算所有点的总平均。每个观测先减自己的组平均，找出组内的波动。",
+      "link": {
+        "url": "chapters/08.html#lab-anova",
+        "label": "在九株苗的实验中分别改变组间距离和组内散布"
+      }
+    }
   },
   {
     "id": "p08-02",
@@ -1731,16 +1742,17 @@
     "hint": "ANOVA 假设 normal errors，不要求混合了不同均值的全部原始 y 呈一个正态分布。",
     "steps": [
       {
-        "title": "拆开系统差异和误差",
-        "body": "原始 y 含组均值差异 τᵢ；多个不同中心的正态分布混合，整体可以出现多峰或弯曲。"
+        "title": "想象把三摞数据放在同一张纸上",
+        "body": "<p>每摞可能都近似钟形。三摞中心不同，直接叠在一起看，整体可能鼓出几个峰。因此这张混合图把组中心与误差的形状混在了一起。</p>"
       },
       {
-        "title": "使用拟合后的 residuals",
-        "body": "拟合各组均值后 eᵢⱼ=yᵢⱼ−ȳᵢ。对 residuals 画 Q–Q 图，才更接近模型中的误差形状问题。"
+        "title": "先把每摞的中心移到零",
+        "body": "<p>一个读数若为 12、本组平均为 10，残差就是 2。对所有观测这样处理，才得到用来画误差形状的近似材料。</p>",
+        "latex": "\\widehat y_{ij}=\\bar y_i,\\qquad e_{ij}=y_{ij}-\\widehat y_{ij}"
       },
       {
-        "title": "同时检查其他条件",
-        "body": "用 residuals versus fitted 检查 spread、结构和异常点；独立性主要由随机化和采样设计保证，不能靠 Q–Q 图证明。"
+        "title": "让每张图回答自己的问题",
+        "body": "<p>残差 Q–Q 图看整体形状和尾部。残差对拟合值的图比较各组散得多宽。独立性回到实验单位、随机化与采样设计检查。</p>"
       }
     ],
     "conclusion": "应检查模型 residuals 和各组形状，不能只凭混合原始数据的 Q–Q 图否定 ANOVA。",
@@ -1759,7 +1771,15 @@
       "处理组均值高是可能的科学信号，不是删组依据。删除一组会改变研究问题，也没有检查模型误差是否合理。",
       "正确。Residuals 移除了拟合的处理均值，更接近要诊断的 errors。还应检查各组 spread、异常点和随机化所支持的独立性。",
       "显著性计算依赖模型条件；小 P-value 不会自动验证这些条件。即使拒绝 H₀，仍需检查 residuals 与设计。"
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "三组本来就可以有不同的中心。现在想看的是，扣掉各组中心以后，剩下的偏差像不像正态。",
+      "start": "挑一个点，减它自己的组均值。对每个点都做这一步，再把残差合起来画 Q–Q 图。",
+      "link": {
+        "url": "labs.html#diagnostics",
+        "label": "在诊断工作台选一个点，看它如何变成残差"
+      }
+    }
   },
   {
     "id": "p08-03",
@@ -1781,20 +1801,23 @@
     "hint": "总体 geometric mean 为 exp[E(log Y)]；对 log 均值差的估计 δ̂ 取指数，得到 geometric mean 之比的点估计。",
     "steps": [
       {
-        "title": "确认分析尺度",
-        "body": "目标参数是总体 log 均值之差 δ=E(log Y|B)−E(log Y|A)。题目给出的是从数据拟合得到的 δ̂=log(1.5)，而不是已知总体 δ 的真值。"
+        "title": "先说清差的是哪两个数",
+        "body": "<p>模型先对每个正的响应取 log，再比较两组 log 响应的总体平均。题目给的是这个差的点估计。</p>",
+        "latex": "\\delta=E[\\log Y\\mid B]-E[\\log Y\\mid A],\\qquad\\widehat\\delta=\\log(1.5)"
       },
       {
-        "title": "对差异取指数",
-        "body": "记两组总体 geometric means 为 G_B=exp[E(log Y|B)]、G_A=exp[E(log Y|A)]，则目标比值 G_B/G_A=exp(δ)。代入估计得到 exp(δ̂)=1.5，所以总体 geometric mean 之比的点估计为 1.5。"
+        "title": "把 log 差换成原尺度的倍数",
+        "body": "<p>几何平均是平均 log 值取指数。两个 log 平均相减，取指数后就是两个几何平均相除。这里估得 B 的几何平均约为 A 的 1.5 倍。</p>",
+        "latex": "\\frac{G_B}{G_A}=\\frac{\\exp(E[\\log Y\\mid B])}{\\exp(E[\\log Y\\mid A])}=\\exp(\\delta),\\qquad \\exp(\\widehat\\delta)=1.5"
       },
       {
-        "title": "检查不能偷换的量",
-        "body": "它不直接等于原尺度 arithmetic mean 增加 0.5 个单位，也不保证 arithmetic mean 之比可用相同数值估计。估计 arithmetic mean 还需要考虑误差分布与回变换偏差；变换后仍应重查 residuals。"
+        "title": "辨认几何平均与普通平均",
+        "body": "<p>一个组先把原始响应直接平均，得到算术平均。先取 log、平均再取指数，得到几何平均。两条路线对很大的观测给出的影响不同。</p>"
       },
       {
-        "title": "把点估计与不确定性分开",
-        "body": "1.5 是数据给出的估计，不代表总体真比值已经确定。题目未给 SE 或 CI，不能仅据此判断比值是否显著不同于 1；若有针对 δ 的有效区间 [L,U]，取 exp 后才得到相应 geometric mean 之比的区间 [exp(L),exp(U)]。"
+        "title": "把倍数估计和证据强弱分开",
+        "body": "<p>手上只有 1.5 这个估计，缺少不确定性的信息。若 log 差有有效区间，再把两个端点分别取指数，才可读出倍数的区间及它是否包含 1。</p>",
+        "latex": "[L,U]\\ \\longmapsto\\ [\\exp(L),\\exp(U)]"
       }
     ],
     "conclusion": "B 与 A 的总体 geometric mean 之比点估计为 1.5；未给不确定性信息，不能据此断言总体真比值等于 1.5 或显著不同于 1。",
@@ -1813,7 +1836,15 @@
       "正确。总体目标是 exp(δ)=G_B/G_A；将拟合估计 δ̂ 代入后得到 exp(δ̂)=1.5。这是点估计，未提供 SE 或 CI 时不能把它当成已确定的总体比值或显著性结论。",
       "模型描述总体位置及随机波动，不规定每个个体一一对应。即使 geometric mean 之比估计为 1.5，个体之间仍可有很大变异。",
       "exp(E(logY)) 通常不等于 E(Y)。原尺度 arithmetic means 的比还受误差分布影响；仅给 log 均值差的估计，不足以保证 arithmetic mean 比也应估计为 1.5。"
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "在 log 尺度上是一个差；回到原尺度，要问 B 的几何平均是 A 的几倍。",
+      "start": "把估计的 log 差取指数。然后判断手上是否有区间或标准误，足以说这个倍数有多确定。",
+      "link": {
+        "url": "labs.html#transformations",
+        "label": "在变换工作台对比几种回到原尺度的中心"
+      }
+    }
   },
   {
     "id": "p08-04",
@@ -1835,16 +1866,17 @@
     "hint": "排序检验可对位置、形状和离散程度的差异作出反应。",
     "steps": [
       {
-        "title": "辨认检验使用的信息",
-        "body": "Kruskal–Wallis 将所有观测共同排序，再比较组内 rank summaries；它不直接比较原始 arithmetic means。"
+        "title": "先想象所有点排成一列",
+        "body": "<p>从小到大排时保留组标签。Kruskal–Wallis 看的是各组在这条队上拿到了哪些秩；原始数值相差多少没有直接进入统计量。</p>"
       },
       {
-        "title": "解释拒绝的范围",
-        "body": "P≈0.0398&lt;0.05，提供组间分布/rank 结构不同的证据。只有在适当的共同形状、仅位置不同的框架下，才适合把结果专门解释为位置或 median 差异。"
+        "title": "从 P 值说到能支持的结论",
+        "body": "<p>在设计与参考条件适用时，P 低于事先设定的 0.05，支持至少有组的分布不同。本题各组形状和散布也有差异，仅凭整体秩结果无法把原因归到中位数。</p>",
+        "latex": "p\\approx0.0398<\\alpha=0.05"
       },
       {
-        "title": "连接研究问题",
-        "body": "若主要问题是 mean，就考虑针对 mean 的稳健推断并报告相应条件；若主要问题是分布差异，则展示分布和后续经多重校正的比较。"
+        "title": "问清下一步想比较什么",
+        "body": "<p>如果研究目标是原始均值，就要用针对均值的方法。若要找具体哪几组的分布不同，还需要具体比较与相应的多重校正。</p>"
       }
     ],
     "conclusion": "有组间分布差异的证据；不能直接声称四组 mean 或 median 都不同。",
@@ -1863,7 +1895,15 @@
       "“均值显著”没有指明参数或比较范围，而且本检验不直接使用 arithmetic means。需要根据 ranks、分布形状和研究目标解释。",
       "正确。组间 rank 结构的差异可来自位置、spread 或形状；本题形状明显不同，因此不应把拒绝结果专门归结为 median 差异。",
       "该检验没有证实等方差。相反，spread 差异可能参与形成观察到的 rank 差异，仍需要单独评估。"
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "把四组排进同一条队。检验问各组在队里的位置结构有没有差别。",
+      "start": "看 P 是否过门槛，再看题目有没有说各组形状和散布类似。形状也不同的时候，结论留在分布层面。",
+      "link": {
+        "url": "chapters/08.html#kruskal-experiment",
+        "label": "查看组标签改变时，各组拿到的秩如何变化"
+      }
+    }
   },
   {
     "id": "p08-05",
@@ -1885,16 +1925,16 @@
     "hint": "先区分录入/测量错误与真实极端观测；显著性不是删点标准。",
     "steps": [
       {
-        "title": "追查观测来源",
-        "body": "核对单位、原始记录、仪器状态和实验偏离，寻找与统计结果无关的可验证理由。仅因值大或影响 P-value 不能断定错误。"
+        "title": "回到实验记录",
+        "body": "<p>例如核对仪器日志和该株苗的编号。若实验记录显示换了单位，按可查的证据更正并保留修改记录。</p>"
       },
       {
-        "title": "保留主分析依据",
-        "body": "没有证据证明错误时，保留原始记录并如实报告诊断问题。若确认是录入错误，按原始证据更正并保留修改记录。"
+        "title": "把真实极端值留下来",
+        "body": "<p>如果核对后 68 是实际观测，主分析要保留它，同时说明它如何影响模型诊断和结论。两个 P 值的大小说明结果对它敏感。</p>"
       },
       {
-        "title": "透明比较稳健性",
-        "body": "可将含点分析、合理变换或稳健方法及有依据的敏感性分析并列，明确各自估计目标、条件和结果变化。"
+        "title": "清楚标注每份补充分析",
+        "body": "<p>有独立依据时，可以报告敏感性分析、合理的变换或稳健方法。说明处理了什么、要估计什么，以及结果随这些处理怎样变化。</p>"
       }
     ],
     "conclusion": "数据处理应由可核实依据和预先规则决定，结论对该观测敏感应直接说明。",
@@ -1913,7 +1953,15 @@
       "没有原始证据就改值会制造数据。若核查证实录入错误，应按可追溯的真实记录更正，并记录理由与改动。",
       "正确。先核查来源，在没有错误证据时保留记录；同时报告诊断及合理敏感性分析，让结论对该观测的依赖可见。",
       "保留 provenance 不等于拒绝纠正已证实的错误。有可靠原始记录时可以更正，但应保存更正依据和审计记录。"
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "一条很大的记录使结果变动。题目在问依据什么处理这条记录。",
+      "start": "先查 68 是真的测到了，还是单位、抄录、仪器或实验过程出了问题。判断依据应来自原始记录和实验规则。",
+      "link": {
+        "url": "labs.html#diagnostics",
+        "label": "切换异常点场景，观察同一个点怎样影响两张图"
+      }
+    }
   },
   {
     "id": "p09-01",
@@ -3556,20 +3604,23 @@
     "hint": "Yi=Ti²−3/8；mean(T²)=T̄²+[(n−1)/n]sT²。平方均值会丢掉T的分散信息。",
     "steps": [
       {
-        "title": "写出逐个观测的逆变换",
-        "body": "T=√(Y+3/8)，所以Y=T²−3/8。必须先平方每一个T再求平均，不能直接把T̄代进去后称为Ȳ。"
+        "title": "把一个值变回去",
+        "body": "<p>每个原始值都是对应 T 的平方再减 3/8。因此要恢复的是平方的平均。</p>",
+        "latex": "Y_i=T_i^2-\\frac38,\\qquad\\bar Y=\\frac18\\sum_{i=1}^8T_i^2-\\frac38"
       },
       {
-        "title": "把样本variance还原为平均平方偏差",
-        "body": "sT²=Σ(Ti−T̄)²/(n−1)。因此Σ(Ti−T̄)²/n=(7/8)×2=1.75；n−1与n在这一步作用不同。"
+        "title": "把分散的一部分换成每点平均",
+        "body": "<p>题给的样本方差把平方偏差除以 7。要找八个点平均贡献多少，就用同一笔平方偏差除以 8。</p>",
+        "latex": "\\frac18\\sum_{i=1}^8(T_i-\\bar T)^2=\\frac78s_T^2=\\frac78\\cdot2=1.75"
       },
       {
-        "title": "恢复二阶矩并减去平移",
-        "body": "mean(T²)=T̄²+1.75=9+1.75=10.75，所以Ȳ=10.75−.375=10.375。"
+        "title": "用中心和散布一起还原",
+        "body": "<p>把每个 T 写成平均加偏差。偏差加起来为零，展开平方后，留下平均值的平方与平均平方偏差。代入即可求原始样本均值。</p>",
+        "latex": "\\bar Y=\\bar T^2+\\frac78s_T^2-\\frac38=9+1.75-0.375=10.375"
       },
       {
-        "title": "辨认参数与尺度",
-        "body": "直接回变换T̄得到8.625，描述变换后中心的另一种表达，不等于原始样本均值。本题使用精确样本恒等式，不需要先声称T来自正态总体，也没有据此构造总体mean的CI。"
+        "title": "检查少算了哪一块",
+        "body": "<p>若只把 3 平方再减 0.375，会得到 8.625，少了 1.75。这一步是当前样本的代数核对，题目给的信息足以精确还原。</p>"
       }
     ],
     "conclusion": "原始arithmetic sample mean为10.375；遗漏分散项会误得8.625。",
@@ -3591,7 +3642,15 @@
         "tolerance": 0.005,
         "feedback": "这个值与T̄²+3/8一致。逐个逆变换应平方后减3/8，并且恢复样本arithmetic mean还需要保留T的分散项。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "八个观测先开过平方根。现在要用变换后的摘要找回原始八个值的普通平均。",
+      "start": "先写出单个值怎样变回去。原始均值需要平方后的平均，所以还要把变换后分散的那一部分加回来。",
+      "link": {
+        "url": "labs.html#transformations",
+        "label": "动手比较「先平均再平方」与「先平方再平均」"
+      }
+    }
   },
   {
     "id": "p11-05",
@@ -5050,20 +5109,24 @@
     "hint": "值4的两次观测分属A与C，但仍是同一个 pooled tied block。先核对三组 rank sums 合计45，再求C。",
     "steps": [
       {
-        "title": "在全部观测上分配平均秩",
-        "body": "九个记录的 ranks 按原组顺序为 A=[1.5,1.5,4.5]、B=[3,6.5,6.5]、C=[4.5,8.5,8.5]。所以 R_A=7.5、R_B=16、R_C=21.5，总和45=9×10/2。"
+        "title": "保留原组标签，一起排队",
+        "body": "<p>两条 2 都拿 1.5；两条 4 都拿 4.5。回到原组顺序列出每条记录的秩，再把每组拿到的秩加起来。三个秩和相加应为 45。</p>",
+        "latex": "\\begin{aligned}A&:(1.5,1.5,4.5), &R_A&=7.5\\\\ B&:(3,6.5,6.5), &R_B&=16\\\\ C&:(4.5,8.5,8.5), &R_C&=21.5\\end{aligned}"
       },
       {
-        "title": "先计算未经ties校正的H",
-        "body": "H=12/(9×10)×(7.5²/3+16²/3+21.5²/3)−3×10≈4.422222222。这个值尚未处理平均秩造成的总体秩变异变化。"
+        "title": "先算原来的 H",
+        "body": "<p>平方各组秩和并除以该组人数，再用总人数换算。此处还没修正并列让秩变得更集中的影响。</p>",
+        "latex": "H=\\frac{12}{9\\cdot10}\\left(\\frac{7.5^2}{3}+\\frac{16^2}{3}+\\frac{21.5^2}{3}\\right)-30\\approx4.422222"
       },
       {
-        "title": "统计跨组的ties并除以C",
-        "body": "值2、4、5、6都各出现2次，故Σ(tⱼ³−tⱼ)=4×6=24。C=1−24/(9³−9)=29/30；H′=4.422222222/(29/30)≈4.574712644。值4跨组出现，不能漏掉；也不能把校正写成H×C。"
+        "title": "数四对并列，再除以校正系数",
+        "body": "<p>2、4、5、6 各出现两次，共四对并列。要在合并清单里数，值 4 即使跨组也照样算。题目所求是校正后的统计量。</p>",
+        "latex": "C=1-\\frac{4(2^3-2)}{9^3-9}=\\frac{29}{30},\\qquad H^{\\prime}=H/C\\approx4.574713"
       },
       {
-        "title": "区分统计量、近似P与条件exact P",
-        "body": "df=2，χ²近似P≈.101534532。给定九条记录与3+3+3组大小，枚举1,680种标签分配，有204种H′至少同样大，conditional exact P=204/1680=17/140≈.121428571。两者在预定α=.05下都不拒绝；不是证明分布相同，也不说明每一对都有相同mean或median。此题所求仍是H′，不是这两个P。"
+        "title": "把统计量与参考概率分开",
+        "body": "<p>若继续求 P，χ² 近似约为 .1015；给定记录与组大小，若标签可交换，可以枚举 1,680 种分法，其中 204 种至少同样极端。两种参考在 5% 水平都未拒绝。</p>",
+        "latex": "p_{\\mathrm{exact}}=\\frac{204}{1680}=\\frac{17}{140}\\approx0.121429"
       }
     ],
     "conclusion": "H′≈4.574713。ties correction 使用全部九个观测中的重复值；它与选择 χ²近似或条件exact参考是两个不同步骤。",
@@ -5085,7 +5148,15 @@
         "feedback": "这个结果与只统计各组内部的三组重复值、漏掉A与C之间的两个4一致。ties按合并后的九个观测统计，跨组的同值记录也必须进入Σ(t³−t)。"
       }
     ],
-    "rCode": "# This teaching function is intentionally limited to three groups of size three.\nkw_three_exact <- function(groups) {\n  stopifnot(is.list(groups),length(groups)==3,\n            all(lengths(groups)==3),all(is.finite(unlist(groups))))\n  y <- unlist(groups,use.names=FALSE)\n  group <- factor(rep(c(\"A\",\"B\",\"C\"),each=3))\n  N <- length(y)\n  ranks <- rank(y,ties.method=\"average\")\n  doubled_ranks <- 2*ranks\n  rank_sums <- as.numeric(tapply(ranks,group,sum))\n  # Count equal numeric values directly, without converting them to labels.\n  tie_sizes <- rle(sort(y))$lengths\n  correction <- 1-sum(tie_sizes^3-tie_sizes)/(N^3-N)\n  if (correction<=0) stop(\"All observations are tied: H/C is undefined.\")\n  raw_H <- 12/(N*(N+1))*sum(rank_sums^2/3)-3*(N+1)\n  corrected_H <- raw_H/correction\n  # With fixed sizes 3,3,3, S=sum((2*R_j)^2) and H=S/90-30.\n  # Integer scores avoid floating-point ambiguity when including an equal boundary.\n  observed_score <- sum((2*rank_sums)^2)\n  expected_allocations <- choose(9,3)*choose(6,3)\n  null_scores <- numeric(expected_allocations)\n  allocation <- 0L\n  for (A in combn(seq_len(N),3,simplify=FALSE)) {\n    remaining <- setdiff(seq_len(N),A)\n    for (B in combn(remaining,3,simplify=FALSE)) {\n      C <- setdiff(remaining,B)\n      allocation <- allocation+1L\n      doubled_sums <- c(sum(doubled_ranks[A]),sum(doubled_ranks[B]),\n                        sum(doubled_ranks[C]))\n      null_scores[allocation] <- sum(doubled_sums^2)\n    }\n  }\n  extreme <- sum(null_scores>=observed_score)\n  exact_P <- extreme/allocation\n  approx_P <- pchisq(corrected_H,df=2,lower.tail=FALSE)\n  # Re-ranking pooled ranks is equivalent and avoids old R decimal-label merging.\n  reference <- kruskal.test(split(ranks,group))\n  stopifnot(allocation==1680,sum(rank_sums)==45,\n            all(doubled_ranks==round(doubled_ranks)),\n            abs(raw_H-(observed_score/90-30))<1e-12,\n            abs(corrected_H-unname(reference$statistic))<1e-12,\n            abs(approx_P-reference$p.value)<1e-12)\n  list(rows=data.frame(record=seq_len(N),group=group,y=y,rank=ranks),\n       summary=data.frame(R_A=rank_sums[1],R_B=rank_sums[2],R_C=rank_sums[3],\n         C=correction,H=raw_H,H_corrected=corrected_H,df=2,\n         chi_square_P=approx_P,extreme=extreme,allocations=allocation,\n         exact_P=exact_P),\n       score_frequency=as.data.frame(table(null_scores)),\n       null_scores=null_scores)\n}\n# A different original tied dataset for transfer practice.\ngroups <- list(A=c(2,2,4),B=c(3,5,5),C=c(4,6,6))\nresult <- kw_three_exact(groups)\nprint(result$rows)\nprint(result$summary,digits=12)\nanswer <- result$summary$H_corrected\n# Verify both the requested statistic and the two reference calculations.\nstopifnot(abs(answer-4.57471264367816)<1e-12,\n          abs(result$summary$H-4.42222222222222)<1e-12,\n          abs(result$summary$C-29/30)<1e-12,\n          result$summary$extreme==204,\n          abs(result$summary$exact_P-17/140)<1e-12,\n          abs(result$summary$chi_square_P-.101534531976956)<1e-12)\n# Incorrect substitutions correspond to specific feedback, not alternative answers.\nprint(c(answer=answer,omitting_correction=result$summary$H,\n        multiplying_correction=result$summary$H*result$summary$C,\n        ignoring_cross_group_tie=result$summary$H/(1-18/(9^3-9))))\n"
+    "rCode": "# This teaching function is intentionally limited to three groups of size three.\nkw_three_exact <- function(groups) {\n  stopifnot(is.list(groups),length(groups)==3,\n            all(lengths(groups)==3),all(is.finite(unlist(groups))))\n  y <- unlist(groups,use.names=FALSE)\n  group <- factor(rep(c(\"A\",\"B\",\"C\"),each=3))\n  N <- length(y)\n  ranks <- rank(y,ties.method=\"average\")\n  doubled_ranks <- 2*ranks\n  rank_sums <- as.numeric(tapply(ranks,group,sum))\n  # Count equal numeric values directly, without converting them to labels.\n  tie_sizes <- rle(sort(y))$lengths\n  correction <- 1-sum(tie_sizes^3-tie_sizes)/(N^3-N)\n  if (correction<=0) stop(\"All observations are tied: H/C is undefined.\")\n  raw_H <- 12/(N*(N+1))*sum(rank_sums^2/3)-3*(N+1)\n  corrected_H <- raw_H/correction\n  # With fixed sizes 3,3,3, S=sum((2*R_j)^2) and H=S/90-30.\n  # Integer scores avoid floating-point ambiguity when including an equal boundary.\n  observed_score <- sum((2*rank_sums)^2)\n  expected_allocations <- choose(9,3)*choose(6,3)\n  null_scores <- numeric(expected_allocations)\n  allocation <- 0L\n  for (A in combn(seq_len(N),3,simplify=FALSE)) {\n    remaining <- setdiff(seq_len(N),A)\n    for (B in combn(remaining,3,simplify=FALSE)) {\n      C <- setdiff(remaining,B)\n      allocation <- allocation+1L\n      doubled_sums <- c(sum(doubled_ranks[A]),sum(doubled_ranks[B]),\n                        sum(doubled_ranks[C]))\n      null_scores[allocation] <- sum(doubled_sums^2)\n    }\n  }\n  extreme <- sum(null_scores>=observed_score)\n  exact_P <- extreme/allocation\n  approx_P <- pchisq(corrected_H,df=2,lower.tail=FALSE)\n  # Re-ranking pooled ranks is equivalent and avoids old R decimal-label merging.\n  reference <- kruskal.test(split(ranks,group))\n  stopifnot(allocation==1680,sum(rank_sums)==45,\n            all(doubled_ranks==round(doubled_ranks)),\n            abs(raw_H-(observed_score/90-30))<1e-12,\n            abs(corrected_H-unname(reference$statistic))<1e-12,\n            abs(approx_P-reference$p.value)<1e-12)\n  list(rows=data.frame(record=seq_len(N),group=group,y=y,rank=ranks),\n       summary=data.frame(R_A=rank_sums[1],R_B=rank_sums[2],R_C=rank_sums[3],\n         C=correction,H=raw_H,H_corrected=corrected_H,df=2,\n         chi_square_P=approx_P,extreme=extreme,allocations=allocation,\n         exact_P=exact_P),\n       score_frequency=as.data.frame(table(null_scores)),\n       null_scores=null_scores)\n}\n# A different original tied dataset for transfer practice.\ngroups <- list(A=c(2,2,4),B=c(3,5,5),C=c(4,6,6))\nresult <- kw_three_exact(groups)\nprint(result$rows)\nprint(result$summary,digits=12)\nanswer <- result$summary$H_corrected\n# Verify both the requested statistic and the two reference calculations.\nstopifnot(abs(answer-4.57471264367816)<1e-12,\n          abs(result$summary$H-4.42222222222222)<1e-12,\n          abs(result$summary$C-29/30)<1e-12,\n          result$summary$extreme==204,\n          abs(result$summary$exact_P-17/140)<1e-12,\n          abs(result$summary$chi_square_P-.101534531976956)<1e-12)\n# Incorrect substitutions correspond to specific feedback, not alternative answers.\nprint(c(answer=answer,omitting_correction=result$summary$H,\n        multiplying_correction=result$summary$H*result$summary$C,\n        ignoring_cross_group_tie=result$summary$H/(1-18/(9^3-9))))\n",
+    "readQuestion": {
+      "meaning": "九个点排进同一条队，两个一样大的点平分位置。题目要的是校正过的 H。",
+      "start": "先合并排序。特别看两个值为 4 的点：它们来自不同组，也要平分第 4 和第 5 名。",
+      "link": {
+        "url": "chapters/08.html#kruskal-experiment",
+        "label": "把题中九个值填进工作台，核对平均秩和 ties 校正"
+      }
+    }
   },
   {
     "id": "p11-08",
@@ -5233,20 +5304,24 @@
     "hint": "先用 A 组四个值求拟合均值；所有组各自减去自己的拟合均值后，再合并排序。A3 在 raw Y 中的名次不决定它在 residual Q–Q 图中的位置。",
     "steps": [
       {
-        "title": "先按组拟合，保留观测 ID",
-        "body": "三个 fitted group means 分别为 A:8、B:17、C:25。A3 的 fitted=8，residual=10−8=2。各组 residuals 为 A:[−5,−1,2,4]、B:[−6,−2,1,7]、C:[−4,−3,3,4]。在 residual vs fitted 图上，A3 的坐标是(8,2)，横坐标不是原始 Y=10。"
+        "title": "找 A3 相对于本组的高度差",
+        "body": "<p>A、B、C 的组均值分别为 8、17、25。A3 的观测是 10，它在残差对拟合值图上的横坐标是 8，纵坐标是残差 2。</p>",
+        "latex": "\\widehat y_{A3}=8,\\qquad e_{A3}=10-8=2,\\qquad (\\widehat y_{A3},e_{A3})=(8,2)"
       },
       {
-        "title": "合并 residual 后确定这条观测的位置",
-        "body": "全部12个残差由小到大是 [−6,−5,−4,−3,−2,−1,1,2,3,4,4,7]，因此 A3 的 residual=2 位于第 i=8 个位置。它在这里没有并列；两个 residual=4 占第10、11位，不影响 A3。排序的是减去各自组均值后的数，不是原始响应，也不是只排 A 组。"
+        "title": "从全部残差中找 A3 的位置",
+        "body": "<p>A 的残差为 −5、−1、2、4；B 为 −6、−2、1、7；C 为 −4、−3、3、4。把十二个差合起来排，2 前面有七个数，所以 A3 排第 8。</p>",
+        "latex": "(-6,-5,-4,-3,-2,-1,1,\\underbrace{2}_{i=8},3,4,4,7)"
       },
       {
-        "title": "由 plotting probability 求标准正态分位数",
-        "body": "p₈=(8−.5)/12=.625；q₈=Φ⁻¹(.625)=qnorm(.625)≈.318639364。因此答案约为 <b>.3186</b>，A3 的 Q–Q 坐标是(.318639,2)。.625 是排序位置对应的 plotting probability，不是横坐标 q，也不是假设检验的 P-value。"
+        "title": "把第八名换成理论横坐标",
+        "body": "<p>第八名对应绘图概率 0.625。找标准正态曲线上左侧面积为 0.625 的位置，这个位置才是题目要的横坐标。</p>",
+        "latex": "p_8=\\frac{8-0.5}{12}=0.625,\\qquad q_8=\\Phi^{-1}(0.625)\\approx0.318639364"
       },
       {
-        "title": "比较两张图并限制结论",
-        "body": "同一条 A3 在 residual vs fitted 图上是(8,2)，在 normal Q–Q 图上是(.318639,2)；纵坐标仍是同一个 residual=2，只是横轴的参照改变。若按 raw Y 排序，Y=10 位于第3名，会误得 qnorm(2.5/12)≈−.812218。计算出一个点的位置不能判断整个误差分布是否正态，更不能证明独立性或共同方差；需要结合完整图形与设计。"
+        "title": "对照同一点在两张图的位置",
+        "body": "<p>两图纵坐标都是残差 2。换横轴的目的是让完整一排残差能和正态分位数相比较；误差形状要结合整张图和设计判断。</p>",
+        "latex": "(\\widehat y,e)=(8,2),\\qquad(q_8,e)\\approx(0.318639,2)"
       }
     ],
     "conclusion": "A3 的 fitted=8、residual=2、全体 residual 排序位置 i=8，所以 normal Q–Q 理论横坐标为 .318639364，纵坐标仍是2。",
@@ -5273,7 +5348,15 @@
         "feedback": "这个值与把所有残差定义为 fitted−Y 后得到的第5位相符。请检查相减方向与排序方向；本题规定 residual=Y−fitted，并从小到大排序。"
       }
     ],
-    "rCode": "# Original teaching data, with four independent units per group.\nd <- data.frame(id=c(paste0(\"A\",1:4),paste0(\"B\",1:4),paste0(\"C\",1:4)),\n                group=factor(rep(c(\"A\",\"B\",\"C\"),each=4)),\n                y=c(3,7,10,12,11,15,18,24,21,22,28,29))\nfit <- lm(y ~ group,data=d)\n# Direct group subtraction preserves exact ties in these integer data.\nd$fitted <- ave(d$y,d$group,FUN=mean)\nd$residual <- d$y-d$fitted\nstopifnot(max(abs(d$fitted-fitted(fit)))<1e-10,\n          max(abs(d$residual-residuals(fit)))<1e-10)\nn <- nrow(d)\n# Keep IDs when sorting; break exact residual ties by original record order.\nordered <- order(d$residual,seq_len(n))\nprobability <- ppoints(n)\nstopifnot(max(abs(probability-(seq_len(n)-.5)/n))<1e-12)\nqq_table <- data.frame(d[ordered,],position=seq_len(n),\n                       probability=probability,theoretical=qnorm(probability))\nprint(qq_table,digits=12,row.names=FALSE)\nselected <- qq_table[qq_table$id==\"A3\",]\nprint(selected,digits=12,row.names=FALSE)\n# Independently check the selected point against base R's Q-Q calculation.\nqq <- qqnorm(d$residual,plot.it=FALSE)\nselected_row <- which(d$id==\"A3\")\nstopifnot(selected$fitted==8,selected$residual==2,selected$position==8,\n          selected$probability==.625,\n          abs(selected$theoretical-.318639363964375)<1e-12,\n          abs(qq$x[selected_row]-selected$theoretical)<1e-12,\n          qq$y[selected_row]==selected$residual)\n# Compute plausible wrong routes rather than treating them as valid coordinates.\nraw_position <- match(selected_row,order(d$y,seq_len(n)))\nreverse_position <- match(selected_row,order(-d$residual,seq_len(n)))\nwrong_raw <- qnorm(probability[raw_position])\nwrong_reverse <- qnorm(probability[reverse_position])\nprint(c(raw_position=raw_position,wrong_raw=wrong_raw,\n        reverse_position=reverse_position,wrong_reverse=wrong_reverse),digits=12)\nstopifnot(raw_position==3,reverse_position==5,\n          abs(wrong_raw-(-.812217801499913))<1e-12,\n          abs(wrong_reverse-(-.318639363964375))<1e-12)\n# A plotting probability is not a test P-value or proof of any assumption.\nanswer <- unname(selected$theoretical)\nprint(answer,digits=12)\n"
+    "rCode": "# Original teaching data, with four independent units per group.\nd <- data.frame(id=c(paste0(\"A\",1:4),paste0(\"B\",1:4),paste0(\"C\",1:4)),\n                group=factor(rep(c(\"A\",\"B\",\"C\"),each=4)),\n                y=c(3,7,10,12,11,15,18,24,21,22,28,29))\nfit <- lm(y ~ group,data=d)\n# Direct group subtraction preserves exact ties in these integer data.\nd$fitted <- ave(d$y,d$group,FUN=mean)\nd$residual <- d$y-d$fitted\nstopifnot(max(abs(d$fitted-fitted(fit)))<1e-10,\n          max(abs(d$residual-residuals(fit)))<1e-10)\nn <- nrow(d)\n# Keep IDs when sorting; break exact residual ties by original record order.\nordered <- order(d$residual,seq_len(n))\nprobability <- ppoints(n)\nstopifnot(max(abs(probability-(seq_len(n)-.5)/n))<1e-12)\nqq_table <- data.frame(d[ordered,],position=seq_len(n),\n                       probability=probability,theoretical=qnorm(probability))\nprint(qq_table,digits=12,row.names=FALSE)\nselected <- qq_table[qq_table$id==\"A3\",]\nprint(selected,digits=12,row.names=FALSE)\n# Independently check the selected point against base R's Q-Q calculation.\nqq <- qqnorm(d$residual,plot.it=FALSE)\nselected_row <- which(d$id==\"A3\")\nstopifnot(selected$fitted==8,selected$residual==2,selected$position==8,\n          selected$probability==.625,\n          abs(selected$theoretical-.318639363964375)<1e-12,\n          abs(qq$x[selected_row]-selected$theoretical)<1e-12,\n          qq$y[selected_row]==selected$residual)\n# Compute plausible wrong routes rather than treating them as valid coordinates.\nraw_position <- match(selected_row,order(d$y,seq_len(n)))\nreverse_position <- match(selected_row,order(-d$residual,seq_len(n)))\nwrong_raw <- qnorm(probability[raw_position])\nwrong_reverse <- qnorm(probability[reverse_position])\nprint(c(raw_position=raw_position,wrong_raw=wrong_raw,\n        reverse_position=reverse_position,wrong_reverse=wrong_reverse),digits=12)\nstopifnot(raw_position==3,reverse_position==5,\n          abs(wrong_raw-(-.812217801499913))<1e-12,\n          abs(wrong_reverse-(-.318639363964375))<1e-12)\n# A plotting probability is not a test P-value or proof of any assumption.\nanswer <- unname(selected$theoretical)\nprint(answer,digits=12)\n",
+    "readQuestion": {
+      "meaning": "同一个 A3 会出现在两张图上。它的高度差不变，横轴的参照换了。",
+      "start": "先从 10 减去 A 组平均。再在全部 12 个残差中找这个差的位置，用位置去查标准正态分位数。",
+      "link": {
+        "url": "labs.html#diagnostics",
+        "label": "在诊断工作台换点，观察两张图的横坐标"
+      }
+    }
   },
   {
     "id": "p11-10",

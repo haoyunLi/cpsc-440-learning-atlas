@@ -137,7 +137,7 @@ try {
   }
   drawAnova(plot, null); drawAnovaDecomposition(decomposition, null); assert.equal(plot.children.length, 0); assert.equal(decomposition.children.length, 0);
   const elements = {};
-  for (const key of ['gap', 'noise', 'gap-value', 'noise-value', 'reset', 'error', 'settings', 'results', 'selected', 'group-sums', 'identity', 'grand', 'conclusion', 'copy', 'code', 'copy-status']) elements[`[data-anov-${key}]`] = new Element();
+  for (const key of ['gap', 'noise', 'gap-value', 'noise-value', 'reset', 'error', 'settings', 'results', 'selected', 'group-sums', 'ss-equation', 'cross', 'diagnostic', 'deviations', 'f-ratio', 'grand', 'conclusion', 'copy', 'code', 'copy-status']) elements[`[data-anov-${key}]`] = new Element();
   for (const kind of ['plot', 'decomposition']) for (const size of ['main', 'large']) elements[`[data-anov-${kind}="${size}"]`] = new Element('svg');
   for (const id of ids) {
     elements[`[data-anov-select="${id}"]`] = new Element('button'); elements[`[data-anov-row="${id}"]`] = new Element('tr');
@@ -152,15 +152,20 @@ try {
   assert.equal(output(0, 'f').textContent, '27'); assert.equal(output(0, 'p').textContent, '0.001');
   assert.equal(output(0, 'ss').textContent, '54'); assert.equal(output(1, 'ss').textContent, '6'); assert.equal(output(2, 'ss').textContent, '60');
   assert.deepEqual([0, 1, 2].map(i => output(i, 'df').textContent), ['2', '6', '8']); assert.equal(output(2, 'ms').textContent, '—'); assert.equal(output(1, 'p').textContent, '—');
-  assert.match(get('selected').textContent, /16 = 9 \+ 1 \+ \(6\)/);
+  for (const key of ['ss-equation', 'cross', 'deviations', 'f-ratio']) assert.match(get(key).innerHTML, /<math/);
+  assert.ok(get('cross').innerHTML.includes('16&amp;=9+1+(6)'));
+  assert.ok(get('ss-equation').innerHTML.includes('60&amp;=54+6'));
+  assert.match(get('diagnostic').textContent, /A1.*本组平均 5.*残差 -1/);
   const stableButton = select('A3'), stableRow = elements['[data-anov-row="A3"]'], stableGap = get('gap');
   stableButton.focus(); await stableButton.dispatch('click'); assert.equal(document.activeElement, stableButton); assert.equal(stableButton.attrs['aria-pressed'], 'true');
-  assert.match(get('selected').textContent, /4 = 9 \+ 1 \+ \(-6\)/); assert.equal(get('code').textContent, anovaRCode({}, 'A3'));
+  assert.ok(get('cross').innerHTML.includes('4&amp;=9+1+(-6)')); assert.equal(get('code').textContent, anovaRCode({}, 'A3'));
+  assert.match(get('diagnostic').textContent, /A3.*本组平均 5.*残差 1/);
   get('noise').value = '2'; await get('noise').dispatch('input'); assert.equal(select('A3'), stableButton); assert.equal(elements['[data-anov-row="A3"]'], stableRow);
-  assert.match(get('selected').textContent, /^A3：Y=7/); assert.equal(output(0, 'ss').textContent, '54'); assert.equal(output(1, 'ss').textContent, '24'); assert.equal(output(0, 'f').textContent, '6.75');
+  assert.match(get('selected').textContent, /^A3 高 7 厘米/); assert.equal(output(0, 'ss').textContent, '54'); assert.equal(output(1, 'ss').textContent, '24'); assert.equal(output(0, 'f').textContent, '6.75');
+  assert.ok(get('f-ratio').innerHTML.includes(String.raw`\frac{27}{4}\approx6.75`));
   get('gap').focus(); get('gap').value = '0'; await get('gap').dispatch('input'); assert.equal(document.activeElement, stableGap);
   assert.equal(output(0, 'f').textContent, '0'); assert.equal(output(0, 'p').textContent, '1'); assert.match(get('settings').textContent, /不表示 H₀.*随机样本.*F=0/);
-  await select('B2').dispatch('click'); assert.match(get('selected').textContent, /总偏差 0 = 组间 0 \+ 组内 \(0\)/);
+  await select('B2').dispatch('click'); assert.ok(get('cross').innerHTML.includes('0&amp;=0+0+(0)'));
   assert.equal(elements['[data-anov-decomposition="main"]'].children.filter(el => 'data-anov-zero' in el.attrs).length, 3);
   get('gap').value = '6'; get('noise').value = '.25'; await get('noise').dispatch('input');
   assert.equal(output(0, 'f').textContent, '1728'); assert.match(output(0, 'p').textContent, /e-9$/); assert.notEqual(output(0, 'p').textContent, '0');

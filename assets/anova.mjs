@@ -1,4 +1,5 @@
 import { fSurvival } from './math.mjs';
+import { equationHTML } from './formulas.mjs';
 
 const groupNames = ['A', 'B', 'C'], pattern = [-1, 0, 1];
 const ids = groupNames.flatMap(name => [1, 2, 3].map(j => name + j));
@@ -162,19 +163,30 @@ export function drawAnovaDecomposition(svg, result, selectedId = 'A1') {
 export function mountAnova(root) {
   if (root.dataset.anovaReady) return;
   root.classList.add('anov-lab');
-  root.innerHTML = `<p>使用正文的同一份九点例子：默认 A=[4,5,6]、B=[7,8,9]、C=[10,11,12]。两个滑块直接构造样本值，不是从某个总体反复随机抽样。先固定一个滑块，再观察另一项进入哪一个平方和。</p>
-    <div class="anov-controls"><label for="ag">组中心间距 gap：<output id="ag-v" data-anov-gap-value>3</output><input id="ag" data-anov-gap type="range" min="0" max="6" step="0.25" value="3"></label><label for="an">组内残差倍数 noise：<output id="an-v" data-anov-noise-value>1</output><input id="an" data-anov-noise type="range" min="0.25" max="5" step="0.25" value="1"></label></div>
+  root.innerHTML = `<p>九株苗分在三组，每个点是一株。先让三组中心保持原位，把第二个滑块从 1 调到 2。苗在组内散得更开时，三组的平均高度还容易区分吗？</p>
+    <div class="anov-controls"><label for="ag">让三组的中心离得更远 <output id="ag-v" data-anov-gap-value>3</output><input id="ag" data-anov-gap type="range" min="0" max="6" step="0.25" value="3"></label><label for="an">让同组的苗围绕中心散开 <output id="an-v" data-anov-noise-value>1</output><input id="an" data-anov-noise type="range" min="0.25" max="5" step="0.25" value="1"></label></div>
     <button type="button" class="secondary" data-anov-reset>恢复正文九点例子</button><p class="anov-error" data-anov-error role="alert"></p><p class="anov-note" data-anov-settings role="status"></p>
     <div data-anov-results><figure><svg data-anov-plot="main" viewBox="0 0 680 355" role="img"></svg><figcaption>绿色点是观测；棕色短线是组均值；灰色虚线是 grand mean。圈出选中 ID，细点线追踪其 residual。同组点横向错开只为辨识，不是另一个测量变量。改变滑块保持同一坐标尺度。</figcaption></figure>
-    <h3>选中一个观测，核对它对每一项的贡献</h3><p class="anov-note">点击行首 ID 追踪原始观测。t=Y−grand mean，b=group mean−grand mean，e=Y−group mean；这里 t 只是总偏差的简写，不是 t 检验统计量。后四列是平方与 cross-term，单位为响应单位的平方。窄屏请在表内横向滚动。</p>
-    <div class="anov-table-wrap" tabindex="0" role="region" aria-label="九个观测的偏差与平方和贡献，可横向滚动"><table class="anov-observations"><thead><tr><th scope="col">ID</th><th scope="col">Y</th><th scope="col">t</th><th scope="col">b</th><th scope="col">e</th><th scope="col">t²</th><th scope="col">b²</th><th scope="col">e²</th><th scope="col">2be</th></tr></thead><tbody>${ids.map(id => `<tr data-anov-row="${id}"><th scope="row"><button type="button" class="secondary" data-anov-select="${id}" aria-pressed="false">${id}</button></th>${['value', 'total', 'between', 'residual', 'totalSquare', 'betweenSquare', 'residualSquare', 'cross'].map(key => `<td data-anov-cell="${id}-${key}"></td>`).join('')}</tr>`).join('')}</tbody><tfoot><tr><th scope="row" colspan="5">逐行加总</th><td data-anov-sum="sst"></td><td data-anov-sum="ssb"></td><td data-anov-sum="sse"></td><td data-anov-sum="cross"></td></tr></tfoot></table></div>
+    <h3>组间差别，比组内波动大多少？</h3><p>先把两类偏差分别平方、相加，再各除以对应的自由度。F 用组间均方作分子，用组内均方作分母。</p>
+    <div class="equation typeset-equation" data-anov-f-ratio tabindex="0" role="region" aria-label="当前 F 比值，可横向滚动"></div>
+    <h3>选一株苗，从总平均走到它的高度</h3>
+    <div class="anov-picker" role="group" aria-label="选择一株苗">${ids.map(id => `<button type="button" class="secondary" data-anov-select="${id}" aria-pressed="false">${id}</button>`).join('')}</div>
     <p class="anov-readout" data-anov-selected aria-live="polite"></p>
     <figure><svg data-anov-decomposition="main" viewBox="0 0 680 345" role="img"></svg><figcaption>空心点是起点，箭头指向终点；重合时显示实点与“差=0”。三行共用响应轴，线段表示带方向的差，不能把线段长度直接当平方和。组间偏差是拟合组中心的描述，不自动等于真实处理效应或因果效应。</figcaption></figure>
+    <div class="equation typeset-equation" data-anov-deviations tabindex="0" role="region" aria-label="当前观测的偏差分解，可横向滚动"></div>
+    <p><span data-anov-diagnostic></span> <a href="#diagnostics">接着看残差怎样进入 Q–Q 图 →</a></p>
     <details class="anov-enlarge"><summary>放大查看两张图</summary><div class="anov-large-wrap" tabindex="0" role="region" aria-label="放大的 ANOVA 观测图和有向偏差图，可横向滚动"><svg data-anov-plot="large" viewBox="0 0 680 355" role="img"></svg><svg data-anov-decomposition="large" viewBox="0 0 680 345" role="img"></svg></div></details>
-    <h3>从逐项分解，到相加后的平方和</h3><div data-anov-group-sums></div><p class="anov-readout" data-anov-identity></p><p data-anov-grand></p>
+    <h3>把九株苗的平方贡献加起来</h3>
+    <div class="equation typeset-equation" data-anov-ss-equation tabindex="0" role="region" aria-label="当前样本的平方和，可横向滚动"></div>
+    <p>每株都有自己的平方贡献。平方时会多出一项；同组的残差加起来为零，这些交叉项也就在组内抵消。</p>
+    <details><summary>展开九株苗，逐行核对平方和与交叉项</summary>
+    <p class="anov-note">t 是总偏差，b 是组间偏差，e 是组内残差。最后四列用的是高度单位的平方。</p>
+    <div class="equation typeset-equation" data-anov-cross tabindex="0" role="region" aria-label="选中观测的平方贡献，可横向滚动"></div>
+    <div class="anov-table-wrap" tabindex="0" role="region" aria-label="九个观测的偏差与平方和贡献，可横向滚动"><table class="anov-observations"><thead><tr><th scope="col">ID</th><th scope="col">Y</th><th scope="col">t</th><th scope="col">b</th><th scope="col">e</th><th scope="col">t²</th><th scope="col">b²</th><th scope="col">e²</th><th scope="col">2be</th></tr></thead><tbody>${ids.map(id => `<tr data-anov-row="${id}"><th scope="row">${id}</th>${['value', 'total', 'between', 'residual', 'totalSquare', 'betweenSquare', 'residualSquare', 'cross'].map(key => `<td data-anov-cell="${id}-${key}"></td>`).join('')}</tr>`).join('')}</tbody><tfoot><tr><th scope="row" colspan="5">逐行加总</th><td data-anov-sum="sst"></td><td data-anov-sum="ssb"></td><td data-anov-sum="sse"></td><td data-anov-sum="cross"></td></tr></tfoot></table></div>
+    <div data-anov-group-sums></div><p data-anov-grand></p></details>
     <h3>除以自由度，读完整 ANOVA 表</h3><p class="anov-note">表内可横向滚动；F 只填 treatment 行，分母来自 error 行的 MSE。Total 行不用来构造一个额外检验。</p><div class="anov-table-wrap" tabindex="0" role="region" aria-label="ANOVA 的平方和、自由度、均方、F 和 P，可横向滚动"><table class="anov-output"><thead><tr><th scope="col">来源</th><th scope="col">SS</th><th scope="col">df</th><th scope="col">MS</th><th scope="col">F</th><th scope="col">右尾 P</th></tr></thead><tbody>${['Treatment', 'Error', 'Total'].map((name, i) => `<tr><th scope="row">${name}</th>${['ss', 'df', 'ms', 'f', 'p'].map(key => `<td data-anov-output="${i}-${key}"></td>`).join('')}</tr>`).join('')}</tbody></table></div><p data-anov-conclusion></p></div>
     <details><summary>复制当前九点数据到 base R 核对</summary><button type="button" class="secondary" data-anov-copy>复制当前 R 代码</button><pre data-anov-code></pre><p class="anov-note" data-anov-copy-status role="status"></p></details>
-    <p class="anov-note">这是每组 3 个独立实验单位的假设构造；重复测量同一单位不能充当这些独立行。精确 F 参考需要独立正态误差与共同 variance。P 小不代表 effect 大，也不是 H₀ 为真的概率；整体拒绝只说并非所有总体均值相等，不能直接指定哪些组不同。</p>`;
+    <p class="anov-note">滑块直接构造这九个观测，不是从某个总体反复随机抽样。精确 F 参考需要独立正态误差与共同方差。整体拒绝只说明总体均值并非全相同。要找出哪些组不同，需做具体的比较。</p>`;
   const $ = selector => root.querySelector(selector), gapInput = $('[data-anov-gap]'), noiseInput = $('[data-anov-noise]'), copy = $('[data-anov-copy]');
   let selectedId = 'A1', result = null, revision = 0;
   function read() {
@@ -197,9 +209,14 @@ export function mountAnova(root) {
         for (const key of ['value', 'total', 'between', 'residual', 'totalSquare', 'betweenSquare', 'residualSquare', 'cross']) $(`[data-anov-cell="${item.id}-${key}"]`).textContent = show(item[key]);
       }
       for (const [key, value] of Object.entries({ sst: result.sst, ssb: result.ssb, sse: result.sse, cross: result.crossSum })) $(`[data-anov-sum="${key}"]`).textContent = show(value);
-      $('[data-anov-selected]').textContent = `${row.id}：Y=${show(row.value)}，group mean=${show(row.groupMean)}，grand mean=${show(result.grandMean)}。总偏差 ${show(row.total)} = 组间 ${show(row.between)} + 组内 (${show(row.residual)})。平方后必须保留 cross-term：${show(row.totalSquare)} = ${show(row.betweenSquare)} + ${show(row.residualSquare)} + (${show(row.cross)})；该点的 cross-term 为 ${show(row.cross)}，不能未经求和就丢掉。`;
+      const [y, m, grand] = [row.value, row.groupMean, result.grandMean].map(show);
+      $('[data-anov-selected]').textContent = `${row.id} 高 ${y} 厘米。从总平均 ${grand} 先走到本组平均 ${m}，再走到这株苗的高度 ${y}。`;
+      $('[data-anov-f-ratio]').innerHTML = equationHTML(String.raw`F=\frac{\mathrm{MS}_{\mathrm{trt}}}{\mathrm{MS}_{E}}=\frac{${show(result.msBetween)}}{${show(result.mse)}}\approx${show(result.f)}`);
+      $('[data-anov-deviations]').innerHTML = equationHTML(String.raw`\begin{aligned}t&=${y}-${grand}=${show(row.total)}\\ b&=${m}-${grand}=${show(row.between)}\\ e&=${y}-${m}=${show(row.residual)}\end{aligned}`);
+      $('[data-anov-diagnostic]').textContent = `最后一段就是残差。把 ${row.id} 画到残差对拟合值的图上，横坐标是本组平均 ${m}，纵坐标是残差 ${show(row.residual)}。`;
+      $('[data-anov-cross]').innerHTML = equationHTML(String.raw`\begin{aligned}t^2&=b^2+e^2+2be\\ ${show(row.totalSquare)}&=${show(row.betweenSquare)}+${show(row.residualSquare)}+(${show(row.cross)})\end{aligned}`);
       $('[data-anov-group-sums]').innerHTML = result.groups.map(group => `<p><b>${group.group} 组：</b>组均值=${show(group.mean)}，每行的 b=${show(group.mean - result.grandMean)}；Σe=${show(group.residualSum)}，所以 Σ2be=2×(${show(group.mean - result.grandMean)})×0=${show(group.crossSum)}。本组贡献 SStrt=${show(group.ssb)}、SSE=${show(group.sse)}。</p>`).join('');
-      $('[data-anov-identity]').textContent = `直接逐行求得 SST=${show(result.sst)}；SStrt=${show(result.ssb)}，SSE=${show(result.sse)}，Σcross=${show(result.crossSum)}。全部相加后：${show(result.sst)}=${show(result.ssb)}+${show(result.sse)}。每组 residual 和为 0，使 cross-term 总和抵消；不是每个观测都没有 cross-term。`;
+      $('[data-anov-ss-equation]').innerHTML = equationHTML(String.raw`\begin{aligned}\mathrm{SS}_{T}&=\mathrm{SS}_{\mathrm{trt}}+\mathrm{SS}_{E}\\ ${show(result.sst)}&=${show(result.ssb)}+${show(result.sse)}\end{aligned}`);
       $('[data-anov-grand]').textContent = `Grand mean 使用全部观测：(${result.groups.map(group => `${group.n}×${show(group.mean)}`).join('+')})/${result.N}=${show(result.grandMean)}。本例每组 n 相同，才恰好等于三个组均值的简单平均；组大小不同时仍须按 n 加权。`;
       const output = [[result.ssb, result.dfBetween, result.msBetween, result.f, result.p], [result.sse, result.dfError, result.mse, null, null], [result.sst, result.dfTotal, null, null, null]];
       output.forEach((values, i) => ['ss', 'df', 'ms', 'f', 'p'].forEach((key, j) => $(`[data-anov-output="${i}-${key}"]`).textContent = values[j] === null ? '—' : show(values[j])));

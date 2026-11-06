@@ -7,7 +7,7 @@ import { mountCLT } from './clt.mjs';
 import { mountBinomial, chapterProbabilityLabel as binomialProbabilityLabel, binomialTailSummary as summarizeBinomialTail } from './binomial.mjs';
 import { mountFactorial } from './factorial.mjs';
 import { mountPaired } from './paired.mjs?v=readout-1';
-import { mountAnova } from './anova.mjs';
+import { mountAnova } from './anova.mjs?v=point-trace-1';
 import { mountRegression } from './regression.mjs';
 import { equationHTML } from './formulas.mjs';
 const readingChapterIds = ['01', '04', '05', '06', '07', '08', '09', '14', '15', '11'];
@@ -83,7 +83,7 @@ export function inferenceProbabilities({ n, sigma, delta, alpha, tail }) {
   const classification = inAlternative ? 'alternative' : delta === 0 ? 'boundary' : 'null';
   return { se, lower, upper, nonRejection, rejection, classification, beta: inAlternative ? nonRejection : null, power: inAlternative ? rejection : null };
 }
-const instructions={summary:['数据摘要实验室','改变数据或 bin 数，追踪每个点如何改变 center 与 spread。'],probability:['Binomial 与 CLT 实验室','每一根柱是某个 count 的 probability；再亲自反复抽样观察 mean 的分布。'],inference:['Type I、Type II 与 power 实验室','先固定 rejection rule，再看指定真实均值下的拒绝与不拒绝概率。'],paired:['Pairing 的信息在哪里？','保留观测身份，比较整行排序与单列重排，追踪 difference、covariance 与 SE。'],variance:['χ² 与 variance CI 实验室','df 改变 reference distribution，并改变 variance interval 的不对称性。'],anova:['从一个观测走到 ANOVA 表','用正文同一份九点数据，逐项核对有方向的偏差、交叉项与平方和。'],multiple:['Multiple-testing 实验室','这里的 FWER 公式明确假定 independent null tests；Bonferroni bound 不需要独立。'],factorial:['Interaction 与不同权重的 marginal means','先改变 cell means，再保持它们不变只改样本数，区分条件效应与样本构成。'],design:['Blocking 与 Latin square 实验室','沿光照梯度，比较各 treatment 在每个 block 中均出现的结构。'],regression:['同一个 x₀，两种不同的预测问题','在同一尺度上比较总体 mean 的 CI 与新个体的 PI；逐项追踪 h₀、variance、SE 与临界值。']};
+const instructions={summary:['数据摘要实验室','改变数据或 bin 数，追踪每个点如何改变 center 与 spread。'],probability:['Binomial 与 CLT 实验室','每一根柱是某个 count 的 probability；再亲自反复抽样观察 mean 的分布。'],inference:['Type I、Type II 与 power 实验室','先固定 rejection rule，再看指定真实均值下的拒绝与不拒绝概率。'],paired:['Pairing 的信息在哪里？','保留观测身份，比较整行排序与单列重排，追踪 difference、covariance 与 SE。'],variance:['χ² 与 variance CI 实验室','df 改变 reference distribution，并改变 variance interval 的不对称性。'],anova:['九株苗怎样变成一张 ANOVA 表？','改变组间距离或组内散布，再追踪一株苗对计算的贡献。'],multiple:['Multiple-testing 实验室','这里的 FWER 公式明确假定 independent null tests；Bonferroni bound 不需要独立。'],factorial:['Interaction 与不同权重的 marginal means','先改变 cell means，再保持它们不变只改样本数，区分条件效应与样本构成。'],design:['Blocking 与 Latin square 实验室','沿光照梯度，比较各 treatment 在每个 block 中均出现的结构。'],regression:['同一个 x₀，两种不同的预测问题','在同一尺度上比较总体 mean 的 CI 与新个体的 PI；逐项追踪 h₀、variance、SE 与临界值。']};
 function labSummary(el) {
   const update=setup(el, `<label for="data-values">原创示例数据；逗号或空格分隔，至少 2 个数，最多 500 个</label><textarea id="data-values">2, 3, 3, 4, 18</textarea><div class="controls">${range('bins','Bins',3,20,1,7)}</div><p class="error" role="alert"></p>${svg('示例数据 histogram 与统计量')}<p class="caption" data-summary-scale></p><div class="readout" aria-live="polite"></div><p class="caption">Histogram 纵轴为 count。改变 bins 只改分组显示，不改观测或统计量。所有观测相同时，SD 与 variance 为 0；图中会留出横轴空间显示这一根柱。≈0 表示计算结果接近本组数据尺度的浮点舍入精度。</p>
     <h3>同一组数据：箱体、须和围栏分别在哪里？</h3><p>先预测：把最后一个值移远时，mean 与 median 谁更敏感？须会伸到围栏，还是围栏内最远的实际观测？下方与 histogram 使用同一组数据；两个图各自缩放并标明刻度。</p>

@@ -87,6 +87,7 @@ node tests/workbench.mjs
 node tests/diagnostics.mjs
 node tests/intuition.mjs
 Rscript --vanilla tests/walkthrough_numbers.R
+Rscript --vanilla tests/method_cases.R
 python3 tests/typesetting.py
 node tests/regression.mjs
 node tests/chooser.mjs

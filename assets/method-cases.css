@@ -1,0 +1,59 @@
+.method-case {
+  min-width: 0;
+  margin-block: 28px;
+  padding: clamp(12px, 2.6vw, 26px);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.method-case [hidden] { display: none !important; }
+.method-case h3 { margin-top: 0; }
+.method-case .mc-stage {
+  margin: 20px 0 8px;
+  font-size: .93em;
+  font-weight: 750;
+  color: var(--accent);
+}
+.mc-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.mc-buttons button {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: var(--paper);
+  text-align: left;
+  white-space: normal;
+  font-size: .91em;
+  line-height: 1.5;
+}
+.mc-buttons button:hover { background: var(--wash); color: var(--accent); }
+.mc-buttons button[aria-pressed=true] { color: #fff; background: var(--accent); }
+.mc-feedback { margin-block: 12px; padding-inline-start: 10px; border-inline-start: 3px solid var(--line); }
+.mc-feedback[data-state=retry] { border-color: var(--alert); }
+.mc-feedback[data-state=correct] { border-color: var(--accent); }
+.mc-figure { margin: 14px 0 10px; min-width: 0; }
+.mc-chart { background: var(--wash); border-radius: 8px; }
+.mc-svg { display: block; width: 100%; max-width: 500px; height: auto; margin-inline: auto; }
+.mc-svg text { fill: var(--ink); font: 15px sans-serif; }
+.mc-guide { stroke: #a9bbb1; stroke-width: 1; }
+.mc-difference { stroke: #994b30; stroke-width: 2.2; stroke-dasharray: 3 2; }
+.mc-fit { stroke: #314243; stroke-width: 2.2; }
+.mc-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr)); gap: 8px; margin-block: 12px; }
+.mc-metric { min-width: 0; padding: 7px 10px; background: var(--wash); border-radius: 5px; }
+.mc-metric span, .mc-metric strong { display: block; }
+.mc-metric span { font-size: .8em; color: var(--muted); }
+.mc-metric strong { line-height: 1.5; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.method-case details { margin-block: 14px 4px; padding: 4px 0; }
+.method-case summary { display: list-item; min-height: 44px; padding: 8px 0; }
+.mc-formula { margin-block: 13px; }
+.mc-formula .typeset-equation { margin: 0; padding: 3px 4px; }
+.mc-formula .katex-display { margin-block: .35em; }
+.mc-conclusion { margin-bottom: 0; }
+@media (max-width: 520px) {
+  .mc-buttons { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .mc-formula .typeset-equation { font-size: clamp(12px, 3.6vw, 16px); }
+}
+.mc-raw-a { stroke: #156b67; stroke-width: 1.8; }
+.mc-raw-b { stroke: #994b30; stroke-width: 1.8; stroke-dasharray: 4 3; }

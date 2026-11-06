@@ -93,15 +93,17 @@ def story_sections():
         sections[cid] = f'''<section class="intuition-story" id="intuition" data-intuition aria-labelledby="intuition-title">
 <p class="story-kicker">先看一个小故事</p><h2 id="intuition-title">{esc(spec['title'])}</h2>
 <p class="story-question">{esc(spec['question'])}</p><p>{esc(spec['story'])}</p>
-<div class="story-prediction"><p><b>先猜一下，再动手核对</b></p><div class="story-choices">{choices}</div><p data-story-feedback role="status">选一个判断，会告诉你为什么。</p></div>
+<div class="story-prediction" hidden><p><b>① 先猜一下</b></p><div class="story-choices">{choices}</div><p data-story-feedback role="status">选一个判断，会告诉你为什么。</p></div>
+<div class="story-result"><div class="story-controls" hidden>
+<p><b>② 调整一个条件，看看图怎样变</b></p>
 <label for="story-input-{cid}">{esc(spec['label'])} <output data-story-value aria-live="off">{esc(spec['value'])}</output></label>
 <input disabled id="story-input-{cid}" data-story-input type="range" min="{spec['min']}" max="{spec['max']}" step="{spec['step']}" value="{spec['value']}">
-<button type="button" class="secondary" data-story-reset disabled>恢复这个例子的起点</button>
+<button type="button" class="secondary" data-story-reset disabled>恢复这个例子的起点</button></div>
 <figure><svg data-story-plot viewBox="0 0 640 320" role="img" aria-label="{esc(state['summary'])}">{state['svg']}</svg><figcaption data-story-summary>{esc(state['summary'])}</figcaption></figure>
 <p data-story-explanation>{esc(state['explanation'])}</p>
 <details class="story-zoom"><summary>放大看图（可左右滑动）</summary><div tabindex="0" role="region" aria-label="放大的故事图，可横向滚动"><svg data-story-zoom viewBox="0 0 640 320" role="img" aria-label="{esc(state['summary'])}">{state['svg']}</svg></div></details>
-<details class="story-math"><summary>把刚才的变化，写成公式</summary><div class="equation typeset-equation" data-story-formula>{math}</div></details>
-<p class="story-takeaway"><b>记住这一句：</b>{esc(spec['takeaway'])}</p>
+<details class="story-math"><summary>展开公式</summary><div class="equation typeset-equation" data-story-formula>{math}</div></details>
+<p class="story-takeaway"><b>记住这一句：</b>{esc(spec['takeaway'])}</p></div>
 <a class="story-next" href="#{esc(spec['lesson'])}">带着这个直觉，继续看正式讲解 →</a>
 <noscript><p>上图与数字是起始例子；启用 JavaScript 后可以调整。公式、解释和正式章节仍可直接阅读。</p></noscript>
 <script type="application/json" data-story-config>{config}</script></section>'''

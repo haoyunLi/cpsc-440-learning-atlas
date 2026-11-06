@@ -42,6 +42,15 @@ export function mountSeparation(root) {
     `<div><b>${name}</b> <span>${means[i]} cm</span> <strong data-sep-letter></strong></div>`
   ).join('');
   root.innerHTML = `
+    <p><b>① 先判断</b></p>
+    <p>均值差是 4 cm。LSD 按单对比较设门槛，Tukey 同时照顾三对比较。换规则后，同一个 4 cm 的判断可能改变吗？</p>
+    <div class="sep-actions" role="group" aria-label="判断换规则的影响">
+      <button type="button" class="secondary" data-sep-prediction="yes" aria-pressed="false">可能改变，因为门槛不同</button>
+      <button type="button" class="secondary" data-sep-prediction="no" aria-pressed="false">差值一样，所以判断也一样</button>
+    </div>
+    <p data-sep-feedback role="status">选一个判断，再用两把尺核对。</p>
+    <div data-sep-output hidden>
+    <p><b>② 切换规则，再选一对</b></p>
     <div class="sep-actions" role="group" aria-label="选择成对比较规则">
       <button type="button" class="secondary" data-sep-method="lsd" aria-pressed="true">Fisher LSD</button>
       <button type="button" class="secondary" data-sep-method="tukey" aria-pressed="false">Tukey W</button>
@@ -53,9 +62,9 @@ export function mountSeparation(root) {
     <div class="sep-letters" aria-label="处理均值与当前分组字母">${groupCards}</div>
     <p class="sep-readout" data-sep-readout role="status"></p>
     <details>
-      <summary>把门槛和差值写成算式</summary>
+      <summary>③ 展开门槛和差值的公式</summary>
       <div class="equation typeset-equation" data-sep-equation tabindex="0" role="region" aria-label="当前比较的计算"></div>
-    </details>`;
+    </details></div>`;
 
   const methodButtons = [...root.querySelectorAll('[data-sep-method]')];
   const pairButtons = [...root.querySelectorAll('[data-sep-pair]')];
@@ -94,6 +103,17 @@ export function mountSeparation(root) {
       ${gap}${reject ? '>' : '<'}${mark}
     \end{gathered}`);
   }
+  const predictions = [...root.querySelectorAll('[data-sep-prediction]')];
+  const feedback = root.querySelector('[data-sep-feedback]');
+  const result = root.querySelector('[data-sep-output]');
+  predictions.forEach(button => button.addEventListener('click', () => {
+    const correct = button.dataset.sepPrediction === 'yes';
+    predictions.forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
+    feedback.textContent = correct
+      ? '选对了。选一对相差 4 cm 的组，切换规则，看 4 cm 落在门槛哪一边。'
+      : '想想两把尺的门槛是否相同。如果 4 cm 在两条门槛之间，会发生什么？';
+    result.hidden = !correct;
+  }));
   methodButtons.forEach(button => button.addEventListener('click', () => { method = button.dataset.sepMethod; render(); }));
   pairButtons.forEach((button, i) => button.addEventListener('click', () => { index = i; render(); }));
   render();

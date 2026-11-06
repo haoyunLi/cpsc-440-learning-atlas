@@ -139,6 +139,8 @@ export function intuitionState(kind, value) {
 export function mountIntuition(root, spec) {
   if(root.dataset.ready) return;
   const input=root.querySelector('[data-story-input]'), output=root.querySelector('[data-story-value]');
+  const prediction=root.querySelector('.story-prediction'), result=root.querySelector('.story-result');
+  const controls=root.querySelector('.story-controls');
   const update=()=>{
     const value=Number(input.value), s=intuitionState(spec.kind,value);
     output.textContent=spec.kind==='conditional'?(value?'只看雨天':'全部日子'):spec.kind==='pairing'?(value?'打乱身份':'保留身份'):number(value);
@@ -153,9 +155,15 @@ export function mountIntuition(root, spec) {
   choices.forEach((button,i)=>button.addEventListener('click',()=>{
     choices.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
     root.querySelector('[data-story-feedback]').textContent=(i===spec.answer?'这个判断对。':'可以这样再想一步：')+spec.feedback;
+    result.hidden=false;
   }));
-  update();root.dataset.ready='true';
+  update();
   for(const b of root.querySelectorAll('button,input')) b.disabled=false;
+  result.hidden=true;
+  controls.hidden=false;
+  root.querySelector('.story-math summary').textContent='③ 展开公式';
+  prediction.hidden=false;
+  root.dataset.ready='true';
 }
 if(typeof document!=='undefined') for(const root of document.querySelectorAll('[data-intuition]')) {
   mountIntuition(root,JSON.parse(root.querySelector('[data-story-config]').textContent));

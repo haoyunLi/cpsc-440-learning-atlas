@@ -109,18 +109,31 @@ globalThis.document = { activeElement: null };
 Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { clipboard: { writeText: async text => { if (failCopy) throw Error('denied'); copied = text; if (waitCopy) await new Promise(resolve => { resolveCopy = resolve; }); } } } });
 try {
   const elements = {};
-  for (const key of ['mode', 'seed', 'error', 'pending', 'applied', 'context', 'selection', 'balance', 'copy', 'code', 'copy-status']) elements[`[data-rnd-${key}]`] = new Element();
-  for (const action of ['apply', 'next', 'balanced', 'reset']) elements[`[data-rnd-action="${action}"]`] = new Element();
+  for (const key of ['mode', 'seed', 'error', 'pending', 'applied', 'context', 'selection', 'light-math', 'balance', 'copy', 'code', 'copy-status']) elements[`[data-rnd-${key}]`] = new Element();
+  for (const action of ['rcbd', 'crd', 'apply', 'next', 'balanced', 'reset']) elements[`[data-rnd-action="${action}"]`] = new Element();
   for (const unit of rcbd.units) for (const key of ['pot', 'label']) elements[`[data-rnd-${key}="${unit.id}"]`] = new Element();
   for (const t of ['A', 'B', 'C']) {
     for (let b = 0; b < 5; b++) elements[`[data-rnd-count="${t}-${b}"]`] = new Element();
-    for (const key of ['total', 'environment']) elements[`[data-rnd-${key}="${t}"]`] = new Element();
+    for (const key of ['total', 'environment', 'strip', 'exposures']) elements[`[data-rnd-${key}="${t}"]`] = new Element();
   }
   const root = new Element(); root.querySelector = selector => elements[selector] || null;
   const get = key => elements[`[data-rnd-${key}]`], action = key => elements[`[data-rnd-action="${key}"]`];
   mountRandomization(root); mountRandomization(root);
   assert.equal(get('seed').events.input.length, 1); assert.equal(action('apply').events.click.length, 1);
   assert.match(get('applied').textContent, /RCBD.*seed=440/); assert.equal(get('code').textContent, randomizationRCode(rcbd));
+  const exposureBands = t => [...elements[`[data-rnd-exposures="${t}"]`].innerHTML.matchAll(/data-rnd-light="(\d)"/g)].map(match => Number(match[1]));
+  for (const t of ['A', 'B', 'C']) assert.deepEqual(exposureBands(t), [1, 2, 3, 4, 5]);
+  assert.equal(elements['[data-rnd-strip="C"]'].attrs['data-selected'], 'true');
+  assert.ok(get('light-math').innerHTML.includes(String.raw`\bar z_{\mathrm{C}}=\frac{2+1+0-1-2}{5}=0`));
+  await action('crd').dispatch('click');
+  assert.match(get('applied').textContent, /CRD.*seed=440/);
+  assert.equal(action('crd').attrs['aria-pressed'], 'true');
+  assert.deepEqual(exposureBands('A'), [1, 1, 3, 5, 5]);
+  assert.equal(elements['[data-rnd-strip="A"]'].attrs['data-selected'], 'true');
+  assert.ok(get('light-math').innerHTML.includes(String.raw`\bar z_{\mathrm{A}}=\frac{2+2+0-2-2}{5}=0`));
+  await action('rcbd').dispatch('click');
+  assert.equal(action('rcbd').attrs['aria-pressed'], 'true');
+  assert.equal(get('code').textContent, randomizationRCode(rcbd));
   const pot = elements['[data-rnd-pot="P08"]']; pot.focus(); await pot.dispatch('click');
   assert.match(get('selection').textContent, /P08.*Block 3.*位置 2/); assert.equal(pot.attrs['aria-pressed'], 'true'); assert.equal(document.activeElement, pot);
   const appliedCode = get('code').textContent, oldLabels = rcbd.units.map(unit => elements[`[data-rnd-label="${unit.id}"]`].textContent);
@@ -145,7 +158,8 @@ try {
   waitCopy = true; const pendingCopy = get('copy').dispatch('click'); await action('reset').dispatch('click'); resolveCopy(); await pendingCopy; waitCopy = false; assert.equal(get('copy-status').textContent, '');
   get('mode').value = 'crd'; get('seed').value = '70'; await action('apply').dispatch('click');
   assert.match(get('balance').textContent, /重复.*缺少/); for (const t of ['A', 'B', 'C']) assert.equal(elements[`[data-rnd-environment="${t}"]`].textContent, '0');
-  assert.match(root.innerHTML, /平均值相同本身不保证/); assert.match(root.innerHTML, /不是检验 P 值/); assert.match(root.innerHTML, /没有物理单位/);
+  assert.match(root.innerHTML, /平均光照即使相同，盆数也可能分布在不同光照带/);
+  assert.match(root.innerHTML, /1\.027544/); assert.match(root.innerHTML, /没有物理单位/);
 } finally {
   if (previousDocument === undefined) delete globalThis.document; else globalThis.document = previousDocument;
   if (previousNavigator) Object.defineProperty(globalThis, 'navigator', previousNavigator); else delete globalThis.navigator;

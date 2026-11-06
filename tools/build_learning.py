@@ -33,6 +33,7 @@ def build_learning(root, chapters, doc, esc):
         # A missing/failed script must never turn checking into a GET reload.
         inputs = inputs.replace('<input ', '<input disabled ')
         steps = ''.join(f'<li><h4>{esc(s["title"])}</h4>{s["body"]}{math_panel(s["latex"]) if "latex" in s else ""}</li>' for s in q['steps'])
+        prompt_formula = math_panel(q['promptLatex']) if 'promptLatex' in q else ''
         reading = q.get('readQuestion')
         plain_reading = ''
         if reading:
@@ -50,7 +51,7 @@ def build_learning(root, chapters, doc, esc):
             alternatives += '<details class="mistake-explanations"><summary>对照常见计算岔路</summary><ul>'+''.join(f'<li><b>若算得约 {m["value"]:.6g}：</b>{esc(m["feedback"])}</li>' for m in q['commonMistakes'])+'</ul><p class="status">相近结果只是检查线索，不能唯一确定你的计算过程。</p></details>'
         cards.append(f'''<article class="exercise" id="{qid}" data-question="{qid}" data-chapter="{q['chapter']}" data-level="{q['level']}">
 <div class="exercise-meta"><span>{n:02d} / Ch {"1–3" if q['chapter'] == '01' else int(q['chapter'])} · {esc(q['level'])}</span><span class="exercise-state">尚未作答</span></div>
-<h2>{esc(q['title'])}</h2><div class="exercise-prompt">{q['prompt']}</div>{plain_reading}<p class="status">{' · '.join(esc(t) for t in q['tags'])}</p>
+<h2>{esc(q['title'])}</h2><div class="exercise-prompt">{q['prompt']}{prompt_formula}</div>{plain_reading}<p class="status">{' · '.join(esc(t) for t in q['tags'])}</p>
 <form class="answer-form"><p class="answer-availability status">自动判题需要 JavaScript；按钮未启用时，可直接阅读下方提示、完整解析与 R。</p>{inputs}<div class="study-actions"><button type="submit" disabled>检查答案</button><button type="button" class="secondary bookmark" aria-pressed="false" disabled>加入复习</button></div><p class="answer-feedback" role="status" aria-live="polite"></p></form>
 <details class="exercise-hint"><summary>先给我一个提示</summary><p>{esc(q['hint'])}</p></details>
 <details class="exercise-solution"><summary>展开完整解题过程</summary><ol class="solution-steps">{steps}</ol><div class="solution-tail"><p class="solution-conclusion"><b>结论：</b>{q['conclusion']}</p><p class="pitfall"><b>易错点：</b>{q['pitfall']}</p>{alternatives}{code}</div></details>

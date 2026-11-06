@@ -21,6 +21,7 @@ def render_batch(items):
 
 authored_tex = list(dict.fromkeys([r['tex'] for r in RECORDS]
                                  + [f['latex'] for w in WALKS for f in w['frames']]
+                                 + [q['promptLatex'] for q in PRACTICE if 'promptLatex' in q]
                                  + [s['latex'] for q in PRACTICE for s in q['steps'] if 'latex' in s]))
 rendered_by_tex = dict(zip(authored_tex, render_batch([{'tex': tex} for tex in authored_tex])))
 

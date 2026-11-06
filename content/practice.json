@@ -2346,16 +2346,19 @@
     "hint": "总 N=20；treatment 用 3 df，block 用 4 df。",
     "steps": [
       {
-        "title": "写出完整结构",
-        "body": "Yᵢⱼ=μ+τᵢ+βⱼ+εᵢⱼ。每个 block 包含全部 4 个处理，并在 block 内随机分配。"
+        "title": "画出五排四列的设计",
+        "body": "<p>每个区组一排，四种处理在每排各一次，共 20 个独立实验单位。完整加性模型给处理和区组各一项。</p>",
+        "latex": "\\begin{gathered}N=5\\cdot4=20\\\\ Y_{ij}=\\mu+\\tau_i+\\beta_j+\\varepsilon_{ij}\\end{gathered}"
       },
       {
-        "title": "分配自由度",
-        "body": "corrected total df=20−1=19，treatment df=4−1=3，block df=5−1=4。"
+        "title": "先把能解释的部分扣出来",
+        "body": "<p>总自由度为 19。四种处理之间的差用 3 个自由度，五个区组之间的差用 4 个。</p>",
+        "latex": "\\begin{aligned}df_T&=20-1=19\\\\df_{\\mathrm{trt}}&=4-1=3\\\\df_{\\mathrm{block}}&=5-1=4\\end{aligned}"
       },
       {
-        "title": "得到剩余误差信息",
-        "body": "error df=19−3−4=12=(t−1)(b−1)。每个 treatment×block 仅一条记录，无法再单独估计完整 interaction 与纯误差。"
+        "title": "把余下的留给误差",
+        "body": "<p>误差自由度是 12。每个处理与区组的交叉格只测一次，完整的处理×区组交互与纯误差无法在这些观测中分别估计。</p>",
+        "latex": "\\begin{aligned}df_E&=19-3-4=12\\\\&=(4-1)(5-1)\\end{aligned}"
       }
     ],
     "conclusion": "error df=12，需要加性或相应无 interaction 假设。",
@@ -2376,7 +2379,15 @@
         "tolerance": 0,
         "feedback": "这是 corrected total df。Error df 是总 df 扣除 treatment 的 3 df 与 block 的 4 df 后剩下的部分。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "每个区组都放齐四种处理。现在要数，扣掉处理平均差和区组背景差以后，还剩多少自由度估计波动。",
+      "start": "先从 20 个观测得到总自由度。处理和区组分别用去「水平数减一」，余下就是误差。",
+      "link": {
+        "url": "chapters/15.html#rcbd-anova",
+        "label": "对照完整区组的 ANOVA 分解"
+      }
+    }
   },
   {
     "id": "p15-02",
@@ -2398,16 +2409,19 @@
     "hint": "平衡设计下 SS_treatment 保持；block SS 被并入 SSE。",
     "steps": [
       {
-        "title": "先求 RCBD 的误差",
-        "body": "RCBD error df=(3−1)(4−1)=6，MSE=12/6=2；MS_treatment=48/2=24，原 F=12。"
+        "title": "先记下两种模型共用的处理均方",
+        "body": "<p>完整平衡设计中，各处理经历的区组构成一样。省略区组时处理平方和保持为 48，处理均方为 24。原 RCBD 的误差均方为 2。</p>",
+        "latex": "\\begin{gathered}\\mathrm{MS}_{\\mathrm{trt}}=48/(3-1)=24\\\\\\mathrm{MSE}_{\\mathrm{RCBD}}=12/6=2\\end{gathered}"
       },
       {
-        "title": "省略 block 后重新分配",
-        "body": "CRD SSE=SS_block+SSE=60+12=72；error df=N−t=12−3=9，MSE=72/9=8。"
+        "title": "把区组变异放回误差",
+        "body": "<p>省略区组后，原来由区组解释的 60 也进了残差。12 个观测只拟合三个处理均值，留下九个误差自由度。</p>",
+        "latex": "\\begin{gathered}\\mathrm{SSE}_{\\mathrm{omit}}=60+12=72\\\\\\mathrm{MSE}_{\\mathrm{omit}}=72/(12-3)=8\\end{gathered}"
       },
       {
-        "title": "比较相同信号与不同噪声",
-        "body": "新的 F=24/8=3。这里 blocking 移走了较大的 nuisance variation。若 block 几乎无解释力，减少 df 的代价也可能使 blocking 收益有限。"
+        "title": "同一分子换一笔噪声作分母",
+        "body": "<p>原来 F 为 12，省略区组后降到 3。这次是同一份区组数据的两种拟合；花盆在实验前的抽签方式保持原样。</p>",
+        "latex": "\\begin{gathered}F_{\\mathrm{RCBD}}=24/2=12\\\\ F_{\\mathrm{omit}}=24/8=3\\end{gathered}"
       }
     ],
     "conclusion": "忽略 blocks 后 F 从 12 下降为 3。",
@@ -2427,7 +2441,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与已经把 block SS 并入误差、却仍沿用 RCBD error df=6 一致。省略 block 后，SSE 和 df 都要更新，CRD error df=12−3=9。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "原来同一份数据把光照带的差异单独记了一笔。现在把区组从模型拿掉，问原来那笔变化会去哪儿。",
+      "start": "保留处理平方和。把区组平方和加进残差，再用只拟合三个处理均值时的误差自由度。",
+      "link": {
+        "url": "chapters/15.html#rcbd-anova",
+        "label": "沿着同一份数据比较保留和省略区组的模型"
+      }
+    }
   },
   {
     "id": "p15-03",
@@ -2448,16 +2470,19 @@
     "hint": "行、列、处理各用 4 df；总 corrected df=24。",
     "steps": [
       {
-        "title": "识别设计结构",
-        "body": "25 个实验单位按行和列组织，处理按 Latin square 规则分布，每处理有 5 个观测。"
+        "title": "看设计的三条方向",
+        "body": "<p>五行、五列、五种处理。每种处理在每行、每列各出现一次，所以处理和两条背景方向都可以分开估。</p>",
+        "latex": "N=5^2=25,\\quad df_T=24"
       },
       {
-        "title": "分配三个来源",
-        "body": "row df=4、column df=4、treatment df=4。加上 intercept 共估计 13 个独立参数。"
+        "title": "每个方向用去四个自由度",
+        "body": "<p>每个方向有五个水平，整体平均已经记过一次，只需四个差来表示各水平。</p>",
+        "latex": "df_{\\mathrm{row}}=df_{\\mathrm{col}}=df_{\\mathrm{trt}}=5-1=4"
       },
       {
-        "title": "计算误差并说明限制",
-        "body": "error df=25−13=12=(t−1)(t−2)。基础模型未包含 interactions；这种设计下不能随意增加所有 interaction 项。"
+        "title": "给误差留下十二个自由度",
+        "body": "<p>用总自由度扣掉三笔。这里按题目的加性模型算。</p>",
+        "latex": "\\begin{aligned}df_E&=24-4-4-4\\\\&=(5-1)(5-2)=12\\end{aligned}"
       }
     ],
     "conclusion": "error df=12。",
@@ -2478,7 +2503,15 @@
         "tolerance": 0,
         "feedback": "这是 corrected total df=24。Error df 还需扣掉 row、column、treatment 各自的 4 df。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "把 25 个单位放进一个方阵。除了处理，还要分别扣掉行与列的背景差异。",
+      "start": "先用 25 减 1 算总自由度，然后从行、列、处理各扣 4。",
+      "link": {
+        "url": "chapters/15.html#lab-design",
+        "label": "试着填拉丁方，核对每行、每列各出现一次"
+      }
+    }
   },
   {
     "id": "p15-04",
@@ -2500,16 +2533,18 @@
     "hint": "固定效应比较指定水平的系数；随机效应描述各水平来自怎样的分布。",
     "steps": [
       {
-        "title": "明确推广目标",
-        "body": "这 5 个环境代表更大的环境总体。模型设 βⱼ 为随机变量，例如独立 N(0,σ²B)，并与误差独立。"
+        "title": "先说想把结果推到哪里",
+        "body": "<p>这里关心的是抽出这五个环境的总体，所以用一个随机背景效应表示从总体抽到的区组。</p>",
+        "latex": "B_j\\sim N(0,\\sigma_B^2)"
       },
       {
-        "title": "写出参数化后的目标",
-        "body": "环境总体的异质性由 variance component σ²B 描述，因此“没有环境间变异”对应 σ²B=0。"
+        "title": "让环境间的波动归零",
+        "body": "<p>若总体里没有环境间变异，各区组效应就没有散布。因此零假设把这个方差设为 0。</p>",
+        "latex": "H_0:\\sigma_B^2=0"
       },
       {
-        "title": "区别于固定水平问题",
-        "body": "固定 block 模型可以检验这几个具体 βⱼ 是否全为 0；random block 模型的科学解释改为环境总体的 variance 是否为 0。通用 mixed model 的边界检验需要匹配的方法。"
+        "title": "换研究目标就换参数",
+        "body": "<p>若只关心这几个指定环境，可比较它们各自的固定效应。随机区组问题则估计整个环境总体的方差分量。</p>"
       }
     ],
     "conclusion": "随机区组的零假设是 H₀:σ²B=0，备择为 σ²B>0。",
@@ -2528,7 +2563,15 @@
       "正确。随机 block 系数被视为来自方差为 σ²B 的总体；σ²B=0 表示该模型中不存在环境间的随机异质性。",
       "残差代表剩余个体波动，σ²B=0 也允许 residual variance 大于零。要求每个残差为零远强于“没有 block variation”。",
       "处理与环境的关系属于设计、分配和模型结构问题；它不是随机 block variance component 是否为零的零假设。"
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "这五个环境是从更大的环境集合里抽出来的。问题是整个集合的背景效应有多分散。",
+      "start": "想象每次再抽一个环境，就得到一个可能的新背景效应。用这些效应的总体方差表示环境差异。",
+      "link": {
+        "url": "chapters/15.html#random-effects",
+        "label": "对照同一批区组的固定与随机推断目标"
+      }
+    }
   },
   {
     "id": "p11-01",
@@ -3591,20 +3634,23 @@
     "hint": "两个 treatment means 含有同一个 block 平均效应，因此有正 covariance。Var(B−A)=Var(B)+Var(A)−2Cov(A,B)。",
     "steps": [
       {
-        "title": "先算单个均值的方差",
-        "body": "每个 treatment mean 都平均了6个blocks。其估计方差为(σ̂B²+σ̂e²)/6=(20+9)/6=29/6；这还不是差值的方差。"
+        "title": "一条处理平均包含两份波动",
+        "body": "<p>每种处理都跨六个区组平均，因此既有区组间波动，也有单个花盆的误差。</p>",
+        "latex": "\\widehat V(\\bar Y_A)=\\widehat V(\\bar Y_B)=\\frac{20+9}{6}=\\frac{29}{6}"
       },
       {
-        "title": "保留共享背景形成的 covariance",
-        "body": "A与B经历同一组blocks，Cov(ȲA,ȲB)=σ̂B²/6=20/6。不能把两个均值当独立而删掉这项。"
+        "title": "标出两条平均共用的环境",
+        "body": "<p>A 和 B 的区组编号和权重都相同。两条平均共同含有同一个区组平均效应，协方差为 20/6。</p>",
+        "latex": "\\widehat{\\operatorname{Cov}}(\\bar Y_A,\\bar Y_B)=\\frac{20}{6}"
       },
       {
-        "title": "相减后取平方根",
-        "body": "Var(ȲB−ȲA)=2×29/6−2×20/6=18/6=3；因此SE=√3≈1.732051。等价简式为√(2σ̂e²/b)。"
+        "title": "减掉重复算到的背景，再开平方",
+        "body": "<p>相减时，共同区组效应抵消，只剩两组各自的误差。</p>",
+        "latex": "\\begin{aligned}\\widehat V(\\bar Y_B-\\bar Y_A)&=2\\frac{29}{6}-2\\frac{20}{6}=3\\\\ \\mathrm{SE}&=\\sqrt3\\approx1.73205\\end{aligned}"
       },
       {
-        "title": "解释公式的适用范围",
-        "body": "block项抵消依靠相同且同权的完整blocks，以及additivity。若两处理在不同blocks或存在缺失cell，就不能不经重新推导直接沿用这一SE；4个treatments的总N=24也不是这里平均每个处理的6个独立blocks。"
+        "title": "回到完整且同权的条件",
+        "body": "<p>这个抵消依靠两种处理都在同一批区组里出现一次。若区组不同或某格缺失，先从实际模型重算差的方差。</p>"
       }
     ],
     "conclusion": "同blocks的A/B均值差SE≈1.73205；环境总体的共同起伏在差中抵消，但实验误差仍保留。",
@@ -3631,7 +3677,15 @@
         "tolerance": 0.005,
         "feedback": "3是正确的差值variance。题目要求SE，应对3开平方，才能回到响应变量的单位。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "A 和 B 都经历同样六个环境。一个环境若整体偏亮，两种处理在这一带都受影响；相减时，这笔共同背景抵消。",
+      "start": "先写单个均值的方差，再保留两个均值因共享区组产生的协方差。最后对差值的方差开根号。",
+      "link": {
+        "url": "chapters/15.html#random-block-mean-se",
+        "label": "对照单个均值和同区组内差值的标准误"
+      }
+    }
   },
   {
     "id": "p15-06",
@@ -3657,20 +3711,19 @@
     "hint": "先用总SS扣除treatment、row、column三项，得到error SS；再分别除以正确df，最后作MS_treatment/MSE。",
     "steps": [
       {
-        "title": "完成正交平方和分解",
-        "body": "完整平衡Latin square中，SST=SStrt+SSrow+SScolumn+SSE。所以SSE=310−128−64−46=72；不能只扣treatment。"
+        "title": "把三个可解释部分拿走",
+        "body": "<p>把处理、行和列的平方和都从 310 中扣掉，剩下误差平方和 72。</p>",
+        "latex": "\\mathrm{SSE}=310-128-64-46=72"
       },
       {
-        "title": "为三个因素扣除自由度",
-        "body": "总df=25−1=24。treatment、row、column各用5−1=4df，共12df；error df=24−12=12，也等于(5−1)(5−2)。"
+        "title": "数清三类来源各占多少自由度",
+        "body": "<p>总自由度 24。行、列、处理各占 4，误差自由度为 12。</p>",
+        "latex": "df_E=(25-1)-3(5-1)=12"
       },
       {
-        "title": "先求均方，再相除",
-        "body": "MStrt=128/4=32；MSE=72/12=6。因此F=32/6=16/3≈5.333333，参考df=(4,12)。"
-      },
-      {
-        "title": "把统计量解释回研究问题",
-        "body": "在加性、独立正态误差与共同方差等模型条件下，F右尾P≈.0105356；在α=.05下有证据说明至少一个treatment mean不同，但它不识别具体哪些pairs不同，也不检验row或column自身的均值差异。"
+        "title": "处理均方除以误差均方",
+        "body": "<p>处理均方为 32，误差均方为 6。在加性模型条件适用时，整体 F 的右尾支持至少有一个处理均值不同。</p>",
+        "latex": "\\begin{gathered}F=\\frac{128/4}{72/12}=\\frac{16}{3}\\\\p=\\Pr(F_{4,12}\\geq16/3)\\approx0.010536\\end{gathered}"
       }
     ],
     "conclusion": "正确的treatment F≈5.33333；完整链为SSE=72 → error df=12 → MSE=6 → F=32/6。",
@@ -3702,7 +3755,15 @@
         "tolerance": 0.005,
         "feedback": "这个值把比值反过来了。用于treatment均值检验的F是MS_treatment/MSE=32/6，分母是误差均方。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "25 个单位的总变化已经分出了行、列和处理三笔。题目要用剩下的误差衡量处理均值差。",
+      "start": "先从总平方和扣掉三笔，再用各自的自由度算处理均方与误差均方。",
+      "link": {
+        "url": "chapters/15.html#latin-square-worked",
+        "label": "跟着完整拉丁方算例核对四份平方和"
+      }
+    }
   },
   {
     "id": "p08-06",
@@ -4083,7 +4144,7 @@
       "locator": "11–12；PPT Chapter 15，17–18、22",
       "note": "原创改编，非原题答案。"
     },
-    "prompt": "完整加性RCBD有t=4个固定treatments和b=5个blocks，每个treatment在每个block出现一次。ANOVA给MSblock=14、MSE_RCBD=2。按课程的规划公式RE_plan=[(b−1)MSblock+b(t−1)MSE_RCBD]/[(bt−1)MSE_RCBD]，要使假想CRD的同一处理差值SE尺度不高于当前RCBD，最少需要多少个独立重复/处理？使用r≥b×RE_plan并向上取整；本题不是要求重拟合同一数据的MSE比值，也不是精确power规划。",
+    "prompt": "<p>完整加性 RCBD 的处理数 t=4、区组数 b=5，每种处理在每个区组出现一次。ANOVA 给出区组均方 M<sub>B</sub>=14、误差均方 M<sub>E</sub>=2。</p><p>按下方课程公式规划新的 CRD。若要让同一处理差的标准误尺度不高于当前 RCBD，每处理最少需要几个独立重复？先算连续目标，再向上取整。</p>",
     "answer": 12,
     "tolerance": 0,
     "integer": true,
@@ -4091,20 +4152,19 @@
     "hint": "先代入课程公式算RE_plan，再乘当前每处理的5个blocks。分母bt−1属于规划估计公式；不等于CRD拟合的residual df。",
     "steps": [
       {
-        "title": "计算课程规划的误差尺度",
-        "body": "MSE_plan=[(5−1)×14+5×(4−1)×2]/(5×4−1)=(56+30)/19=86/19≈4.526316。这里的19属于给定规划公式。"
+        "title": "按给定公式形成规划误差尺度",
+        "body": "<p>把五个区组、四种处理、区组均方 14 和误差均方 2 代入。这里的 19 来自给定的规划式。</p>",
+        "latex": "\\begin{aligned}\\mathrm{MSE}_{\\mathrm{plan}}&=\\frac{(5-1)14+5(4-1)2}{5\\cdot4-1}\\\\&=\\frac{86}{19}\\end{aligned}"
       },
       {
-        "title": "换成相对效率",
-        "body": "RE_plan=MSE_plan/MSE_RCBD=(86/19)/2=43/19≈2.263158。它是每处理所需重复数的比例，不能直接将2.263158取整作为人数。"
+        "title": "换算成每处理所需的倍数",
+        "body": "<p>规划误差尺度约是当前区组误差均方的 2.26 倍。用这个倍数乘当前每处理五个重复。</p>",
+        "latex": "\\begin{gathered}\\mathrm{RE}_{\\mathrm{plan}}=\\frac{86/19}{2}=\\frac{43}{19}\\\\r\\geq5\\frac{43}{19}=\\frac{215}{19}\\end{gathered}"
       },
       {
-        "title": "达到SE目标并取整",
-        "body": "r≥5×43/19=215/19≈11.315789。因此至少12个独立重复/处理，总计4×12=48个实验单位。11个仍低于连续目标。"
-      },
-      {
-        "title": "区别重拟合比值",
-        "body": "同一数据忽略blocks时，error df=t(b−1)=4×4=16，SSE_refit=(b−1)MSblock+(t−1)(b−1)MSE=56+24=80，故MSE比值=(80/16)/2=2.5。若把这个不同指标代入规划会得到13个，不能替换本题指定的课程公式。"
+        "title": "把 11.32 变成可执行的重复数",
+        "body": "<p>至少要 12 个独立单位每处理，四种处理共 48 个。若重新拟合同一份旧数据而省略区组，得到的是另一笔 MSE 比值，回答的是旧数据的分解问题。</p>",
+        "latex": "r_{\\min}=\\left\\lceil215/19\\right\\rceil=12"
       }
     ],
     "conclusion": "按指定课程RE与相同SE尺度的规划准则，至少12个重复/处理，共48个实验单位。",
@@ -4126,7 +4186,16 @@
         "tolerance": 0,
         "feedback": "11低于连续目标11.315789。要使规划SE不高于当前值，重复数必须向上取整为12。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "想把下一次实验改成不分区组，仍达到和当前相似的均值差精度。问题是每种处理至少需要几盆。",
+      "start": "先用题给的课程规划公式求重复数倍数，再乘现在每处理的 5 个重复，最后向上取整。",
+      "link": {
+        "url": "chapters/15.html#efficiency",
+        "label": "对照规划重复数与同数据重拟合的两个问题"
+      }
+    },
+    "promptLatex": "\\begin{gathered}\\mathrm{RE}_{\\mathrm{plan}}=\\frac{(b-1)M_B+b(t-1)M_E}{(bt-1)M_E}\\\\ r\\geq b\\,\\mathrm{RE}_{\\mathrm{plan}}\\end{gathered}"
   },
   {
     "id": "p04-12",
@@ -4342,16 +4411,19 @@
     "hint": "这里各fixed treatment检验的分母是完整block模型的MSE。Interaction df=(2−1)(3−1)；error df=(2×3−1)(4−1)。",
     "steps": [
       {
-        "title": "核对完整模型的自由度",
-        "body": "A、B、AB、block的df分别为1、2、2、3，error df=24−1−1−2−2−3=15，也等于(6−1)(4−1)。"
+        "title": "先把六种组合看成处理标签",
+        "body": "<p>每个区组都有六种组合。A×B 的自由度为 2；从四个区组扣除各组合与区组效应后留下 15 个误差自由度。</p>",
+        "latex": "\\begin{aligned}df_{AB}&=(2-1)(3-1)=2\\\\df_E&=(6-1)(4-1)=15\\end{aligned}"
       },
       {
-        "title": "分别计算分子和分母MS",
-        "body": "MSAB=30/2=15；MSE=45/15=3。随机block不意味着把MSblock当作固定处理检验的分母；本题完整平衡加性模型下，AB null使E(MSAB)=E(MSE)=σe²。"
+        "title": "让两笔变化各用自己的自由度",
+        "body": "<p>交互平方和为 30，误差平方和为 45。完整平衡加性模型中，固定交互零假设下，两者的均方都以残余误差方差为参照。</p>",
+        "latex": "\\begin{gathered}\\mathrm{MS}_{AB}=30/2=15\\\\ \\mathrm{MSE}=45/15=3\\end{gathered}"
       },
       {
-        "title": "形成F并保留两个df",
-        "body": "F=15/3=5，参考分布为F(2,15)。分母来自包含block的完整模型，而不是忽略block后的CRD残差。"
+        "title": "形成针对交互的问题",
+        "body": "<p>分子是交互均方，分母是拟合区组后剩下的误差均方。右尾使用两个对应的自由度。</p>",
+        "latex": "F_{AB}=\\frac{15}{3}=5\\qquad(F_{2,15}\\text{ reference})"
       }
     ],
     "conclusion": "F=5，numerator df=2、denominator df=15。",
@@ -4373,7 +4445,15 @@
         "tolerance": 0.0001,
         "feedback": "这个值是MSAB/MSblock=15/32。本题完整平衡加性random-block模型中，固定AB检验使用MSE=3作为分母。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "每个区组内都有全部六种处理组合。现在问 A 与 B 的交互有多大，要用控制了区组后的组内误差来衡量。",
+      "start": "先数交互用了几个自由度，再数完整区组模型留下的误差自由度。两笔平方和分别除以自己的自由度。",
+      "link": {
+        "url": "chapters/15.html#factorial-rcbd-worked",
+        "label": "沿着完整区组里的析因组合核对交互 F"
+      }
+    }
   },
   {
     "id": "p15-09",
@@ -4399,20 +4479,23 @@
     "hint": "实际模型N=11、rank=6、error df=5，SSE=6。先构造contrast L，再算Lᵀvcov(fit)L；不能继续套完整平衡设计的2MSE/4。",
     "steps": [
       {
-        "title": "用实际观测拟合加性模型",
-        "body": "三个treatments和四个blocks仍相互连接；参考编码的X有6个独立列，error df=11−6=5，MSE=6/5=1.2。"
+        "title": "用现有十一条记录拟合",
+        "body": "<p>处理与区组仍相互连接。参考编码有六个独立系数，留下五个误差自由度，误差均方为 1.2。</p>",
+        "latex": "df_E=11-6=5,\\quad \\mathrm{MSE}=1.2"
       },
       {
-        "title": "明确调整比较的向量",
-        "body": "在相同四个blocks上等权平均后，block系数抵消。若系数顺序为intercept、treatment2、treatment3、block2、block3、block4，则L=[0,1,0,0,0,0]ᵀ。"
+        "title": "统一四个区组的权重",
+        "body": "<p>两个处理都按这四个区组各取四分之一。相减时截距与区组部分抵消。以处理 1 作参照时，只剩处理 2 的系数。</p>",
+        "latex": "L=(0,1,0,0,0,0)^{\\mathsf T}"
       },
       {
-        "title": "从完整covariance求SE",
-        "body": "实际11行设计矩阵给Lᵀ(XᵀX)⁻¹L=5/8。因此variance=1.2×5/8=.75，SE=√.75≈.866025。"
+        "title": "用实际设计矩阵读不确定性",
+        "body": "<p>该对比的协方差因子为 5/8。它乘共同 MSE 后得到方差，再开平方才是题目所求。</p>",
+        "latex": "\\begin{gathered}L^{\\mathsf T}(X^{\\mathsf T}X)^{-1}L=\\frac58\\\\ \\mathrm{SE}=\\sqrt{1.2\\cdot5/8}\\approx0.866025\\end{gathered}"
       },
       {
-        "title": "区分估计、标准误与原始均值",
-        "body": "adjusted difference为6，raw difference为5；本题只问调整比较的SE。缺失单元的拟合值不是额外观测，不能补回后增加df。"
+        "title": "分开读三个数字",
+        "body": "<p>调整后的差是 6，直接用实际组均值相减会得到 5，标准误约 0.866。缺失格的拟合值用于构成比较目标；误差自由度仍以实际观察的 11 行为准。</p>"
       }
     ],
     "conclusion": "调整后treatment2−1的SE≈.866025；variance=.75。",
@@ -4434,7 +4517,15 @@
         "tolerance": 0.001,
         "feedback": "这个结果与把两个raw means当独立、用√[1.2(1/3+1/4)]计算一致；它没有完成不平衡block结构下的调整比较。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "处理 2 少了一格。要让处理 1 和处理 2 都对同样四个区组求平均，再用实际观测拟合出的协方差衡量这笔差的不确定性。",
+      "start": "用 11 条实际记录拟合。两个目标的区组权重相同，所以相减时区组系数抵消；再取这个对比的方差。",
+      "link": {
+        "url": "chapters/15.html#missing-block-cell-worked",
+        "label": "看缺失一格后怎样用同一批区组比较"
+      }
+    }
   },
   {
     "id": "p06-07",
@@ -5266,22 +5357,31 @@
     ],
     "steps": [
       {
-        "title": "先定位处理施加的单位",
-        "body": "A、B、C分别施加给单盆，因此每盆是experimental unit。光照带是把相似单位放在一起的block。"
+        "title": "先找被分配处理的对象",
+        "body": "<p>每盆单独拿到 A、B 或 C，所以有十五个实验单位。五个光照带是背景相近的分组。</p>"
       },
       {
-        "title": "再检查允许的分配",
-        "body": "方案I每个block只有3!=6种允许排列，五个blocks共6⁵=7776种。方案II只限制全场每组5盆，允许15!/(5!5!5!)=756756种排列。"
+        "title": "数两种抽法允许哪些布局",
+        "body": "<p>按区组抽时，每个带里三张标签可以换顺序。全场抽时，只固定每种处理五盆，因此允许某一带有重复。</p>",
+        "latex": "\\begin{aligned}N_{\\mathrm{RCBD}}&=(3!)^5=7776\\\\N_{\\mathrm{CRD}}&=\\frac{15!}{(5!)^3}=756756\\end{aligned}"
       },
       {
-        "title": "把布局和模型与设计分开",
-        "body": "方案II有7776种可能结果恰好满足各block完整平衡，但原机制仍是CRD。方案I省略block只是重拟合同一份RCBD数据，不能重新执行实验前的抽签。"
+        "title": "用事先执行的规则认设计",
+        "body": "<p>方案 II 恰好得到每带各一次的布局，仍是全场抽签。方案 I 事后省略区组变量，仍是在同一批按区组抽签的数据上改了模型。</p>"
       }
     ],
     "conclusion": "正确选项是第二项：随机化机制决定设计；偶然平衡或修改分析公式都不能改写分配历史。",
     "pitfall": "把“每个带看起来平衡”“模型含有block”或“block显著”当成RCBD的定义。实际设计还需记录单位、抽签范围及处理实施过程。",
     "rCode": "# Count assignments for 15 distinct pots and fixed treatment totals of 5 each.\n# This code counts the stated randomization spaces; it does not randomize an experiment.\ntreatments <- c(\"A\",\"B\",\"C\")\nblocks <- 5\npots_per_block <- 3\nN <- blocks*pots_per_block\n# Enumerate the legal label orders for one complete block.\norders <- expand.grid(position1=treatments,position2=treatments,\n                      position3=treatments,stringsAsFactors=FALSE)\nlegal <- apply(orders,1,function(z) length(unique(z))==pots_per_block)\norders <- orders[legal,,drop=FALSE]\nprint(orders,row.names=FALSE)\nrcbd_count <- nrow(orders)^blocks\n# Choose the five A pots, then the five B pots; the remaining pots receive C.\ncrd_count <- choose(N,5)*choose(N-5,5)\ncrd_factorial_check <- factorial(N)/factorial(5)^3\n# Under the specified uniform CRD, every complete-block layout is also possible.\nchance_complete_blocks <- rcbd_count/crd_count\nprint(c(RCBD_assignments=rcbd_count,CRD_assignments=crd_count,\n        CRD_probability_of_one_each_per_block=chance_complete_blocks))\nstopifnot(nrow(orders)==6,rcbd_count==7776,crd_count==756756,\n          abs(crd_count-crd_factorial_check)<1e-8,\n          chance_complete_blocks>0,chance_complete_blocks<1)\n",
-    "unit": ""
+    "unit": "",
+    "readQuestion": {
+      "meaning": "两种抽签可以碰巧得到同一张字母表。题目问应该根据什么辨认实验设计。",
+      "start": "先问哪个东西单独接受处理，再问抽签之前有哪些布局是允许的。结果表与拟合公式都可以稍后看。",
+      "link": {
+        "url": "chapters/15.html#randomization-experiment",
+        "label": "切换抽签范围，并加载一次碰巧平衡的全场抽签"
+      }
+    }
   },
   {
     "id": "p08-07",

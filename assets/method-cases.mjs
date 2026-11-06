@@ -81,7 +81,74 @@ export function unbalancedCase(highCounts) {
   return {centers,counts,weights,raw,adjusted,rawDifference:raw[1]-raw[0],adjustedDifference:adjusted[1]-adjusted[0]};
 }
 
+export function factorialSSCase(type,bFirst) {
+  // Same cell order and data as the Chapter 14 worked example.
+  const cells = [[7,8,9],[11,13],[10,12],[12,13,15,16],[16],[18,20,22]];
+  const sizes = cells.map(g => g.length), mu = cells.map(mean), all = cells.flat();
+  const rows = [0,2,4].map(i => [...cells[i],...cells[i+1]]);
+  const cols = [0,1].map(j => cells.filter((_,i) => i%2===j).flat());
+  const within = groups => sum(groups.map(g => {
+    const m = mean(g);
+    return sum(g.map(v => (v-m)**2));
+  }));
+  const sse = {null:within([all]), A:within(rows), B:within(cols), full:within(cells)};
+  // In the additive fit B2-B1 is common across A. Eliminating each row intercept
+  // leaves a weighted fit to the row differences, with these inverse variance factors.
+  const rowDiff = [0,2,4].map(i => mu[i+1]-mu[i]);
+  const precision = [0,2,4].map(i => 1/(1/sizes[i]+1/sizes[i+1]));
+  const common = sum(rowDiff.map((v,i) => v*precision[i]))/sum(precision);
+  const interactionSS = sum(rowDiff.map((v,i) => precision[i]*(v-common)**2));
+  sse.add = sse.full+interactionSS;
+  const df = all.length-cells.length, mse = sse.full/df;
+  const marginalA = [0,2,4].map(i => mean(mu.slice(i,i+2)));
+  const marginalB = [0,1].map(j => mean(mu.filter((_,i) => i%2===j)));
+  const [d1,d2] = marginalA.slice(1).map(m => m-marginalA[0]);
+  const bGap = marginalB[1]-marginalB[0];
+  const rowVar = [0,2,4].map(i => (1/sizes[i]+1/sizes[i+1])/4);
+  const [v11,v12,v22] = [rowVar[0]+rowVar[1],rowVar[0],rowVar[0]+rowVar[2]];
+  const vB = sum(sizes.map(n => 1/n))/9;
+  // The two A contrasts share the A1 mean: invert their 2 by 2 covariance factor.
+  const ssA3 = (v22*d1*d1-2*v12*d1*d2+v11*d2*d2)/(v11*v22-v12*v12);
+  const typeI = bFirst ? [sse.B-sse.add,sse.null-sse.B] : [sse.null-sse.A,sse.A-sse.add];
+  const terms = [
+    typeI,
+    [sse.B-sse.add,sse.A-sse.add],
+    [ssA3,bGap*bGap/vB],
+  ][type].concat(interactionSS).map((ss,i) => {
+    const numeratorDf = [2,1,2][i], f = ss/numeratorDf/mse;
+    return {ss,df:numeratorDf,f,p:fSurvival(f,numeratorDf,df)};
+  });
+  return {cells,sse,df,mse,marginalA,marginalB,terms};
+}
+
 const cases = {
+  ss:{
+    scenarios:[
+      ['Type I · 按顺序','顺序表的 A 行会把哪一段拟合改进记到 A 名下？'],
+      ['Type II · 调整主效应','Type II 的 A 行要先考虑 B。用哪两个模型算 A 的平方和？'],
+      ['Type III · 等权边际','在允许 A×B 的完整模型里，要问三个品种按两种培养条件各占一半时是否一样高。要检验什么？'],
+    ],
+    scenarioLabel:'选择平方和类型',
+    prompt:'先判断：这行检验在比什么？',
+    question:'想一想被比较的模型或均值，再选一项。',
+    answerLabel:'选择检验的比较对象',
+    choices:[
+      '固定比较仅有 B 和 A+B；这一步不加入 A×B',
+      '允许 A×B，检验三个品种的等权边际均值是否相同',
+      '按写入顺序，比加入 A 前后的两个模型',
+    ],
+    correct:[2,0,1],
+    hints:[
+      'B 到 A+B 只衡量加性模型里的增量。题目可能在问顺序，或在问完整模型里的边际均值。',
+      '等权边际比较来自完整模型预测的格均值。题目若问加一项少掉多少误差，先找那一步的起点。',
+      '顺序表的起点会跟着顺序变。再看题目是不是指定了一个固定的比较。',
+    ],
+    views:['A 先，B 后','B 先，A 后'],
+    viewLabel:'交换因素进入模型的顺序',
+    viewsChangeAnalysis:true,
+    render:showFactorialSS,
+  },
+
   unbalanced:{
     scenarios:[
       ['描述已记录的这批苗','这批已经种出来的苗，按实际肥量构成，V2 的平均高度比 V1 高多少？'],
@@ -417,6 +484,71 @@ function showUnbalanced(question,highCounts) {
     conclusion:(question===0
       ? '要描述这批盆苗，用原始均值：V2−V1 = '+signed(d.rawDifference)+' cm。'
       : '要按低肥、高肥各一半选品种，用等权 LSMeans：V2−V1 = +2 cm。')+reason,
+  };
+}
+
+function showFactorialSS(type,bFirst) {
+  const d = factorialSSCase(type,bFirst), other = factorialSSCase(type,!bFirst);
+  const s = d.sse, x = v => 54+v*1.32;
+  const terms = ['A','B','A×B'];
+  const ticks = [0,50,100,150,200].map(v => line(x(v),17,x(v),157)+label(x(v),175,v)).join('');
+  const bars = d.terms.map((t,i) => {
+    const y = 35+i*48;
+    return label(24,y+5,terms[i])
+      + `<rect x="54" y="${y-7}" width="${x(t.ss)-54}" height="12" rx="2" fill="${colors[i]}"/>`
+      + line(54,y+11,x(other.terms[i].ss),y+11,'mc-ss-other');
+  }).join('');
+  const delta = (key,from,to,ss) => tex`SS_{${key}}=${number(from)}-${number(to)}\approx ${number(ss)}`;
+  const first = bFirst ? 'B' : 'A', second = bFirst ? 'A' : 'B';
+  const compare = type===0
+    ? eq('Type I：每走一步，把 SSE 减少的量记给新加入的一项',
+      bFirst ? tex`1\to B\to A+B\to A+B+A\!:\!B` : tex`1\to A\to A+B\to A+B+A\!:\!B`,
+      bFirst ? delta('B',s.null,s.B,d.terms[1].ss) : delta('A',s.null,s.A,d.terms[0].ss),
+      bFirst ? delta('A\\mid B',s.B,s.add,d.terms[0].ss) : delta('B\\mid A',s.A,s.add,d.terms[1].ss))
+    : type===1 ? eq('Type II：先留另一个主效应，再问目标项是否减少误差',
+      tex`A:\ B\longrightarrow A+B`,
+      delta('A\\mid B',s.B,s.add,d.terms[0].ss),
+      tex`B:\ A\longrightarrow A+B`,
+      delta('B\\mid A',s.A,s.add,d.terms[1].ss))
+    : eq('Type III：保留完整模型，检验等权边际均值的约束',
+      tex`\widehat m_A=(${d.marginalA.join(tex`,\,`)})`,
+      tex`H_{0,A}:m_{A1}=m_{A2}=m_{A3}`,
+      tex`\widehat L_A=(2.5,\,8)^{\mathsf T}`,
+      tex`W_A=C_A\operatorname{diag}(1/n_i)C_A^{\mathsf T}`,
+      tex`W_A=\begin{pmatrix}19/48&5/24\\5/24&13/24\end{pmatrix}`,
+      tex`SS_A=\widehat L_A^{\mathsf T}W_A^{-1}\widehat L_A`,
+      tex`SS_A\approx ${number(d.terms[0].ss)}`,
+      tex`\widehat L_B=(12+14+20)/3-(8+11+16)/3`,
+      tex`SS_B=\frac{(11/3)^2}{35/108}\approx ${number(d.terms[1].ss)}`)
+      + '<p>A 有两条限制：A2 与 A1 相等、A3 与 A1 相等。对比矩阵 C 的每行把一个品种的两格各乘 1/2，再减去 A1 的两格各乘 1/2。两个差都用到 A1，所以 W 也要计入它们的协方差。B 只有一条限制，35/108 是对应的方差因子。</p>';
+  const bottom = eq('三个类型的交互行都比加性模型和完整模型',
+    delta('A\\times B',s.add,s.full,d.terms[2].ss))
+    + eq('始终用完整模型的误差当分母，以 A 行为例',
+      tex`MS_E=\frac{${s.full}}{15-6}=\frac{8}{3}`,
+      tex`F_A=\frac{${number(d.terms[0].ss)}/2}{8/3}\approx ${number(d.terms[0].f)}`,
+      tex`p_A=\Pr(F_{2,9}\ge ${number(d.terms[0].f)})`);
+  const cell = (key,i,format) => {
+    const a = format(d.terms[i][key]), b = format(other.terms[i][key]);
+    return `<td>${a}${a===b ? '' : `<small aria-label="另一顺序 ${b}">${b}</small>`}</td>`;
+  };
+  return {
+    plot:svg(205,'三项平方和。实条为当前顺序，虚线为另一顺序。',
+      ticks+bars+label(184,199,'平方和（SS）')),
+    reading:'实条是当前顺序，虚线是另一顺序。'+[
+      '现在 '+first+' 先进入，'+second+' 后进入。交换顺序时，A、B 记到的平方和变了；交互这一步的起点和终点都一样。',
+      '交换顺序，两种线仍同长。检验 A 总是从仅有 B 的模型出发，检验 B 总是从仅有 A 的模型出发。',
+      '交换顺序，两种线仍同长。完整模型和等权边际约束都没有变。',
+    ][type],
+    evidence:`<table class="mc-ss-table"><caption>当前：${first} 先，${second} 后 · 误差 df = ${d.df}${type===0 ? '<small>灰字是另一顺序下的数值，只标出有变化的项。</small>' : ''}</caption>
+      <thead><tr><th scope="col">项</th><th scope="col">SS</th><th scope="col">F</th><th scope="col">p</th></tr></thead>
+      <tbody>${terms.map((t,i) => `<tr><th scope="row">${t}</th>${cell('ss',i,v=>fmt(v,3))}${cell('f',i,v=>fmt(v,3))}${cell('p',i,pval)}</tr>`).join('')}</tbody></table>`,
+    formulas:compare+bottom,
+    result:'',
+    conclusion:[
+      '如果研究问题本来就有先后顺序，例如先把培养条件 B 放进模型，再问品种 A 多解释了多少，就用相应顺序的 Type I。这里改变顺序只改变 A、B 的记账；完整模型的预测和 SSE 没变。不要用哪个 p 值小来决定顺序。',
+      '如果关心在加性部分中调整另一主效应后的增量，就看 Type II。A 行的分子用 B 与 A+B 的 SSE 差，但 F 仍除以完整模型的 MSE。它没有把交互作用为零这件事证明出来。',
+      '如果问题明确要求在允许交互的模型里比较等权边际均值，就检验这里的 Type III 假设。它对应显式等权对比（或本例的和为零编码）；默认参考水平系数可能是在比简单效应。若问题只关心一个培养条件，直接做该条件下的简单效应。',
+    ][type],
   };
 }
 

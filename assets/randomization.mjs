@@ -83,11 +83,12 @@ export function mountRandomization(root) {
   const blocks = environments.map((environment, b) => `<section class="rnd-block" aria-label="Block ${b + 1} 的三个固定花盆"><h4>Block ${b + 1}</h4><p>光照编码 ${signed(environment)}</p><div class="rnd-pots">${[0, 1, 2].map(position => { const id = `P${String(b * 3 + position + 1).padStart(2, '0')}`; return `<button type="button" data-rnd-pot="${id}" aria-pressed="false"><b>${id}</b><span data-rnd-label="${id}">—</span></button>`; }).join('')}</div></section>`).join('');
   const countRows = treatments.map(treatment => `<tr><th scope="row">${treatment}</th>${environments.map((_, b) => `<td data-rnd-count="${treatment}-${b}"></td>`).join('')}<td data-rnd-total="${treatment}"></td><td data-rnd-environment="${treatment}"></td></tr>`).join('');
   const strips = treatments.map(treatment => `<li class="rnd-strip" data-rnd-strip="${treatment}"><b>处理 ${treatment}</b><div class="rnd-exposures" data-rnd-exposures="${treatment}"></div></li>`).join('');
-  const spaceMath = equationHTML(String.raw`\begin{aligned}
-    N_{\mathrm{RCBD}}&=(3!)^5=7776\\
-    N_{\mathrm{CRD}}&=\frac{15!}{5!\,5!\,5!}=756756\\
-    P(\mathrm{balance}\mid\mathrm{CRD})&=\frac{7776}{756756}\approx1.027544\%
-  \end{aligned}`);
+  const spaceMath = equationHTML(String.raw`\begin{gathered}
+    N_{\mathrm{RCBD}}=(3!)^5=7776\\
+    N_{\mathrm{CRD}}=\frac{15!}{5!\,5!\,5!}=756756\\
+    P(\mathrm{balance}\mid\mathrm{CRD})\\
+    =\frac{7776}{756756}\approx1.027544\%
+  \end{gathered}`);
   root.innerHTML = `<h3>让三个处理都经历同样的光照带</h3><p>靠窗的一带最亮，最里的一带最暗。五个光照带各摆三盆，A、B、C 各用五盆。试两种抽签法，看看每种处理分到了哪些光照带。花盆和光照原地不动，只有处理标签会换。</p>
     <div class="rnd-actions" role="group" aria-label="用当前种子比较抽签范围"><button type="button" class="secondary" data-rnd-action="crd" aria-pressed="false">全场一起抽</button><button type="button" class="secondary" data-rnd-action="rcbd" aria-pressed="true">每个光照带分别抽</button><button type="button" class="secondary" data-rnd-action="balanced">看一次碰巧平衡的全场抽签</button></div>
     <details><summary>自己设置抽签范围和种子</summary>

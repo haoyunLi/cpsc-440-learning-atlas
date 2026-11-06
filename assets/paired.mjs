@@ -184,8 +184,9 @@ export function mountPaired(root) {
       const inference = result.inference;
       $('[data-pair-inference]').innerHTML = inference
         ? '<p>在独立配对、正态差值模型下，检验平均变化是否为零。这个例子支持总体平均读数上升。</p>' + pairMath(String.raw`\begin{aligned}
-          t&=\frac{\bar D}{\mathrm{SE}}\approx${show(inference.t)},\quad \nu=4\\
-          p_{\mathrm{two\text{-}sided}}&\approx${show(inference.p)}\\
+          t&=\frac{\bar D}{\mathrm{SE}}\approx${show(inference.t)}\\
+          \nu&=4\\
+          p_{\mathrm{two}}&\approx${show(inference.p)}\\
           \mathrm{CI}_{95\%}&\approx[${show(inference.low)},${show(inference.high)}]
           \end{aligned}`)
         : `<p>当前是错配演示。算术比值约为 ${show(result.ratio)}。恢复原始编号配对即可查看正式推断。</p>`;

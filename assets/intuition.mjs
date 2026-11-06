@@ -46,7 +46,7 @@ export function intuitionState(kind, value) {
     const a = value, fixed = [8, 9, 10, 11, 12], moving = [-2,-1,0,1,2].map(d => 10 + d * a);
     const v = variance(moving), sd = Math.sqrt(v);
     svg = rowsPlot([fixed, moving], 3, 17, kind === 'spread' ? ['原来：五株苗', '现在：只改变散开程度'] : ['甲机器：五袋重量', '乙机器：五袋重量']);
-    tex = String.raw`\bar y=10,\qquad s^2=\frac{\sum_{i=1}^{5}(y_i-10)^2}{5-1}=${number(v)},\qquad s=${number(sd)}`;
+    tex = String.raw`\begin{aligned}\bar y&=10\\ s^2&=\frac{\sum_{i=1}^{5}(y_i-10)^2}{5-1}=${number(v)}\\ s&=\sqrt{s^2}\approx${number(sd)}\end{aligned}`;
     summary = `现在五个数是 ${moving.map(number).join('、')}。均值仍是 10；方差为 ${number(v)}，标准差为 ${number(sd)}。`;
     explanation = a === 0 ? '五个点叠在 10 上，偏离全为零，所以标准差也为零。重叠的点仍代表五个单位。' : `最低和最高的点离 10 都是 ${number(2*a)}；中间两个离 10 是 ${number(a)}。距离变了，中心没变。虚线标记均值；相同位置的点会重叠。`;
     metrics = { values: moving, mean: 10, variance: v, sd };
@@ -84,7 +84,7 @@ export function intuitionState(kind, value) {
     });
     svg += text(150,260,'前','text-anchor="middle"')+text(470,260,'后','text-anchor="middle"');
     const sd=Math.sqrt(variance(differences)), se=sd/2;
-    tex=String.raw`d_i=B_i-A_i,\qquad\bar d=1.5,\qquad s_d=${number(sd)},\quad\mathrm{SE}(\bar d)=\frac{s_d}{\sqrt4}=${number(se)}`;
+    tex=String.raw`\begin{gathered}d_i=B_i-A_i\\ \bar d=1.5,\quad s_d\approx${number(sd)}\\ \mathrm{SE}(\bar d)=\frac{s_d}{\sqrt4}\approx${number(se)}\end{gathered}`;
     summary=`${value?'打乱后的':'保留身份的'}四个差值：${differences.join('、')}。平均差是 1.5，差值标准差为 ${number(sd)}。`;
     explanation=value?'线条交错：现在减到的已经不是同一株。这个错误配对展示了身份信息如何影响差值；它不能用于研究结论。':'每条线连接同一株的前后测量。每株增加得比较接近，所以差值波动小。';
     metrics={a,b,differences,mean:mean(differences),sd,se};
@@ -121,7 +121,7 @@ export function intuitionState(kind, value) {
     const groups=[0,1].map(b=>[0,1,2].map(t=>10+2*t+(b?value:-value)+(b?1-t:t-1)));
     svg=rowsPlot(groups,3,21,['西片田：三种肥料','东片田：三种肥料']);
     const mse=2, omitted=(6*value**2+4)/3;
-    tex=String.raw`\mathrm{MSE}_{\text{block}}=\frac4{2}=2,\qquad \mathrm{MSE}_{\text{omit block}}=\frac{6(${number(value)})^2+4}{3}=${number(omitted)}`;
+    tex=String.raw`\begin{gathered}\mathrm{MSE}_{\mathrm{RCBD}}=\frac42=2\\ \mathrm{MSE}_{\mathrm{omit}}=\frac{6(${number(value)})^2+4}{3}\\ \approx${number(omitted)}\end{gathered}`;
     summary=`分出田块后的误差均方为 2；忽略田块时为 ${number(omitted)}。每片田的三个点依次为甲、乙、丙肥料。`;
     explanation='这是两片田、每片田含全部三种肥料的固定教学数据；误差安排保持行列和为零。田块差异越大，单独分离它越有帮助；差异为零时，多用一个自由度可能反而不划算。';
     metrics={groups,sse:4,dfError:2,mse,omitted};

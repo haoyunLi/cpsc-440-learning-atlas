@@ -1,4 +1,5 @@
 import { regression, studentQuantile } from './math.mjs';
+import { equationHTML } from './formulas.mjs';
 
 export const regressionDefaults = Object.freeze({ lastY: 26, x0: 4, level: .95, band: 'mean' });
 const fixedX = [1, 3, 4, 5, 7];
@@ -205,7 +206,7 @@ export function drawRegression(svg, result, type = 'main') {
 export function mountRegression(root) {
   if (root.dataset.regressionReady) return;
   root.classList.add('reg-lab');
-  root.innerHTML = `<p class="reg-intro">Mean CI 估计总体条件平均值 E(Y|x₀)；individual PI 预测同一 x₀ 处一个独立新单位的 Y。先保持五个观测不变，只移动预测位置。</p>
+  root.innerHTML = `<p class="reg-intro">沿用课上的铺路成本数据。给定同样的路长，先问「这类路段平均要花多少」，再问「下一段具体会花多少」。两问共用直线上的一个估计；第二问还得考虑下一段路自己的波动。先试中心与边界，看看两条区间怎样变宽。</p>
   <div class="reg-controls">
     <label for="rx">预测位置 x₀ <output id="rx-v" aria-live="off"></output><input id="rx" type="range" min="0" max="9" step=".1" value="4"></label>
     <label for="ry">R5 在 x=7 的 Y <output id="ry-v" aria-live="off"></output><input id="ry" type="range" min="8" max="40" step=".5" value="26"></label>
@@ -219,7 +220,7 @@ export function mountRegression(root) {
   <div class="reg-legend" aria-label="图例"><span class="reg-key mean">绿实线：mean CI</span><span class="reg-key prediction">棕虚线：individual PI</span><span>黑菱形：当前 ŷ₀</span></div>
   <div data-reg-visuals class="reg-visuals"><figure><svg data-reg-plot="main" viewBox="0 0 720 400" role="img"></svg><figcaption>同一数据和置信水平下，两类区间始终共用坐标。改变 x₀ 或强调目标不会缩放图面；竖向端点对应下方剖面。R1–R5 是已用于拟合的观测，不能把它们的 residuals 当成独立未来样本来检查 PI 覆盖率。</figcaption></figure><figure><svg data-reg-plot="profile" viewBox="0 0 720 260" role="img"></svg><figcaption>沿当前 x₀ 切开后，把两类区间放到相同 Y 横轴上比较。两者中心相同，PI 多包含一个新单位的 error variance。</figcaption></figure></div>
   <details class="reg-zoom"><summary>放大查看图与剖面（可横向滚动）</summary><div class="reg-scroll" tabindex="0" role="region" aria-label="放大的回归图，可横向滚动"><svg data-reg-zoom="main" viewBox="0 0 720 400" role="img"></svg><svg data-reg-zoom="profile" viewBox="0 0 720 260" role="img"></svg></div></details>
-  <section class="reg-calculation"><h3>从预测位置到区间端点</h3><div data-reg-calculation></div></section>
+  <section class="reg-calculation"><h3>预测下一段路，多算哪一块波动？</h3><div data-reg-calculation></div></section>
   <p data-reg-boundary-note class="reg-note"></p><p class="reg-note">R5 的 Y 旋钮同时改变 fitted line 与 MSE，不是只改变 noise。区间取决于线性 conditional mean、独立正态 errors 与共同 variance；新单位的 error 也须独立并具有相同 variance。每个位置是 pointwise 区间，画成曲线不会变成整条曲线的同时置信带。</p>
   <details><summary>逐行核对五个观测与 residual squares</summary><div class="reg-scroll" tabindex="0" role="region" aria-label="完整回归数据，可横向滚动"><table><caption>Road 教学数据；R5 的 Y 可调整，五行始终保留</caption><thead><tr><th scope="col">ID</th><th scope="col">x</th><th scope="col">Y</th><th scope="col">fitted ŷ</th><th scope="col">residual e</th><th scope="col">e²</th></tr></thead><tbody>${[1, 2, 3, 4, 5].map(i => `<tr data-reg-row="R${i}"><th scope="row">R${i}</th>${['x', 'y', 'fitted', 'residual', 'squaredResidual'].map(key => `<td data-reg-cell="R${i}:${key}"></td>`).join('')}</tr>`).join('')}</tbody></table></div><p data-reg-sse class="reg-note"></p></details>
   <details><summary>用当前数据与预测位置在 R 中复现</summary><button type="button" class="secondary" data-reg-copy>复制当前 R 代码</button><pre data-reg-code></pre><p data-reg-copy-status class="reg-note" role="status"></p></details>`;
@@ -254,7 +255,30 @@ export function mountRegression(root) {
       const percent = Math.round(result.level * 100);
       $('[data-reg-result]').innerHTML = `<strong>x₀=${show(result.x0)} → ŷ₀=${show(result.estimate)}</strong><span class="${result.band === 'mean' ? 'reg-emphasis' : ''}">${percent}% mean CI：<b>[${show(result.mean.lower)}, ${show(result.mean.upper)}]</b> · 总体条件均值</span><span class="${result.band === 'prediction' ? 'reg-emphasis' : ''}">${percent}% individual PI：<b>[${show(result.prediction.lower)}, ${show(result.prediction.upper)}]</b> · 一个独立新单位</span>`;
       plots.forEach(({ type, svg }) => drawRegression(svg, result, type));
-      $('[data-reg-calculation]').innerHTML = `<p>n=5，x̄=4，Sxx=20；ŷ=${show(result.fit.intercept)}+(${show(result.fit.slope)})x。SSE=${show(result.fit.sse)}，df=5−2=3，MSE=SSE/3=${show(result.fit.mse)}。Pearson r=${show(result.fit.r)}，R²=${show(result.fit.r2)}（含截距的 SLR）。</p><div class="reg-formula">h₀ = 1/5 + (${show(result.x0)}−4)²/20 = ${show(result.baseline)} + ${show(result.distance)} = <b>${show(result.h0)}</b></div><div class="reg-calculation-grid"><div><b>总体 mean 的估计 variance</b><p>MSE×h₀ = ${show(result.fit.mse)}×${show(result.h0)} = ${show(result.mean.variance)}<br>SE(mean) = √${show(result.mean.variance)} = <b>${show(result.mean.se)}</b></p></div><div><b>新个体的 prediction variance</b><p>MSE×h₀ + MSE = ${show(result.mean.variance)} + ${show(result.fit.mse)} = ${show(result.prediction.variance)}<br>SE(new) = √${show(result.prediction.variance)} = <b>${show(result.prediction.se)}</b></p></div></div><p>共同使用 t<sub>${show((1 + result.level) / 2)},3</sub> = ${show(result.critical)}。Mean CI 半宽=${show(result.critical)}×${show(result.mean.se)}=${show(result.mean.halfWidth)}；individual PI 半宽=${show(result.critical)}×${show(result.prediction.se)}=${show(result.prediction.halfWidth)}。两端都以 ŷ₀=${show(result.estimate)} 为中心。</p><p class="reg-note">先加 variance，再开平方。两类 variance 的差等于 MSE，不能把两个 SE 直接相加。</p>`;
+      const farthest = Math.max(result.fit.xb, 9 - result.fit.xb);
+      const axisScale = 1 + result.baseline + farthest ** 2 / result.fit.sxx;
+      const meanShare = 100 * result.h0 / axisScale, newShare = 100 / axisScale;
+      const [x0, h0, meanVariance, newVariance, mse, meanSE, newSE] = [
+        result.x0, result.h0, result.mean.variance, result.prediction.variance,
+        result.fit.mse, result.mean.se, result.prediction.se
+      ].map(show);
+      const varianceMath = equationHTML(String.raw`\begin{aligned}
+        \widehat V_{\mathrm{mean}} &= \mathrm{MSE}\,h_0 \approx ${meanVariance}\\
+        \widehat V_{\mathrm{new}} &= \widehat V_{\mathrm{mean}}+\mathrm{MSE}\\
+        &\approx ${meanVariance}+${mse}\approx${newVariance}
+      \end{aligned}`);
+      const distanceMath = equationHTML(String.raw`h_0=\frac15+\frac{(${x0}-4)^2}{20}=${show(result.baseline)}+${show(result.distance)}=${h0}`);
+      $('[data-reg-calculation]').innerHTML = `<p>绿块是拟合的平均值估得有多不准。预测下一段路时，还要加棕块，也就是这段路自己的误差方差。只移动预测位置时，两条的方差尺度固定。</p>
+        <div class="reg-variance-parts">
+          <p><b>估计平均成本</b> · 拟合均值方差约 ${meanVariance}</p><div class="reg-variance-rail" aria-hidden="true"><span style="width:${meanShare}%"></span></div>
+          <p><b>预测下一段的成本</b> · 同一份 ${meanVariance} 加上新路段的 ${mse}，总方差约 ${newVariance}</p><div class="reg-variance-rail" aria-hidden="true"><span style="width:${meanShare}%"></span><span class="reg-new-variance" style="width:${newShare}%"></span></div>
+        </div>
+        <div class="equation typeset-equation" tabindex="0" role="region" aria-label="两类预测方差的计算，可横向滚动">${varianceMath}</div>
+        <h4>离五段路的平均长度越远，绿块越大</h4>
+        <p>当前长度为 ${x0}，五段路的平均长度为 4。位置越远，距离的平方越大，估计平均值就越不准。保持数据不变时，新路段自身那一份 MSE 不变。</p>
+        <div class="equation typeset-equation" tabindex="0" role="region" aria-label="当前位置的距离项，可横向滚动">${distanceMath}</div>
+        <p>把方差开平方得到标准误，两个值分别约为 ${meanSE} 和 ${newSE}。再乘共同的 t 临界值 ${show(result.critical)}，两类区间的半宽分别约为 ${show(result.mean.halfWidth)} 和 ${show(result.prediction.halfWidth)}，中心都是 ${show(result.estimate)}。</p>
+        <p class="reg-note">当前拟合的 SSE≈${show(result.fit.sse)}，误差自由度为 3，MSE≈${mse}。相关系数约为 ${show(result.fit.r)}，含截距的线性拟合给出 R²≈${show(result.fit.r2)}。</p>`;
       $('[data-reg-boundary-note]').textContent = result.extrapolation ? `当前 x₀=${show(result.x0)} 在观测范围 [1,7] 之外，属于 extrapolation。能算出区间不代表均值关系或误差模型在新范围仍适用。` : `当前 x₀=${show(result.x0)} 在观测范围 [1,7] 内。范围内预测同样需要检查模型条件。`;
       for (const row of result.rows) for (const key of ['x', 'y', 'fitted', 'residual', 'squaredResidual']) $(`[data-reg-cell="${row.id}:${key}"]`).textContent = show(row[key]);
       $('[data-reg-sse]').textContent = `五个 e² 相加得到 SSE=${show(result.fit.sse)}；估计 intercept 与 slope 后剩余 df=3，所以 MSE=${show(result.fit.mse)}。`;

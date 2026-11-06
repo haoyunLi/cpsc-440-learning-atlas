@@ -368,8 +368,14 @@ try {
     assert.match(get('boundary-note').textContent, /^当前 x₀=/);
     assert.equal(get('boundary-note').textContent.includes('extrapolation'), result.extrapolation);
     assert.ok(walk(plot('main')).filter(node => 'data-reg-boundary' in node.attrs).every(node => node.textContent === ''), 'Reading explanations belong in the visible paragraph, not SVG paths');
-    assert.match(get('calculation').innerHTML, /df=5−2=3/);
-    assert.match(get('calculation').innerHTML, /先加 variance，再开平方/);
+    const calculation = get('calculation').innerHTML;
+    assert.match(calculation, /误差自由度为 3/);
+    assert.equal([...calculation.matchAll(/<math/g)].length, 2);
+    assert.match(calculation, /把方差开平方得到标准误/);
+    const [meanWidth, sharedWidth, newWidth] = [...calculation.matchAll(/style="width:([\d.]+)%"/g)].map(match => Number(match[1]));
+    assert.equal(meanWidth, sharedWidth);
+    near(newWidth, 100 / 2.45);
+    near(meanWidth / newWidth, result.mean.variance / result.fit.mse);
     return result;
   };
   const stopped = () => { assert.equal(timers.size, 0); assert.equal(get('play').attrs['aria-pressed'], 'false'); };

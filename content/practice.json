@@ -2518,16 +2518,19 @@
     "hint": "β̂₁=Sxy/Sxx；注意使用中心化后的和。",
     "steps": [
       {
-        "title": "求中心",
-        "body": "x̄=3，ȳ=4。x 的离均差为 −2,−1,0,1,2，y 的离均差为 −2,0,1,0,1。"
+        "title": "把点云的中心当作原点",
+        "body": "<p>x 的平均是 3，y 的平均是 4。第一个点在中心左边 2 格、下边 2 格，所以它对共同变化贡献正的 4。</p>",
+        "latex": "(\\bar x,\\bar y)=(3,4),\\qquad (1-3)(2-4)=4"
       },
       {
-        "title": "计算两个中心化和",
-        "body": "Sxx=4+1+0+1+4=10；Sxy=4+0+0+0+2=6。所以 β̂₁=6/10=0.6。"
+        "title": "先加乘积，再除以 x 的平方和",
+        "body": "<p>Sxy 加的是每个点的横偏差乘纵偏差，Sxx 加的是横偏差平方。前者是共同变化，后者给出横轴自己的散布。</p>",
+        "latex": "S_{xy}=4+0+0+0+2=6,\\qquad S_{xx}=4+1+0+1+4=10,\\qquad b_1=6/10=0.6"
       },
       {
-        "title": "组成拟合式并解释",
-        "body": "β̂₀=ȳ−β̂₁x̄=4−0.6×3=2.2，因此 ŷ=2.2+0.6x。在线性模型范围内，x 每增加 1 单位，conditional mean y 估计增加 0.6 单位。"
+        "title": "让直线穿过点云中心",
+        "body": "<p>已经知道向右一格线上升 0.6。再用中心点定出截距，得到完整直线。</p>",
+        "latex": "b_0=4-0.6(3)=2.2,\\qquad \\widehat y=2.2+0.6x"
       }
     ],
     "conclusion": "slope=0.6，intercept=2.2。",
@@ -2547,7 +2550,15 @@
         "tolerance": 0.0002,
         "feedback": "这个数值是 intercept，不是 slope。Slope 描述 x 每增加一单位时拟合均值的变化，等于 Sxy/Sxx。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "找一条最贴合五个点的直线。题目要的是 x 往右走一格，线上预测值会升多少。",
+      "start": "先找这堆点的中心。每个 x 与 y 都减去各自的平均，再看两个方向的偏差怎样一起变。",
+      "link": {
+        "url": "chapters/11.html#least-squares",
+        "label": "对照铺路数据手算一条回归线"
+      }
+    }
   },
   {
     "id": "p11-02",
@@ -2568,16 +2579,19 @@
     "hint": "prediction SE=√[MSE(1+1/n+(x₀−x̄)²/Sxx)]。",
     "steps": [
       {
-        "title": "分开两种不确定性",
-        "body": "估计 E(Y|x₀) 的 CI 只含拟合均值的不确定性；预测独立的新 Y 还要加上新观测自己的误差 variance。"
+        "title": "先找两个区间共用的中心",
+        "body": "<p>x₀=3 就是样本 x 的中心。估计平均值的距离项消失，均值方差只剩 MSE 的 1/5；两类区间都围绕预测值 4。</p>",
+        "latex": "h_0=\\frac15+\\frac{(3-3)^2}{10}=\\frac15,\\qquad \\widehat y_0=4"
       },
       {
-        "title": "代入 prediction SE",
-        "body": "x₀=x̄，距离项为 0。SEprediction=√[0.8(1+1/5)]=√0.96≈0.97980，df=n−2=3。"
+        "title": "预测新个体时，多加一份 MSE",
+        "body": "<p>新个体自己的误差和拟合均值的不确定性独立，所以方差可以相加。加完再开平方。</p>",
+        "latex": "\\mathrm{SE}_{\\mathrm{new}}=\\sqrt{0.8(1+1/5)}=\\sqrt{0.96}\\approx0.97980"
       },
       {
-        "title": "形成区间并作比较",
-        "body": "t₀.₉₇₅,₃≈3.18245，PI=4±3.18245×0.97980≈(0.88185,7.11815)。均值 CI 约为 (2.72702,5.27298)，更窄。"
+        "title": "把半宽加到中心上",
+        "body": "<p>五个观测估了两个系数，误差自由度是 3。95% 的临界值约 3.18245。把它乘标准误，得到新个体区间的半宽。</p>",
+        "latex": "4\\pm t_{.975,3}\\sqrt{0.96}\\approx[0.88185,\\ 7.11815]"
       }
     ],
     "conclusion": "95% prediction interval 上限约为 7.1181。",
@@ -2597,7 +2611,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与用 Z=1.96 代替 t 临界值一致。MSE 来自只有 5 个观测的回归，残差 df=3，应使用更大的 t₀.₉₇₅,₃。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "在 x=3 处，直线给出 4。现在要预测同样 x 的下一个个体，所以它自己也可能离直线有一段距离。",
+      "start": "先看 x₀ 正好等于 x 的平均，距离项为零。再把拟合均值的方差与新个体自己的误差方差加起来。",
+      "link": {
+        "url": "chapters/11.html#lab-regression",
+        "label": "在铺路实验里看同一位置的两类区间与方差条"
+      }
+    }
   },
   {
     "id": "p11-03",
@@ -2619,16 +2641,17 @@
     "hint": "R²=1−SSE/SST；在含截距的 simple regression 中也等于 r²。",
     "steps": [
       {
-        "title": "识别变异来源",
-        "body": "SST=Σ(y−ȳ)² 是只预测总体样本均值时的误差；SSE=Σ(y−ŷ)² 是加入 x 后剩余的误差。"
+        "title": "从一条水平线起步",
+        "body": "<p>用同一个样本平均来预测所有点时，纵向偏差的平方和为 6。改用回归线后，剩下的偏差平方和是 2.4。</p>"
       },
       {
-        "title": "计算比例",
-        "body": "SSR=SST−SSE=3.6，所以 R²=3.6/6=0.6。相对于只有 intercept 的模型，拟合线消除了 60% 的样本平方离差。"
+        "title": "把省下的误差换成比例",
+        "body": "<p>含截距的最小二乘线把这笔平方和减少了 3.6。用原来那笔 6 作分母。</p>",
+        "latex": "R^2=1-\\frac{\\mathrm{SSE}}{\\mathrm{SST}}=1-\\frac{2.4}{6}=0.6"
       },
       {
-        "title": "解释边界",
-        "body": "R² 既不是预测正确的概率，也不是因果贡献率。此例 r=√0.6≈0.7746，方向由正 slope 决定；新数据性能仍需单独评估。"
+        "title": "按当前样本读 60%",
+        "body": "<p>样本里相对水平线减少了 60% 的平方离差。若要知道新数据预测得怎样，需要另用新数据评估。</p>"
       }
     ],
     "conclusion": "R²=0.6；它描述当前样本的线性拟合程度。",
@@ -2648,7 +2671,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与相关系数 r 一致。在含截距的 simple regression 中，R²=r²；平方后失去方向符号，保留解释比例。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "比较两种画法：所有点都用同一个平均值来预测，或用随 x 改变的直线预测。题目问第二种让样本平方误差少了多少比例。",
+      "start": "用原来 6 的平方和减去剩下的 2.4，再除以原来的 6。",
+      "link": {
+        "url": "chapters/11.html#regression-anova",
+        "label": "跟着样本点核对回归中的平方和分解"
+      }
+    }
   },
   {
     "id": "p11-04",
@@ -2670,16 +2701,19 @@
     "hint": "SS_LOF=SSE−SS_PE；df_LOF=m−2，df_PE=n−m。",
     "steps": [
       {
-        "title": "先分离纯重复误差",
-        "body": "同一 x 下 y 的波动提供 pure error：SS_PE=6，df_PE=12−4=8，MS_PE=0.75。"
+        "title": "先量同一 x 下的自然波动",
+        "body": "<p>四个 x 各自估一个平均，共用去四个自由度。剩下八个自由度量同一 x 内的波动。</p>",
+        "latex": "\\mathrm{MS}_{\\mathrm{PE}}=\\frac{6}{12-4}=0.75"
       },
       {
-        "title": "比较直线与自由组均值",
-        "body": "直线 SSE=30，若放松为每个 x 一个独立均值，剩余 SS=6。所以 SS_LOF=24，df_LOF=4−2=2，MS_LOF=12。"
+        "title": "看直线多留下了多少误差",
+        "body": "<p>把每个 x 的中心放开，平方误差从 30 降到 6。相比只有两个系数的直线，四个中心多用两个自由度。</p>",
+        "latex": "\\mathrm{MS}_{\\mathrm{LOF}}=\\frac{30-6}{4-2}=12"
       },
       {
-        "title": "构造适合的 F 比值",
-        "body": "F_LOF=MS_LOF/MS_PE=12/0.75=16，参考 F₂,₈。拒绝时说明直线的系统偏离超过重复观测的噪声，并非只是 slope≠0。"
+        "title": "判断这笔额外误差相对有多大",
+        "body": "<p>用纯误差均方当参照。给定独立正态、共同方差模型，F 的右尾衡量直线剩余的系统偏离是否超过重复观测的波动。</p>",
+        "latex": "F_{\\mathrm{LOF}}=\\frac{12}{0.75}=16\\qquad(F_{2,8}\\text{ reference})"
       }
     ],
     "conclusion": "lack-of-fit F=16；可以有显著 slope，同时仍有明显非线性。",
@@ -2699,7 +2733,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与将 lack-of-fit df 设成不同 x 的个数 4 一致。直线已用 2 个参数，因此额外 lack-of-fit df=m−2=2。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "每个剂量有重复观测，所以可以分清两种偏差：同剂量本来就有的高低差，以及直线没穿过各组中心留下的差。",
+      "start": "从直线的 SSE 扣掉各组绕自身中心的纯误差。两笔平方和各除以自己的自由度，再作比。",
+      "link": {
+        "url": "chapters/11.html#lack-fit",
+        "label": "回看同一 x 的重复观测如何分离纯误差"
+      }
+    }
   },
   {
     "id": "p04-07",
@@ -3719,20 +3761,19 @@
     "hint": "ŷ₀=b₀+6b₁；线性组合的方差包含2×6×Cov(b₀,b₁)。最后对variance开平方。",
     "steps": [
       {
-        "title": "核对这些不确定性来自同一个模型",
-        "body": "本例n=5、x̄=6、Sxx=40；SSE=3.6、error df=3，所以MSE=1.2。由此Var̂(b₁)=1.2/40=.03，Var̂(b₀)=1.2(1/5+36/40)=1.32，Cov̂(b₀,b₁)=−6×1.2/40=−.18。"
+        "title": "写出需要算方差的量",
+        "body": "<p>在 x₀=6 处，预测的平均值是两个系数的线性组合。截距和斜率都由同一批点拟合，所以要保留它们的协方差。</p>",
+        "latex": "\\widehat y_0=b_0+6b_1,\\qquad \\widehat V(\\widehat y_0)=\\widehat V(b_0)+36\\widehat V(b_1)+12\\widehat{\\operatorname{Cov}}(b_0,b_1)"
       },
       {
-        "title": "为所求的线性组合写方差",
-        "body": "ŷ₀=b₀+6b₁，因此Var̂(ŷ₀)=Var̂(b₀)+6²Var̂(b₁)+2×6Cov̂(b₀,b₁)。两个coefficients并非独立，不能删除最后一项。"
+        "title": "看协方差抵消了多少",
+        "body": "<p>斜率方差项贡献 1.08，协方差项贡献 −2.16。两项和截距方差一起加起来，才是估计均值的方差。</p>",
+        "latex": "\\widehat V(\\widehat y_0)=1.32+36(0.03)+12(-0.18)=0.24,\\qquad \\mathrm{SE}=\\sqrt{0.24}\\approx0.489898"
       },
       {
-        "title": "代入并转为SE",
-        "body": "Var̂(ŷ₀)=1.32+36×.03+12×(−.18)=1.32+1.08−2.16=.24；SE=√.24≈.489898。也可用x₀=x̄时的MSE/n=1.2/5=.24核对。"
-      },
-      {
-        "title": "解释与另一个预测问题的区别",
-        "body": "此处拟合均值为1.4+1.6×6=11，所求SE约.49。若预测一个独立新观测，还要加上MSE=1.2，得到√(1.2+.24)=1.2；那回答的是另一个问题。"
+        "title": "用中心位置再核对",
+        "body": "<p>样本 x 的平均也是 6，距离项为零。MSE 为 1.2，均值方差是 1.2/5=0.24。要预测新个体，才会再加上 1.2。</p>",
+        "latex": "\\widehat V_{\\mathrm{mean}}=\\frac{1.2}{5}=0.24,\\qquad \\widehat V_{\\mathrm{new}}=0.24+1.2=1.44"
       }
     ],
     "conclusion": "保留covariance后，fitted-mean SE≈.489898。遗漏covariance会误得约1.54919。",
@@ -3759,7 +3800,15 @@
         "tolerance": 0.005,
         "feedback": "1.2是本例单个独立新观测的prediction SE：√(MSE+.24)。题目问拟合mean的不确定性，不需要加入新观测的误差variance。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "直线的截距与斜率是一起估出来的。在 x=6 处，两者的估计误差可能一升一降，有一部分会互相抵消。",
+      "start": "把预测值写成截距加六倍斜率。方差包括两项自己的波动，还要保留两者一起变的那一项。",
+      "link": {
+        "url": "chapters/11.html#lab-regression",
+        "label": "在实验里把预测位置移到样本中心，核对均值方差的第一项"
+      }
+    }
   },
   {
     "id": "p06-05",
@@ -4770,20 +4819,19 @@
     "hint": "估计两个regression coefficients，所以df=n−2。保留t的负号，按预定右侧方向求pt(t,df,lower.tail=FALSE)。",
     "steps": [
       {
-        "title": "参数与方向先于观测结果",
-        "body": "β₁表示每增加1 g/盆剂量时，conditional mean biomass的变化，单位g biomass/(g/盆 dose)。预设Ha:β₁>0决定使用右尾；完整null为β₁≤0，在边界β₁=0计算参考尾概率。"
+        "title": "让研究问题决定尾部",
+        "body": "<p>斜率表示剂量每增加一单位，平均干重改变多少。研究开始前就规定只找正斜率，所以在零斜率边界计算右尾概率。</p>",
+        "latex": "H_0:\\beta_1\\leq0,\\qquad H_a:\\beta_1>0,\\qquad \\nu=7-2=5"
       },
       {
-        "title": "从正确行计算t与df",
-        "body": "t=(−.821428571−0)/.322221245≈−2.549268816，error df=7−2=5。独立正态、共同variance的SLR在零slope边界给出中心t₅参考。"
+        "title": "保留估计的负号",
+        "body": "<p>从估计减去边界的 0，再除以标准误。统计量在中心 t 曲线的左侧。</p>",
+        "latex": "t_{\\mathrm{obs}}=\\frac{-0.821428571}{0.322221245}\\approx-2.549268816"
       },
       {
-        "title": "保留符号求右尾",
-        "body": "P=P(t₅≥−2.549268816)≈.974344164。输出Pr(>|t|)=.051311671是双侧P；本例t为负，所以右尾P=1−.051311671/2，而非直接除以2。"
-      },
-      {
-        "title": "作出与预定问题一致的结论",
-        "body": "在α=.05下不拒绝H₀，数据没有支持正slope。左尾P≈.025655836属于相反方向的检验，不能观察负估计后再换用该小P来支持原来的正向研究目标。"
+        "title": "从这条线往右看",
+        "body": "<p>双侧 P 的一半约 0.02566，对应这里的左侧面积。从观测统计量往右，面积约为 0.97434。5% 水平下，数据对正斜率的证据不足。</p>",
+        "latex": "p_{\\mathrm{right}}=\\Pr(T_5\\geq-2.549268816)=1-\\frac{0.051311671}{2}\\approx0.974344164"
       }
     ],
     "conclusion": "预定右尾P≈.974344；双侧P≈.051312，左尾P≈.025656，三者回答不同的问题。",
@@ -4800,7 +4848,15 @@
         "tolerance": 0.0003,
         "feedback": "这是lm输出Pr(>|t|)给出的双侧P，对应Ha:β₁≠0。题目在收集数据前已规定Ha:β₁>0，应使用有符号t的右尾概率。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "研究本来想找「剂量越高，平均干重越高」。现在拟合斜率朝负方向，仍要按原问题看右尾。",
+      "start": "从负的 t 往右数面积。软件的双侧 P 的一半是左边的小尾，右侧要用 1 减去那一半。",
+      "link": {
+        "url": "labs.html#distribution",
+        "label": "用 t 分布工作台对比负统计量的两侧面积"
+      }
+    }
   },
   {
     "id": "p04-14",
@@ -5062,20 +5118,19 @@
     "hint": "先画三对 nested models：constant→quadratic、line→quadratic、quadratic→cell。每一对的标准增量 F 使用较完整模型的 residual MSE。",
     "steps": [
       {
-        "title": "先核对模型与 residual df",
-        "body": "共有 n=15、g=5 个不同 x。含截距的 line 用2个参数，residual df=13；quadratic 用3个，df=12；cell model 用5个，pure-error df=10。于是 MSE_quad=11.37142857/12≈.947619，MSPE=10/10=1。"
+        "title": "摆出三个层次",
+        "body": "<p>直线拟合两个系数，二次曲线拟合三个，每个 x 单独一个中心则拟合五个。样本量为 15，因此误差自由度随模型而变。</p>",
+        "latex": "df_{\\mathrm{line}}=13,\\quad df_{\\mathrm{quad}}=12,\\quad df_{\\mathrm{cell}}=10"
       },
       {
-        "title": "整体 F 与额外二次项 F 使用同一个误差模型",
-        "body": "Quadratic 整体 H₀:β₁=β₂=0 有2个分子df；增量 H₀:β₂=0 有1个分子df。两者较完整的模型都是 quadratic，所以都除以 MSE_quad≈.947619。SST=736，整体 F≈382.341709；增量 F=(73.3−11.37142857)/.947619≈65.351759。"
+        "title": "只要完整模型是二次曲线，就用它的 MSE",
+        "body": "<p>从水平线到二次曲线，同时加一次项与二次项。由直线到二次曲线只加一个二次项。两个比较都用二次曲线的 MSE。</p>",
+        "latex": "\\begin{aligned}\\mathrm{MSE}_{\\mathrm{quad}}&=11.37142857/12\\approx0.947619\\\\ F_{\\mathrm{overall}}&=\\frac{(736-11.37142857)/2}{\\mathrm{MSE}_{\\mathrm{quad}}}\\approx382.341709\\\\ F_{\\mathrm{add}}&=\\frac{73.3-11.37142857}{\\mathrm{MSE}_{\\mathrm{quad}}}\\approx65.351759\\end{aligned}"
       },
       {
-        "title": "LOF 的比较参照改变了分母",
-        "body": "Quadratic LOF 将 quadratic 与5个自由 cell means 比较。多出的参数数为5−3=2；F=[(11.37142857−10)/2]/(10/10)≈.685714，df=(2,10)、P≈.525926。这里的分母是 cell model 的 pure-error MS，而非 quadratic 的 MSE。"
-      },
-      {
-        "title": "按各自的问题解释输出",
-        "body": "整体检验、增加二次项检验与剩余失配检验可以同时给出很不同的 P；它们不矛盾。x² 行的 t²≈65.351759 只等于同一个1-df增量 F，不等于2-df整体 F。LOF 未拒绝也不能证明 quadratic 为真。"
+        "title": "问二次曲线是否还缺东西时，参照改成自由中心",
+        "body": "<p>由二次曲线放开到五个组中心，多了两个参数。分母由五个中心下的重复误差提供。三种 F 的区别在于各自加了什么、用哪笔误差作参照。</p>",
+        "latex": "F_{\\mathrm{LOF}}=\\frac{(11.37142857-10)/(5-3)}{10/(15-5)}\\approx0.685714"
       }
     ],
     "conclusion": "正确配对是：整体与额外 x² 检验用 quadratic MSE（12 df）；quadratic LOF 用 pure-error MS（10 df），不能把三种 F 当成同一个检验。",
@@ -5086,7 +5141,15 @@
       "只有检验同一1-df线性约束时，对应的 F 才等于 t²。x² 行检验 β₂=0，而整体 quadratic 同时检验 β₁=β₂=0，有2个分子df；两者不能互换。",
       "标准嵌套模型 F 用较完整模型估计共同误差，而不是较简单模型的剩余SS。直线SSE可能含遗漏的curvature，quadratic SSE可能含相对cell model的剩余失配；正是这些部分进入各自分子。"
     ],
-    "rCode": "# Original five-level example, with three independent units at each x.\nd <- data.frame(x=rep(0:4,each=3),\n                y=rep(c(3,4,8,13,22),each=3)+rep(c(-1,0,1),5))\nline <- lm(y~x,data=d)\nquadratic <- lm(y~x+I(x^2),data=d)\ncell <- lm(y~factor(x),data=d)\nsst <- sum((d$y-mean(d$y))^2)\nsse_line <- deviance(line)\nsse_quad <- deviance(quadratic)\nss_pe <- deviance(cell)\nmse_quad <- sse_quad/df.residual(quadratic)\nms_pe <- ss_pe/df.residual(cell)\nF_values <- c(overall=((sst-sse_quad)/2)/mse_quad,\n              extra_quadratic=(sse_line-sse_quad)/mse_quad,\n              lack_of_fit=((sse_quad-ss_pe)/2)/ms_pe)\nresults <- data.frame(test=names(F_values),F=unname(F_values),\n                      df1=c(2,1,2),df2=c(12,12,10),\n                      denominator=c(mse_quad,mse_quad,ms_pe))\nresults$P <- pf(results$F,results$df1,results$df2,lower.tail=FALSE)\nprint(c(SST=sst,SSE_line=sse_line,SSE_quadratic=sse_quad,SSPE=ss_pe))\nprint(results,digits=12)\nprint(summary(quadratic)$coefficients)\nprint(anova(line,quadratic))\nprint(anova(quadratic,cell))\n# The quadratic coefficient t corresponds to the one-df extra-term test.\nt_quad <- summary(quadratic)$coefficients[\"I(x^2)\",\"t value\"]\nstopifnot(df.residual(quadratic)==12,df.residual(cell)==10,\n          abs(mse_quad-.947619047619048)<1e-12,abs(ms_pe-1)<1e-12,\n          abs(F_values[\"extra_quadratic\"]-t_quad^2)<1e-10,\n          max(abs(F_values-c(382.341708542714,65.3517587939699,.685714285714278)))<1e-9,\n          max(abs(results$P-c(1.36026423773983e-11,3.37784818863505e-6,.525926266406393)))<1e-12)\nanswer <- 1L\nprint(answer)\n"
+    "rCode": "# Original five-level example, with three independent units at each x.\nd <- data.frame(x=rep(0:4,each=3),\n                y=rep(c(3,4,8,13,22),each=3)+rep(c(-1,0,1),5))\nline <- lm(y~x,data=d)\nquadratic <- lm(y~x+I(x^2),data=d)\ncell <- lm(y~factor(x),data=d)\nsst <- sum((d$y-mean(d$y))^2)\nsse_line <- deviance(line)\nsse_quad <- deviance(quadratic)\nss_pe <- deviance(cell)\nmse_quad <- sse_quad/df.residual(quadratic)\nms_pe <- ss_pe/df.residual(cell)\nF_values <- c(overall=((sst-sse_quad)/2)/mse_quad,\n              extra_quadratic=(sse_line-sse_quad)/mse_quad,\n              lack_of_fit=((sse_quad-ss_pe)/2)/ms_pe)\nresults <- data.frame(test=names(F_values),F=unname(F_values),\n                      df1=c(2,1,2),df2=c(12,12,10),\n                      denominator=c(mse_quad,mse_quad,ms_pe))\nresults$P <- pf(results$F,results$df1,results$df2,lower.tail=FALSE)\nprint(c(SST=sst,SSE_line=sse_line,SSE_quadratic=sse_quad,SSPE=ss_pe))\nprint(results,digits=12)\nprint(summary(quadratic)$coefficients)\nprint(anova(line,quadratic))\nprint(anova(quadratic,cell))\n# The quadratic coefficient t corresponds to the one-df extra-term test.\nt_quad <- summary(quadratic)$coefficients[\"I(x^2)\",\"t value\"]\nstopifnot(df.residual(quadratic)==12,df.residual(cell)==10,\n          abs(mse_quad-.947619047619048)<1e-12,abs(ms_pe-1)<1e-12,\n          abs(F_values[\"extra_quadratic\"]-t_quad^2)<1e-10,\n          max(abs(F_values-c(382.341708542714,65.3517587939699,.685714285714278)))<1e-9,\n          max(abs(results$P-c(1.36026423773983e-11,3.37784818863505e-6,.525926266406393)))<1e-12)\nanswer <- 1L\nprint(answer)\n",
+    "readQuestion": {
+      "meaning": "三个 F 值分别在问：加上直线和弯曲有没有用、只加弯曲有没有用、加了弯曲以后是否还有漏掉的形状。",
+      "start": "每次先写要比较的两个模型。分母用较完整模型剩下的误差均方。",
+      "link": {
+        "url": "chapters/11.html#lack-fit",
+        "label": "回看直线、二次曲线与自由组中心的比较层次"
+      }
+    }
   },
   {
     "id": "p15-10",
@@ -5236,20 +5299,23 @@
     "hint": "p 是模型估计的系数个数2，不是观测数6或error df=4。平方的是整个(1−h)，MSE来自包含第6点的完整模型。",
     "steps": [
       {
-        "title": "先区分位置、偏离与删除后的变化",
-        "body": "h₆≈.868421只由全部x的设计决定；e₆≈−2.315789是第6点到完整拟合线的垂直差。Cook’s distance把残差与leverage结合，衡量删去该点后整条拟合线的变化，不能用其中一个量直接代替。"
+        "title": "先分清点的位置与垂直差",
+        "body": "<p>第六点的 x 远离其他点，所以杠杆值高。残差是它在完整线下的垂直差。高杠杆和非零残差同时存在时，拿掉它可能会显著改变线。</p>",
+        "latex": "h_6=33/38,\\qquad e_6=-44/19,\\qquad 1-h_6=5/38"
       },
       {
-        "title": "保留完整模型的误差参照与两个不同自由度角色",
-        "body": "完整模型估计intercept和slope，因此p=2；MSE先以n−p=4为分母求得1006/95。D的公式再除以p，不能把这里的2换成4，也不能改用删除后的MSE。1−h₆=5/38，因此(1−h₆)²=25/1444。"
+        "title": "用完整线的误差尺度代入",
+        "body": "<p>截距与斜率给 p=2。MSE 的自由度是 4，它已体现在题给 MSE 里。代入公式的 p 仍是 2。</p>",
+        "latex": "D_6=\\frac{(44/19)^2(33/38)}{2(1006/95)(5/38)^2}=\\frac{31944}{2515}\\approx12.701392"
       },
       {
-        "title": "代入并从实际重拟合核对",
-        "body": "D₆=[(44/19)²×(33/38)]/[2×(1006/95)×(5/38)²]=31944/2515≈12.70139165。完整拟合为ŷ≈3.842105+.347368x，删去第6点的敏感性拟合为ŷ₍₋₆₎=.6+2.2x。在原有全部六个x处比较两条线，Σ[ŷⱼ−ŷⱼ₍₋₆₎]²≈269.002105；再除以2×10.589474得到同一个D₆。求和仍包括原第6个x位置。"
+        "title": "用两条线实际移动多少复核",
+        "body": "<p>在原来六个 x 的位置分别算完整线和敏感性线的预测值。六个差的平方和约为 269.002105，再除以完整 MSE 的两倍，会得到同一个诊断量。</p>",
+        "latex": "D_6=\\frac{\\sum_{j=1}^6(\\widehat y_j-\\widehat y_{j(-6)})^2}{2\\,\\mathrm{MSE}_{\\mathrm{full}}}"
       },
       {
-        "title": "说明为什么只按残差大小筛点会遗漏影响",
-        "body": "第5点的|e₅|≈3.768421，比第6点的2.315789更大，但D₅≈.170562远小于D₆。第6点的x远离其余点，已将完整拟合线拉向自己；较小的完整模型residual不等于较小的删除影响。该诊断提示核查记录、模型适用范围并报告敏感性，不是证实观测错误或自动删点。"
+        "title": "说明这次变动意味着什么",
+        "body": "<p>第六点把完整线拉向自己，残差可以比其他点小，拿掉后拟合仍会大变。这个结果提示核查记录、目标范围和拟合敏感性。</p>"
       }
     ],
     "conclusion": "D₆≈12.701392。第6点的leverage与residual共同造成较大的删除拟合变化；Cook’s distance本身不提供自动删除观测的理由。",
@@ -5276,7 +5342,15 @@
         "feedback": "这个结果与把删除后的MSE=.533333代入一致。本题Cook’s distance以完整模型MSE≈10.589474作为共同误差参照。"
       }
     ],
-    "rCode": "# Original six-point dataset; fit the same intercept-and-slope model throughout.\nd <- data.frame(x=c(0,1,2,3,4,10),y=c(1,2,5,8,9,5))\nfit <- lm(y ~ x,data=d)\nn <- nrow(d)\np <- fit$rank\nmse <- deviance(fit)/df.residual(fit)\nh <- hatvalues(fit)\ne <- residuals(fit)\ni <- 6L\n# Cook's distance uses the full-model MSE and the number of coefficients.\ncook_formula <- e[i]^2*h[i]/(p*mse*(1-h[i])^2)\ncook_r <- cooks.distance(fit)[i]\n# Evaluate both fitted lines at all six original x values, including the omitted case.\nfit_without <- lm(y ~ x,data=d[-i,])\nfull_fitted <- predict(fit,newdata=d)\nwithout_fitted <- predict(fit_without,newdata=d)\ncook_refit <- sum((full_fitted-without_fitted)^2)/(p*mse)\nprint(c(n=n,p=p,error_df=df.residual(fit),MSE=mse,h=h[i],e=e[i],\n        Cook_formula=cook_formula,Cook_R=cook_r,Cook_refit=cook_refit),digits=12)\nprint(rbind(full=coef(fit),without_case_6=coef(fit_without)),digits=12)\nprint(data.frame(d,residual=e,h=h,Cook=cooks.distance(fit)),digits=10)\nstopifnot(n==6,p==2,df.residual(fit)==4,\n          abs(mse-1006/95)<1e-12,abs(h[i]-33/38)<1e-12,\n          abs(e[i]+44/19)<1e-12,\n          abs(cook_formula-31944/2515)<1e-10,\n          abs(cook_formula-cook_r)<1e-10,\n          abs(cook_formula-cook_refit)<1e-10,\n          which.max(abs(e))==5,which.max(cooks.distance(fit))==6)\n# These incorrect substitutions are diagnostic feedback, not alternative definitions.\nwrong <- c(omitting_p=e[i]^2*h[i]/(mse*(1-h[i])^2),\n           only_one_one_minus_h=e[i]^2*h[i]/(p*mse*(1-h[i])),\n           using_error_df_for_p=e[i]^2*h[i]/(df.residual(fit)*mse*(1-h[i])^2),\n           using_deleted_MSE=e[i]^2*h[i]/\n             (p*(deviance(fit_without)/df.residual(fit_without))*(1-h[i])^2))\nprint(wrong,digits=12)\nstopifnot(max(abs(wrong-c(25.4027833001988,1.67123574343413,\n                          6.3506958250497,252.189473684211)))<1e-9)\n# Deletion is a sensitivity calculation, not permission to discard a valid record.\n"
+    "rCode": "# Original six-point dataset; fit the same intercept-and-slope model throughout.\nd <- data.frame(x=c(0,1,2,3,4,10),y=c(1,2,5,8,9,5))\nfit <- lm(y ~ x,data=d)\nn <- nrow(d)\np <- fit$rank\nmse <- deviance(fit)/df.residual(fit)\nh <- hatvalues(fit)\ne <- residuals(fit)\ni <- 6L\n# Cook's distance uses the full-model MSE and the number of coefficients.\ncook_formula <- e[i]^2*h[i]/(p*mse*(1-h[i])^2)\ncook_r <- cooks.distance(fit)[i]\n# Evaluate both fitted lines at all six original x values, including the omitted case.\nfit_without <- lm(y ~ x,data=d[-i,])\nfull_fitted <- predict(fit,newdata=d)\nwithout_fitted <- predict(fit_without,newdata=d)\ncook_refit <- sum((full_fitted-without_fitted)^2)/(p*mse)\nprint(c(n=n,p=p,error_df=df.residual(fit),MSE=mse,h=h[i],e=e[i],\n        Cook_formula=cook_formula,Cook_R=cook_r,Cook_refit=cook_refit),digits=12)\nprint(rbind(full=coef(fit),without_case_6=coef(fit_without)),digits=12)\nprint(data.frame(d,residual=e,h=h,Cook=cooks.distance(fit)),digits=10)\nstopifnot(n==6,p==2,df.residual(fit)==4,\n          abs(mse-1006/95)<1e-12,abs(h[i]-33/38)<1e-12,\n          abs(e[i]+44/19)<1e-12,\n          abs(cook_formula-31944/2515)<1e-10,\n          abs(cook_formula-cook_r)<1e-10,\n          abs(cook_formula-cook_refit)<1e-10,\n          which.max(abs(e))==5,which.max(cooks.distance(fit))==6)\n# These incorrect substitutions are diagnostic feedback, not alternative definitions.\nwrong <- c(omitting_p=e[i]^2*h[i]/(mse*(1-h[i])^2),\n           only_one_one_minus_h=e[i]^2*h[i]/(p*mse*(1-h[i])),\n           using_error_df_for_p=e[i]^2*h[i]/(df.residual(fit)*mse*(1-h[i])^2),\n           using_deleted_MSE=e[i]^2*h[i]/\n             (p*(deviance(fit_without)/df.residual(fit_without))*(1-h[i])^2))\nprint(wrong,digits=12)\nstopifnot(max(abs(wrong-c(25.4027833001988,1.67123574343413,\n                          6.3506958250497,252.189473684211)))<1e-9)\n# Deletion is a sensitivity calculation, not permission to discard a valid record.\n",
+    "readQuestion": {
+      "meaning": "拿掉第六个点再拟合，整条线变了多少？Cook’s distance 用完整拟合的误差尺度来量这个变化。",
+      "start": "先确认三个量：点的残差、点在 x 上的杠杆值、完整模型的 MSE。公式中的 p 是系数个数 2。",
+      "link": {
+        "url": "chapters/11.html#leverage-influence",
+        "label": "在影响度实验里选远离其余 x 的点，比较两条拟合线"
+      }
+    }
   },
   {
     "id": "p11-09",
@@ -5307,20 +5381,19 @@
     "hint": "Leverage由x计算；Cook衡量删除后拟合值的变化。估计SE还依赖Sxx、误差平方和及error df，不能只看系数是否变动。",
     "steps": [
       {
-        "title": "先核对新点确实落在原线，而原样本仍有误差变异",
-        "body": "原线在x=9处给出−.6+2.2×9=19.2，恰好等于新增y。前五点的residuals为[.4,−.8,1,−1.2,.6]，平方和仍为3.6。因此不是所有观测共线导致MSE=0的退化问题。"
+        "title": "看新增点是否把线往外拉",
+        "body": "<p>把 9 代入原线，正好得到 19.2。新点在原拟合上，重拟合的系数保持原值，原五点仍有残差，SSE 仍为 3.6。</p>",
+        "latex": "\\widehat y(9)=-0.6+2.2(9)=19.2,\\qquad e_6=0,\\qquad D_6=0"
       },
       {
-        "title": "区分高leverage与零删除影响",
-        "body": "加入后n=6、x̄=4、Sxx=40；h₆=1/6+(9−4)²/40=19/24≈.791667。新增点对原线残差为0，重拟合系数仍为intercept=−.6、slope=2.2，故其e₆=0、D₆=0。R可能给出约10⁻³⁰的浮点结果；这不是实质拟合变化。"
+        "title": "分开看它的 x 位置",
+        "body": "<p>新点离新的 x 平均 4 很远，所以有较高杠杆值。Cook’s distance 同时依赖残差；本例残差为零，所以拟合没有被拉动。</p>",
+        "latex": "h_6=\\frac16+\\frac{(9-4)^2}{40}=\\frac{19}{24}\\approx0.791667"
       },
       {
-        "title": "使用相同模型重新核算slope SE",
-        "body": "前五点MSE=3.6/(5−2)=1.2，所以SE(b₁)=√(1.2/10)=√.12≈.346410。加入后SSE仍为3.6，但error df=6−2=4、MSE=.9，且Sxx增至40，所以模型报告SE(b₁)=√(.9/40)=.15。系数的点估计不变，不要求它的标准误也不变。"
-      },
-      {
-        "title": "限定结论与下一步行动",
-        "body": "本题只证明这个构造例中，零Cook拟合影响与较高leverage、改变后的SE可以同时发生。不能推广为任何新增观测都会提高精度，也不能仅凭高h自动删点。实际应核查记录、该x是否属于目标范围及直线与共同variance条件是否合理。"
+        "title": "再算斜率的精度",
+        "body": "<p>新增后误差自由度从 3 增到 4，x 的平方和从 10 增到 40。两者都会进入斜率标准误，所以这次标准误变小。</p>",
+        "latex": "\\mathrm{SE}_{\\mathrm{old}}=\\sqrt{\\frac{3.6/3}{10}}\\approx0.346410,\\qquad \\mathrm{SE}_{\\mathrm{new}}=\\sqrt{\\frac{3.6/4}{40}}=0.15"
       }
     ],
     "conclusion": "第6点h≈.791667而D=0；本例系数不变，但模型报告的slope SE从约.346410变为.15。拟合影响与精度变化是不同问题。",
@@ -5331,7 +5404,15 @@
       "Residual衡量y相对拟合值的偏离，leverage由x相对设计中心的位置决定。新增点虽e₆=0，但x=9离其他x较远，h₆仍为19/24。",
       "回归系数只是点估计。新增点会改变设计的Sxx及残差自由度；本例SSE虽不变，MSE从1.2变为.9，因此标准误改变，不能据Cook=0断言没有任何信息。"
     ],
-    "rCode": "# Original constructed data: only the sixth point lies exactly on the five-point fit.\nd <- data.frame(x=c(1,2,3,4,5,9),y=c(2,3,7,7,11,19.2))\nfit_five <- lm(y ~ x,data=d[1:5,])\nfit_six <- lm(y ~ x,data=d)\noriginal_sixth_prediction <- predict(fit_five,newdata=d[6,,drop=FALSE])\nh6 <- hatvalues(fit_six)[6]\ne6 <- residuals(fit_six)[6]\nD6 <- cooks.distance(fit_six)[6]\nsummary_row <- function(fit,x) {\n  mse <- deviance(fit)/df.residual(fit)\n  Sxx <- sum((x-mean(x))^2)\n  c(SSE=deviance(fit),error_df=df.residual(fit),MSE=mse,Sxx=Sxx,\n    slope_SE=sqrt(mse/Sxx))\n}\ncomparison <- rbind(five=summary_row(fit_five,d$x[1:5]),\n                    six=summary_row(fit_six,d$x))\nprint(rbind(five=coef(fit_five),six=coef(fit_six)),digits=12)\nprint(comparison,digits=12)\nprint(c(original_prediction_at_9=original_sixth_prediction,\n        h6=h6,e6=e6,Cook6=D6),digits=12)\n# The first five observations retain nonzero residual variation.\nstopifnot(abs(deviance(fit_five)-3.6)<1e-12,\n          abs(deviance(fit_six)-3.6)<1e-12,\n          max(abs(coef(fit_five)-c(-.6,2.2)))<1e-12,\n          max(abs(coef(fit_six)-coef(fit_five)))<1e-12,\n          abs(original_sixth_prediction-19.2)<1e-12,\n          abs(h6-19/24)<1e-12,abs(e6)<1e-12,abs(D6)<1e-20,\n          abs(comparison['five','slope_SE']-sqrt(.12))<1e-12,\n          abs(comparison['six','slope_SE']-.15)<1e-12,\n          abs(summary(fit_six)$coefficients['x','Std. Error']-.15)<1e-12)\n# These SEs describe this constructed dataset under the stated regression model.\n# They do not imply that every added observation reduces the estimated SE.\n"
+    "rCode": "# Original constructed data: only the sixth point lies exactly on the five-point fit.\nd <- data.frame(x=c(1,2,3,4,5,9),y=c(2,3,7,7,11,19.2))\nfit_five <- lm(y ~ x,data=d[1:5,])\nfit_six <- lm(y ~ x,data=d)\noriginal_sixth_prediction <- predict(fit_five,newdata=d[6,,drop=FALSE])\nh6 <- hatvalues(fit_six)[6]\ne6 <- residuals(fit_six)[6]\nD6 <- cooks.distance(fit_six)[6]\nsummary_row <- function(fit,x) {\n  mse <- deviance(fit)/df.residual(fit)\n  Sxx <- sum((x-mean(x))^2)\n  c(SSE=deviance(fit),error_df=df.residual(fit),MSE=mse,Sxx=Sxx,\n    slope_SE=sqrt(mse/Sxx))\n}\ncomparison <- rbind(five=summary_row(fit_five,d$x[1:5]),\n                    six=summary_row(fit_six,d$x))\nprint(rbind(five=coef(fit_five),six=coef(fit_six)),digits=12)\nprint(comparison,digits=12)\nprint(c(original_prediction_at_9=original_sixth_prediction,\n        h6=h6,e6=e6,Cook6=D6),digits=12)\n# The first five observations retain nonzero residual variation.\nstopifnot(abs(deviance(fit_five)-3.6)<1e-12,\n          abs(deviance(fit_six)-3.6)<1e-12,\n          max(abs(coef(fit_five)-c(-.6,2.2)))<1e-12,\n          max(abs(coef(fit_six)-coef(fit_five)))<1e-12,\n          abs(original_sixth_prediction-19.2)<1e-12,\n          abs(h6-19/24)<1e-12,abs(e6)<1e-12,abs(D6)<1e-20,\n          abs(comparison['five','slope_SE']-sqrt(.12))<1e-12,\n          abs(comparison['six','slope_SE']-.15)<1e-12,\n          abs(summary(fit_six)$coefficients['x','Std. Error']-.15)<1e-12)\n# These SEs describe this constructed dataset under the stated regression model.\n# They do not imply that every added observation reduces the estimated SE.\n",
+    "readQuestion": {
+      "meaning": "新点的 x 很远，但 y 正好落在原来直线上。它可能不拉动直线，同时仍改变斜率估得有多准。",
+      "start": "先用原拟合算 x=9 的预测值。再看加入该点后，SSE、误差自由度和 x 的散布各发生了什么。",
+      "link": {
+        "url": "chapters/11.html#leverage-influence",
+        "label": "切换高杠杆落在线上的预设，观察拟合与影响量"
+      }
+    }
   },
   {
     "id": "p08-08",
@@ -5442,24 +5523,28 @@
     "hint": "先算n、x̄和Sxx。在x₀=5时距离项不为0；两种SE分别是√(MSE·h₀)与√[MSE(1+h₀)]。最后确认区间所覆盖的目标是总体均值还是一个新单位。",
     "steps": [
       {
-        "title": "用原六点确定拟合与误差自由度",
-        "body": "n=6，x̄=2.5，Ȳ=8，Sxx=Σ(x−x̄)²=17.5，Sxy=35。因此b₁=35/17.5=2，b₀=8−2×2.5=3。六个residuals为[−1,1,0,0,1,−1]，SSE=4；估计了截距与斜率，所以error df=6−2=4，MSE=4/4=1。未来Ynew不参与这些计算。"
+        "title": "只用原来的六点拟合",
+        "body": "<p>给定的拟合线在 x=5 处预测 13。拟合两个系数后剩四个误差自由度，SSE=4，所以 MSE=1。新读数不参加这次拟合。</p>",
+        "latex": "\\widehat y_0=3+2(5)=13,\\qquad \\mathrm{MSE}=\\frac{4}{6-2}=1"
       },
       {
-        "title": "在非中心位置保留距离项",
-        "body": "在x₀=5处，ŷ₀=3+2×5=13，h₀=1/6+(5−2.5)²/17.5=1/6+5/14=<b>11/21≈.523809524</b>。这大于x₀=x̄时的1/6。x₀=5仍在已观测范围[0,5]内；区间变宽来自离设计中心更远，并不要求发生外推。"
+        "title": "在边界保留距离项",
+        "body": "<p>样本 x 的平均是 2.5。当前 5 仍在观测范围内，但已离开中心，均值估计的不确定性会增大。</p>",
+        "latex": "h_0=\\frac16+\\frac{(5-2.5)^2}{17.5}=\\frac{11}{21}"
       },
       {
-        "title": "为不同目标写出不同SE",
-        "body": "总体均值估计的SEmean=√(1×11/21)≈.723746864。独立新单位除了拟合均值的不确定性，还有自身error variance，所以SEnew=√[1×(1+11/21)]=√(32/21)≈1.234426800。两者都使用t₀.₉₇₅,₄≈2.776445105；不能在PI中省掉额外的1。"
+        "title": "用不同方差得到两个半宽",
+        "body": "<p>均值区间只需要拟合均值方差。新个体还会围绕真实均值起伏，先加上一份 MSE，再开平方。两个区间用同一个 t 临界值。</p>",
+        "latex": "\\mathrm{SE}_{\\mathrm{mean}}=\\sqrt{11/21}\\approx0.723747,\\qquad \\mathrm{SE}_{\\mathrm{new}}=\\sqrt{32/21}\\approx1.234427"
       },
       {
-        "title": "形成区间，并与中心位置比较半宽",
-        "body": "Mean CI=13±2.776445105×.723746864=13±2.009443439≈<b>[10.990557,15.009443]</b>。Individual PI=13±2.776445105×1.234426800=13±3.427318246≈<b>[9.572682,16.427318]</b>。同一模型在x̄=2.5处，两种半宽分别约1.133479与2.998903；移到5后两者都变宽。把中心处的半宽直接搬到5，会漏掉距离项。"
+        "title": "围绕同一个中心打开两条区间",
+        "body": "<p>共同临界值约 2.77645。半宽分别约 2.00944、3.42732；在 x 的中心处，两条半宽则分别约 1.13348、2.99890。</p>",
+        "latex": "\\begin{aligned}\\mathrm{CI}_{\\mathrm{mean}}&\\approx[10.990557,\\ 15.009443]\\\\ \\mathrm{PI}_{\\mathrm{new}}&\\approx[9.572682,\\ 16.427318]\\end{aligned}"
       },
       {
-        "title": "把新观测与正确目标比较，并限制结论",
-        "body": "Ynew=10.5低于mean CI下限10.990557，却位于individual PI内。Mean CI估计的是未知总体均值E(Y|x=5)，不是要求每个新Y都落入的范围，故这个比较不能据此判定新个体违反模型。PI回答一个事先指定x₀处的新单位问题；单次落入PI同样不能证明线性、正态、共同variance或独立性。两类95%区间均为该x₀处的pointwise区间，不保证所有位置或所有未来个体同时覆盖。"
+        "title": "把 10.5 与预测个体的范围比较",
+        "body": "<p>10.5 低于均值区间左端，却在预测区间里。均值区间估计的是这一类个体的平均；预测区间才包含这一单位自己的波动。一次覆盖只描述这一个新单位，无法验证整套模型。</p>"
       }
     ],
     "conclusion": "x₀=5处的h₀=11/21；mean CI约[10.9906,15.0094]，individual PI约[9.5727,16.4273]。新个体10.5在前者外、后者内，与两个区间回答不同问题一致，不能由一次覆盖判断模型为真。",
@@ -5470,6 +5555,14 @@
       "正确。保留距离项得到h₀=11/21，PI再增加新单位自身的误差variance。10.5的位置符合两种区间目标不同；这个单次结果本身不验证全部模型假设。",
       "PI的数值与成员判断正确，证据解释过强。一个新单位落入一个95% PI很常见；即便模型存在问题也可能发生，不能据此证明均值形式、误差分布、共同variance或设计独立性。"
     ],
-    "rCode": "# Original training data; the future response is kept out of the fitted model.\nd <- data.frame(x=0:5,y=c(2,6,7,9,12,12))\nfit <- lm(y ~ x,data=d)\nn <- nrow(d)\nxbar <- mean(d$x)\nybar <- mean(d$y)\nsxx <- sum((d$x-xbar)^2)\nsxy <- sum((d$x-xbar)*(d$y-ybar))\nerror_df <- df.residual(fit)\nsse <- deviance(fit)\nmse <- sse/error_df\ncritical <- qt(.975,error_df)\nprint(c(n=n,xbar=xbar,ybar=ybar,Sxx=sxx,Sxy=sxy,\n        SSE=sse,error_df=error_df,MSE=mse,critical=critical),digits=12)\nprint(coef(fit),digits=12)\n# Compare the design center with a prespecified position at the observed edge.\nx0 <- c(xbar,5)\nfitted_mean <- unname(coef(fit)[1]+coef(fit)[2]*x0)\nh0 <- 1/n+(x0-xbar)^2/sxx\nse_mean <- sqrt(mse*h0)\nse_new <- sqrt(mse*(1+h0))\nmean_half <- critical*se_mean\nprediction_half <- critical*se_new\nmanual <- data.frame(x0=x0,fitted=fitted_mean,h0=h0,SE_mean=se_mean,SE_new=se_new,\n                     mean_lower=fitted_mean-mean_half,mean_upper=fitted_mean+mean_half,\n                     prediction_lower=fitted_mean-prediction_half,\n                     prediction_upper=fitted_mean+prediction_half)\nprint(manual,digits=12,row.names=FALSE)\n# Check both formula calculations against independent predict.lm calls.\nci <- predict(fit,newdata=data.frame(x=x0),interval=\"confidence\",level=.95)\npi <- predict(fit,newdata=data.frame(x=x0),interval=\"prediction\",level=.95)\nprint(ci,digits=12)\nprint(pi,digits=12)\nstopifnot(n==6,error_df==4,abs(xbar-2.5)<1e-12,abs(sxx-17.5)<1e-12,\n          abs(sxy-35)<1e-12,abs(sse-4)<1e-12,abs(mse-1)<1e-12,\n          max(abs(coef(fit)-c(3,2)))<1e-12,\n          abs(h0[2]-11/21)<1e-12,\n          max(abs(ci[,c(\"lwr\",\"upr\")]-as.matrix(manual[,c(\"mean_lower\",\"mean_upper\")])))<1e-12,\n          max(abs(pi[,c(\"lwr\",\"upr\")]-as.matrix(manual[,c(\"prediction_lower\",\"prediction_upper\")])))<1e-12,\n          max(abs(ci[2,c(\"lwr\",\"upr\")]-c(10.9905565607796,15.0094434392204)))<1e-10,\n          max(abs(pi[2,c(\"lwr\",\"upr\")]-c(9.57268175425703,16.427318245743)))<1e-10,\n          mean_half[2]>mean_half[1],prediction_half[2]>prediction_half[1])\n# The future response is compared with the two targets without refitting.\ny_new <- 10.5\nmembership <- c(mean_CI=y_new>=ci[2,\"lwr\"] && y_new<=ci[2,\"upr\"],\n                individual_PI=y_new>=pi[2,\"lwr\"] && y_new<=pi[2,\"upr\"])\nprint(membership)\nstopifnot(!membership[[\"mean_CI\"]],membership[[\"individual_PI\"]])\n# Diagnose the wrong route that drops the distance from xbar.\nwrong_no_distance <- rbind(\n  mean_CI=fitted_mean[2]+c(-1,1)*critical*sqrt(mse/n),\n  individual_PI=fitted_mean[2]+c(-1,1)*critical*sqrt(mse*(1+1/n)))\ncolnames(wrong_no_distance) <- c(\"lower\",\"upper\")\nprint(wrong_no_distance,digits=12)\nstopifnot(max(abs(wrong_no_distance[1,]-c(11.8665210322362,14.1334789677638)))<1e-10,\n          max(abs(wrong_no_distance[2,]-c(10.0010965349749,15.9989034650251)))<1e-10)\n# One successful prediction does not establish the model assumptions as true.\nanswer <- 2L\nprint(answer)"
+    "rCode": "# Original training data; the future response is kept out of the fitted model.\nd <- data.frame(x=0:5,y=c(2,6,7,9,12,12))\nfit <- lm(y ~ x,data=d)\nn <- nrow(d)\nxbar <- mean(d$x)\nybar <- mean(d$y)\nsxx <- sum((d$x-xbar)^2)\nsxy <- sum((d$x-xbar)*(d$y-ybar))\nerror_df <- df.residual(fit)\nsse <- deviance(fit)\nmse <- sse/error_df\ncritical <- qt(.975,error_df)\nprint(c(n=n,xbar=xbar,ybar=ybar,Sxx=sxx,Sxy=sxy,\n        SSE=sse,error_df=error_df,MSE=mse,critical=critical),digits=12)\nprint(coef(fit),digits=12)\n# Compare the design center with a prespecified position at the observed edge.\nx0 <- c(xbar,5)\nfitted_mean <- unname(coef(fit)[1]+coef(fit)[2]*x0)\nh0 <- 1/n+(x0-xbar)^2/sxx\nse_mean <- sqrt(mse*h0)\nse_new <- sqrt(mse*(1+h0))\nmean_half <- critical*se_mean\nprediction_half <- critical*se_new\nmanual <- data.frame(x0=x0,fitted=fitted_mean,h0=h0,SE_mean=se_mean,SE_new=se_new,\n                     mean_lower=fitted_mean-mean_half,mean_upper=fitted_mean+mean_half,\n                     prediction_lower=fitted_mean-prediction_half,\n                     prediction_upper=fitted_mean+prediction_half)\nprint(manual,digits=12,row.names=FALSE)\n# Check both formula calculations against independent predict.lm calls.\nci <- predict(fit,newdata=data.frame(x=x0),interval=\"confidence\",level=.95)\npi <- predict(fit,newdata=data.frame(x=x0),interval=\"prediction\",level=.95)\nprint(ci,digits=12)\nprint(pi,digits=12)\nstopifnot(n==6,error_df==4,abs(xbar-2.5)<1e-12,abs(sxx-17.5)<1e-12,\n          abs(sxy-35)<1e-12,abs(sse-4)<1e-12,abs(mse-1)<1e-12,\n          max(abs(coef(fit)-c(3,2)))<1e-12,\n          abs(h0[2]-11/21)<1e-12,\n          max(abs(ci[,c(\"lwr\",\"upr\")]-as.matrix(manual[,c(\"mean_lower\",\"mean_upper\")])))<1e-12,\n          max(abs(pi[,c(\"lwr\",\"upr\")]-as.matrix(manual[,c(\"prediction_lower\",\"prediction_upper\")])))<1e-12,\n          max(abs(ci[2,c(\"lwr\",\"upr\")]-c(10.9905565607796,15.0094434392204)))<1e-10,\n          max(abs(pi[2,c(\"lwr\",\"upr\")]-c(9.57268175425703,16.427318245743)))<1e-10,\n          mean_half[2]>mean_half[1],prediction_half[2]>prediction_half[1])\n# The future response is compared with the two targets without refitting.\ny_new <- 10.5\nmembership <- c(mean_CI=y_new>=ci[2,\"lwr\"] && y_new<=ci[2,\"upr\"],\n                individual_PI=y_new>=pi[2,\"lwr\"] && y_new<=pi[2,\"upr\"])\nprint(membership)\nstopifnot(!membership[[\"mean_CI\"]],membership[[\"individual_PI\"]])\n# Diagnose the wrong route that drops the distance from xbar.\nwrong_no_distance <- rbind(\n  mean_CI=fitted_mean[2]+c(-1,1)*critical*sqrt(mse/n),\n  individual_PI=fitted_mean[2]+c(-1,1)*critical*sqrt(mse*(1+1/n)))\ncolnames(wrong_no_distance) <- c(\"lower\",\"upper\")\nprint(wrong_no_distance,digits=12)\nstopifnot(max(abs(wrong_no_distance[1,]-c(11.8665210322362,14.1334789677638)))<1e-10,\n          max(abs(wrong_no_distance[2,]-c(10.0010965349749,15.9989034650251)))<1e-10)\n# One successful prediction does not establish the model assumptions as true.\nanswer <- 2L\nprint(answer)",
+    "readQuestion": {
+      "meaning": "同一个 x=5，先估这个条件下所有个体的平均，再预测一个具体新个体。拿到新观测 10.5 后，要用回答第二个问题的区间来比较。",
+      "start": "保留原六点的拟合。先算 x=5 到旧样本中心的距离，再为新个体多加一份误差方差。",
+      "link": {
+        "url": "chapters/11.html#lab-regression",
+        "label": "移动铺路实验的预测位置，对照两条区间和方差条"
+      }
+    }
   }
 ]

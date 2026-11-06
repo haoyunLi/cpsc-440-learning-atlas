@@ -8,7 +8,7 @@ import { mountBinomial, chapterProbabilityLabel as binomialProbabilityLabel, bin
 import { mountFactorial } from './factorial.mjs';
 import { mountPaired } from './paired.mjs?v=readout-1';
 import { mountAnova } from './anova.mjs?v=point-trace-1';
-import { mountRegression } from './regression.mjs';
+import { mountRegression } from './regression.mjs?v=variance-parts-1';
 import { equationHTML } from './formulas.mjs';
 const readingChapterIds = ['01', '04', '05', '06', '07', '08', '09', '14', '15', '11'];
 export function normalizeReadingProgress(value) {

@@ -156,7 +156,7 @@
     "lesson": "testing",
     "index": 0,
     "source": "Z=(ȳ−μ₀)/(σ/√n)；t=(ȳ−μ₀)/(s/√n)，df=n−1",
-    "tex": "Z=\\frac{\\bar y-\\mu_0}{\\sigma/\\sqrt n},\\qquad t=\\frac{\\bar y-\\mu_0}{s/\\sqrt n},\\quad\\mathrm{df}=n-1",
+    "tex": "\\begin{gathered}Z=\\frac{\\bar y-\\mu_0}{\\sigma/\\sqrt n}\\\\ t=\\frac{\\bar y-\\mu_0}{s/\\sqrt n},\\quad \\mathrm{df}=n-1\\end{gathered}",
     "reading": "把观察到的偏离除以标准误，才能判断偏离相对抽样波动有多大。"
   },
   {
@@ -164,8 +164,8 @@
     "lesson": "errors",
     "index": 0,
     "source": "右侧：c=μ₀+z₁₋αSE；β(μₐ)=Φ((c−μₐ)/SE)<br>双侧：β=Φ((cᵤ−μₐ)/SE)−Φ((cₗ−μₐ)/SE)",
-    "tex": "\\begin{aligned}c&=\\mu_0+z_{1-\\alpha}\\mathrm{SE}\\\\\\beta(\\mu_a)&=\\Phi\\!\\left(\\frac{c-\\mu_a}{\\mathrm{SE}}\\right)\\quad\\text{(right-sided)}\\\\\\beta(\\mu_a)&=\\Phi\\!\\left(\\frac{c_u-\\mu_a}{\\mathrm{SE}}\\right)-\\Phi\\!\\left(\\frac{c_l-\\mu_a}{\\mathrm{SE}}\\right)\\quad\\text{(two-sided)}\\end{aligned}",
-    "reading": "先固定拒绝的门槛，再在指定的真实均值下计算错过它的概率。"
+    "tex": "\\begin{gathered}z(c)=\\frac{c-\\mu_a}{\\mathrm{SE}}\\\\ c=\\mu_0+z_{1-\\alpha}\\mathrm{SE}\\\\ \\beta_{\\mathrm{right}}(\\mu_a)=\\Phi\\big(z(c)\\big)\\\\ \\beta_{\\mathrm{two}}(\\mu_a)=\\Phi\\big(z(c_u)\\big)-\\Phi\\big(z(c_l)\\big)\\end{gathered}",
+    "reading": "z(c) 是门槛相对真实均值的位置。右尾检验漏检时，样本均值落在门槛左边。双尾检验漏检时，样本均值留在两个门槛之间，所以用右端累计面积减左端累计面积。"
   },
   {
     "chapter": "05",
@@ -180,32 +180,32 @@
     "lesson": "power-n",
     "index": 1,
     "source": "df=n−1；λ=Δ√n/σ<br>拒绝域：T&gt;t₁₋α,n−1<br>power(n)=P[Tₙ₋₁,λ&gt;t₁₋α,n−1]",
-    "tex": "\\nu=n-1,\\quad\\lambda=\\frac{\\Delta\\sqrt n}{\\sigma},\\qquad\\operatorname{power}(n)=P(T_{\\nu,\\lambda}>t_{1-\\alpha,\\nu})",
-    "reading": ""
+    "tex": "\\begin{gathered}\\nu=n-1,\\qquad\\lambda=\\frac{\\Delta\\sqrt n}{\\sigma}\\\\ c=t_{1-\\alpha,\\nu}\\\\ \\operatorname{power}(n)=P(T_{\\nu,\\lambda}>c)\\end{gathered}",
+    "reading": "先用零假设的 t 曲线定门槛 c，再用真实差异对应的 noncentral t 曲线算过线的机会。换一个 n，两条曲线的自由度都会变。"
   },
   {
     "chapter": "05",
     "lesson": "student",
     "index": 0,
     "source": "T=(Ȳ−μ₀)/(S/√n)<br>独立正态观测，且真实 μ=μ₀ 时：T~Student’s t(n−1)",
-    "tex": "T=\\frac{\\bar Y-\\mu_0}{S/\\sqrt n}\\sim t_{n-1}\\quad\\text{under }\\mu=\\mu_0\\text{ and independent normal observations}",
-    "reading": "用样本标准差代替未知总体标准差，也增加了不确定性；t 分布承认这一步。"
+    "tex": "\\begin{gathered}T=\\frac{\\bar Y-\\mu_0}{S/\\sqrt n}\\\\ T\\sim t_{n-1}\\quad(\\mu=\\mu_0)\\end{gathered}",
+    "reading": "这里假定观测独立并来自同一正态总体。在零假设边界 μ₀ 下，分子和样本标准差都随抽样变化，所以参考曲线用 t。"
   },
   {
     "chapter": "05",
     "lesson": "student",
     "index": 1,
     "source": "P(μ∈[Ȳ−z₀.₉₇₅S/√n, Ȳ+z₀.₉₇₅S/√n])<br>= P(|T*|≤z₀.₉₇₅)=2F<sub>t₄</sub>(1.959964)−1=0.878440<br>P(|T*|≤t₄,₀.₉₇₅)=0.95",
-    "tex": "\\begin{aligned}P\\!\\left(\\mu\\in\\left[\\bar Y-z_{0.975}\\frac S{\\sqrt n},\\bar Y+z_{0.975}\\frac S{\\sqrt n}\\right]\\right)&=2F_{t_4}(1.959964)-1=0.878440\\\\P(|T^*|\\le t_{4,0.975})&=0.95\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}T^*=\\frac{\\bar Y-\\mu}{S/\\sqrt n}\\\\ P(|T^*|\\le z_{.975})\\\\ =2F_{t_4}(1.959964)-1=0.878440\\\\ P(|T^*|\\le t_{4,.975})=0.95\\end{gathered}",
+    "reading": "用样本标准差算出一个标准误后，z 区间只留了 1.96 个标准误的空间。按正确的 t 曲线量，这只覆盖约 87.84%。改用 t 曲线自己的 97.5% 分位点，才在两端各留 2.5%。"
   },
   {
     "chapter": "05",
     "lesson": "median",
     "index": 0,
     "source": "coverage(k)=P(k≤B≤n−k)=1−2P(B≤k−1)<br>选满足2P(B≤k−1)≤α的最大整数k<br>CI=[Y₍ₖ₎,Y₍ₙ₋ₖ₊₁₎]",
-    "tex": "\\begin{aligned}\\operatorname{coverage}(k)&=P(k\\le B\\le n-k)=1-2P(B\\le k-1)\\\\k&=\\max\\{j:2P(B\\le j-1)\\le\\alpha\\}\\\\\\mathrm{CI}&=[Y_{(k)},Y_{(n-k+1)}]\\end{aligned}",
-    "reading": "先选排序后的两个端点，使区间覆盖总体中位数的概率达到要求。"
+    "tex": "\\begin{gathered}C(k)=P(k\\le B\\le n-k)\\\\ =1-2P(B\\le k-1)\\\\ k=\\max\\{j:2P(B\\le j-1)\\le\\alpha\\}\\\\ \\mathrm{CI}=[Y_{(k)},Y_{(n-k+1)}]\\end{gathered}",
+    "reading": "B 数真中位数左边的观测，C(k) 是两端点夹住它的机会。往里换一对端点，区间缩窄，漏掉的概率增加。选最大的 k，使两端漏掉的机会加起来仍不超过 α。"
   },
   {
     "chapter": "06",
@@ -300,7 +300,7 @@
     "lesson": "chisquare",
     "index": 0,
     "source": "独立正态观测：Q=(n−1)s²/σ²~χ²(ν=n−1)",
-    "tex": "Q=\\frac{(n-1)s^2}{\\sigma^2}\\sim\\chi^2_\\nu,\\qquad\\nu=n-1",
+    "tex": "\\begin{gathered}\\nu=n-1\\\\ Q=\\frac{(n-1)s^2}{\\sigma^2}\\sim\\chi^2_\\nu\\end{gathered}",
     "reading": "在独立正态样本下，用总体方差标准化样本平方和，会得到卡方分布。"
   },
   {
@@ -316,15 +316,15 @@
     "lesson": "variance-ci",
     "index": 1,
     "source": "Q=(n−1)s²/σ₀²=9×4/12=3；ν=n−1=9<br>Fν(q)=P(χ²ν≤q)",
-    "tex": "Q=\\frac{(n-1)s^2}{\\sigma_0^2}=\\frac{9\\times4}{12}=3,\\quad\\nu=9,\\qquad F_\\nu(q)=P(\\chi^2_\\nu\\le q)",
-    "reading": ""
+    "tex": "\\begin{gathered}Q=\\frac{(n-1)s^2}{\\sigma_0^2}=\\frac{9\\times4}{12}=3\\\\ \\nu=9\\\\ F_\\nu(q)=P(\\chi^2_\\nu\\le q)\\end{gathered}",
+    "reading": "先在待检验的方差下，把观察到的平方和换成 Q。Fν(q) 量曲线左侧累计面积，右尾概率用 1 减它。"
   },
   {
     "chapter": "07",
     "lesson": "variance-ci",
     "index": 2,
     "source": "U₁₋α=(n−1)s²/χ²α,ν<br>U.95=36/3.325113≈10.826700",
-    "tex": "U_{1-\\alpha}=\\frac{(n-1)s^2}{\\chi^2_{\\alpha,\\nu}},\\qquad U_{0.95}=\\frac{36}{3.325113}\\approx10.826700",
+    "tex": "\\begin{gathered}U_{1-\\alpha}=\\frac{(n-1)s^2}{\\chi^2_{\\alpha,\\nu}}\\\\ U_{0.95}=\\frac{36}{3.325113}\\approx10.826700\\end{gathered}",
     "reading": ""
   },
   {
@@ -332,7 +332,7 @@
     "lesson": "f-distribution",
     "index": 0,
     "source": "独立正态样本：(s₁²/σ₁²)/(s₂²/σ₂²)~F(n₁−1,n₂−1)<br>H₀:σ₁²=σ₂² 时，Fcalc=s₁²/s₂²",
-    "tex": "\\frac{s_1^2/\\sigma_1^2}{s_2^2/\\sigma_2^2}\\sim F_{n_1-1,n_2-1};\\qquad H_0:\\sigma_1^2=\\sigma_2^2\\ \\Longrightarrow\\ F_{\\mathrm{calc}}=\\frac{s_1^2}{s_2^2}",
+    "tex": "\\begin{gathered}\\frac{s_1^2/\\sigma_1^2}{s_2^2/\\sigma_2^2}\\sim F_{n_1-1,n_2-1}\\\\ H_0:\\sigma_1^2=\\sigma_2^2\\\\ \\Longrightarrow\\ F_{\\mathrm{calc}}=\\frac{s_1^2}{s_2^2}\\end{gathered}",
     "reading": "两个独立方差估计分别除以各自的真方差，再取比值，得到 F 分布。"
   },
   {
@@ -340,8 +340,8 @@
     "lesson": "f-distribution",
     "index": 1,
     "source": "σ₁²/σ₂² 的 CI=[R/F₁₋α/₂,ν₁,ν₂，R/Fα/₂,ν₁,ν₂]<br>Fₚ(a,b)=1/F₁₋ₚ(b,a)",
-    "tex": "\\mathrm{CI}_{\\sigma_1^2/\\sigma_2^2}=\\left[\\frac{R}{F_{1-\\alpha/2,\\nu_1,\\nu_2}},\\frac{R}{F_{\\alpha/2,\\nu_1,\\nu_2}}\\right],\\qquad F_p(a,b)=\\frac1{F_{1-p}(b,a)}",
-    "reading": ""
+    "tex": "\\begin{gathered}q_l=F_{\\alpha/2,\\nu_1,\\nu_2}\\\\ q_u=F_{1-\\alpha/2,\\nu_1,\\nu_2}\\\\ \\mathrm{CI}_{\\sigma_1^2/\\sigma_2^2}=\\left[\\frac{R}{q_u},\\frac{R}{q_l}\\right]\\\\ F_p(a,b)=\\frac1{F_{1-p}(b,a)}\\end{gathered}",
+    "reading": "先用同一对自由度找到低分位数 q_l 和高分位数 q_u。解方差比时要取倒数，因此高分位数出现在区间的下端分母。倒转 F 比值时，自由度也要交换。"
   },
   {
     "chapter": "07",
@@ -356,7 +356,7 @@
     "lesson": "brown-forsythe",
     "index": 0,
     "source": "整组平移：Y′=Y+c，M′=M+c ⇒ Z′=Z<br>围绕中心放大：Y′=M+a(Y−M)，a&gt;0 ⇒ Z′=aZ",
-    "tex": "\\begin{aligned}Y^\\prime=Y+c,\\ M^\\prime=M+c&\\ \\Longrightarrow\\ Z^\\prime=Z\\\\Y^\\prime=M+a(Y-M),\\ a>0&\\ \\Longrightarrow\\ Z^\\prime=aZ\\end{aligned}",
+    "tex": "\\begin{gathered}Y^\\prime=Y+c,\\quad M^\\prime=M+c\\\\ \\Longrightarrow Z^\\prime=Z\\\\ Y^\\prime=M+a(Y-M),\\quad a>0\\\\ \\Longrightarrow Z^\\prime=aZ\\end{gathered}",
     "reading": "整组平移不改变离中心的距离；围绕中心放大则会放大这些距离。"
   },
   {
@@ -372,8 +372,8 @@
     "lesson": "ss",
     "index": 0,
     "source": "Yᵢⱼ−ȳ..=(ȳᵢ.−ȳ..)+(Yᵢⱼ−ȳᵢ.)",
-    "tex": "\\underbrace{y_{ij}-\\bar y_{\\cdot\\cdot}}_{\\text{total deviation}}=\\underbrace{\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot}}_{\\text{between groups}}+\\underbrace{y_{ij}-\\bar y_{i\\cdot}}_{\\text{within group}}",
-    "reading": "先从总中心走到组中心，再从组中心走到这个点。"
+    "tex": "\\begin{gathered}d_{\\mathrm{total}}=y_{ij}-\\bar y_{\\cdot\\cdot}\\\\ d_{\\mathrm{between}}=\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot}\\\\ d_{\\mathrm{within}}=y_{ij}-\\bar y_{i\\cdot}\\\\ d_{\\mathrm{total}}=d_{\\mathrm{between}}+d_{\\mathrm{within}}\\end{gathered}",
+    "reading": "从总中心走到本组中心，这是组间偏离。再从本组中心走到观测，这是组内偏离。两段有方向，相加才等于这个点离总中心的偏离。"
   },
   {
     "chapter": "08",
@@ -388,7 +388,7 @@
     "lesson": "ss",
     "index": 2,
     "source": "MSE=SSE/(N−k)=Σᵢ(nᵢ−1)sᵢ²/(N−k)<br>N=Σᵢnᵢ，k=处理组数",
-    "tex": "\\mathrm{MSE}=\\frac{\\mathrm{SSE}}{N-k}=\\frac{\\sum_i(n_i-1)s_i^2}{N-k},\\qquad N=\\sum_i n_i",
+    "tex": "\\begin{gathered}N=\\sum_i n_i\\\\ \\mathrm{MSE}=\\frac{\\mathrm{SSE}}{N-k}\\\\ =\\frac{\\sum_i(n_i-1)s_i^2}{N-k}\\end{gathered}",
     "reading": ""
   },
   {
@@ -396,15 +396,15 @@
     "lesson": "ss",
     "index": 3,
     "source": "s²<sub>group means</sub>=Σᵢ(ȳᵢ.−ȳ..)²/(k−1)<br>MStrt=n·s²<sub>group means</sub><br>H₀ 下：E(MStrt)=E(MSE)=σ²",
-    "tex": "\\begin{aligned}s_{\\text{group means}}^2&=\\frac{\\sum_i(\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot})^2}{k-1}\\\\\\mathrm{MS}_{\\mathrm{trt}}&=n\\,s_{\\text{group means}}^2\\\\H_0:&\\quad E(\\mathrm{MS}_{\\mathrm{trt}})=E(\\mathrm{MSE})=\\sigma^2\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}s_{\\bar y}^2=\\frac{\\sum_i(\\bar y_{i\\cdot}-\\bar y_{\\cdot\\cdot})^2}{k-1}\\\\ \\mathrm{MS}_{\\mathrm{trt}}=n\\,s_{\\bar y}^2\\\\ H_0:\\ \\mu_1=\\cdots=\\mu_k\\\\ E(\\mathrm{MS}_{\\mathrm{trt}})=E(\\mathrm{MSE})=\\sigma^2\\end{gathered}",
+    "reading": "平衡设计中，每个组均值代表同样的 n 个观测，所以要把组均值之间的样本方差乘 n。若总体组均值都一样，两种均方在重复抽样中都对准同一份误差方差。"
   },
   {
     "chapter": "08",
     "lesson": "kruskal",
     "index": 0,
     "source": "H=12/[N(N+1)]×Σ(Rᵢ²/nᵢ)−3(N+1)<br>C=1−Σ(tⱼ³−tⱼ)/(N³−N)；Hcorrected=H/C",
-    "tex": "\\begin{aligned}H&=\\frac{12}{N(N+1)}\\sum_i\\frac{R_i^2}{n_i}-3(N+1)\\\\ C&=1-\\frac{\\sum_j(t_j^3-t_j)}{N^3-N},\\qquad H_{\\mathrm{corrected}}=\\frac H C\\end{aligned}",
+    "tex": "\\begin{gathered}S=\\sum_i\\frac{R_i^2}{n_i}\\\\ H=\\frac{12S}{N(N+1)}-3(N+1)\\\\ C=1-\\frac{\\sum_j(t_j^3-t_j)}{N^3-N}\\\\ H_{\\mathrm{corrected}}=\\frac H C\\end{gathered}",
     "reading": "先比较各组的秩和；有并列值时，还要校正参考尺度。"
   },
   {
@@ -428,7 +428,7 @@
     "lesson": "contrast",
     "index": 0,
     "source": "L=Σaᵢμᵢ；L̂=Σaᵢȳᵢ；contrast 要求 Σaᵢ=0<br>SE(L̂)=√[MSE×Σ(aᵢ²/nᵢ)]",
-    "tex": "\\begin{aligned}L&=\\sum_i a_i\\mu_i,\\quad\\widehat L=\\sum_i a_i\\bar y_i,\\quad\\sum_i a_i=0\\\\\\mathrm{SE}(\\widehat L)&=\\sqrt{\\mathrm{MSE}\\sum_i\\frac{a_i^2}{n_i}}\\end{aligned}",
+    "tex": "\\begin{gathered}\\sum_i a_i=0\\\\ L=\\sum_i a_i\\mu_i,\\quad\\widehat L=\\sum_i a_i\\bar y_i\\\\ \\mathrm{SE}(\\widehat L)=\\sqrt{\\mathrm{MSE}\\sum_i\\frac{a_i^2}{n_i}}\\end{gathered}",
     "reading": "系数就是比较时各组被加减的份额；系数和为零，才能把共同背景抵消掉。"
   },
   {
@@ -436,15 +436,15 @@
     "lesson": "contrast",
     "index": 1,
     "source": "SScontrast=L̂²/Σ(aᵢ²/nᵢ)；1-df F=t²（检验 L₀=0）",
-    "tex": "\\mathrm{SS}_{\\mathrm{contrast}}=\\frac{\\widehat L^2}{\\sum_i a_i^2/n_i},\\qquad F=t^2\\quad (L_0=0,\\ 1\\text{ numerator df})",
-    "reading": ""
+    "tex": "\\begin{gathered}\\mathrm{SS}_{\\mathrm{contrast}}=\\frac{\\widehat L^2}{\\sum_i a_i^2/n_i}\\\\ F=t^2\\quad(L_0=0,\\ \\mathrm{df}_1=1)\\end{gathered}",
+    "reading": "把同一条比较写成平方和。零假设差为 0 时，它的 F 恰好是 t 的平方，因此 F 保留双侧证据，但看不出谁更高。"
   },
   {
     "chapter": "09",
     "lesson": "contrast",
     "index": 2,
     "source": "L̂=−4；SE=√(4/3)≈1.154701<br>tobs=−3.464102；F=tobs²=12<br>P双侧=2P(t₁₂≥|tobs|)≈.004681605<br>95% CI：−4±t.975,12×1.154701<br>=[−6.515876,−1.484124]",
-    "tex": "\\begin{aligned}\\widehat L&=-4,\\quad\\mathrm{SE}=\\sqrt{4/3}\\approx1.154701\\\\t_{\\mathrm{obs}}&=-3.464102,\\quad F=t_{\\mathrm{obs}}^2=12\\\\p&=2P(t_{12}\\ge|t_{\\mathrm{obs}}|)\\approx0.004681605\\\\\\mathrm{CI}_{0.95}&=-4\\pm t_{0.975,12}(1.154701)=[-6.515876,-1.484124]\\end{aligned}",
+    "tex": "\\begin{gathered}\\widehat L=-4\\\\ \\mathrm{SE}=\\sqrt{4/3}\\approx1.154701\\\\ t_{\\mathrm{obs}}=-3.464102,\\quad F=t_{\\mathrm{obs}}^2=12\\\\ p=2P(T_{12}\\ge|t_{\\mathrm{obs}}|)\\\\ \\approx0.004681605\\\\ \\mathrm{CI}_{0.95}=-4\\pm t_{0.975,12}(1.154701)\\\\ \\approx[-6.515876,-1.484124]\\end{gathered}",
     "reading": ""
   },
   {
@@ -452,7 +452,7 @@
     "lesson": "orthogonal",
     "index": 0,
     "source": "Cov(L̂ₐ,L̂ᵦ)=σ²Σ(aᵢbᵢ/nᵢ)<br>正交条件：Σ(aᵢbᵢ/nᵢ)=0",
-    "tex": "\\operatorname{Cov}(\\widehat L_a,\\widehat L_b)=\\sigma^2\\sum_i\\frac{a_ib_i}{n_i},\\qquad\\text{orthogonal: }\\sum_i\\frac{a_ib_i}{n_i}=0",
+    "tex": "\\begin{gathered}C=\\sum_i\\frac{a_ib_i}{n_i}\\\\ \\operatorname{Cov}(\\widehat L_a,\\widehat L_b)=\\sigma^2 C\\\\ C=0\\quad\\text{(orthogonal)}\\end{gathered}",
     "reading": "看两个比较是否沿独立方向利用组均值信息；样本量不同时要按 n 加权。"
   },
   {
@@ -460,7 +460,7 @@
     "lesson": "orthogonal",
     "index": 1,
     "source": "Σaᵢbᵢ/nᵢ=0；两个方向正交<br>SSa+SSb=40.5+13.5=54=SStrt<br>1+1=2=treatment df",
-    "tex": "\\sum_i\\frac{a_ib_i}{n_i}=0,\\qquad\\mathrm{SS}_a+\\mathrm{SS}_b=40.5+13.5=54=\\mathrm{SS}_{\\mathrm{trt}},\\quad1+1=2\\text{ df}",
+    "tex": "\\begin{gathered}\\sum_i\\frac{a_ib_i}{n_i}=0\\\\ \\mathrm{SS}_a+\\mathrm{SS}_b=40.5+13.5\\\\ =54=\\mathrm{SS}_{\\mathrm{trt}}\\\\ \\mathrm{df}_a+\\mathrm{df}_b=1+1=2\\end{gathered}",
     "reading": ""
   },
   {
@@ -484,15 +484,15 @@
     "lesson": "interaction",
     "index": 0,
     "source": "I=(μ₂₂−μ₁₂)−(μ₂₁−μ₁₁)<br>cell interaction deviation=μᵢⱼ−μᵢ.−μ.ⱼ+μ..",
-    "tex": "\\begin{aligned}I&=(\\mu_{22}-\\mu_{12})-(\\mu_{21}-\\mu_{11})\\\\\\text{cell deviation}&=\\mu_{ij}-\\mu_{i\\cdot}-\\mu_{\\cdot j}+\\mu_{\\cdot\\cdot}\\end{aligned}",
-    "reading": "先在每个条件内作差，再把两个差值相减。"
+    "tex": "\\begin{gathered}I=(\\mu_{22}-\\mu_{12})-(\\mu_{21}-\\mu_{11})\\\\ d_{ij}=\\mu_{ij}-\\mu_{i\\cdot}-\\mu_{\\cdot j}+\\mu_{\\cdot\\cdot}\\end{gathered}",
+    "reading": "I 比的是两个条件下的处理效果。d 则看单个格子扣掉两个主效应后还多出多少。这两种写法都在找只能由因素搭配解释的偏移。"
   },
   {
     "chapter": "14",
     "lesson": "factorial-ss",
     "index": 0,
     "source": "SSA=brΣ(ȳᵢ..−ȳ...)²<br>SSB=arΣ(ȳ.ⱼ.−ȳ...)²<br>SSAB=rΣᵢΣⱼ(ȳᵢⱼ.−ȳᵢ..−ȳ.ⱼ.+ȳ...)²<br>SSE=ΣᵢΣⱼΣₖ(Yᵢⱼₖ−ȳᵢⱼ.)²",
-    "tex": "\\begin{aligned}\\mathrm{SS}_A&=br\\sum_i(\\bar y_{i\\cdot\\cdot}-\\bar y_{\\cdot\\cdot\\cdot})^2\\\\\\mathrm{SS}_B&=ar\\sum_j(\\bar y_{\\cdot j\\cdot}-\\bar y_{\\cdot\\cdot\\cdot})^2\\\\\\mathrm{SS}_{AB}&=r\\sum_i\\sum_j(\\bar y_{ij\\cdot}-\\bar y_{i\\cdot\\cdot}-\\bar y_{\\cdot j\\cdot}+\\bar y_{\\cdot\\cdot\\cdot})^2\\\\\\mathrm{SSE}&=\\sum_i\\sum_j\\sum_k(y_{ijk}-\\bar y_{ij\\cdot})^2\\end{aligned}",
+    "tex": "\\begin{gathered}\\mathrm{SS}_A=br\\sum_i(\\bar y_{i\\cdot\\cdot}-\\bar y_{\\cdot\\cdot\\cdot})^2\\\\ \\mathrm{SS}_B=ar\\sum_j(\\bar y_{\\cdot j\\cdot}-\\bar y_{\\cdot\\cdot\\cdot})^2\\\\ d_{ij}=\\bar y_{ij\\cdot}-\\bar y_{i\\cdot\\cdot}-\\bar y_{\\cdot j\\cdot}+\\bar y_{\\cdot\\cdot\\cdot}\\\\ \\mathrm{SS}_{AB}=r\\sum_i\\sum_j d_{ij}^2\\\\ \\mathrm{SSE}=\\sum_i\\sum_j\\sum_k(y_{ijk}-\\bar y_{ij\\cdot})^2\\end{gathered}",
     "reading": "平衡设计把两个主效应、交互与剩余波动分开计算。"
   },
   {
@@ -500,7 +500,7 @@
     "lesson": "three-way",
     "index": 0,
     "source": "Y=μ+A+B+C+AB+AC+BC+ABC+ε",
-    "tex": "Y=\\mu+A+B+C+AB+AC+BC+ABC+\\epsilon",
+    "tex": "\\begin{aligned}Y&=\\mu+A+B+C\\\\ &\\quad+AB+AC+BC\\\\ &\\quad+ABC+\\epsilon\\end{aligned}",
     "reading": "二因素之间的交互，会不会又随着第三个条件改变？"
   },
   {
@@ -508,8 +508,8 @@
     "lesson": "three-way",
     "index": 1,
     "source": "ΔAB|Ck=(μ₂₂k−μ₁₂k)−(μ₂₁k−μ₁₁k)<br>L=ΔAB|C2−ΔAB|C1；H₀:L=0，Hₐ:L≠0",
-    "tex": "\\begin{aligned}\\Delta_{AB\\mid C_k}&=(\\mu_{22k}-\\mu_{12k})-(\\mu_{21k}-\\mu_{11k})\\\\L&=\\Delta_{AB\\mid C_2}-\\Delta_{AB\\mid C_1}\\\\H_0&:L=0,\\qquad H_a:L\\ne0\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}d_{1k}=\\mu_{21k}-\\mu_{11k}\\\\ d_{2k}=\\mu_{22k}-\\mu_{12k}\\\\ \\Delta_{AB\\mid C_k}=d_{2k}-d_{1k}\\\\ L=\\Delta_{AB\\mid C_2}-\\Delta_{AB\\mid C_1}\\\\ H_0:L=0,\\quad H_a:L\\ne0\\end{gathered}",
+    "reading": "先固定第三个条件 Cₖ。d₁ₖ 和 d₂ₖ 是两个 B 水平下 A 的效果。相减得到该条件下的 A×B 交互，再拿两个 C 条件的交互相减。"
   },
   {
     "chapter": "15",
@@ -564,7 +564,7 @@
     "lesson": "slr",
     "index": 0,
     "source": "Yᵢ=β₀+β₁xᵢ+εᵢ<br>E(Y|x)=β₀+β₁x；Var(Y|x)=σₑ²",
-    "tex": "\\begin{aligned}Y_i&=\\beta_0+\\beta_1x_i+\\epsilon_i\\\\E(Y\\mid x)&=\\beta_0+\\beta_1x,\\qquad\\operatorname{Var}(Y\\mid x)=\\sigma_e^2\\end{aligned}",
+    "tex": "\\begin{gathered}Y_i=\\beta_0+\\beta_1x_i+\\epsilon_i\\\\ E(Y\\mid x)=\\beta_0+\\beta_1x\\\\ \\operatorname{Var}(Y\\mid x)=\\sigma_e^2\\end{gathered}",
     "reading": "直线描述同一 x 下的平均响应；个体还会围绕它上下波动。"
   },
   {
@@ -580,7 +580,7 @@
     "lesson": "regression-anova",
     "index": 0,
     "source": "SST=Syy=Σ(Yᵢ−ȳ)²<br>SSR=Σ(ŷᵢ−ȳ)²=b₁²Sxx；SSE=SST−SSR<br>MSE=SSE/(n−2)；F=(SSR/1)/MSE",
-    "tex": "\\begin{aligned}\\mathrm{SST}=S_{yy}&=\\sum_i(y_i-\\bar y)^2\\\\\\mathrm{SSR}&=\\sum_i(\\hat y_i-\\bar y)^2=b_1^2S_{xx}\\\\\\mathrm{SSE}&=\\mathrm{SST}-\\mathrm{SSR}\\\\\\mathrm{MSE}&=\\frac{\\mathrm{SSE}}{n-2},\\qquad F=\\frac{\\mathrm{SSR}/1}{\\mathrm{MSE}}\\end{aligned}",
+    "tex": "\\begin{gathered}\\mathrm{SST}=S_{yy}=\\sum_i(y_i-\\bar y)^2\\\\ \\mathrm{SSR}=\\sum_i(\\hat y_i-\\bar y)^2=b_1^2S_{xx}\\\\ \\mathrm{SSE}=\\mathrm{SST}-\\mathrm{SSR}\\\\ \\mathrm{MSE}=\\frac{\\mathrm{SSE}}{n-2}\\\\ F=\\frac{\\mathrm{SSR}/1}{\\mathrm{MSE}}\\end{gathered}",
     "reading": "总波动分成直线解释掉的部分和直线仍解释不了的部分。"
   },
   {
@@ -596,15 +596,15 @@
     "lesson": "regression-anova",
     "index": 2,
     "source": "Var̂(b₀)=14.666667；Var̂(b₁)=.733333；Cov̂(b₀,b₁)=−2.933333<br>Var̂(ŷ₀)=Var̂(b₀)+x₀²Var̂(b₁)+2x₀Cov̂(b₀,b₁)",
-    "tex": "\\begin{aligned}\\widehat{\\operatorname{Var}}(b_0)&=14.666667,\\quad\\widehat{\\operatorname{Var}}(b_1)=0.733333\\\\\\widehat{\\operatorname{Cov}}(b_0,b_1)&=-2.933333\\\\\\widehat{\\operatorname{Var}}(\\hat y_0)&=\\widehat{\\operatorname{Var}}(b_0)+x_0^2\\widehat{\\operatorname{Var}}(b_1)+2x_0\\widehat{\\operatorname{Cov}}(b_0,b_1)\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}V_0=\\widehat{\\operatorname{Var}}(b_0)\\approx14.666667\\\\ V_1=\\widehat{\\operatorname{Var}}(b_1)\\approx0.733333\\\\ C=\\widehat{\\operatorname{Cov}}(b_0,b_1)\\approx-2.933333\\\\ \\widehat{\\operatorname{Var}}(\\hat y_0)=V_0+x_0^2V_1+2x_0 C\\end{gathered}",
+    "reading": "同一批点决定了截距和斜率。预测 x₀ 处的平均线时，这两项会一起变，C 把它们共同变化的部分加进方差。"
   },
   {
     "chapter": "11",
     "lesson": "prediction",
     "index": 0,
     "source": "ŷ₀=b₀+b₁x₀<br>h₀=1/n+(x₀−x̄)²/Sxx<br>Mean CI：ŷ₀±t₁₋α/₂,n₋₂√(MSE h₀)<br>New-observation PI：ŷ₀±t₁₋α/₂,n₋₂√[MSE(1+h₀)]",
-    "tex": "\\begin{aligned}\\hat y_0&=b_0+b_1x_0\\\\h_0&=\\frac1n+\\frac{(x_0-\\bar x)^2}{S_{xx}}\\\\\\mathrm{CI}_{\\text{mean}}&=\\hat y_0\\pm t_{1-\\alpha/2,n-2}\\sqrt{\\mathrm{MSE}\\,h_0}\\\\\\mathrm{PI}_{\\text{new}}&=\\hat y_0\\pm t_{1-\\alpha/2,n-2}\\sqrt{\\mathrm{MSE}(1+h_0)}\\end{aligned}",
+    "tex": "\\begin{gathered}\\hat y_0=b_0+b_1x_0\\\\ h_0=\\frac1n+\\frac{(x_0-\\bar x)^2}{S_{xx}}\\\\ c=t_{1-\\alpha/2,n-2}\\\\ \\mathrm{SE}_{\\mathrm{mean}}=\\sqrt{\\mathrm{MSE}\\,h_0}\\\\ \\mathrm{SE}_{\\mathrm{new}}=\\sqrt{\\mathrm{MSE}(1+h_0)}\\\\ \\mathrm{CI}_{\\mathrm{mean}}=\\hat y_0\\pm c\\,\\mathrm{SE}_{\\mathrm{mean}}\\\\ \\mathrm{PI}_{\\mathrm{new}}=\\hat y_0\\pm c\\,\\mathrm{SE}_{\\mathrm{new}}\\end{gathered}",
     "reading": "同一个预测中心，新个体的区间多包含一份自身误差；离 x 中心越远，两类区间都越宽。"
   },
   {
@@ -612,15 +612,15 @@
     "lesson": "correlation",
     "index": 0,
     "source": "r=Sxy/√(Sxx Syy)<br>R²=SSR/SST；含 intercept 的 SLR 中 R²=r²",
-    "tex": "r=\\frac{S_{xy}}{\\sqrt{S_{xx}S_{yy}}},\\qquad R^2=\\frac{\\mathrm{SSR}}{\\mathrm{SST}};\\quad R^2=r^2\\ \\text{in SLR with intercept}",
-    "reading": "相关系数描述线性共同变化；平方后可对应含截距单一直线回归解释的波动比例。"
+    "tex": "\\begin{gathered}r=\\frac{S_{xy}}{\\sqrt{S_{xx}S_{yy}}}\\\\ R^2=\\frac{\\mathrm{SSR}}{\\mathrm{SST}}=r^2\\end{gathered}",
+    "reading": "r 保留上升或下降的方向。对于含截距的单变量线性回归，R² 等于 r²，量的是直线解释掉的样本总波动比例。"
   },
   {
     "chapter": "11",
     "lesson": "correlation",
     "index": 1,
     "source": "检验 H₀:ρ=0：t=r√[(n−2)/(1−r²)]，df=n−2",
-    "tex": "H_0:\\rho=0,\\qquad t=r\\sqrt{\\frac{n-2}{1-r^2}},\\quad\\mathrm{df}=n-2",
+    "tex": "\\begin{gathered}H_0:\\rho=0\\\\ t=r\\sqrt{\\frac{n-2}{1-r^2}},\\quad\\mathrm{df}=n-2\\end{gathered}",
     "reading": ""
   },
   {
@@ -636,7 +636,7 @@
     "lesson": "procedures",
     "index": 0,
     "source": "Δ̂ᵢ=ȳᵢ−ȳcontrol=[2,4,6]<br>SEᵢ=√[MSE(1/nᵢ+1/ncontrol)]=√2≈1.414214<br>Tobs=[1.414214,2.828427,4.242641]",
-    "tex": "\\begin{aligned}\\widehat\\Delta_i&=\\bar y_i-\\bar y_{\\mathrm{control}}=[2,4,6]\\\\\\mathrm{SE}_i&=\\sqrt{\\mathrm{MSE}\\left(\\frac1{n_i}+\\frac1{n_{\\mathrm{control}}}\\right)}=\\sqrt2\\approx1.414214\\\\T_{\\mathrm{obs}}&=[1.414214,2.828427,4.242641]\\end{aligned}",
+    "tex": "\\begin{gathered}\\widehat\\Delta_i=\\bar y_i-\\bar y_{\\mathrm{control}}\\\\ \\widehat{\\boldsymbol\\Delta}=[2,4,6]\\\\ \\mathrm{SE}_i=\\sqrt{\\mathrm{MSE}\\left(\\frac1{n_i}+\\frac1{n_{\\mathrm{control}}}\\right)}\\\\ =\\sqrt2\\approx1.414214\\\\ \\boldsymbol T_{\\mathrm{obs}}\\approx\\begin{bmatrix}1.414214\\\\2.828427\\\\4.242641\\end{bmatrix}\\end{gathered}",
     "reading": "三个差都减去了同一个对照组，所以它们共享一份误差，不能当成三个独立比较。"
   },
   {
@@ -652,15 +652,15 @@
     "lesson": "procedures",
     "index": 2,
     "source": "H(c)=∫₀∞ fχ²ν(u)∫₋∞∞ φ(z)[Φ(z+h)]ᵐ dz du<br>G(c)=P(max|Tᵢ|≤c)<br>=∫₀∞ fχ²ν(u)∫₋∞∞ φ(z)[Φ(z+h)−Φ(z−h)]ᵐ dz du，c≥0",
-    "tex": "\\begin{aligned}h&=c\\sqrt{2u/\\nu}\\\\H(c)&=\\int_0^\\infty f_{\\chi^2_\\nu}(u)\\!\\int_{-\\infty}^\\infty\\phi(z)[\\Phi(z+h)]^m\\,dz\\,du\\\\G(c)&=P(\\max_i|T_i|\\le c)\\\\&=\\int_0^\\infty f_{\\chi^2_\\nu}(u)\\!\\int_{-\\infty}^\\infty\\phi(z)[\\Phi(z+h)-\\Phi(z-h)]^m\\,dz\\,du,\\quad c\\ge0\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}h=c\\sqrt{2u/\\nu},\\quad c\\ge0\\\\ a(z,u)=\\Phi(z+h)\\\\ b(z,u)=\\Phi(z+h)-\\Phi(z-h)\\\\ A(u)=\\int_{-\\infty}^{\\infty}\\phi(z)a(z,u)^m\\,dz\\\\ B(u)=\\int_{-\\infty}^{\\infty}\\phi(z)b(z,u)^m\\,dz\\\\ H(c)=\\int_0^\\infty f_{\\chi^2_\\nu}(u)A(u)\\,du\\\\ G(c)=P(\\max_i|T_i|\\le c)\\\\ =\\int_0^\\infty f_{\\chi^2_\\nu}(u)B(u)\\,du\\end{gathered}",
+    "reading": "先固定共同对照误差 z 和共同误差均方对应的 u。a 是单项留在单侧门槛内的条件概率，b 是单项留在两个门槛内的条件概率。这 m 项在给定这两个共同量后才可以相乘；最后把共同量的各种取值加回来。"
   },
   {
     "chapter": "14",
     "lesson": "unbalanced",
     "index": 0,
     "source": "设 w 为目标 High 比例：<br>D(w)=(1−w)(μ₂,Low−μ₁,Low)+w(μ₂,High−μ₁,High)<br>本例 D̂(.25)=.75×2+.25×(−2)=1",
-    "tex": "\\begin{aligned}D(w)&=(1-w)(\\mu_{2,\\mathrm{Low}}-\\mu_{1,\\mathrm{Low}})+w(\\mu_{2,\\mathrm{High}}-\\mu_{1,\\mathrm{High}})\\\\\\widehat D(0.25)&=0.75(2)+0.25(-2)=1\\end{aligned}",
+    "tex": "\\begin{gathered}d_L=\\mu_{2,\\mathrm{Low}}-\\mu_{1,\\mathrm{Low}}\\\\ d_H=\\mu_{2,\\mathrm{High}}-\\mu_{1,\\mathrm{High}}\\\\ D(w)=(1-w)d_L+wd_H\\\\ \\widehat D(0.25)=0.75(2)+0.25(-2)\\\\ =1\\end{gathered}",
     "reading": "先说清目标人群中两种条件各占多少，再给各条件下的效果加权。"
   },
   {
@@ -668,23 +668,23 @@
     "lesson": "unbalanced",
     "index": 1,
     "source": "E(Y|A,B)=β₀+βA I(A2)+βB I(B2)+γ I(A2)I(B2)<br>μ₁₁=β₀；μ₁₂=β₀+βB；μ₂₁=β₀+βA；μ₂₂=β₀+βA+βB+γ",
-    "tex": "\\begin{aligned}E(Y\\mid A,B)&=\\beta_0+\\beta_A I(A_2)+\\beta_B I(B_2)+\\gamma I(A_2)I(B_2)\\\\\\mu_{11}&=\\beta_0,\\quad\\mu_{12}=\\beta_0+\\beta_B\\\\\\mu_{21}&=\\beta_0+\\beta_A,\\quad\\mu_{22}=\\beta_0+\\beta_A+\\beta_B+\\gamma\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}a=I(A_2),\\qquad b=I(B_2)\\\\ E(Y\\mid A,B)=\\beta_0+\\beta_A a\\\\ \\phantom{E(Y\\mid A,B)={}}+\\beta_B b+\\gamma ab\\\\ \\mu_{11}=\\beta_0\\\\ \\mu_{12}=\\beta_0+\\beta_B\\\\ \\mu_{21}=\\beta_0+\\beta_A\\\\ \\mu_{22}=\\beta_0+\\beta_A+\\beta_B+\\gamma\\end{gathered}",
+    "reading": "a 和 b 分别用 0 或 1 表示是否切到第二个水平。只有两项都为 1 时，交互加成 γ 才进入格均值。"
   },
   {
     "chapter": "14",
     "lesson": "unbalanced",
     "index": 2,
     "source": "等权边际A差=(μ₂₁+μ₂₂−μ₁₁−μ₁₂)/2=βA+γ/2<br>两套参数分别给出3+0/2=3与3+8/2=7",
-    "tex": "\\begin{aligned}\\frac{\\mu_{21}+\\mu_{22}-\\mu_{11}-\\mu_{12}}2&=\\beta_A+\\frac\\gamma2\\\\3+0/2&=3,\\qquad3+8/2=7\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}D=\\frac{\\mu_{21}+\\mu_{22}-\\mu_{11}-\\mu_{12}}2\\\\ =\\beta_A+\\frac\\gamma2\\\\ 3+0/2=3\\\\ 3+8/2=7\\end{gathered}",
+    "reading": "第一行先把同一 A 水平的两个格子等权平均，再做处理差。缺失格子在不同 γ 下有不同预测，所以即使观察到的格子保持原值，目标差仍可能变化。"
   },
   {
     "chapter": "14",
     "lesson": "unbalanced",
     "index": 3,
     "source": "SE(μ̂₂₁−μ̂₁₁)=√[MSE(1/2+1/2)]=√2≈1.414214<br>t=3/√2≈2.121320，df=3，双侧P≈.124027<br>95% CI=3±t₀.₉₇₅,₃√2≈[−1.500659,7.500659]",
-    "tex": "\\begin{aligned}\\mathrm{SE}(\\hat\\mu_{21}-\\hat\\mu_{11})&=\\sqrt{\\mathrm{MSE}(1/2+1/2)}=\\sqrt2\\approx1.414214\\\\t&=3/\\sqrt2\\approx2.121320,\\quad\\mathrm{df}=3,\\quad p_{\\mathrm{two}}\\approx0.124027\\\\\\mathrm{CI}_{0.95}&=3\\pm t_{0.975,3}\\sqrt2\\approx[-1.500659,7.500659]\\end{aligned}",
+    "tex": "\\begin{gathered}d=\\hat\\mu_{21}-\\hat\\mu_{11}=3\\\\ \\mathrm{SE}=\\sqrt{\\mathrm{MSE}(1/2+1/2)}=\\sqrt2\\\\ \\approx1.414214\\\\ t=3/\\sqrt2\\approx2.121320,\\quad\\mathrm{df}=3\\\\ p_{\\mathrm{two}}\\approx0.124027\\\\ \\mathrm{CI}_{0.95}=3\\pm t_{0.975,3}\\sqrt2\\\\ \\approx[-1.500659,7.500659]\\end{gathered}",
     "reading": ""
   },
   {
@@ -708,7 +708,7 @@
     "lesson": "lack-fit",
     "index": 0,
     "source": "SSPE=ΣⱼΣₖ(Yⱼₖ−ȳⱼ)²，dfPE=n−g<br>SSLOF=SSE−SSPE，dfLOF=g−p<br>FLOF=[SSLOF/(g−p)]/[SSPE/(n−g)]",
-    "tex": "\\begin{aligned}\\mathrm{SS}_{\\mathrm{PE}}&=\\sum_j\\sum_k(y_{jk}-\\bar y_j)^2,\\quad\\mathrm{df}_{\\mathrm{PE}}=n-g\\\\\\mathrm{SS}_{\\mathrm{LOF}}&=\\mathrm{SSE}-\\mathrm{SS}_{\\mathrm{PE}},\\quad\\mathrm{df}_{\\mathrm{LOF}}=g-p\\\\F_{\\mathrm{LOF}}&=\\frac{\\mathrm{SS}_{\\mathrm{LOF}}/(g-p)}{\\mathrm{SS}_{\\mathrm{PE}}/(n-g)}\\end{aligned}",
+    "tex": "\\begin{gathered}\\mathrm{SS}_{\\mathrm{PE}}=\\sum_j\\sum_k(y_{jk}-\\bar y_j)^2\\\\ \\mathrm{SS}_{\\mathrm{LOF}}=\\mathrm{SSE}-\\mathrm{SS}_{\\mathrm{PE}}\\\\ \\mathrm{df}_{\\mathrm{PE}}=n-g,\\quad\\mathrm{df}_{\\mathrm{LOF}}=g-p\\\\ F_{\\mathrm{LOF}}=\\frac{\\mathrm{SS}_{\\mathrm{LOF}}/(g-p)}{\\mathrm{SS}_{\\mathrm{PE}}/(n-g)}\\end{gathered}",
     "reading": "重复测同一个 x，能看到同一条件内的自然波动；再检查直线有没有留下额外的系统偏离。"
   },
   {
@@ -716,7 +716,7 @@
     "lesson": "lack-fit",
     "index": 1,
     "source": "Quadratic：E(Y|x)=β₀+β₁x+β₂x²<br>SST=448.25；SSE(line)=26.9；SSE(quadratic)=8.15；SSPE=8<br>MSE(quadratic)=8.15/9≈.905556；MSPE=8/8=1",
-    "tex": "\\begin{aligned}E(Y\\mid x)&=\\beta_0+\\beta_1x+\\beta_2x^2\\\\\\mathrm{SST}&=448.25,\\quad\\mathrm{SSE}_{\\mathrm{line}}=26.9\\\\\\mathrm{SSE}_{\\mathrm{quadratic}}&=8.15,\\quad\\mathrm{SS}_{\\mathrm{PE}}=8\\\\\\mathrm{MSE}_{\\mathrm{quadratic}}&=8.15/9\\approx0.905556,\\quad\\mathrm{MS}_{\\mathrm{PE}}=8/8=1\\end{aligned}",
+    "tex": "\\begin{gathered}E(Y\\mid x)=\\beta_0+\\beta_1x+\\beta_2x^2\\\\ \\mathrm{SST}=448.25\\\\ \\mathrm{SSE}_{\\mathrm{line}}=26.9\\\\ \\mathrm{SSE}_{\\mathrm{quad}}=8.15\\\\ \\mathrm{SS}_{\\mathrm{PE}}=8\\\\ \\mathrm{MSE}_{\\mathrm{quad}}=8.15/9\\approx0.905556\\\\ \\mathrm{MS}_{\\mathrm{PE}}=8/8=1\\end{gathered}",
     "reading": ""
   },
   {
@@ -732,7 +732,7 @@
     "lesson": "power-from-region",
     "index": 0,
     "source": "Power(54)=Φ[(46.080072−54)/2]<br>+1−Φ[(53.919928−54)/2]≈.516005",
-    "tex": "\\operatorname{Power}(54)=\\Phi\\!\\left(\\frac{46.080072-54}2\\right)+1-\\Phi\\!\\left(\\frac{53.919928-54}2\\right)\\approx0.516005",
+    "tex": "\\begin{gathered}z_l=\\frac{46.080072-54}{2}\\\\ z_u=\\frac{53.919928-54}{2}\\\\ \\operatorname{Power}(54)=\\Phi(z_l)+[1-\\Phi(z_u)]\\\\ \\approx0.516005\\end{gathered}",
     "reading": "拒绝门槛保持不变，换到真实均值 54 的世界，计算落在门槛外的面积。"
   },
   {
@@ -756,7 +756,7 @@
     "lesson": "leverage-influence",
     "index": 0,
     "source": "hᵢ=1/n+(xᵢ−x̄)²/Sxx<br>加入 x=10 后，该点 h≈.868421",
-    "tex": "h_i=\\frac1n+\\frac{(x_i-\\bar x)^2}{S_{xx}},\\qquad h_{x=10}\\approx0.868421",
+    "tex": "\\begin{gathered}h_i=\\frac1n+\\frac{(x_i-\\bar x)^2}{S_{xx}}\\\\ h_{x=10}\\approx0.868421\\end{gathered}",
     "reading": "x 离数据中心越远，越可能有能力拉动拟合线；实际拉动多少还与残差有关。"
   },
   {
@@ -764,7 +764,7 @@
     "lesson": "leverage-influence",
     "index": 1,
     "source": "hᵢ=1/n+(xᵢ−x̄)²/Sxx，Sxx=Σⱼ(xⱼ−x̄)²<br>Σᵢhᵢ=p=2，本例平均h=2/6<br>MSE_full=Σᵢeᵢ²/(n−p)<br>Dᵢ=[eᵢ²/(p MSE_full)]×hᵢ/(1−hᵢ)²",
-    "tex": "\\begin{aligned}h_i&=\\frac1n+\\frac{(x_i-\\bar x)^2}{S_{xx}},\\quad S_{xx}=\\sum_j(x_j-\\bar x)^2\\\\\\sum_i h_i&=p=2,\\qquad\\bar h=2/6\\\\\\mathrm{MSE}_{\\mathrm{full}}&=\\frac{\\sum_i e_i^2}{n-p}\\\\D_i&=\\frac{e_i^2}{p\\,\\mathrm{MSE}_{\\mathrm{full}}}\\frac{h_i}{(1-h_i)^2}\\end{aligned}",
+    "tex": "\\begin{gathered}S_{xx}=\\sum_j(x_j-\\bar x)^2\\\\ h_i=\\frac1n+\\frac{(x_i-\\bar x)^2}{S_{xx}}\\\\ \\sum_i h_i=p=2,\\quad\\bar h=2/6\\\\ \\mathrm{MSE}_{\\mathrm{full}}=\\frac{\\sum_i e_i^2}{n-p}\\\\ D_i=\\frac{e_i^2}{p\\,\\mathrm{MSE}_{\\mathrm{full}}}\\frac{h_i}{(1-h_i)^2}\\end{gathered}",
     "reading": ""
   },
   {
@@ -788,7 +788,7 @@
     "lesson": "hartley-complete-decision",
     "index": 0,
     "source": "H₀下：Xᵢ=νsᵢ²/σ² 独立服从 χ²ν<br>Fmax=max(Xᵢ)/min(Xᵢ)",
-    "tex": "X_i=\\frac{\\nu s_i^2}{\\sigma^2}\\overset{\\mathrm{ind}}\\sim\\chi^2_\\nu,\\qquad F_{\\max}=\\frac{\\max_i X_i}{\\min_i X_i}",
+    "tex": "\\begin{gathered}X_i=\\frac{\\nu s_i^2}{\\sigma^2}\\overset{\\mathrm{ind}}\\sim\\chi^2_\\nu\\\\ F_{\\max}=\\frac{\\max_i X_i}{\\min_i X_i}\\end{gathered}",
     "reading": "先在共同方差的零假设下标准化，最大值与最小值的比就不再含未知共同方差。"
   },
   {
@@ -796,8 +796,8 @@
     "lesson": "hartley-complete-decision",
     "index": 1,
     "source": "G(r)=P(Fmax≤r)<br>=k ∫₀∞ fν(x)[Fν(rx)−Fν(x)]ᵏ⁻¹ dx",
-    "tex": "G(r)=P(F_{\\max}\\le r)=k\\int_0^\\infty f_\\nu(x)[F_\\nu(rx)-F_\\nu(x)]^{k-1}\\,dx",
-    "reading": ""
+    "tex": "\\begin{gathered}G(r)=P(F_{\\max}\\le r)\\\\ q_r(x)=F_\\nu(rx)-F_\\nu(x)\\\\ G(r)=k\\int_0^\\infty f_\\nu(x)\\,[q_r(x)]^{k-1}\\,dx\\end{gathered}",
+    "reading": "暂时把最小值放在 x。其他 k−1 个值只有都落在 x 到 rx，最大最小之比才不超过 r。先算这个条件概率，再把最小值的所有可能位置加起来。"
   },
   {
     "chapter": "08",
@@ -812,15 +812,15 @@
     "lesson": "welch-anova-complete",
     "index": 1,
     "source": "U=Σ[(1−wᵢ/W)²/(nᵢ−1)]≈.359133<br>A=Σwᵢ(ȳᵢ−ȳw)²/(k−1)≈4.070485<br>C=1+[2(k−2)/(k²−1)]U≈1.089783<br>FWelch=A/C≈3.735132",
-    "tex": "\\begin{aligned}U&=\\sum_i\\frac{(1-w_i/W)^2}{n_i-1}\\approx0.359133\\\\A&=\\frac{\\sum_i w_i(\\bar y_i-\\bar y_w)^2}{k-1}\\approx4.070485\\\\C&=1+\\frac{2(k-2)}{k^2-1}U\\approx1.089783\\\\F_{\\mathrm{Welch}}&=A/C\\approx3.735132\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}U=\\sum_i\\frac{(1-w_i/W)^2}{n_i-1}\\approx0.359133\\\\ A=\\frac{\\sum_i w_i(\\bar y_i-\\bar y_w)^2}{k-1}\\\\ \\approx4.070485\\\\ C=1+\\frac{2(k-2)}{k^2-1}U\\approx1.089783\\\\ F_{\\mathrm{Welch}}=A/C\\approx3.735132\\end{gathered}",
+    "reading": "A 衡量各组中心离加权中心的差。C 修正各组方差也来自样本带来的额外波动。用 A 除以 C，得到用于参考 F 曲线的统计量。"
   },
   {
     "chapter": "08",
     "lesson": "welch-anova-complete",
     "index": 2,
     "source": "ν₁=k−1=2<br>ν₂=(k²−1)/(3U)≈7.425282<br>p=P[F(2,7.425282)≥3.735132]≈.075424",
-    "tex": "\\nu_1=k-1=2,\\quad\\nu_2=\\frac{k^2-1}{3U}\\approx7.425282,\\qquad p=P(F_{2,7.425282}\\ge3.735132)\\approx0.075424",
+    "tex": "\\begin{gathered}\\nu_1=k-1=2\\\\ \\nu_2=\\frac{k^2-1}{3U}\\approx7.425282\\\\ p=P(F_{\\nu_1,\\nu_2}\\ge3.735132)\\\\ \\approx0.075424\\end{gathered}",
     "reading": ""
   },
   {
@@ -828,24 +828,24 @@
     "lesson": "welch-anova-complete",
     "index": 3,
     "source": "dᵢⱼ=ȳᵢ−ȳⱼ，SEᵢⱼ=√(vᵢ+vⱼ)<br>νᵢⱼ=(vᵢ+vⱼ)²/[vᵢ²/(nᵢ−1)+vⱼ²/(nⱼ−1)]<br>tᵢⱼ=dᵢⱼ/SEᵢⱼ，pᵢⱼ=2P(Tνᵢⱼ≥|tᵢⱼ|)<br>Bonferroni adjusted p=min(1,3pᵢⱼ)<br>Bonferroni CI：dᵢⱼ±t₁₋.05/(2×3),νᵢⱼ SEᵢⱼ",
-    "tex": "\\begin{aligned}d_{ij}&=\\bar y_i-\\bar y_j,\\quad\\mathrm{SE}_{ij}=\\sqrt{v_i+v_j}\\\\\\nu_{ij}&=\\frac{(v_i+v_j)^2}{v_i^2/(n_i-1)+v_j^2/(n_j-1)}\\\\t_{ij}&=d_{ij}/\\mathrm{SE}_{ij},\\quad p_{ij}=2P(T_{\\nu_{ij}}\\ge|t_{ij}|)\\\\p_{\\mathrm{Bonferroni}}&=\\min(1,3p_{ij})\\\\\\mathrm{CI}_{\\mathrm{Bonferroni}}&=d_{ij}\\pm t_{1-0.05/(2\\times3),\\nu_{ij}}\\mathrm{SE}_{ij}\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}d_{ij}=\\bar y_i-\\bar y_j\\\\ \\mathrm{SE}_{ij}=\\sqrt{v_i+v_j}\\\\ \\nu_{ij}=\\frac{(v_i+v_j)^2}{v_i^2/(n_i-1)+v_j^2/(n_j-1)}\\\\ t_{ij}=\\frac{d_{ij}}{\\mathrm{SE}_{ij}}\\\\ p_{ij}=2P(T_{\\nu_{ij}}\\ge|t_{ij}|)\\\\ p_{\\mathrm{adj}}=\\min(1,3p_{ij})\\\\ c=t_{1-0.05/(2\\times3),\\nu_{ij}}\\\\ \\mathrm{CI}_{\\mathrm{adj}}=d_{ij}\\pm c\\,\\mathrm{SE}_{ij}\\end{gathered}",
+    "reading": "固定一对组，从它们自己的方差和样本量算标准误、自由度和原始 P。这里保护三对比较，所以 P 值乘 3，区间也为每对留出更小的两尾误报额度。"
   },
   {
     "chapter": "14",
     "lesson": "factorial-simple-effects",
     "index": 0,
     "source": "H₀,1：μA1,B1=μA1,B2=μA1,B3<br>H₀,2：μA2,B1=μA2,B2=μA2,B3<br>每个Hₐ：该A条件下，至少一个B总体均值不同",
-    "tex": "\\begin{aligned}H_{0,1}:&\\ \\mu_{A_1,B_1}=\\mu_{A_1,B_2}=\\mu_{A_1,B_3}\\\\H_{0,2}:&\\ \\mu_{A_2,B_1}=\\mu_{A_2,B_2}=\\mu_{A_2,B_3}\\\\H_{a,i}:&\\ \\text{at least one B mean differs within }A_i\\end{aligned}",
-    "reading": "先固定 A 的一种条件，再问这一条件内三个 B 的总体均值是否相同。"
+    "tex": "\\begin{gathered}H_{0,1}:\\ \\mu_{A_1,B_1}=\\mu_{A_1,B_2}=\\mu_{A_1,B_3}\\\\ H_{0,2}:\\ \\mu_{A_2,B_1}=\\mu_{A_2,B_2}=\\mu_{A_2,B_3}\\end{gathered}",
+    "reading": "分别固定 A₁ 和 A₂。每一行的备择都问该行三个 B 的总体均值中是否至少有一个不同。"
   },
   {
     "chapter": "14",
     "lesson": "factorial-simple-effects",
     "index": 1,
     "source": "V̂=(MSE/r)[2，1；1，2]<br>=[5/6，5/12；5/12，5/6]<br>F=(d̂ᵀV̂⁻¹d̂)/2=38.4",
-    "tex": "\\widehat V=\\frac{\\mathrm{MSE}}r\\begin{bmatrix}2&1\\\\1&2\\end{bmatrix}=\\begin{bmatrix}5/6&5/12\\\\5/12&5/6\\end{bmatrix},\\qquad F=\\frac{\\widehat d^{\\mathsf T}\\widehat V^{-1}\\widehat d}{2}=38.4",
-    "reading": ""
+    "tex": "\\begin{gathered}\\widehat V=\\frac{\\mathrm{MSE}}r\\begin{bmatrix}2&1\\\\1&2\\end{bmatrix}\\\\ =\\begin{bmatrix}5/6&5/12\\\\5/12&5/6\\end{bmatrix}\\\\ F=\\frac{\\widehat d^{\\mathsf T}\\widehat V^{-1}\\widehat d}{2}=38.4\\end{gathered}",
+    "reading": "两条比较都用了同一格作对照，所以它们的估计误差有共同部分。矩阵对角线记录各条比较自己的方差，非对角线记录这份共同波动。"
   },
   {
     "chapter": "15",
@@ -908,8 +908,8 @@
     "lesson": "unbalanced-ss-hypotheses",
     "index": 0,
     "source": "H₀A: (μ11+μ12)/2=(μ21+μ22)/2=(μ31+μ32)/2<br>C_A=[−½,−½,½,½,0,0；−½,−½,0,0,½,½]<br>L̂=C_A m̂=[2.5,8]ᵀ<br>V₀=diag(1/3,1/2,1/2,1/4,1,1/3)<br>Cov(m̂)=σ²V₀<br>W=C_A V₀ C_Aᵀ=[19/48,5/24；5/24,13/24]<br>SS_A(III)=L̂ᵀW⁻¹L̂=119.208122<br>F_A(III)=[119.208122/2]/(8/3)=22.351523，df=(2,9)",
-    "tex": "\\begin{aligned}H_{0A}:\\quad\\frac{\\mu_{11}+\\mu_{12}}2&=\\frac{\\mu_{21}+\\mu_{22}}2=\\frac{\\mu_{31}+\\mu_{32}}2\\\\C_A&=\\begin{bmatrix}-1/2&-1/2&1/2&1/2&0&0\\\\-1/2&-1/2&0&0&1/2&1/2\\end{bmatrix}\\\\\\widehat L=C_A\\widehat m&=[2.5,8]^{\\mathsf T}\\\\V_0&=\\operatorname{diag}(1/3,1/2,1/2,1/4,1,1/3)\\\\\\operatorname{Cov}(\\widehat m)&=\\sigma^2 V_0\\\\W=C_A V_0 C_A^{\\mathsf T}&=\\begin{bmatrix}19/48&5/24\\\\5/24&13/24\\end{bmatrix}\\\\\\mathrm{SS}_A^{(\\mathrm{III})}&=\\widehat L^{\\mathsf T}W^{-1}\\widehat L=119.208122\\\\F_A^{(\\mathrm{III})}&=\\frac{119.208122/2}{8/3}=22.351523,\\quad\\mathrm{df}=(2,9)\\end{aligned}",
-    "reading": "先写出要比较的等权边际均值，再用矩阵把这个同一问题带入拟合结果。"
+    "tex": "\\begin{gathered}m_{i\\cdot}=(\\mu_{i1}+\\mu_{i2})/2\\\\ H_{0A}:m_{1\\cdot}=m_{2\\cdot}=m_{3\\cdot}\\\\ C_A=\\tfrac12\\begin{bmatrix}-1&-1&1&1&0&0\\\\-1&-1&0&0&1&1\\end{bmatrix}\\\\ \\widehat L=C_A\\widehat m=[2.5,8]^{\\mathsf T}\\\\ \\mathbf v_1=(1/3,1/2,1/2)\\\\ \\mathbf v_2=(1/4,1,1/3)\\\\ V_0=\\operatorname{diag}(\\mathbf v_1,\\mathbf v_2)\\\\ \\operatorname{Cov}(\\widehat m)=\\sigma^2 V_0\\\\ W=C_A V_0 C_A^{\\mathsf T}\\\\ =\\begin{bmatrix}19/48&5/24\\\\5/24&13/24\\end{bmatrix}\\\\ \\mathrm{SS}_A^{(\\mathrm{III})}=\\widehat L^{\\mathsf T}W^{-1}\\widehat L\\\\ =119.208122\\\\ F_A^{(\\mathrm{III})}=\\frac{119.208122/2}{8/3}\\\\ \\approx22.351523\\\\ \\mathrm{df}=(2,9)\\end{gathered}",
+    "reading": "先在每个 A 水平内，把两个 B 水平各算一半。矩阵 C_A 取第二、第三个平均值各减第一个。把两行 v 的六个值依次放在 V₀ 的对角线，算出两条比较的误差尺度 W，最后才换算成一个 F。"
   },
   {
     "chapter": "15",
@@ -1012,7 +1012,7 @@
     "lesson": "unequal-n-pairwise",
     "index": 0,
     "source": "SEᵢⱼ=√[MSE(1/nᵢ+1/nⱼ)]<br>LSDᵢⱼ=t.975,13×SEᵢⱼ；t.975,13≈2.160369<br>ordinary CI=(ȳⱼ−ȳᵢ)±LSDᵢⱼ<br>ordinary P=2P(t₁₃≥|ȳⱼ−ȳᵢ|/SEᵢⱼ)",
-    "tex": "\\begin{aligned}\\mathrm{SE}_{ij}&=\\sqrt{\\mathrm{MSE}(1/n_i+1/n_j)}\\\\\\mathrm{LSD}_{ij}&=t_{0.975,13}\\mathrm{SE}_{ij},\\quad t_{0.975,13}\\approx2.160369\\\\\\mathrm{CI}_{\\mathrm{ordinary}}&=(\\bar y_j-\\bar y_i)\\pm\\mathrm{LSD}_{ij}\\\\p_{\\mathrm{ordinary}}&=2P\\!\\left(t_{13}\\ge\\frac{|\\bar y_j-\\bar y_i|}{\\mathrm{SE}_{ij}}\\right)\\end{aligned}",
+    "tex": "\\begin{gathered}d_{ij}=\\bar y_j-\\bar y_i\\\\ \\mathrm{SE}_{ij}=\\sqrt{\\mathrm{MSE}(1/n_i+1/n_j)}\\\\ t_{0.975,13}\\approx2.160369\\\\ \\mathrm{LSD}_{ij}=t_{0.975,13}\\mathrm{SE}_{ij}\\\\ \\mathrm{CI}_{\\mathrm{ordinary}}=d_{ij}\\pm\\mathrm{LSD}_{ij}\\\\ t_{\\mathrm{obs},ij}=d_{ij}/\\mathrm{SE}_{ij}\\\\ p_{\\mathrm{ordinary}}=2P(T_{13}\\ge|t_{\\mathrm{obs},ij}|)\\end{gathered}",
     "reading": "每对的样本量不同，差值的标准误也不同；不能给所有比较套同一个原单位半宽。"
   },
   {
@@ -1020,7 +1020,42 @@
     "lesson": "unequal-n-pairwise",
     "index": 1,
     "source": "qcrit=q.95(g=3,ν=13)≈3.734142<br>scaleᵢⱼ=√[(MSE/2)(1/nᵢ+1/nⱼ)]=SEᵢⱼ/√2<br>halfᵢⱼ=qcrit×scaleᵢⱼ<br>qobsᵢⱼ=|ȳⱼ−ȳᵢ|/scaleᵢⱼ<br>adjusted P=P(Qg,ν≥qobsᵢⱼ)",
-    "tex": "\\begin{aligned}q_{\\mathrm{crit}}&=q_{0.95}(g=3,\\nu=13)\\approx3.734142\\\\\\mathrm{scale}_{ij}&=\\sqrt{\\frac{\\mathrm{MSE}}2(1/n_i+1/n_j)}=\\mathrm{SE}_{ij}/\\sqrt2\\\\\\mathrm{half}_{ij}&=q_{\\mathrm{crit}}\\mathrm{scale}_{ij}\\\\q_{\\mathrm{obs},ij}&=\\frac{|\\bar y_j-\\bar y_i|}{\\mathrm{scale}_{ij}}\\\\p_{\\mathrm{adjusted}}&=P(Q_{g,\\nu}\\ge q_{\\mathrm{obs},ij})\\end{aligned}",
-    "reading": ""
+    "tex": "\\begin{gathered}q_{\\mathrm{crit}}=q_{0.95}(g=3,\\nu=13)\\\\ \\approx3.734142\\\\ s_{ij}=\\sqrt{\\frac{\\mathrm{MSE}}2(1/n_i+1/n_j)}\\\\ =\\mathrm{SE}_{ij}/\\sqrt2\\\\ \\mathrm{half}_{ij}=q_{\\mathrm{crit}}s_{ij}\\\\ q_{\\mathrm{obs},ij}=\\frac{|\\bar y_j-\\bar y_i|}{s_{ij}}\\\\ p_{\\mathrm{adj}}=P(Q_{g,\\nu}\\ge q_{\\mathrm{obs},ij})\\end{gathered}",
+    "reading": "Tukey–Kramer 的 s 是这一对标准误除以 √2。先用它把差值换成 q，再用所有组对应的学生化极差分布。反过来把临界 q 乘回 s，就是这一对区间的半宽。"
+  },
+  {
+    "page": "handbook.html",
+    "index": 0,
+    "source": "95% 双侧 t 区间：estimate ± t<sub>0.975,ν</sub> × SE<br>读作：估计值，上下各加减“临界值乘以标准误”",
+    "tex": "\\begin{gathered}c=t_{0.975,\\nu}\\\\ \\mathrm{CI}_{95\\%}=\\widehat\\theta\\pm c\\cdot\\mathrm{SE}\\end{gathered}",
+    "reading": "先找 t 曲线左边面积为 97.5% 的位置 c。从本次的估计值 θ̂ 往两侧各量 c 个标准误，就得到区间。"
+  },
+  {
+    "page": "study-case.html",
+    "index": 0,
+    "source": "响应 Y = 一盆内3株高度的平均值（cm）<br>目标参数 Δ=μB−μA；正值表示 B 的总体平均盆级响应较高",
+    "tex": "\\begin{gathered}Y_i=(X_{i1}+X_{i2}+X_{i3})/3\\\\ \\Delta=\\mu_B-\\mu_A\\end{gathered}",
+    "reading": "X 是单株高度，Y 是整盆的平均高度，单位都是 cm。一盆给分析贡献一个 Y。目标是 B 组减 A 组的总体盆均值。"
+  },
+  {
+    "page": "study-case.html",
+    "index": 1,
+    "source": "H₀: Δ=μB−μA=0；Hₐ: Δ≠0<br>Δ̂=ȳB−ȳA=21−17=4 cm",
+    "tex": "\\begin{gathered}H_0:\\Delta=0,\\quad H_a:\\Delta\\ne0\\\\ \\widehat\\Delta=\\bar Y_B-\\bar Y_A=21-17\\\\ =4\\ \\mathrm{cm}\\end{gathered}",
+    "reading": "先按题目规定的方向，用 B 组的盆均值减 A 组。样本相差 4 厘米。检验还要问，相对盆与盆的波动，这个差有多大。"
+  },
+  {
+    "page": "study-case.html",
+    "index": 2,
+    "source": "SE=√(sB²/nB+sA²/nA)=√(14/6+14/6)=2.160246899 cm<br>ν=[14/6+14/6]² / [(14/6)²/5+(14/6)²/5]=10<br>t=(Δ̂−0)/SE=4/2.160246899=1.851640200",
+    "tex": "\\begin{gathered}v_A=\\frac{s_A^2}{n_A}=\\frac{14}{6}\\\\ v_B=\\frac{s_B^2}{n_B}=\\frac{14}{6}\\\\ \\mathrm{SE}=\\sqrt{v_A+v_B}\\\\ \\approx2.160246899\\ \\mathrm{cm}\\\\ \\nu=\\frac{(v_A+v_B)^2}{v_A^2/5+v_B^2/5}=10\\\\ t=\\frac{4-0}{\\mathrm{SE}}\\approx1.851640200\\end{gathered}",
+    "reading": "两组各有 6 盆，每组用自己的样本方差除以 6。两份均值方差相加再开平方。接着用这两份方差算自由度，用估计差除以标准误。"
+  },
+  {
+    "page": "study-case.html",
+    "index": 3,
+    "source": "P=2P(T₁₀≥|1.851640200|)=0.093792552<br>95% CI：4±t₀.₉₇₅,₁₀×2.160246899<br>=4±2.228138852×2.160246899<br>=[−0.813330047, 8.813330047] cm",
+    "tex": "\\begin{gathered}p=2P(T_{10}\\ge |t|)\\approx0.093792552\\\\ \\mathrm{CI}_{95\\%}=4\\pm t_{.975,10}\\cdot\\mathrm{SE}\\\\ \\approx4\\pm2.228138852(2.160246899)\\\\ \\approx[-0.813330047,8.813330047]\\\\ \\text{unit: }\\mathrm{cm}\\end{gathered}",
+    "reading": "备择关心两种方向，所以把对称的两尾都算上。区间的下端是负值，上端是正值，因此这些数据仍容许两种方向的总体差。"
   }
 ]

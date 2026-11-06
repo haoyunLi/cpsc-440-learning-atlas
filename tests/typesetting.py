@@ -43,6 +43,13 @@ for c in chapters:
     assert 'katex-error' not in source
     assert any('intuition.mjs' in s for s in doc.scripts)
     assert '#intuition' in source
+for name, expected in [('handbook.html', 1), ('case-study.html', 4)]:
+    source = (ROOT / name).read_text()
+    doc = Inspect()
+    doc.feed(source)
+    assert doc.maths == expected, (name, doc.maths, expected)
+    assert not PATTERN.search(source), name
+    assert 'katex-error' not in source, name
 css=ROOT/'assets/vendor/katex/katex.min.css'
 for ref in re.findall(r'url\(([^)]+)\)',css.read_text()):assert (css.parent/ref.strip('"\'')).is_file(),ref
 assert (css.parent/'LICENSE').is_file()
@@ -54,4 +61,4 @@ assert sum('latex' in s for q in PRACTICE for s in q['steps'])==241
 assert doc.maths==241+sum('promptLatex' in q for q in PRACTICE)
 for q in PRACTICE:
     assert 'readQuestion' in q
-print('128 explicit LaTeX source bindings, 40 staged formulas, 241 solution formulas, 93 plain-language guides, prompt MathML and all local math fonts passed.')
+print('133 chapter and auxiliary LaTeX source bindings, 40 staged formulas, 241 solution formulas, 93 plain-language guides, prompt MathML and all local math fonts passed.')

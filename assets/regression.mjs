@@ -263,11 +263,13 @@ export function mountRegression(root) {
         result.fit.mse, result.mean.se, result.prediction.se
       ].map(show);
       const varianceMath = equationHTML(String.raw`\begin{aligned}
-        \widehat V_{\mathrm{mean}} &= \mathrm{MSE}\,h_0 \approx ${meanVariance}\\
+        \widehat V_{\mathrm{mean}} &= \mathrm{MSE}\,h_0\\
+        &\approx ${meanVariance}\\
         \widehat V_{\mathrm{new}} &= \widehat V_{\mathrm{mean}}+\mathrm{MSE}\\
-        &\approx ${meanVariance}+${mse}\approx${newVariance}
+        &\approx ${meanVariance}+${mse}\\
+        &\approx ${newVariance}
       \end{aligned}`);
-      const distanceMath = equationHTML(String.raw`h_0=\frac15+\frac{(${x0}-4)^2}{20}=${show(result.baseline)}+${show(result.distance)}=${h0}`);
+      const distanceMath = equationHTML(String.raw`\begin{aligned}h_0&=\frac15+\frac{(${x0}-4)^2}{20}\\ &\approx${show(result.baseline)}+${show(result.distance)}\\ &\approx${h0}\end{aligned}`);
       $('[data-reg-calculation]').innerHTML = `<p>绿块是拟合的平均值估得有多不准。预测下一段路时，还要加棕块，也就是这段路自己的误差方差。只移动预测位置时，两条的方差尺度固定。</p>
         <div class="reg-variance-parts">
           <p><b>估计平均成本</b> · 拟合均值方差约 ${meanVariance}</p><div class="reg-variance-rail" aria-hidden="true"><span style="width:${meanShare}%"></span></div>

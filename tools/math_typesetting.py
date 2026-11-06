@@ -6,7 +6,9 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-RECORDS = json.loads((ROOT / 'content/equations.json').read_text())
+ALL_RECORDS = json.loads((ROOT / 'content/equations.json').read_text())
+RECORDS = [record for record in ALL_RECORDS if 'chapter' in record]
+AUXILIARY_SOURCES = ('handbook.html', 'study-case.html')
 STORIES = json.loads((ROOT / 'content/intuition.json').read_text())
 WALKS = json.loads((ROOT / 'content/walkthroughs.json').read_text())
 PRACTICE = json.loads((ROOT / 'content/practice.json').read_text())
@@ -19,7 +21,7 @@ def render_batch(items):
     return json.loads(result.stdout)
 
 
-authored_tex = list(dict.fromkeys([r['tex'] for r in RECORDS]
+authored_tex = list(dict.fromkeys([r['tex'] for r in ALL_RECORDS]
                                  + [f['latex'] for w in WALKS for f in w['frames']]
                                  + [q['promptLatex'] for q in PRACTICE if 'promptLatex' in q]
                                  + [s['latex'] for q in PRACTICE for s in q['steps'] if 'latex' in s]))
@@ -36,7 +38,7 @@ def math_panel(tex, extra_class=''):
 
 
 BY_SOURCE = {}
-for record in RECORDS:
+for record in ALL_RECORDS:
     source = record['source'].replace('\\n', '\n')
     replacement = math_panel(record['tex']) + ('<p class="equation-reading">' + html.escape(record['reading']) + '</p>' if record['reading'] else '')
     if source in BY_SOURCE and BY_SOURCE[source] != replacement:
@@ -51,8 +53,12 @@ def typeset_equations(body):
 def validate_sources(chapters):
     actual = {(c['id'], l['id'], i): source for c in chapters for l in c['lessons']
               for i, source in enumerate(PATTERN.findall(l['body'].replace('\\n', '\n')))}
-    expected = {(r['chapter'], r['lesson'], r['index']): r['source'].replace('\\n', '\n') for r in RECORDS}
-    if len(expected) != len(RECORDS):
+    for page in AUXILIARY_SOURCES:
+        body = (ROOT / 'content' / page).read_text()
+        actual.update({(page, '', i): source for i, source in enumerate(PATTERN.findall(body))})
+    expected = {(r.get('chapter', r.get('page')), r.get('lesson', ''), r['index']): r['source'].replace('\\n', '\n')
+                for r in ALL_RECORDS}
+    if len(expected) != len(ALL_RECORDS):
         raise ValueError('Duplicate LaTeX source location')
     if actual.keys() != expected.keys():
         raise ValueError(f'Unmapped formula blocks: {sorted(actual.keys()-expected.keys())}; stale locations: {sorted(expected.keys()-actual.keys())}')

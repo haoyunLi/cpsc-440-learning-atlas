@@ -125,7 +125,8 @@ export function mountFactorial(root) {
       $('[data-fact-interaction]').innerHTML = equationHTML(String.raw`\begin{aligned}
         \Delta_{\mathrm{low}} &= ${v2Low}-${v1Low}=${low}\\
         \Delta_{\mathrm{high}} &= ${v2High}-${v1High}=${high}\\
-        I &= \Delta_{\mathrm{high}}-\Delta_{\mathrm{low}}=${high}-(${low})=${result.interaction}
+        I &= \Delta_{\mathrm{high}}-\Delta_{\mathrm{low}}\\
+        &=${high}-(${low})=${result.interaction}
       \end{aligned}`);
       const change = result.interaction === 0 ? '两个肥量下，换品种带来的差一样。' : `从低肥量到高肥量，V2−V1 的差${result.interaction > 0 ? '增大' : '减小'}了 ${Math.abs(result.interaction)}。`;
       $('[data-fact-readout]').textContent = `${change} V2−V1 的等权平均差为 ${show(result.equalDifference)}，按各品种实际样本构成计算的差为 ${show(result.rawDifference)}。肥量的等权平均差（高减低）为 ${show(result.equalFertilizer)}；共 ${result.N} 个观测。`;

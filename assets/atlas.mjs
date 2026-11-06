@@ -257,7 +257,7 @@ function labVariance(el) {
     $('[data-variance-explanation]', el).textContent = active === 'A'
       ? 'A 在 χ² 图左边。相同的分子除以较小的数，结果较大，所以 A 换算后跑到了右边。'
       : 'B 在 χ² 图右边。相同的分子除以较大的数，结果较小，所以 B 换算后跑到了左边。';
-    $('[data-variance-formula]', el).innerHTML = equationHTML(String.raw`\frac{(n-1)s^2}{q_${active}}\approx\frac{${sumSquares}}{${fmt(q, 5)}}\approx ${fmt(sumSquares / q)}`);
+    $('[data-variance-formula]', el).innerHTML = equationHTML(String.raw`\begin{gathered}\frac{(n-1)s^2}{q_${active}}\\ \approx\frac{${sumSquares}}{${fmt(q, 5)}}\approx ${fmt(sumSquares / q)}\end{gathered}`);
     $('.readout', el).textContent = `df=${df} · 95% σ² CI=[${fmt(lower)},${fmt(upper)}] 克² · σ CI=[${fmt(Math.sqrt(lower))},${fmt(Math.sqrt(upper))}] 克 · 当前算出${endpoint}`;
   });
   for (const label of ['A', 'B']) {
@@ -296,7 +296,8 @@ function labMultiple(el) {
     }
     $('.readout', el).textContent = `每批 ${m} 个检验。各用 ${fmt(100 * alpha, 1)}% 时，整批误报概率约为 ${percent(raw)}；平分给各个检验时约为 ${percent(adjusted)}。`;
     $('[data-multiple-math]', el).innerHTML = equationHTML(String.raw`\begin{aligned}
-      \mathrm{FWER}_{\mathrm{raw}} &= 1-(1-${alpha})^{${m}}\approx ${fmt(raw, raw >= .99995 ? 6 : 4)}\\
+      \mathrm{FWER}_{\mathrm{raw}} &= 1-(1-${alpha})^{${m}}\\
+      &\approx ${fmt(raw, raw >= .99995 ? 6 : 4)}\\
       \alpha_{\mathrm{per\ test}} &= \frac{${alpha}}{${m}}\approx ${fmt(cutoff, 6)}\\
       \mathrm{FWER}_{\mathrm{Bonf}} &= 1-\left(1-\frac{${alpha}}{${m}}\right)^{${m}}\\
         &\approx ${fmt(adjusted, 4)}

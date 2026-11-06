@@ -69,7 +69,7 @@ export function intuitionState(kind, value) {
     const se = 4 / Math.sqrt(value), half = 1.959963984540054 * se;
     svg = intervalPlot([{label:`${value} 株，样本均值设为 20 厘米`, lower:20-half, upper:20+half, center:20}], 15,25);
     svg += text(30, 170, `标准误 ${number(se)} 厘米 → 95% 区间半宽 ${number(half)} 厘米`);
-    tex = String.raw`\mathrm{SE}=\frac{4}{\sqrt{${value}}}=${number(se)},\qquad 20\pm1.960\times${number(se)}`;
+    tex = String.raw`\begin{gathered}\mathrm{SE}=\frac{4}{\sqrt{${value}}}\approx${number(se)}\\ \mathrm{CI}_{95\%}=20\pm z_{.975}\,\mathrm{SE}\\ \approx[${number(20-half)},${number(20+half)}]\end{gathered}`;
     summary = `${value} 株：95% 均值置信区间约为 [${number(20-half)}, ${number(20+half)}] 厘米。`;
     explanation = '这是把其他条件固定后的宽度比较，不是假装实际抽样总会得到均值 20。95% 描述反复按同一方法构造区间的长期覆盖率；单个已算出的区间并不赋予固定总体均值一个 95% 的随机概率。';
     metrics = { n:value, se, half, lower:20-half, upper:20+half };
@@ -91,7 +91,7 @@ export function intuitionState(kind, value) {
   } else if(kind==='anova') {
     const groups=[-1,0,1].map(g=>[-1,0,1].map(e=>10+g*value+e)), mse=1, between=6*value**2, f=between/2;
     svg=rowsPlot(groups,2,18,['甲肥料','乙肥料','丙肥料']);
-    tex=String.raw`F=\frac{\mathrm{MS}_{\text{between}}}{\mathrm{MS}_{\text{within}}}=\frac{${number(between)}/2}{6/6}=${number(f)}`;
+    tex=String.raw`\begin{gathered}F=\frac{\mathrm{MS}_{\text{between}}}{\mathrm{MS}_{\text{within}}}\\ =\frac{${number(between)}/2}{6/6}=${number(f)}\end{gathered}`;
     summary=`三组均值为 ${groups.map(g=>number(mean(g))).join('、')}；组内平均平方始终为 1；F=${number(f)}。`;
     explanation='每组仍是“中心−1、中心、中心+1”，所以组内波动不变。F 变大表示相对的组间信号变强；正式推断还需要独立、正态和共同方差等条件。';
     metrics={groups,mse,sstrt:between,sse:6,dfBetween:2,dfError:6,f};
@@ -100,7 +100,7 @@ export function intuitionState(kind, value) {
     for(let i=0;i<value;i++) svg+=`<rect x="${30+i%10*57}" y="${35+Math.floor(i/10)*35}" width="40" height="22" fill="#e8efea" stroke="#086f68"/>`;
     svg+=text(30,210,'至少一次误报的概率（不是这一轮实际误报的数量）');
     svg+=`<rect x="30" y="230" width="570" height="18" fill="#e8efea"/><rect x="30" y="230" width="${570*risk}" height="18" fill="#9a472e"/>`;
-    tex=String.raw`P(\text{at least one false alarm})=1-0.95^{${value}}\approx${number(100*risk)}\%`;
+    tex=String.raw`\begin{gathered}P(\text{at least one false alarm})\\ =1-0.95^{${value}}\approx${number(100*risk)}\%\end{gathered}`;
     summary=`${value} 个独立且原假设都为真的比较：至少一次误报的概率约 ${number(100*risk)}%。`;
     explanation='上方每格表示一个比较，不是在模拟已发生的误报。独立性让“全部不误报”的概率可以相乘；不独立时不能直接用这个乘法公式。Bonferroni 的上界不要求独立。';
     metrics={m:value,risk};
@@ -113,7 +113,7 @@ export function intuitionState(kind, value) {
       svg+=text(335,35+i*30,`${i?'多水 · 虚线':'少水 · 实线'}：增加 ${number(a[1]-a[0])}`);
     });
     svg+=text(140,275,'原肥料','text-anchor="middle"')+text(500,275,'新肥料','text-anchor="middle"');
-    tex=String.raw`\text{interaction}=[(${number(14+value)}-10)-(14-10)]=${number(value)}`;
+    tex=String.raw`\begin{aligned}I&=(${number(14+value)}-10)-(14-10)\\ &=${number(value)}\end{aligned}`;
     summary=`少水时肥料效果为 +4；多水时为 ${number(4+value)}；两个效果相差 ${number(value)}。`;
     explanation=value===0?'两条线重合且平行：这组总体均值设定中的肥料效果相同，没有交互。':'两条线不平行：肥料效果取决于水量。这里展示的是设定的总体均值；实际样本中的不平行还可能来自抽样波动，需要检验。';
     metrics={means,effectLow:4,effectHigh:4+value,interaction:value};
@@ -128,7 +128,7 @@ export function intuitionState(kind, value) {
   } else if(kind==='prediction') {
     const r=regressionAnalysis({x0:value});
     svg=intervalPlot([{...r.mean,center:r.estimate,label:'估计同一 x 下的总体平均值 · 实线'},{...r.prediction,center:r.estimate,label:'预测一个独立新观测 · 虚线'}],-10,50);
-    tex=String.raw`h_0=\frac15+\frac{(${number(value)}-4)^2}{20}=${number(r.h0)},\quad\mathrm{SE}_{\text{mean}}=\sqrt{\mathrm{MSE}\,h_0},\quad\mathrm{SE}_{\text{new}}=\sqrt{\mathrm{MSE}(1+h_0)}`;
+    tex=String.raw`\begin{gathered}h_0=\frac15+\frac{(${number(value)}-4)^2}{20}\approx${number(r.h0)}\\ \mathrm{SE}_{\mathrm{mean}}=\sqrt{\mathrm{MSE}\,h_0}\\ \mathrm{SE}_{\mathrm{new}}=\sqrt{\mathrm{MSE}(1+h_0)}\end{gathered}`;
     summary=`x₀=${number(value)}，预测中心为 ${number(r.estimate)}。均值区间 [${number(r.mean.lower)}, ${number(r.mean.upper)}]；新个体区间 [${number(r.prediction.lower)}, ${number(r.prediction.upper)}]。`;
     explanation=`两类区间在同一尺度上比较；新个体多一份自身波动。${r.extrapolation?'当前 x₀ 超出已有 x 的 [1,7] 范围，是外推：区间能算出，也不保证模型在这里适用。':'离 x 的中心 4 越远，平均线在这里估得也越不准。'}这里使用线性均值、独立正态误差与共同方差模型。这些是逐点区间，不是整条曲线的同时置信带。`;
     metrics={h0:r.h0,estimate:r.estimate,mean:r.mean,prediction:r.prediction,extrapolation:r.extrapolation};

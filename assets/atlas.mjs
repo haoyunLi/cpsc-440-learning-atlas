@@ -9,6 +9,7 @@ import { mountFactorial } from './factorial.mjs';
 import { mountPaired } from './paired.mjs?v=readout-1';
 import { mountAnova } from './anova.mjs';
 import { mountRegression } from './regression.mjs';
+import { equationHTML } from './formulas.mjs';
 const readingChapterIds = ['01', '04', '05', '06', '07', '08', '09', '14', '15', '11'];
 export function normalizeReadingProgress(value) {
   return Array.isArray(value) ? [...new Set(value.filter(id => typeof id === 'string' && readingChapterIds.includes(id)))] : [];
@@ -121,7 +122,76 @@ function labProbability(el) {
 function labInference(el){const update=setup(el,`<div class="controls">${range('in','n',4,200,1,25)}${range('is','Known σ',1,20,.5,10)}${range('id','True μ−μ₀',-8,8,.25,4)}${range('ia','α',.01,.2,.01,.05)}<label for="tail">Alternative<select id="tail"><option value="right">Right-tail: μ&gt;0</option><option value="left">Left-tail: μ&lt;0</option><option value="two">Two-tail: μ≠0</option></select></label></div>${svg('Null 边界与指定真实均值的 sample-mean densities，标出拒绝与不拒绝区域')}<div class="readout" aria-live="polite"></div><p class="caption inference-caption"></p><h3>双侧已知 σ CI 的重复覆盖</h3><p>本段独立演示：从 Normal(0,σ²) 抽样，始终构造双侧区间 ȳ ± z₁₋α/₂σ/√n。真实均值固定为 0；区间使用上方 n、σ 与 α，但不随备择方向改变。每条横线是新 sample 的 CI；实线覆盖 μ=0，虚线未覆盖。图示最新 24 条区间，覆盖率按当前保留的最多 1000 条计算。横轴通常保持 ±5SE；需要时会扩展并留白，显示最新区间的完整端点。</p><p class="caption ci-relation">同一数据、模型与 α 下，双侧检验拒绝 H₀: μ=μ₀，对应双侧 CI 不含 μ₀。单侧检验应对照同置信度的单侧界限，不能直接对照这里的双侧区间。<a href="#testing">查看单侧与双侧检验的拒绝域 →</a></p><div class="lab-actions"><button id="ci-step">生成 1 个 interval</button><button id="ci-play" class="secondary">播放 50 个 intervals</button><button id="ci-reset" class="secondary">重置</button></div><div id="ci-plot">${svg('双侧已知σ置信区间的重复覆盖；纵线是固定的μ=0，不随上方备择方向改变')}</div><p id="ci-readout" class="readout" aria-live="polite">尚未生成 intervals</p>`,()=>{const n=val('in',el),sigma=val('is',el),delta=val('id',el),alpha=val('ia',el),tail=$('#tail',el).value,result=inferenceProbabilities({n,sigma,delta,alpha,tail}),{se,lower,upper}=result;const lo=Math.min(-4*se,delta-4*se),hi=Math.max(4*se,delta+4*se),s=$('svg',el),map=axes(s,'Sample mean ȳ（μ₀=0）','Density',lo,hi,0,.46/se);const nul=v=>M.normalPDF(v/se)/se,alt=v=>M.normalPDF((v-delta)/se)/se;if(lower!==-Infinity)area(s,nul,lo,lower,map);if(upper!==Infinity)area(s,nul,upper,hi,map);area(s,alt,Math.max(lo,lower),Math.min(hi,upper),map,'#dfbba9');curve(s,nul,lo,hi,map);curve(s,alt,lo,hi,map,'plot-alt');[lower,upper].filter(Number.isFinite).forEach(c=>add(s,'line',{x1:map.x(c),x2:map.x(c),y1:45,y2:265,stroke:'#50655f','stroke-dasharray':'3 3'}));const probabilityText=result.classification==='alternative'?`β(μₐ=${delta})=${fmt(result.beta,4)} · power=${fmt(result.power,4)}`:result.classification==='boundary'?`真值 μ=μ₀：P(拒绝 H₀)=α=${fmt(result.rejection,4)} · P(不拒绝 H₀)=${fmt(result.nonRejection,4)}`:`真值 μ=${delta} 属于 H₀：P(拒绝 H₀)=${fmt(result.rejection,4)} · P(不拒绝 H₀)=${fmt(result.nonRejection,4)}`;$('.readout',el).textContent=`SE=${fmt(se)} · critical ȳ=${tail==='right'?fmt(upper):tail==='left'?fmt(lower):`${fmt(lower)}, ${fmt(upper)}`} · ${probabilityText}`;$('.inference-caption',el).textContent=`实线为 null 边界 μ₀=0，绿色区域是该边界的拒绝概率 α；虚线为指定真值 μ=${delta}，brown 区域是该真值下不拒绝的概率。${result.classification==='alternative'?'该真值满足 Hₐ，因此 brown 面积称为 β，拒绝概率称为 power。':'该真值满足 H₀，不属于本次 Hₐ，因此不把 brown 面积标为 Type II error β；这里报告拒绝与不拒绝概率。'}Known σ 的 z model。`});let rng=M.seeded(440),records=[],timer=null;const play=$('#ci-play',el);function stop(){if(timer)clearInterval(timer);timer=null;play.textContent='播放 50 个 intervals'}function reset(){stop();records=[];rng=M.seeded(440);$('#ci-plot svg',el).replaceChildren();$('#ci-readout',el).textContent='尚未生成 intervals'}function step(){const se=val('is',el)/Math.sqrt(val('in',el)),z=M.normalQuantile(1-val('ia',el)/2),m=M.randomNormal(rng)*se;records.push({m,lo:m-z*se,hi:m+z*se,hit:Math.abs(m)<=z*se});if(records.length>1000)records.shift();const shown=records.slice(-24),padding=.25*se,xmin=Math.min(-5*se,...shown.map(r=>r.lo-padding)),xmax=Math.max(5*se,...shown.map(r=>r.hi+padding)),s=$('#ci-plot svg',el),map=axes(s,'双侧 CI endpoints（known σ）','最新 24 个 sample intervals',xmin,xmax,0,25);add(s,'line',{x1:map.x(0),x2:map.x(0),y1:40,y2:265,stroke:'#50655f'});shown.forEach((r,i)=>{add(s,'line',{x1:map.x(r.lo),x2:map.x(r.hi),y1:map.y(i+1),y2:map.y(i+1),stroke:r.hit?'#086f68':'#9a472e','stroke-width':2,'stroke-dasharray':r.hit?'':'4 3'});add(s,'circle',{cx:map.x(r.m),cy:map.y(i+1),r:2,fill:'#183a37'})});const hits=records.filter(r=>r.hit).length;$('#ci-readout',el).textContent=`${hits}/${records.length} intervals 覆盖 μ=0；observed coverage=${fmt(hits/records.length,3)}，双侧标称覆盖率=${fmt(1-val('ia',el),2)}。有限模拟不会总是恰好达到 nominal rate。`}
 $('#ci-step',el).onclick=()=>{stop();step()};$('#ci-reset',el).onclick=reset;play.onclick=()=>{if(timer){stop();return}let left=50;play.textContent='暂停';timer=setInterval(()=>{step();if(--left===0)stop()},250)};el.querySelectorAll('.controls input').forEach(i=>i.addEventListener('input',reset));document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});window.addEventListener('pagehide',stop)}
 function labPaired(el){mountPaired(el)}
-function labVariance(el){setup(el,`<div class="controls">${range('vn','n（normal sample）',4,100,1,10)}${range('vs','Observed s²',.5,16,.5,4)}</div>${svg('χ² reference density 与 95% central interval')}<div class="readout" aria-live="polite"></div><p class="caption">示例观测 summaries，独立 normal population 假设。曲线横轴是 χ² pivot，并非原始 Y 或 variance。</p>`,()=>{const df=val('vn',el)-1,v=val('vs',el),lo=M.chiQuantile(.025,df),hi=M.chiQuantile(.975,df),xmax=M.chiQuantile(.999,df),max=M.chiPDF(Math.max(.1,df-2),df),s=$('svg',el),map=axes(s,'χ² pivot Q=(n−1)s²/σ²','Density',0,xmax,0,max*1.2,undefined,(value,step)=>String(Number(value.toFixed(Math.max(0,1-Math.floor(Math.log10(step)))))));area(s,x=>M.chiPDF(x,df),lo,hi,map);curve(s,x=>M.chiPDF(x,df),.01,xmax,map);$('.readout',el).textContent=`df=${df} · χ²(.025)=${fmt(lo)} · χ²(.975)=${fmt(hi)} · 95% σ² CI=[${fmt(df*v/hi)},${fmt(df*v/lo)}] · σ CI=[${fmt(Math.sqrt(df*v/hi))},${fmt(Math.sqrt(df*v/lo))}]`})}
+function labVariance(el) {
+  let active = 'B';
+  const update = setup(el, `
+    <p>从生产线抽几袋咖啡，测得一份样本方差。整条线的方差可能有多大？沿着 A、B 看两个参考值怎样变成区间端点。</p>
+    <div class="controls">${range('vn','测量袋数 n',4,100,1,10)}${range('vs','样本方差 s²（克²）',.5,16,.5,4)}</div>
+    <div class="lab-actions" role="group" aria-label="追踪一个参考点">
+      <button type="button" class="secondary" id="vq-a" aria-pressed="false">追踪 A · 较小的除数</button>
+      <button type="button" class="secondary" id="vq-b" aria-pressed="true">追踪 B · 较大的除数</button>
+    </div>
+    <figure><figcaption><b>1. 找出 χ² 图上夹住中间 95% 的两个点</b></figcaption>${svg('χ² 参考分布与中间 95% 概率')}</figure>
+    <figure><figcaption><b>2. 用同一笔平方和分别除以 A 和 B</b></figcaption><svg data-variance-interval viewBox="0 0 680 145" role="img"></svg>
+      <p class="caption">方差轴随区间范围缩放。菱形是样本方差，两端字母对应上图。</p></figure>
+    <p data-variance-explanation></p>
+    <div class="equation typeset-equation" data-variance-formula tabindex="0" role="region" aria-label="当前端点计算，可横向滚动"></div>
+    <div class="readout" aria-live="polite"></div>
+    <p class="caption">假定各袋是同一正态总体的独立观测。上图的横轴是 χ² 统计量，第二条轴才是总体方差的候选值，单位为克²。SD 回到克，只需对方差的两个端点分别开根号。</p>`, () => {
+    const df = val('vn', el) - 1;
+    const variance = val('vs', el);
+    const sumSquares = df * variance;
+    const a = M.chiQuantile(.025, df);
+    const b = M.chiQuantile(.975, df);
+    const lower = sumSquares / b;
+    const upper = sumSquares / a;
+    const q = active === 'A' ? a : b;
+    const endpoint = active === 'A' ? '上限' : '下限';
+    const density = x => M.chiPDF(x, df);
+    const plot = $('svg', el);
+    const xmax = M.chiQuantile(.999, df);
+    const map = axes(plot, 'χ² 统计量 Q', '概率密度', 0, xmax, 0, density(df - 2) * 1.2, undefined,
+      (value, step) => String(Number(value.toFixed(Math.max(0, 1 - Math.floor(Math.log10(step)))))));
+    area(plot, density, a, b, map);
+    curve(plot, density, 0, xmax, map);
+
+    const interval = $('[data-variance-interval]', el);
+    const axisStep = 10 ** Math.floor(Math.log10(upper)) / 2;
+    const axisMax = Math.ceil(upper * 1.12 / axisStep) * axisStep;
+    const x = value => 85 + value / axisMax * 550;
+    interval.replaceChildren();
+    add(interval, 'line', { x1: 85, x2: 635, y1: 82, y2: 82, class: 'plot-axis' });
+    for (let i = 0; i <= 4; i++) {
+      const tick = axisMax * i / 4;
+      add(interval, 'text', { x: x(tick), y: 108, 'text-anchor': 'middle', class: 'plot-muted' }, String(Number(tick.toPrecision(4))));
+    }
+    add(interval, 'text', { x: 350, y: 138, 'text-anchor': 'middle', class: 'plot-label' }, '总体方差 σ²（克²）');
+    add(interval, 'line', { x1: x(lower), x2: x(upper), y1: 82, y2: 82, stroke: '#086f68', 'stroke-width': 5 });
+    const sampleX = x(variance);
+    add(interval, 'path', { d: `M${sampleX},58 l7,7 -7,7 -7,-7 Z`, fill: '#183a37' });
+    for (const [label, quantile, bound] of [['A', a, upper], ['B', b, lower]]) {
+      const selected = label === active;
+      const color = selected ? '#9a472e' : '#086f68';
+      const qx = map.x(quantile);
+      add(plot, 'line', { x1: qx, x2: qx, y1: 45, y2: 265, stroke: color, 'stroke-width': selected ? 3 : 1.5, 'stroke-dasharray': '5 4', 'data-variance-quantile': label });
+      add(plot, 'text', { x: qx, y: 39, 'text-anchor': 'middle', class: 'plot-label' }, label);
+      add(interval, 'circle', { cx: x(bound), cy: 82, r: selected ? 8 : 5, fill: color, 'data-variance-bound': label });
+      add(interval, 'text', { x: x(bound), y: 48, 'text-anchor': 'middle', class: 'plot-label' }, label);
+    }
+    plot.setAttribute('aria-label', `χ² 参考分布，自由度 ${df}。A 在左侧 ${fmt(a)}，B 在右侧 ${fmt(b)}，两点之间概率为 95%。当前追踪 ${active}。`);
+    interval.setAttribute('aria-label', `95% 方差区间从 B ${fmt(lower)} 到 A ${fmt(upper)} 克²。菱形表示样本方差 ${variance} 克²。当前追踪 ${active}。`);
+    $('#vq-a', el).setAttribute('aria-pressed', String(active === 'A'));
+    $('#vq-b', el).setAttribute('aria-pressed', String(active === 'B'));
+    $('[data-variance-explanation]', el).textContent = active === 'A'
+      ? 'A 在 χ² 图左边。相同的分子除以较小的数，结果较大，所以 A 换算后跑到了右边。'
+      : 'B 在 χ² 图右边。相同的分子除以较大的数，结果较小，所以 B 换算后跑到了左边。';
+    $('[data-variance-formula]', el).innerHTML = equationHTML(String.raw`\frac{(n-1)s^2}{q_${active}}\approx\frac{${sumSquares}}{${fmt(q, 5)}}\approx ${fmt(sumSquares / q)}`);
+    $('.readout', el).textContent = `df=${df} · 95% σ² CI=[${fmt(lower)},${fmt(upper)}] 克² · σ CI=[${fmt(Math.sqrt(lower))},${fmt(Math.sqrt(upper))}] 克 · 当前算出${endpoint}`;
+  });
+  for (const label of ['A', 'B']) {
+    $('#vq-' + label.toLowerCase(), el).addEventListener('click', () => { active = label; update(); });
+  }
+}
 function labAnova(el){mountAnova(el)}
 function labMultiple(el){setup(el,`<div class="controls">${range('mm','m null tests',1,100,1,20)}${range('ma','Per-test α',.01,.1,.005,.05)}</div>${svg('Independent null tests 的 familywise error 随 m 增加')}<div class="readout" aria-live="polite"></div><p class="caption">模拟理论场景：tests independent 且所有 null 为真。实线为未校正 FWER，虚线是 Bonferroni bound 对固定 family target。</p>`,()=>{const m=val('mm',el),a=val('ma',el),s=$('svg',el),map=axes(s,'Number of null tests m','FWER probability',1,100,0,1);curve(s,x=>1-(1-a)**x,1,100,map);add(s,'line',{x1:55,x2:645,y1:map.y(a),y2:map.y(a),stroke:'#9a472e','stroke-dasharray':'6 4'});add(s,'circle',{cx:map.x(m),cy:map.y(1-(1-a)**m),r:6,fill:'#9a472e'});$('.readout',el).textContent=`未校正 FWER=1−(1−${a})^${m}=${fmt(1-(1-a)**m,4)} · 若 family target=${a}，Bonferroni per-test threshold=${fmt(a/m,6)}，independent case corrected FWER=${fmt(1-(1-a/m)**m,4)} ≤ target。`})}
 function labFactorial(el){mountFactorial(el)}

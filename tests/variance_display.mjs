@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import * as M from '../assets/math.mjs';
+import { equationHTML } from '../assets/formulas.mjs';
 
 // Evaluate the production mount functions in an isolated SVG/DOM fixture.
 // No browser, user storage, or absolute source paths are required.
@@ -14,7 +15,7 @@ class Element {
   replaceChildren() { this.children = []; }
   addEventListener(name, callback) { this.events[name] = callback; }
 }
-const context = vm.createContext({ M, document: {
+const context = vm.createContext({ M, equationHTML, document: {
   querySelectorAll: () => [], querySelector: () => null,
   createElementNS: (namespace, tag) => new Element(tag)
 } });
@@ -22,13 +23,17 @@ vm.runInContext(`${source}\nglobalThis.testMounts={axes,labVariance,labMultiple}
 function mount(kind, settings) {
   const fields = Object.fromEntries(Object.entries(settings).map(([id, value]) => [id, Object.assign(new Element(id === 'band' ? 'select' : 'input'), { id, value: String(value) })]));
   const graph = new Element('svg'), readout = new Element();
+  const interval = new Element('svg'), formula = new Element(), explanation = new Element();
+  const buttons = { a: new Element('button'), b: new Element('button') };
+  const extra = { '[data-variance-interval]': interval, '[data-variance-formula]': formula,
+    '[data-variance-explanation]': explanation, '#vq-a': buttons.a, '#vq-b': buttons.b };
   const outputs = Object.fromEntries(Object.keys(fields).map(id => [`${id}-v`, new Element()]));
   const host = {
-    querySelector: selector => selector === 'svg' ? graph : selector === '.readout' ? readout : fields[selector.slice(1)] || outputs[selector.slice(1)],
+    querySelector: selector => selector === 'svg' ? graph : selector === '.readout' ? readout : extra[selector] || fields[selector.slice(1)] || outputs[selector.slice(1)],
     querySelectorAll: selector => Object.values(fields).filter(el => selector !== 'input[type=range]' || el.tag === 'input')
   };
   context.testMounts[kind](host);
-  return { graph, readout, change(patch) {
+  return { graph, readout, interval, formula, explanation, buttons, change(patch) {
     for (const [key, value] of Object.entries(patch)) fields[key].value = String(value);
     Object.values(fields)[0].events.input();
   } };
@@ -62,10 +67,27 @@ assert.deepEqual(labels(variance.graph), ['0', '0.0086', '0.0172', '0.0257', '0.
 assert.match(variance.readout.textContent, /95% σ² CI=\[3.084,5.398\]/);
 variance.change({ vn: 10, vs: 4 });
 assert.match(variance.readout.textContent, /95% σ² CI=\[1.892,13.331\]/);
+const mark = (svg, attr, label) => svg.children.find(el => el.attrs[attr] === label);
+const trace = (label, key, bound, side) => {
+  assert.equal(mark(variance.graph, 'data-variance-quantile', label).attrs['stroke-width'], '3');
+  assert.equal(mark(variance.interval, 'data-variance-bound', label).attrs.r, '8');
+  assert.equal(variance.buttons[key].attrs['aria-pressed'], 'true');
+  assert.match(variance.formula.innerHTML, /<math/);
+  assert.ok(variance.formula.innerHTML.includes('q_' + label));
+  assert.ok(variance.formula.innerHTML.includes(bound));
+  assert.ok(variance.explanation.textContent.endsWith(side + '。'));
+};
+assert.ok(Number(mark(variance.graph, 'data-variance-quantile', 'A').attrs.x1) < Number(mark(variance.graph, 'data-variance-quantile', 'B').attrs.x1));
+assert.ok(Number(mark(variance.interval, 'data-variance-bound', 'A').attrs.cx) > Number(mark(variance.interval, 'data-variance-bound', 'B').attrs.cx));
+trace('B', 'b', '1.892', '左边');
+variance.buttons.a.events.click();
+trace('A', 'a', '13.331', '右边');
+assert.equal(variance.buttons.b.attrs['aria-pressed'], 'false');
 const referencePlot = JSON.stringify(variance.graph.children);
 variance.change({ vs: 8 });
 assert.equal(JSON.stringify(variance.graph.children), referencePlot, 'Observed variance changes the inverted interval, not the reference density');
 assert.match(variance.readout.textContent, /95% σ² CI=\[3.785,26.663\]/);
+trace('A', 'a', '26.663', '右边');
 
 // Omitting the new formatter must preserve all pre-existing default formats,
 // tick positions, and custom horizontal formatting used by other labs.
@@ -86,4 +108,4 @@ assert.deepEqual(labels(customX), ['0.0', '0.3', '0.5', '0.8', '1.0']);
 const multiple = mount('labMultiple', { mm: 20, ma: .05 });
 assert.deepEqual(labels(multiple.graph), ['0.0', '0.3', '0.5', '0.8', '1.0']);
 assert.match(multiple.readout.textContent, /corrected FWER=0.0488/);
-console.log('Variance density ticks: all n=4..100 distinct and accurate; CI/reference geometry, default axes, custom horizontal ticks and multiplicity mount preserved.');
+console.log('Variance density ticks: all n=4..100 distinct and accurate; reciprocal endpoint geometry, both selectable formulas, default axes and multiplicity mount passed.');

@@ -168,14 +168,16 @@ export function drawBrownForsythe(svg, result, kind, selectedId) {
 export function mountBrownForsythe(root) {
   if (root.dataset.bfReady) return;
   root.classList.add('bf-lab');
-  root.innerHTML = `<h3>动手把“分散”变成绝对距离</h3><p>先保持 A 不变，给 B 整组加 100；再恢复示例，围绕 B 的中位数放大两倍。预测：哪一种操作改变 Z，以及比较 Z 的 ANOVA？按钮作用于当前输入，可重复点击。</p>
-    <div class="bf-controls"><label>A 组：2–50 个独立观测<textarea data-bf-input="a">2, 3, 4</textarea></label><label>B 组：2–50 个独立观测<textarea data-bf-input="b">1, 3, 5</textarea></label></div>
-    <p class="bf-note">数值范围：绝对值 ≤1e6；非零观测的绝对值及非零组内差异至少为 1e-300。超出精度范围时请更换计量单位。</p>
-    <div class="bf-actions"><button type="button" data-bf-action="shift">B 整组 +100</button><button type="button" data-bf-action="spread">B 围绕 median ×2</button><button type="button" class="secondary" data-bf-action="reset">恢复例子</button></div>
+  root.innerHTML = `<h3>把 B 整排搬走，还是把 B 的点拉开？</h3><p>看 B 的三个点。先把它们一起向右挪 100，再恢复例子，试试只把两边的点往外拉。每次观察两张图，哪一次会改变点到本组中位数的距离？</p>
+    <div class="bf-actions"><button type="button" data-bf-action="shift">B 整排右移 100</button><button type="button" data-bf-action="spread">B 离中心的距离 ×2</button><button type="button" class="secondary" data-bf-action="reset">恢复例子</button></div>
+    <details><summary>试试自己的数据（按钮也会作用于这些数值）</summary>
+      <div class="bf-controls"><label>A 组（2–50 个独立观测）<textarea data-bf-input="a">2, 3, 4</textarea></label><label>B 组（2–50 个独立观测）<textarea data-bf-input="b">1, 3, 5</textarea></label></div>
+      <p class="bf-note">数值的绝对值至多 1e6。非零观测的绝对值及非零组内差异至少为 1e-300。超出范围时请更换计量单位。</p>
+    </details>
     <p class="bf-error" data-bf-error role="alert"></p><p class="bf-note" data-bf-operation role="status"></p>
     <div data-bf-results><div class="bf-readout" data-bf-summary aria-live="polite"></div>
-    <figure><figcaption><b>① 原始 Y：虚线是本组 median</b></figcaption><svg data-bf-plot="raw" viewBox="0 0 680 275" role="img"></svg><p class="bf-note" data-bf-axis="raw"></p></figure>
-    <figure><figcaption><b>② Z=|Y−median|：点线是该组 Z 的平均</b></figcaption><svg data-bf-plot="z" viewBox="0 0 680 275" role="img"></svg><p class="bf-note" data-bf-axis="z"></p></figure>
+    <figure><figcaption><b>① 原始读数 Y，虚线标出各组中位数</b></figcaption><svg data-bf-plot="raw" viewBox="0 0 680 275" role="img"></svg><p class="bf-note" data-bf-axis="raw"></p></figure>
+    <figure><figcaption><b>② 每个点离本组中位数多远，点线标出平均距离</b></figcaption><svg data-bf-plot="z" viewBox="0 0 680 275" role="img"></svg><p class="bf-note" data-bf-axis="z"></p></figure>
     <p class="bf-note">A 用圆点，B 用方点；上下错开只为减少重叠。两图分别缩放，须对照横轴刻度。下表的“追踪”按钮同时标出同一观测及其距离。</p>
     <p class="bf-trace" data-bf-trace aria-live="polite"></p>
     <div class="bf-table-wrap" tabindex="0" role="region" aria-label="原始值到绝对偏差的逐行表，可滚动"><table><caption>每个观测完整保留；显示数值经过四舍五入</caption><thead><tr><th scope="col">追踪观测</th><th scope="col">原始 Y</th><th scope="col">本组 median</th><th scope="col">Y−median</th><th scope="col">Z=|Y−median|</th></tr></thead><tbody data-bf-rows></tbody></table></div>
@@ -222,7 +224,7 @@ export function mountBrownForsythe(root) {
       if (!result.rows.some(row => row.id === selected)) selected = 'A1';
       $('[data-bf-error]').textContent = ''; $('[data-bf-results]').hidden = false;
       inputA.setAttribute('aria-invalid', 'false'); inputB.setAttribute('aria-invalid', 'false');
-      $('[data-bf-summary]').textContent = `A：n=${a.length}，median=${show(result.medians[0])}，平均 Z=${show(result.zMeans[0])}；B：n=${b.length}，median=${show(result.medians[1])}，平均 Z=${show(result.zMeans[1])}。比较的是平均绝对偏差，不是原始 Y 的均值。`;
+      $('[data-bf-summary]').textContent = `A 的中位数为 ${show(result.medians[0])}，点平均离中心 ${show(result.zMeans[0])}；B 的中位数为 ${show(result.medians[1])}，点平均离中心 ${show(result.zMeans[1])}。`;
       rows(); selection();
       const p = result.p === 0 && result.estimable ? '正概率，数值下溢' : result.estimable ? show(result.p) : '未定义';
       $('[data-bf-anova]').innerHTML = `<tr><th scope="row">Z 的组间</th><td>1</td><td>${result.text.between}</td><td>${result.text.between}</td><td>${result.estimable ? show(result.f) : '未定义'}</td><td>${p}</td></tr><tr><th scope="row">Z 的组内</th><td>${result.dfWithin}</td><td>${result.text.within}</td><td>${result.text.mse}</td><td>—</td><td>—</td></tr><tr><th scope="row">总计</th><td>${result.N - 1}</td><td>${result.text.total}</td><td>—</td><td>—</td><td>—</td></tr>`;

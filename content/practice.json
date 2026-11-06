@@ -1370,16 +1370,18 @@
     "hint": "分母越大，商越小；下限使用 χ² 的 0.975 分位数。",
     "steps": [
       {
-        "title": "从 pivot 出发",
-        "body": "正态总体下 (n−1)s²/σ²~χ²ₙ₋₁。这里 df=11，分子为 11×9=99。"
+        "title": "把 SD 换成一笔平方和",
+        "body": "<p>先把 3 平方得到方差 9。12 个观测先用来估计一个平均值，留下 11 个自由度；偏离样本均值的平方加起来是 99。</p>",
+        "latex": "\\nu=12-1=11,\\qquad (n-1)s^2=11\\cdot 3^2=99"
       },
       {
-        "title": "反解方差区间",
-        "body": "95% CI=[99/χ²₀.₉₇₅,₁₁,99/χ²₀.₀₂₅,₁₁]≈[4.51641,25.94511] cm²。求倒数时上下顺序发生反转。"
+        "title": "用较大的除数求左端",
+        "body": "<p>χ² 参考曲线中间 95% 夹在两个分位数之间。用同一个 99 除，分母越大，结果越小，所以先用右侧的 0.975 分位数。</p>",
+        "latex": "\\left[\\frac{99}{q_{.975,11}},\\ \\frac{99}{q_{.025,11}}\\right]\\approx[4.51641,\\ 25.94511]\\ \\mathrm{cm}^2"
       },
       {
-        "title": "检查合理性",
-        "body": "样本方差为 9，区间不以 9 为对称中心；χ² 分布右偏，导致方差 CI 也不对称。"
+        "title": "核对大小与单位",
+        "body": "<p>左端约为 4.5164 cm²。到样本方差 9 的左右距离并不相等；参考分位数的间距经过倒数换算后也会变。</p>"
       }
     ],
     "conclusion": "方差 CI 下限约为 4.5164 cm²，完整区间约为 (4.5164,25.9451) cm²。",
@@ -1399,7 +1401,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与分子使用 ns² 一致。正态总体的 variance pivot 是 (n−1)s²/σ²，分子与参考自由度都对应 n−1。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "用 12 次测量来估整条生产线的波动。题目只要方差区间的左端。",
+      "start": "把 3 cm 的 SD 平方，再乘上自由度 11。用同一笔平方和除以较大的参考值，就会得到较小的端点。",
+      "link": {
+        "url": "chapters/07.html#lab-variance",
+        "label": "点 B 看右边的参考值怎样变成左端"
+      }
+    }
   },
   {
     "id": "p07-02",
@@ -1420,16 +1430,18 @@
     "hint": "σ=√σ²，平方根在正数域是单调递增函数。",
     "steps": [
       {
-        "title": "确认估计对象",
-        "body": "方差 σ² 的单位是 cm²，SD σ 的单位是 cm。不能直接把方差区间改个标签。"
+        "title": "认清两个单位",
+        "body": "<p>方差用 cm²，SD 用 cm。因为 SD 是方差的平方根，两个端点都要做相同的换算。</p>",
+        "latex": "\\sigma=\\sqrt{\\sigma^2}"
       },
       {
-        "title": "单调变换端点",
-        "body": "由于平方根单调递增，σ 区间为 (√4.516413,√25.945108)≈(2.12519,5.09363) cm。"
+        "title": "分别换算两头",
+        "body": "<p>先换左端，再换右端。题目只问上限，取第二个数。</p>",
+        "latex": "\\bigl[\\sqrt{4.516413},\\ \\sqrt{25.945108}\\bigr]\\approx[2.12519,\\ 5.09363]\\ \\mathrm{cm}"
       },
       {
-        "title": "理解覆盖关系",
-        "body": "区间覆盖 σ² 当且仅当平方根后的区间覆盖 σ，因此这个端点变换保留相同的覆盖概率。"
+        "title": "理解为什么还是 95%",
+        "body": "<p>平方根保持顺序。原区间盖到真实方差，当且仅当换算后的区间盖到真实 SD，所以两种区间的覆盖率相同。</p>"
       }
     ],
     "conclusion": "总体 SD 区间的上限约为 5.0936 cm。",
@@ -1449,7 +1461,15 @@
         "tolerance": 0.0002,
         "feedback": "这个数值对应 SD 区间的下限。平方根保持端点顺序，上限应由 variance 的上端点开方得到。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "题目给了方差的范围，现在要把范围换回原测量单位 cm。",
+      "start": "分别对两个端点开平方。平方根保持大小顺序，右端仍是右端。",
+      "link": {
+        "url": "chapters/07.html#lab-variance",
+        "label": "对照实验里同一份数据的方差区间和 SD 区间"
+      }
+    }
   },
   {
     "id": "p07-03",
@@ -1470,16 +1490,19 @@
     "hint": "零假设边界给的是 SD=3，所以分母为 3²。",
     "steps": [
       {
-        "title": "等价改写假设",
-        "body": "σ 非负，所以 σ>3 等价于 σ²>9；检验针对 variance，但结论可以再用 SD 表述。"
+        "title": "用方差写出同一个问题",
+        "body": "<p>SD 非负，所以问「总体 SD 是否超过 3」等价于问「总体方差是否超过 9」。零假设里最容易出现大统计量的边界是 9。</p>",
+        "latex": "H_0:\\sigma^2\\leq 9,\\qquad H_a:\\sigma^2>9"
       },
       {
-        "title": "计算 χ² 统计量",
-        "body": "Q=(n−1)s²/σ₀²=11×16/9≈19.55556，df=11。"
+        "title": "把样本平方和除以边界方差",
+        "body": "<p>12 个观测用去一个自由度估计平均值。用自由度 11 乘样本方差，再除以基准方差。</p>",
+        "latex": "Q=\\frac{(n-1)s^2}{\\sigma_0^2}=\\frac{11\\cdot 4^2}{3^2}\\approx19.55556,\\qquad \\nu=11"
       },
       {
-        "title": "使用右尾决策",
-        "body": "P(χ²₁₁≥19.55556)≈0.05182>0.05，未拒绝。样本 SD=4 大于 3 本身不足以说明总体 SD 显著超过 3。"
+        "title": "向右看有多罕见",
+        "body": "<p>如果总体 SD 恰好是 3，拿到至少这么大的统计量的概率略超过 0.05。5% 水平下，证据还不足以说总体 SD 超过 3。</p>",
+        "latex": "p=\\Pr(\\chi^2_{11}\\geq 19.55556)\\approx0.05182>0.05"
       }
     ],
     "conclusion": "χ²≈19.5556，5% 水平证据尚不足以支持 σ>3。",
@@ -1504,7 +1527,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与在分子使用 n=12 一致。样本均值已被估计，正确平方和系数是 n−1=11。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "样本 SD 是 4，想知道总体的波动有没有证据超过 3。统计量要把观测波动和假设基准放在同一尺度上比较。",
+      "start": "先把 4 和 3 都平方。题目问超过基准，检验应看 χ² 曲线的右尾。",
+      "link": {
+        "url": "chapters/07.html#variance-ci",
+        "label": "回看方差和 SD 的换算以及单尾方向"
+      }
+    }
   },
   {
     "id": "p07-04",
@@ -1525,16 +1556,19 @@
     "hint": "样本比为 4；上限用 F 的 0.025 分位数作分母，df 顺序为 9、11。",
     "steps": [
       {
-        "title": "写出有方向的目标",
-        "body": "θ=σA²/σB²，样本比 R=16/4=4。在真 θ 下 R/θ~F₉,₁₁。"
+        "title": "先锁定 A 在上、B 在下",
+        "body": "<p>样本里 A 的方差是 B 的 4 倍。真实比值未知；在独立正态抽样下，用样本比除以真实比值，才有这里的 F 参考分布。</p>",
+        "latex": "\\theta=\\frac{\\sigma_A^2}{\\sigma_B^2},\\qquad R=\\frac{16}{4}=4,\\qquad R/\\theta\\sim F_{9,11}"
       },
       {
-        "title": "反解区间",
-        "body": "95% CI=[R/F₀.₉₇₅;₉,₁₁,R/F₀.₀₂₅;₉,₁₁]≈[1.11486,15.64830]。"
+        "title": "用两个分位数夹住比值",
+        "body": "<p>和单组方差区间一样，同一个分子除以较小的数会产生上限。先记下两个分位数各自对应哪一端。</p>",
+        "latex": "\\left[\\frac{4}{q_{.975}},\\ \\frac{4}{q_{.025}}\\right]\\approx[1.11486,\\ 15.64830],\\qquad q_p=F^{-1}_{9,11}(p)"
       },
       {
-        "title": "解释参考值 1",
-        "body": "区间未包含 1，表示在相应双侧 5% 检验下有方差不同的证据。若目标改成 σB²/σA²，应取倒数并交换两个区间端点。"
+        "title": "用 1 检查结果",
+        "body": "<p>比值 1 表示总体方差相等。这次区间在 1 上方，但范围很宽。若改问 B/A，整个范围要倒过来，新的左端是旧右端的倒数。</p>",
+        "latex": "\\theta\\in[L,U]\\quad\\Longleftrightarrow\\quad 1/\\theta\\in[1/U,1/L]"
       }
     ],
     "conclusion": "θ 的 95% CI 上限约为 15.6483，区间相当宽。",
@@ -1554,7 +1588,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与交换 F 分布的两个自由度一致。参数指定 σA²/σB²，A 在分子，所以 df1=9、df2=11 的顺序不能单独交换。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "要估的是 A 的总体方差是 B 的几倍。这里从头到尾都用 A 除以 B。",
+      "start": "把样本方差比 16/4 写出来，再按 A、B 的顺序写自由度 9、11。求上限时用较小的参考值作除数。",
+      "link": {
+        "url": "chapters/07.html#f-distribution",
+        "label": "回看 A/B 的顺序如何带到 F 自由度"
+      }
+    }
   },
   {
     "id": "p07-05",
@@ -1576,16 +1618,19 @@
     "hint": "三组 median 都是 10；先算绝对偏差，再比较组均值。",
     "steps": [
       {
-        "title": "构造稳健的分散指标",
-        "body": "三组 z 分别为 A=(1,0,0,0,1)，B=(4,2,0,2,4)，C=(2,1,0,1,2)。组 z 均值为 0.4、2.4、1.2。"
+        "title": "把原读数换成到本组中位数的距离",
+        "body": "<p>三组中位数都是 10。B 的 6 离中心有 4，B 的 14 也离中心有 4；高或低都算偏离。</p>",
+        "latex": "\\begin{aligned}Z_A&=(1,0,0,0,1),&\\bar Z_A&=0.4\\\\Z_B&=(4,2,0,2,4),&\\bar Z_B&=2.4\\\\Z_C&=(2,1,0,1,2),&\\bar Z_C&=1.2\\end{aligned}"
       },
       {
-        "title": "在 z 上分解变异",
-        "body": "总 z 均值为 4/3。SSB=10.13333、SSE=15.2，dfB=2、dfE=12，MSB=5.06667、MSE=1.26667。"
+        "title": "衡量组与组之间的距离差",
+        "body": "<p>15 个距离的总平均是 4/3。各组平均距离离总平均有多远，给出组间平方和；各观测距离离本组平均距离有多远，给出组内平方和。</p>",
+        "latex": "\\begin{aligned}SS_B&=5\\sum_{g=A,B,C}(\\bar Z_g-4/3)^2=\\frac{152}{15}, &df_B&=2\\\\SS_E&=\\sum_{g,j}(Z_{gj}-\\bar Z_g)^2=15.2, &df_E&=12\\end{aligned}"
       },
       {
-        "title": "完成检验并说明边界",
-        "body": "F=4，参考 F₂,₁₂ 的 P≈0.04666。5% 水平有分散程度不同的证据；median 版本对非正态更稳健，但不代表没有独立性和分布条件。"
+        "title": "把组间信号除以组内噪声",
+        "body": "<p>两个平方和分别除以自己的自由度再相比。近似右尾 P 略小于 0.05，在参考条件适用时，有证据表明各组的平均绝对偏差并非都相同。</p>",
+        "latex": "F=\\frac{(152/15)/2}{15.2/12}=4,\\qquad p\\approx0.04666\\quad(F_{2,12}\\text{ reference})"
       }
     ],
     "conclusion": "Brown–Forsythe 的 F=4；它比较的是分散程度，而非原始均值。",
@@ -1605,7 +1650,15 @@
         "tolerance": 0.0002,
         "feedback": "这个结果与直接用两个 sums of squares 相除一致。F 比较 mean squares，需先将组间 SS 除以 2、误差 SS 除以 12。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "三组的中心都在 10，但有些组的点跑得更远。我们先把每个点换成离自己组中心多远，再比较这些距离。",
+      "start": "从 A 的第一个点开始：9 离 10 有 1。对每个点重复这一步，得到三组新的距离。",
+      "link": {
+        "url": "chapters/07.html#brown-forsythe-experiment",
+        "label": "在两组小例里追踪一个点如何变成距离"
+      }
+    }
   },
   {
     "id": "p08-01",
@@ -2738,16 +2791,18 @@
     "hint": "最大的组内样本方差除以最小的；判断显著性还需要专用参考。",
     "steps": [
       {
-        "title": "找出方差范围",
-        "body": "最大样本方差为 16，最小为 4，所以 Fmax=16/4=4。"
+        "title": "用最大方差除以最小方差",
+        "body": "<p>三组方差分别是 4、9、16。最大值做分子，最小值做分母。</p>",
+        "latex": "F_{\\max}=\\frac{\\max(4,9,16)}{\\min(4,9,16)}=4"
       },
       {
-        "title": "说明使用条件",
-        "body": "经典 Hartley Fmax 面向独立、正态、相同样本量的多个组，对非正态较敏感。这里统计量计算容易，但条件不能省略。"
+        "title": "想象下一次重新抽三组",
+        "body": "<p>哪一组最大、哪一组最小都可能换。每次都重新挑极值，抽样规则就跟开头指定两组再求比不同。</p>"
       },
       {
-        "title": "匹配正确参考",
-        "body": "从 3 个方差里选择最大和最小，是经过选择的比值。临界值依赖组数 k=3 和组内 df=9，不能直接当成预先指定两组的 F₉,₉。"
+        "title": "按这条抽样规则读参考值",
+        "body": "<p>若三组独立、正态、同样本量，经典 Hartley 表按 3 组与组内 9 个自由度查。数值 4 本身只给出样本极差比。</p>",
+        "latex": "k=3,\\qquad \\nu=n-1=9"
       }
     ],
     "conclusion": "Fmax=4；显著性需使用适当的 Hartley 临界值或方法。",
@@ -2767,7 +2822,15 @@
         "tolerance": 0.0002,
         "feedback": "这个值与把最大、最小 variance 的顺序颠倒一致。Fmax 定义为 max(s²)/min(s²)，所以统计量至少为 1。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "在三组里找最散与最紧的一组，先算这两个样本方差差了几倍。",
+      "start": "从题给的方差找最大和最小。题目只求统计量，判断它是否异常还要看抽样规则。",
+      "link": {
+        "url": "chapters/07.html#hartley",
+        "label": "看多组里选极值如何改变参考分布"
+      }
+    }
   },
   {
     "id": "p01-06",
@@ -3958,26 +4021,37 @@
     ],
     "steps": [
       {
-        "title": "先把SD基准平方",
-        "body": "s²=4、σ₀²=9，df=16−1=15，所以Q=15×4/9=6.666667。"
+        "title": "算出两份计划共用的观测位置",
+        "body": "<p>样本 SD 是 2，假设边界 SD 是 3。先各自平方，再算观测统计量。</p>",
+        "latex": "Q=\\frac{15\\cdot 2^2}{3^2}=\\frac{20}{3},\\qquad \\nu=15"
       },
       {
-        "title": "分别使用原定尾部",
-        "body": "左尾P=P(χ²₁₅≤6.666667)≈.033751750；等尾双侧P=2×.033751750≈.067503500。"
+        "title": "把左尾的面积和各自的额度比较",
+        "body": "<p>观测点左侧约有 3.38% 的面积。计划 A 左边可用 5%，足以拒绝；计划 B 左边只有 2.5%，还没到门槛。等尾双侧的 P 是较小尾面积的两倍。</p>",
+        "latex": "p_A\\approx0.03375175<0.05,\\qquad p_B\\approx2(0.03375175)=0.06750350>0.05"
       },
       {
-        "title": "按α=.05决策",
-        "body": "计划A拒绝H₀，支持σ<3；计划B不拒绝H₀，尚无达到双侧5%门槛的证据。不能在看见这一结果后才把问题改成左侧。"
+        "title": "回到两个原定问题",
+        "body": "<p>计划 A 有证据说总体 SD 低于 3。计划 B 的双侧证据不足。两份计划都用预先定下的方向和门槛。</p>"
       },
       {
-        "title": "用匹配的置信集合核验",
-        "body": "variance的95%单侧上界≈8.263388，小于基准9；等尾双侧95% CI≈[2.182739,9.581392]则包含9。它们分别对应各自的检验，不矛盾。"
+        "title": "用两种区间再检查一遍",
+        "body": "<p>方差基准是 9。单侧的上界在 9 下方；等尾双侧区间盖住 9。这两种置信集合各自回答一个计划的问题。</p>",
+        "latex": "U_{\\mathrm{one}}\\approx8.263388<9,\\qquad 9\\in[2.182739,\\ 9.581392]"
       }
     ],
     "conclusion": "正确判断是左尾计划A拒绝、等尾双侧计划B不拒绝；必须保留研究前指定的方向。",
     "pitfall": "同为95%的单侧上界与双侧区间不是同一个置信集合。双侧χ²检验这里明确采用等尾约定，不采用binom.test默认的概率排序规则。",
     "rCode": "n <- 16\nsample_sd <- 2\nnull_sd <- 3\nalpha <- .05\ndf <- n-1\nQ <- df*sample_sd^2/null_sd^2\np_left <- pchisq(Q,df=df)\np_right <- pchisq(Q,df=df,lower.tail=FALSE)\np_two <- min(1,2*min(p_left,p_right))\n# Keep the pre-specified alternatives separate.\nprint(data.frame(plan=c(\"A: left\",\"B: equal-tail two-sided\"),\n                 p=c(p_left,p_two),reject=c(p_left,p_two)<alpha))\nupper_one <- df*sample_sd^2/qchisq(alpha,df=df)\nci_two <- df*sample_sd^2/qchisq(c(1-alpha/2,alpha/2),df=df)\nprint(c(Q=Q,df=df,upper_95_one_sided=upper_one))\nprint(ci_two)\nstopifnot(p_left<alpha,p_two>alpha,upper_one<null_sd^2,\n          ci_two[1]<null_sd^2,ci_two[2]>null_sd^2)",
-    "unit": ""
+    "unit": "",
+    "readQuestion": {
+      "meaning": "两个研究计划拿到同一份数据。一个只找波动变小的证据，另一个连波动变大也想发现。",
+      "start": "算一次 χ²，再分别给两个计划分配尾部。等尾双侧把 5% 的误报额度分到两边，各 2.5%。",
+      "link": {
+        "url": "chapters/07.html#variance-ci",
+        "label": "回看单尾与等尾双侧的区间读法"
+      }
+    }
   },
   {
     "id": "p07-08",
@@ -4012,26 +4086,37 @@
     ],
     "steps": [
       {
-        "title": "先求各自的中心",
-        "body": "A 的 median=(2+2)/2=2；B 的 median=(14+14)/2=14。原始 mean 也分别为 2、14，但检验不是直接比较这两个 mean。"
+        "title": "给每组找自己的中心",
+        "body": "<p>A 的中位数是 2，B 的中位数是 14。B 整体加 100 后，中位数也加 100，到了 114。</p>",
+        "latex": "M_A=2,\\qquad M_B=14,\\qquad M_B^{\\prime}=114"
       },
       {
-        "title": "把同一组内的距离列出来",
-        "body": "A 的 Z=(2,0,0,2)，B 的 Z=(4,0,0,4)。B 加 100 后为 (110,114,114,118)，median=114，绝对偏差仍为 (4,0,0,4)。"
+        "title": "跟着 B 的第一个点走",
+        "body": "<p>第一个点和中位数一起向右移动。每个点的减法里都能抵消那 100，所以整组距离原封不动。</p>",
+        "latex": "|110-114|=|10-14|=4,\\qquad Z_A=(2,0,0,2),\\quad Z_B^{\\prime}=Z_B=(4,0,0,4)"
       },
       {
-        "title": "在 Z 上核对 ANOVA",
-        "body": "Z 的两组均值为 1、2，总均值为 1.5；组间 SS=2，误差 SS=20，df 分别为 1、6。F=(2/1)/(20/6)=.6，参考 F₁,₆ 的右尾 P≈.467994。平移前后这些量逐项相同。"
+        "title": "在距离上核对 F",
+        "body": "<p>Z 没变，组间与组内平方和也没变。前后 F 都是 0.6，近似右尾 P 都是约 0.468。</p>",
+        "latex": "F=\\frac{2/1}{20/6}=0.6,\\qquad p\\approx 0.467994\\quad(F_{1,6}\\text{ reference})"
       },
       {
-        "title": "把不变性与研究结论分开",
-        "body": "平移不改变样本 variance，也不改变到本组 median 的距离。它能改变 raw mean，却不制造 spread 差异；当前小例未拒绝不能证明总体等方差。把 B 围绕 median 的偏差放大，才会改变这里的 Z。"
+        "title": "区分平移和拉开",
+        "body": "<p>加 100 会改变原始均值。围绕 B 的中位数把点拉开两倍，才会让每个 Z 翻倍。本题的不变性描述的是平移前后同一检验的计算。</p>"
       }
     ],
     "conclusion": "B 整组加常数只移动位置；按本组新 median 计算后，Brown–Forsythe 的 F=.6 与参考 P≈.467994 保持不变。",
     "pitfall": "不要使用两组共同的 median、固定旧 median，或把未拒绝写成已证明相等。Brown–Forsythe 的 F 参考是近似校准，稳健性不等于对任意分布都有精确的错误率。",
     "rCode": "# Original teaching data; compare distances from each group's own median.\na <- c(0,2,2,4)\nb <- c(10,14,14,18)\ncalculate <- function(a,b) {\n  y <- c(a,b)\n  g <- factor(rep(c(\"A\",\"B\"),c(length(a),length(b))))\n  center <- ave(y,g,FUN=median)\n  z <- abs(y-center)\n  fit <- aov(z~g)\n  tab <- summary(fit)[[1]]\n  list(z=z,F=unname(tab[1,\"F value\"]),p=unname(tab[1,\"Pr(>F)\"]))\n}\noriginal <- calculate(a,b)\nshifted <- calculate(a,b+100)\nprint(original)\nprint(shifted)\nstopifnot(identical(original$z,shifted$z),\n          isTRUE(all.equal(original$F,shifted$F)),\n          isTRUE(all.equal(original$p,shifted$p)),\n          abs(original$F-.6)<1e-12,\n          var(b)==var(b+100))\n# This algebraic invariance does not establish equal population variances.",
-    "unit": ""
+    "unit": "",
+    "readQuestion": {
+      "meaning": "把 B 整排读数平移 100。整排搬了位置，点与它自己那排的中心会不会离得更远？",
+      "start": "选 B 的第一个点来跟踪。原先 10 离 14 是 4，平移后 110 离 114 仍是 4。",
+      "link": {
+        "url": "chapters/07.html#brown-forsythe-experiment",
+        "label": "亲手把 B 整组加 100，再试围绕中位数放大"
+      }
+    }
   },
   {
     "id": "p15-08",

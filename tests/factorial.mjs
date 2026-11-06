@@ -98,7 +98,8 @@ Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { cl
 try {
   const plot = new Element('svg');
   for (const settings of cases) {
-    drawFactorial(plot, factorialSummary(settings));
+    const r = factorialSummary(settings);
+    drawFactorial(plot, r);
     const points = plot.children.filter(el => 'data-fact-point' in el.attrs);
     assert.equal(points.length, 4); assert.equal(plot.children.filter(el => 'data-fact-line' in el.attrs).length, 2);
     points.forEach(point => {
@@ -108,6 +109,16 @@ try {
     });
     assert.ok(plot.children.every(el => Object.values(el.attrs).every(value => !/NaN|Infinity/.test(value))));
     assert.equal(new Set(plot.children.filter(el => el.attrs.class === 'fact-tick').map(el => el.textContent)).size, 5);
+    for (const [j, delta] of r.simple.entries()) {
+      const arrow = plot.children.find(el => el.attrs['data-fact-arrow'] === String(j));
+      const zero = plot.children.find(el => el.attrs['data-fact-zero'] === String(j));
+      assert.equal(Boolean(arrow), delta !== 0);
+      assert.equal(Boolean(zero), delta === 0);
+      if (arrow) {
+        const [, start, end] = arrow.attrs.d.match(/^M[\d.]+,([\d.]+) V([\d.]+)/);
+        close(+start - +end, delta * 208 / 32);
+      }
+    }
   }
   drawFactorial(plot, before); const originalPlot = JSON.stringify(plot);
   drawFactorial(plot, after); assert.equal(JSON.stringify(plot), originalPlot, 'n alone must not move the cell-mean plot');
@@ -116,8 +127,8 @@ try {
   const ids = ['f11', 'f21', 'f12', 'f22', 'fn11', 'fn21', 'fn12', 'fn22'];
   ids.forEach((id, i) => { elements[`#${id}`] = Object.assign(new Element('input'), { value: String(i < 4 ? initial.means[i] : 2) }); });
   ids.slice(0, 4).forEach(id => { elements[`#${id}-v`] = new Element('output'); });
-  for (const key of ['error', 'operation', 'results', 'plot', 'readout', 'weights', 'copy', 'code', 'copy-status']) elements[`[data-fact-${key}]`] = new Element(key === 'plot' ? 'svg' : 'div');
-  for (const key of ['example', 'reverse', 'reset']) elements[`[data-fact-action="${key}"]`] = new Element('button');
+  for (const key of ['error', 'operation', 'results', 'plot', 'readout', 'interaction', 'weights', 'copy', 'code', 'copy-status']) elements[`[data-fact-${key}]`] = new Element(key === 'plot' ? 'svg' : 'div');
+  for (const key of ['parallel', 'cross', 'example', 'reverse', 'reset']) elements[`[data-fact-action="${key}"]`] = new Element('button');
   for (const i of [0, 1]) for (const method of ['raw', 'equal']) {
     for (const name of ['bar', 'formula']) elements[`[data-fact-${name}="${i}-${method}"]`] = new Element();
     for (const j of [0, 1]) elements[`[data-fact-term="${i}-${method}-${j}"]`] = new Element('span');
@@ -128,14 +139,21 @@ try {
   assert.equal(elements['#f11'].events.input.length, 1); assert.equal(action('reverse').events.click.length, 1);
   assert.match(root.innerHTML, /样本数变化仍可能改变估计精度/); assert.match(root.innerHTML, /并不是唯一自然正确/);
   ids.forEach(id => assert.equal((root.innerHTML.match(new RegExp(`id="${id}"`, 'g')) || []).length, 1));
-  assert.match(get('readout').textContent, /I=high−low=4.*等权 variety 差=4.*raw variety 差=4/);
-  await action('example').dispatch('click'); assert.match(get('readout').textContent, /I=high−low=-4.*等权 variety 差=0.*raw variety 差=4/);
+  assert.match(get('readout').textContent, /增大了 4.*等权平均差为 4.*样本构成计算的差为 4/);
+  assert.ok(get('interaction').innerHTML.includes('6-(2)=4'));
+  await action('parallel').dispatch('click');
+  assert.match(get('readout').textContent, /两个肥量下，换品种带来的差一样/);
+  assert.ok(get('interaction').innerHTML.includes('2-(2)=0'));
+  await action('cross').dispatch('click');
+  assert.match(get('readout').textContent, /减小了 4.*等权平均差为 0/);
+  assert.ok(get('interaction').innerHTML.includes('-2-(2)=-4'));
+  await action('example').dispatch('click'); assert.match(get('readout').textContent, /减小了 4.*等权平均差为 0.*样本构成计算的差为 4/);
   const stableControls = ids.map(id => elements[`#${id}`]), graphBefore = JSON.stringify(get('plot'));
   elements['#fn11'].focus(); await action('reverse').dispatch('click');
   assert.equal(elements['#fn11'].value, '1'); assert.equal(elements['#fn12'].value, '9');
   assert.equal(JSON.stringify(get('plot')), graphBefore); assert.equal(document.activeElement, elements['#fn11']);
   assert.deepEqual(ids.map(id => elements[`#${id}`]), stableControls);
-  assert.match(get('readout').textContent, /raw variety 差=-4/);
+  assert.match(get('readout').textContent, /样本构成计算的差为 -4/);
   for (const i of [0, 1]) for (const method of ['raw', 'equal']) {
     const widths = [0, 1].map(j => parseFloat(elements[`[data-fact-term="${i}-${method}-${j}"]`].style.width));
     assert.ok(widths.every(width => width > 0 && Number.isFinite(width)));
@@ -155,10 +173,10 @@ try {
   }
   elements['#f22'].focus(); elements['#f22'].value = '28'; await elements['#f22'].dispatch('input');
   assert.equal(document.activeElement, elements['#f22']); assert.equal(elements['#f22-v'].textContent, '28');
-  assert.match(get('readout').textContent, /I=high−low=6/); assert.notEqual(JSON.stringify(get('plot')), graphBefore);
+  assert.match(get('readout').textContent, /增大了 6/); assert.notEqual(JSON.stringify(get('plot')), graphBefore);
   elements['#fn11'].value = '1'; elements['#fn12'].value = '30'; await elements['#fn12'].dispatch('input');
-  assert.match(elements['[data-fact-formula="0-raw"]'].textContent, /1\/31 × 10 \+ 30\/31 × 20 ≈ 19.67742/);
-  assert.match(elements['[data-fact-formula="0-equal"]'].textContent, /1\/2 × 10 \+ 1\/2 × 20 = 15/);
+  assert.ok(elements['[data-fact-formula="0-raw"]'].innerHTML.includes(String.raw`\frac{1}{31}\cdot10+\frac{30}{31}\cdot20\approx19.67742`));
+  assert.ok(elements['[data-fact-formula="0-equal"]'].innerHTML.includes(String.raw`\frac{1}{2}\cdot10+\frac{1}{2}\cdot20=15`));
   assert.match(root.innerHTML, /计算使用完整权重/);
 } finally {
   if (previousDocument === undefined) delete globalThis.document; else globalThis.document = previousDocument;

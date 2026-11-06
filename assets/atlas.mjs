@@ -5,7 +5,7 @@ import { mountLatinDesigner } from './latin.mjs';
 import { boxplotAnalysis, drawBoxplot, boxplotRCode } from './boxplot.mjs';
 import { mountCLT } from './clt.mjs';
 import { mountBinomial, chapterProbabilityLabel as binomialProbabilityLabel, binomialTailSummary as summarizeBinomialTail } from './binomial.mjs';
-import { mountFactorial } from './factorial.mjs';
+import { mountFactorial } from './factorial.mjs?v=simple-effect-arrows-1';
 import { mountPaired } from './paired.mjs?v=readout-1';
 import { mountAnova } from './anova.mjs?v=point-trace-1';
 import { mountRegression } from './regression.mjs?v=variance-parts-1';

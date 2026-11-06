@@ -2162,16 +2162,19 @@
     "hint": "先分别在两个温度下比较品种，再比较这两个差。",
     "steps": [
       {
-        "title": "固定低温看品种效应",
-        "body": "低温下 B 相对 A 的 simple effect 为 14−10=4。"
+        "title": "只看低温那一列",
+        "body": "<p>保持温度不动，比较两个品种。B 比 A 高 4，这叫低温下的条件效应（simple effect）。</p>",
+        "latex": "\\Delta_{\\mathrm{low}}=14-10=4"
       },
       {
-        "title": "固定高温看品种效应",
-        "body": "高温下 B 相对 A 的 simple effect 为 22−12=10。"
+        "title": "在高温下做同一个减法",
+        "body": "<p>相减顺序仍是 B 减 A。高温下，B 比 A 高 10。</p>",
+        "latex": "\\Delta_{\\mathrm{high}}=22-12=10"
       },
       {
-        "title": "比较两个 simple effects",
-        "body": "interaction contrast=10−4=6。说明估计的品种差异随温度改变；是否具有统计证据还需要 replication 和 error estimate。"
+        "title": "比较两个增加量",
+        "body": "<p>高温下换品种多带来的响应是 10，低温下是 4，相差 6。若要判断这笔差是否超出抽样波动，还要用重复观测估计组内误差。</p>",
+        "latex": "I=\\Delta_{\\mathrm{high}}-\\Delta_{\\mathrm{low}}=10-4=6"
       }
     ],
     "conclusion": "估计的 interaction contrast 为 6；不能仅报告“B 平均比 A 高”。",
@@ -2191,7 +2194,15 @@
         "tolerance": 0.0002,
         "feedback": "这个值与将两个温度的差相减顺序颠倒一致。题目已定义“高温差−低温差”，请按该方向报告有符号的 contrast。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "都从 A 换成 B，低温和高温下各能多出多少？题目要的是这个增加量随温度变了多少。",
+      "start": "两次都用 B 减 A。先在同一温度内相减，最后再拿高温的差减低温的差。",
+      "link": {
+        "url": "chapters/14.html#lab-factorial",
+        "label": "用两支箭头对照「先求差，再比较差」"
+      }
+    }
   },
   {
     "id": "p14-02",
@@ -2212,16 +2223,19 @@
     "hint": "6 个 cell 各估计一个均值；总 N=24。",
     "steps": [
       {
-        "title": "计算总样本量",
-        "body": "A 有 2 水平，B 有 3 水平，共 ab=6 个组合，每格 r=4，N=abr=24。"
+        "title": "把因素水平摆成两行三列",
+        "body": "<p>每个 A 水平配上每个 B 水平，共六格，每格四个独立观测。</p>",
+        "latex": "ab=2\\cdot3=6,\\qquad N=6\\cdot4=24"
       },
       {
-        "title": "分配模型自由度",
-        "body": "A:1，B:2，A×B:(2−1)(3−1)=2，corrected total df=23。模型处理部分合计 5 个 df。"
+        "title": "估计每格中心后数剩余自由度",
+        "body": "<p>完整模型允许每个组合有自己的平均，六格共估六个中心。等价地，每格留下三个组内偏差自由度。</p>",
+        "latex": "df_E=N-ab=24-6=18=6(4-1)"
       },
       {
-        "title": "留下组内重复信息",
-        "body": "error df=23−1−2−2=18，也等于 ab(r−1)=6×3。这些重复让 interaction 与纯误差可分离。"
+        "title": "用 ANOVA 表再核对一次",
+        "body": "<p>总自由度 23；A 用 1，B 用 2，交互用 2，剩下 18。</p>",
+        "latex": "df_A=1,\\quad df_B=2,\\quad df_{AB}=(2-1)(3-1)=2,\\quad 23-1-2-2=18"
       }
     ],
     "conclusion": "error df=18。",
@@ -2242,7 +2256,15 @@
         "tolerance": 0,
         "feedback": "这是 corrected total df=N−1。Error df 还需扣掉 A、B 和 A×B 已解释的自由度。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "把所有观测分到六个组合，每个组合都要用数据估一个平均。估完这六个平均之后，还剩多少信息量可以估计组内误差？",
+      "start": "先数格子，再数每格的观测。每格有 4 个点、用掉 1 个自由度，留下 3 个。",
+      "link": {
+        "url": "chapters/14.html#factorial-ss",
+        "label": "看平衡析因表怎样分配自由度"
+      }
+    }
   },
   {
     "id": "p14-03",
@@ -2264,16 +2286,18 @@
     "hint": "问题要求温度各占一半，不按恰好收集到的样本数加权。",
     "steps": [
       {
-        "title": "计算观测组成下的均值",
-        "body": "按样本数权重的 mean=(9×10+1×20)/10=11，这描述了低温占 90% 的样本组成。"
+        "title": "先看实际抽到了什么",
+        "body": "<p>十条记录里低温有九条。如果按记录组成平均，大部分权重会落在 10 上。</p>",
+        "latex": "\\bar y_{\\mathrm{observed}}=\\frac9{10}(10)+\\frac1{10}(20)=11"
       },
       {
-        "title": "按目标人群重新加权",
-        "body": "等权 marginal mean=(10+20)/2=15，两个温度各占 50%。这正是此题设定的 estimand。"
+        "title": "按题目想比较的构成重新平均",
+        "body": "<p>题目规定两个温度各占一半。对两格拟合均值分别给一半权重，答案是 15。</p>",
+        "latex": "\\widehat\\mu_{\\mathrm{equal}}=\\frac12(10)+\\frac12(20)=15"
       },
       {
-        "title": "说明模型与可估性条件",
-        "body": "在 cell 均值可估计、模型合理时可从拟合值算这个平均。若某个 cell 完全缺失，能否估计取决于模型；不能自动填上缺失信息。"
+        "title": "确认两个温度都有可估计的均值",
+        "body": "<p>这个计算用到了两格的拟合均值。若某格完全缺失，能否估到它取决于拟合模型和可估性。</p>"
       }
     ],
     "conclusion": "等权 marginal mean=15，observed weighted mean=11。",
@@ -2293,7 +2317,15 @@
         "tolerance": 0.0002,
         "feedback": "这个数值是两个 cell means 的和。Marginal mean 是平均水平，等权权重应加起来为 1，因此每项乘 1/2。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "现有记录里低温占九成，但研究问题明确要两个温度各占一半。要按问题指定的比例来平均。",
+      "start": "让 10 和 20 各贡献一半。另算按样本数的平均，就能看出两个问题有何不同。",
+      "link": {
+        "url": "chapters/14.html#lab-factorial",
+        "label": "改变样本构成，看等权平均为何不动"
+      }
+    }
   },
   {
     "id": "p15-01",
@@ -3502,20 +3534,19 @@
     "hint": "要检查多少种完整实验条件的 spread，就需要多少个 cell 标签。组间检验的 df 是“完整cell数−1”，不是最高阶 interaction 单项的 df。",
     "steps": [
       {
-        "title": "明确诊断所比较的组",
-        "body": "条件由三个因素共同定义，完整 cell 数 k=3×2×2=12。每一组是固定一个 A、一个 B、一个 C 的五个独立观测。"
+        "title": "按完整组合分组",
+        "body": "<p>从 A 选一个水平、B 选一个、C 选一个，这样才确定一个格。每格有五个观测，合起来一共十二格。</p>",
+        "latex": "k=3\\cdot2\\cdot2=12"
       },
       {
-        "title": "先去掉每个 cell 自己的中心",
-        "body": "构造 Z=|Y−本cell的median|。只按 A 分组会把不同 B/C 条件下的中心变化混入 spread，不能代替完整12格的诊断。"
+        "title": "量到本格中位数的距离",
+        "body": "<p>每个点减自己格子的中位数，再取绝对值。只按 A 合并，会让不同 B、C 带来的中心差进入这个距离。</p>",
+        "latex": "Z_{ijk\\ell}=\\left|Y_{ijk\\ell}-\\operatorname{median}_{ijk}(Y)\\right|"
       },
       {
-        "title": "计算两项自由度",
-        "body": "整体比较12个 Z means，numerator df=k−1=11。各cell内剩余 df=12×(5−1)=48，也等于60−12；两项相加为总df=59。"
-      },
-      {
-        "title": "与 ABC interaction 检验区分",
-        "body": "ABC 单项 df=(3−1)(2−1)(2−1)=2，检验的是均值模型中特定的高阶 interaction；它不是12个 cell spread 的整体比较。F参考在 Brown–Forsythe 中是近似，分组正确也不能证明其他模型条件。"
+        "title": "比较十二组距离的平均",
+        "body": "<p>对 Z 做一元 ANOVA，组间自由度 11，组内 48。Brown–Forsythe 用这个 F 参考作近似；均值模型里的 ABC 项回答的是另一道均值问题。</p>",
+        "latex": "df_{\\mathrm{between}}=12-1=11,\\qquad df_E=60-12=48"
       }
     ],
     "conclusion": "使用12个完整 cell labels，转换后整体 F 的自由度为(11,48)。",
@@ -3526,7 +3557,15 @@
       "正确。十二个完整cells各保留五个观测，转换后比较十二个Z均值：组间11df、组内12×4=48df。",
       "2是纯ABC interaction的df，但整体cell比较需要11df。原始响应的ABC行检验均值交互，既没有使用正确转换后的响应，也没有覆盖整个spread比较。",
       "每个观测单独分组会使组内没有重复，error df为0、MSE无法估计；观测彼此独立并不意味着每个观测应成为单独treatment group。"
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "想比较「同一种处理组合里」的波动。只有同时固定 A、B、C，才算同一种组合。",
+      "start": "给每个组合各找一个中位数，再数有多少组合，以及每格扣掉一个中心后还剩多少观测自由度。",
+      "link": {
+        "url": "chapters/14.html#factorial-bf-cells",
+        "label": "看按完整组合分组时，哪些点应共用中位数"
+      }
+    }
   },
   {
     "id": "p15-05",
@@ -3979,20 +4018,23 @@
     "hint": "N=11，完整模型估计4个cell means。Type II A的SS是SSE(B)−SSE(A+B)，分子df为1；不要用加性模型自己的MSE。",
     "steps": [
       {
-        "title": "辨认Type II的比较方向",
-        "body": "A有两个levels，含A的AB项不先加入Type II A的分子比较；先比较B与A+B。因此SS_A(II)=60.1333333333−18.5263157895=41.6070175439，分子df=1。它不是先加入A时SSE(1)−SSE(A)的Type I增量。"
+        "title": "先按题目指定顺序加 A",
+        "body": "<p>从只含 B 的模型出发，加入 A 后留下更少残差平方和。减少的这笔就是题目的 A Type II 平方和，分子自由度为 1。</p>",
+        "latex": "\\mathrm{SS}_{A,\\mathrm{II}}=60.1333333333-18.5263157895\\approx41.607018"
       },
       {
-        "title": "从完整模型取得MSE",
-        "body": "四个cell计数为2、4、3、2，总N=11。A*B有4个可估计cell means，error df=11−4=7，MSEfull=16/7≈2.285714286。"
+        "title": "用完整的四格模型估误差",
+        "body": "<p>共有 11 个观测，完整 A×B 模型拟合四格各自的中心，余下 7 个误差自由度。</p>",
+        "latex": "\\mathrm{MSE}_{\\mathrm{full}}=\\frac{16}{11-4}=\\frac{16}{7}"
       },
       {
-        "title": "把SS换成F",
-        "body": "F=(SS_A/1)/MSEfull=41.6070175439/(16/7)≈18.2030701754。这个完整模型参照的F(1,7)右尾P约.00371665。"
+        "title": "按指定分母得到 F",
+        "body": "<p>分子自由度为 1，平方和也是分子均方。与完整模型的误差均方相比，得 F 约 18.20。</p>",
+        "latex": "F=\\frac{41.60701754/1}{16/7}\\approx18.20307"
       },
       {
-        "title": "区分另一套软件默认检验",
-        "body": "只比较lm(Y~B)与lm(Y~A+B)时，anova默认从较大加性模型估计误差：MSEadd=18.5263157895/8。这样F约17.966667，分母df=8，回答的是另一套模型比较，不是题目指定完整ANOVA表中的分母。"
+        "title": "读软件输出时先认分母",
+        "body": "<p>若只把 B 和 A+B 两个模型交给 R 的嵌套比较，分母会从加性模型取，误差自由度为 8。这个输出对应不同的误差参照。</p>"
       }
     ],
     "conclusion": "完整模型误差参照下，A的Type II F≈18.20307，df=(1,7)。",
@@ -4014,7 +4056,15 @@
         "tolerance": 0.005,
         "feedback": "这与Type II A的平方和相符，但还不是F。先除以分子df=1，再除以完整模型MSE=16/7。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "先在已经考虑 B 的情况下，看加入 A 能减少多少残差平方和。然后用完整模型的组内波动当参照。",
+      "start": "用 SSE(B) 减 SSE(A+B) 得分子，再用完整四格的 SSE 除以它的误差自由度。",
+      "link": {
+        "url": "chapters/14.html#unbalanced-ss-hypotheses",
+        "label": "对照同一数据上不同 SS 的模型比较"
+      }
+    }
   },
   {
     "id": "p15-07",
@@ -4936,20 +4986,24 @@
     "hint": "A的一个marginal mean平均了B的两个cells，所以n=br。先由cell内SS与ab(r−1)求完整模型MSE，再用qtukey(.95,3,error_df)。",
     "steps": [
       {
-        "title": "先固定平均目标与family",
-        "body": "三个目标means为(8+12)/2=10、(10+14)/2=12、(13+17)/2=15 g。每一个都对B1/B2等权平均；family是A2−A1、A3−A1、A3−A2三项。q的nmeans为A水平数3。"
+        "title": "先固定平均和比较清单",
+        "body": "<p>三个 A 的等权均值是 10、12、15。比较它们全部三对，临界值的组数取 3。</p>",
+        "latex": "\\widehat\\mu_A=\\left(\\frac{8+12}{2},\\frac{10+14}{2},\\frac{13+17}{2}\\right)=(10,12,15)"
       },
       {
-        "title": "从完整模型保留误差",
-        "body": "每格两个观测相对cell mean为−1和+1，贡献SS=2。六格SSE=12，error df=ab(r−1)=3×2×1=6，所以MSE=12/6=2。"
+        "title": "从六格内部取共同误差",
+        "body": "<p>每格两盆的残差为 −1 和 +1，平方和是 2。六格留下六个组内自由度，MSE 为 2。</p>",
+        "latex": "\\mathrm{SSE}=6(1+1)=12,\\qquad \\nu=6(2-1)=6,\\qquad \\mathrm{MSE}=12/6=2"
       },
       {
-        "title": "使用marginal mean对应的样本数量",
-        "body": "每个A marginal mean来自两个B cells、每格两个观测，n=br=4。其variance估计为MSE/(br)=2/4=.5；pairwise SE为√1=1，但Tukey的q尺度是SE/√2=√.5。"
+        "title": "用一个 A 平均值的尺度",
+        "body": "<p>两个 B 水平各两盆，每个 A 的等权平均用了四盆。两组均值差的 SE 为 1；Tukey 的尺度是它除以根号 2。</p>",
+        "latex": "\\mathrm{SE}_{\\mathrm{diff}}=\\sqrt{2(2/4)}=1,\\qquad \\mathrm{SE}_{\\mathrm{Tukey}}=\\sqrt{2/4}"
       },
       {
-        "title": "计算同时区间半宽并解释",
-        "body": "q_.95(3,6)=4.339195313，因此半宽H=4.339195313×√(2/4)=3.068274431 g。三个差2、5、3的区间分别为[−1.068274,5.068274]、[1.931726,8.068274]、[−.068274,6.068274]；只有A3−A1排除0。整体A检验显著并不表示每一对都显著。"
+        "title": "乘上 studentized-range 临界值",
+        "body": "<p>95% 的 q 约 4.33920。半宽约 3.06827 g。三对差是 2、5、3，只有差 5 的区间排除零。</p>",
+        "latex": "h=q_{.95;3,6}\\sqrt{2/4}\\approx3.068274\\ \\mathrm{g}"
       }
     ],
     "conclusion": "共同Tukey半宽约3.068274 g；使用完整模型MSE=2、error df=6以及每个A marginal mean的n=4。",
@@ -4971,7 +5025,15 @@
         "tolerance": 0.005,
         "feedback": "这个值与重新拟合Y~A后计算Tukey一致。遗漏B使SSE变为60、df变为9、MSE变为60/9。题目要求完整Y~A*B模型，应保留MSE=2与6个error df。"
       }
-    ]
+    ],
+    "readQuestion": {
+      "meaning": "先把每个 A 在 B1、B2 下的均值各取一半，再比较三个 A 的所有配对。题目只要每个区间往两侧各伸出多长。",
+      "start": "每个 A 的等权平均用了 2 个 B 条件、每格 2 盆。先算完整模型 MSE，再按这 4 个观测的均值方差找 Tukey 尺度。",
+      "link": {
+        "url": "chapters/14.html#factorial-ss",
+        "label": "回看平衡析因下的组均值与共同误差"
+      }
+    }
   },
   {
     "id": "p14-07",
@@ -5002,20 +5064,24 @@
     "hint": "在每个C内先算A2−A1，再用B2的差减B1的差。比较“两个条件AB的平均”与“两个条件AB的差”。",
     "steps": [
       {
-        "title": "在C1中计算条件AB",
-        "body": "B1下A2−A1=10−8=2，B2下为18−10=8；所以Δ̂AB|C1=8−2=6。"
+        "title": "先算 C1 这一张图",
+        "body": "<p>B1 下换 A 的差为 2，B2 下为 8。B2 使这个差多出 6。</p>",
+        "latex": "\\widehat\\Delta_{AB\\mid C_1}=(18-10)-(10-8)=8-2=6"
       },
       {
-        "title": "在C2中重复同样方向",
-        "body": "B1下A2−A1=20−12=8，B2下为16−14=2；所以Δ̂AB|C2=2−8=−6。不能换相减顺序来使两个数字同号。"
+        "title": "把同样的方向用到 C2",
+        "body": "<p>B1 下换 A 的差为 8，B2 下为 2。这一次 B2 使差变小。</p>",
+        "latex": "\\widehat\\Delta_{AB\\mid C_2}=(16-14)-(20-12)=2-8=-6"
       },
       {
-        "title": "区分平均与差",
-        "body": "跨C的等权AB contrast=(6−6)/2=0，对应边际AB行；三阶contrast L̂=(−6)−6=−12，回答AB关系是否随C改变。平均相互抵消不能推出各条件效应为零。"
+        "title": "分别算平均和变化",
+        "body": "<p>AB 的等权平均恰好抵消。ABC 比较两张图里的 AB 差，得到 −12。</p>",
+        "latex": "\\widehat\\Delta_{AB,\\mathrm{avg}}=(6-6)/2=0,\\qquad \\widehat L_{ABC}=(-6)-6=-12"
       },
       {
-        "title": "与完整模型推断连接",
-        "body": "八个cell means各有variance估计MSE/r=2/2=1，L̂使用八个±1系数，所以SE=√8。ABC只有1df，F=L̂²/SE²=144/8=18，F(1,8)右尾P≈.002827。支持条件AB不同，但不能由此自动声称所有simple effects都显著。"
+        "title": "核对完整模型的 F",
+        "body": "<p>每格均值方差估计为 1，三阶对比有八个权重，各为 +1 或 −1，所以估计方差为 8。用一自由度 F 检验，支持 AB 关系随 C 改变。</p>",
+        "latex": "F_{ABC}=(-12)^2/8=18,\\qquad p\\approx0.002827\\quad(F_{1,8}\\text{ reference})"
       }
     ],
     "conclusion": "AB行描述跨C平均后的二阶关系；ABC行描述这个二阶关系如何随C改变。这里平均为0，同时条件关系有明显差异。",
@@ -5026,7 +5092,15 @@
       "二阶边际interaction与三阶interaction不是同一个参数，二者可以有完全不同的检验结果。上面的cell means已提供可直接核算的例子。",
       "ABC检验支持的是条件interaction之间存在差别，不是所有更低阶的简单效应都已逐项通过检验；这些比较还需明确目标和family。"
     ],
-    "rCode": "# New original two-replicate cells, distinct from the lesson example.\ngrid <- expand.grid(A=factor(c(\"A1\",\"A2\")),B=factor(c(\"B1\",\"B2\")),\n                    C=factor(c(\"C1\",\"C2\")))\ncell_means <- c(8,10,10,18,12,20,14,16)\nd <- grid[rep(seq_len(8),times=2),]\nd$y <- rep(cell_means,2)+rep(c(-1,1),each=8)\nfit <- lm(y ~ A*B*C,data=d)\nmu <- with(d,tapply(y,list(A,B,C),mean))\nsimple_A <- mu[\"A2\",,]-mu[\"A1\",,]\nAB_given_C <- simple_A[\"B2\",]-simple_A[\"B1\",]\nL <- unname(AB_given_C[\"C2\"]-AB_given_C[\"C1\"])\nerror_df <- df.residual(fit)\nmse <- deviance(fit)/error_df\nF_ABC <- L^2/(8*mse/2)\ntab <- anova(fit)\nprint(mu)\nprint(AB_given_C)\nprint(tab)\nprint(c(AB_averaged=mean(AB_given_C),ABC_contrast=L,\n        error_df=error_df,MSE=mse,F_ABC=F_ABC,\n        P_ABC=pf(F_ABC,1,error_df,lower.tail=FALSE)))\nstopifnot(max(abs(AB_given_C-c(6,-6)))<1e-10,\n          abs(mean(AB_given_C))<1e-10,\n          error_df==8,abs(mse-2)<1e-10,\n          abs(F_ABC-18)<1e-10,\n          abs(F_ABC-tab[\"A:B:C\",\"F value\"])<1e-10)\n# The second choice distinguishes a marginal average from conditional interactions.\nanswer <- 1L\nprint(answer)\n"
+    "rCode": "# New original two-replicate cells, distinct from the lesson example.\ngrid <- expand.grid(A=factor(c(\"A1\",\"A2\")),B=factor(c(\"B1\",\"B2\")),\n                    C=factor(c(\"C1\",\"C2\")))\ncell_means <- c(8,10,10,18,12,20,14,16)\nd <- grid[rep(seq_len(8),times=2),]\nd$y <- rep(cell_means,2)+rep(c(-1,1),each=8)\nfit <- lm(y ~ A*B*C,data=d)\nmu <- with(d,tapply(y,list(A,B,C),mean))\nsimple_A <- mu[\"A2\",,]-mu[\"A1\",,]\nAB_given_C <- simple_A[\"B2\",]-simple_A[\"B1\",]\nL <- unname(AB_given_C[\"C2\"]-AB_given_C[\"C1\"])\nerror_df <- df.residual(fit)\nmse <- deviance(fit)/error_df\nF_ABC <- L^2/(8*mse/2)\ntab <- anova(fit)\nprint(mu)\nprint(AB_given_C)\nprint(tab)\nprint(c(AB_averaged=mean(AB_given_C),ABC_contrast=L,\n        error_df=error_df,MSE=mse,F_ABC=F_ABC,\n        P_ABC=pf(F_ABC,1,error_df,lower.tail=FALSE)))\nstopifnot(max(abs(AB_given_C-c(6,-6)))<1e-10,\n          abs(mean(AB_given_C))<1e-10,\n          error_df==8,abs(mse-2)<1e-10,\n          abs(F_ABC-18)<1e-10,\n          abs(F_ABC-tab[\"A:B:C\",\"F value\"])<1e-10)\n# The second choice distinguishes a marginal average from conditional interactions.\nanswer <- 1L\nprint(answer)\n",
+    "readQuestion": {
+      "meaning": "先在 C1 看 A 与 B 怎样互相影响，再把同一计算搬到 C2。两个条件下的交互一正一负，合起来的平均可能恰好为零。",
+      "start": "把 C1、C2 想成两张独立的二因素图。每张图都先算两次 A2−A1，再用 B2 的差减 B1 的差。",
+      "link": {
+        "url": "chapters/14.html#three-way",
+        "label": "回看三阶交互怎样比较两张二因素图"
+      }
+    }
   },
   {
     "id": "p14-08",
@@ -5052,20 +5126,19 @@
     "unit": "响应原单位",
     "steps": [
       {
-        "title": "先写目标，而不是直接使用样本数",
-        "body": "设μᵢ,L与μᵢ,H为两个条件的总体均值。目标是[.75μ₂,L+.25μ₂,H]−[.75μ₁,L+.25μ₁,H]。两品种必须使用相同的预设构成；样本数不是这里的目标权重。"
+        "title": "把同一配方分别用到两个品种",
+        "body": "<p>V1 和 V2 在资料里的样本比例不同，这次统一用目标配方。算得 V1 的目标平均为 11，V2 为 14。</p>",
+        "latex": "\\begin{aligned}\\widehat\\mu_{1,*}&=.75(8)+.25(20)=11\\\\\\widehat\\mu_{2,*}&=.75(13)+.25(17)=14\\end{aligned}"
       },
       {
-        "title": "分别计算目标均值",
-        "body": "V1的目标均值估计为.75×8+.25×20=11；V2为.75×13+.25×17=14。因此V2−V1=14−11=3。"
+        "title": "按指定方向相减，也可先求条件差",
+        "body": "<p>低肥量下 V2 比 V1 高 5，高肥量下低 3。共同配方更强调低肥量，所以两者加权仍是正差。</p>",
+        "latex": "\\widehat\\mu_{2,*}-\\widehat\\mu_{1,*}=14-11=.75(5)+.25(-3)=3"
       },
       {
-        "title": "用simple effects再次核对",
-        "body": "Low下V2−V1=5，High下为−3；共同加权差为.75×5+.25×(−3)=3。正结果不表示两个条件下都更高。"
-      },
-      {
-        "title": "解释另外两种平均为什么不同",
-        "body": "Observed raw means分别为10.4和16.2，raw difference=5.8，混入不同样本构成。Low/High等权时差为(5−3)/2=1，回答的是另一目标。这三种点估计不同并不意味着算术出错；区间还需模型covariance和自由度。"
+        "title": "辨认另外两份配方",
+        "body": "<p>按各自样本比例平均得到的差是 5.8；两种条件各占一半时差为 1。三种答案各对应一种比较构成。</p>",
+        "latex": "\\widehat\\Delta_{\\mathrm{observed}}=16.2-10.4=5.8,\\qquad \\widehat\\Delta_{\\mathrm{equal}}=(5-3)/2=1"
       }
     ],
     "conclusion": "按两品种共同的75% Low、25% High目标构成，V2−V1的点估计为3。",
@@ -5087,7 +5160,15 @@
         "feedback": "这与把权重反为25% Low、75% High一致。检查两个条件的顺序；不能只交换权重而保留原解释。"
       }
     ],
-    "rCode": "# Original fitted cell summaries, in Low/High order.\ncell_mean <- rbind(V1=c(Low=8,High=20),V2=c(Low=13,High=17))\ncell_n <- rbind(V1=c(Low=8,High=2),V2=c(Low=2,High=8))\n# Use the same prespecified target composition for both varieties.\nw <- c(Low=.75,High=.25)\ntarget_mean <- as.vector(cell_mean %*% w)\nraw_mean <- rowSums(cell_mean*cell_n)/rowSums(cell_n)\nequal_mean <- rowMeans(cell_mean)\nsimple_effect <- cell_mean[\"V2\",]-cell_mean[\"V1\",]\nanswer <- target_mean[2]-target_mean[1]\nprint(data.frame(variety=rownames(cell_mean),raw=raw_mean,\n                 equal=equal_mean,target=target_mean))\nprint(c(target_difference=answer,\n        weighted_simple_effect=sum(w*simple_effect),\n        raw_difference=diff(raw_mean),equal_difference=diff(equal_mean)))\nstopifnot(abs(answer-3)<1e-12,\n          abs(answer-sum(w*simple_effect))<1e-12)\n# These are point estimates; uncertainty requires the fitted model covariance."
+    "rCode": "# Original fitted cell summaries, in Low/High order.\ncell_mean <- rbind(V1=c(Low=8,High=20),V2=c(Low=13,High=17))\ncell_n <- rbind(V1=c(Low=8,High=2),V2=c(Low=2,High=8))\n# Use the same prespecified target composition for both varieties.\nw <- c(Low=.75,High=.25)\ntarget_mean <- as.vector(cell_mean %*% w)\nraw_mean <- rowSums(cell_mean*cell_n)/rowSums(cell_n)\nequal_mean <- rowMeans(cell_mean)\nsimple_effect <- cell_mean[\"V2\",]-cell_mean[\"V1\",]\nanswer <- target_mean[2]-target_mean[1]\nprint(data.frame(variety=rownames(cell_mean),raw=raw_mean,\n                 equal=equal_mean,target=target_mean))\nprint(c(target_difference=answer,\n        weighted_simple_effect=sum(w*simple_effect),\n        raw_difference=diff(raw_mean),equal_difference=diff(equal_mean)))\nstopifnot(abs(answer-3)<1e-12,\n          abs(answer-sum(w*simple_effect))<1e-12)\n# These are point estimates; uncertainty requires the fitted model covariance.",
+    "readQuestion": {
+      "meaning": "给两个品种安排同一份条件配方：四分之三低肥、四分之一高肥。题目要比较这两份配方的平均响应。",
+      "start": "两个品种都乘同样的 0.75 和 0.25。也可以先算两个条件下的品种差，再用这份配方加权。",
+      "link": {
+        "url": "chapters/14.html#lab-factorial",
+        "label": "对照实际构成和共同构成如何给出不同平均值"
+      }
+    }
   },
   {
     "id": "p11-07",

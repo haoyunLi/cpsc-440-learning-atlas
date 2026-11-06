@@ -5951,5 +5951,393 @@
         "label": "移动铺路实验的预测位置，对照两条区间和方差条"
       }
     }
+  },
+  {
+    "id": "p08-09",
+    "chapter": "08",
+    "title": "从各组摘要补出整张 ANOVA 表",
+    "level": "应用",
+    "type": "numeric",
+    "tags": [
+      "ANOVA",
+      "SS",
+      "F critical",
+      "Quiz 10"
+    ],
+    "source": {
+      "file": "Quiz/CPSC_440_Quiz_10-5.docx",
+      "locator": "Q1a；PPT/Chapter_8.pptx 第19–20页，classnote Chapter 8 第10–11页",
+      "note": "按课程题型原创改编；数据和情境重新设计。"
+    },
+    "prompt": "三种培养方式分别有 3、4、5 个独立花盆。三个组均值为 10、12、14 g，样本方差为 1、4、4 g²。采用独立正态、共同方差的一元 ANOVA。整体检验的 F 统计量是多少？",
+    "answer": 4.6,
+    "hint": "总平均要按各组的盆数加权；组内平方和用各组的样本方差还原。",
+    "steps": [
+      {
+        "title": "从组均值找回所有盆的总平均",
+        "body": "<p>人数不同。把每组均值乘该组的盆数，得到各组测量值的总和，再除以 12。</p>",
+        "latex": "\\bar y_{\\cdot\\cdot}=\\frac{3(10)+4(12)+5(14)}{12}=\\frac{37}3"
+      },
+      {
+        "title": "把组间和组内分别算出来",
+        "body": "<p>组间用每组中心离总中心的距离，每组按自己的盆数计。组内方差原来已经除过各组自由度，所以乘回去。</p>",
+        "latex": "\\begin{gathered}\\mathrm{SS}_{\\mathrm{trt}}=\\sum_i n_i(\\bar y_i-\\bar y_{\\cdot\\cdot})^2\\\\ =92/3\\approx30.6667\\\\ \\mathrm{SSE}=2(1)+3(4)+4(4)=30\\\\ \\mathrm{SST}=182/3\\approx60.6667\\end{gathered}"
+      },
+      {
+        "title": "换算均方并做右尾决定",
+        "body": "<p>三个组均值相比有 2 个自由度。12 个盆减去估过的三个组均值，留下 9 个误差自由度。在 5% 水平下，右尾门槛约为 4.2565。</p>",
+        "latex": "\\begin{gathered}(\\nu_{\\mathrm{trt}},\\nu_E,\\nu_T)=(2,9,11)\\\\ \\mathrm{MS}_{\\mathrm{trt}}=(92/3)/2=46/3\\\\ \\mathrm{MSE}=30/9=10/3\\\\ F=(46/3)/(10/3)=4.6\\\\ p=P(F_{2,9}\\ge4.6)\\approx0.04205\\end{gathered}"
+      }
+    ],
+    "conclusion": "F=4.6，大于临界值 4.2565，在 5% 水平下有证据表明三个总体平均干重并非全相同。",
+    "pitfall": "各组样本量不等。简单平均三个组均值会改变组间平方和。整体检验也没有指明哪一对不同。",
+    "rCode": "n <- c(3,4,5); means <- c(10,12,14); vars <- c(1,4,4)\ngrand <- weighted.mean(means,n)\nssb <- sum(n*(means-grand)^2); sse <- sum((n-1)*vars)\ndf <- c(2,sum(n)-3)\nf <- (ssb/df[1])/(sse/df[2])\nprint(c(grand=grand,ssb=ssb,sse=sse,sst=ssb+sse,F=f,\n        critical=qf(.95,df[1],df[2]),p=pf(f,df[1],df[2],lower.tail=FALSE)))\ny <- c(9,10,11,12+c(-sqrt(6),0,0,sqrt(6)),14+c(-sqrt(8),0,0,0,sqrt(8)))\ng <- factor(rep(LETTERS[1:3],n))\ntab <- summary(aov(y~g))[[1]]\nprint(tab)\nstopifnot(abs(f-tab$\"F value\"[1]) < 1e-10, abs(f-4.6) < 1e-10)",
+    "readQuestion": {
+      "meaning": "只给各组的均值、方差和盆数，也能拼回 ANOVA 表。",
+      "start": "先把组均值换回各组总和，再找总平均。",
+      "link": {
+        "url": "chapters/08.html#worked",
+        "label": "先看如何从九个观测走到同一张表"
+      }
+    },
+    "tolerance": 0.001,
+    "unit": "F"
+  },
+  {
+    "id": "p08-10",
+    "chapter": "08",
+    "title": "取对数后，哪一项模型条件还卡着？",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "residual diagnostics",
+      "Shapiro–Wilk",
+      "Brown–Forsythe",
+      "Homework 9"
+    ],
+    "source": {
+      "file": "Homework/Homework_9/CPSC_440_Homework_9-5.docx",
+      "locator": "Q1b；PPT/Chapter_8.pptx 第27–29、35、55–56页，classnote Chapter 8 第15–16、22–23、30–31页",
+      "note": "按课程题型原创改编；数据和情境重新设计。"
+    },
+    "prompt": "四种培育方式各有 7 个独立花盆，响应为正的重量。对原尺度一元模型的残差，Shapiro–Wilk 的 P 约 7.70e−8，Brown–Forsythe 的 P 约 0.9971。取对数后重拟合，残差的 Shapiro–Wilk P 约 1.95e−7。按 0.05 诊断水平，哪句判断合适？",
+    "answer": 2,
+    "hint": "一个检查分布形状，另一个比较组内散布。先把三个 P 分别和 0.05 比。",
+    "steps": [
+      {
+        "title": "先读原尺度残差的形状",
+        "body": "<p>Q–Q 图与 Shapiro–Wilk 都应看模型的残差。这里用检验结果核对，形状有明显偏离正态的证据。</p>",
+        "latex": "p_{\\mathrm{raw}}\\approx7.70\\times10^{-8}<0.05"
+      },
+      {
+        "title": "变换后用新模型的残差再查",
+        "body": "<p>取对数改变了响应的尺度，也要重新拟合。新残差仍给出很小的 P，所以这次变换没有消除形状问题。</p>",
+        "latex": "p_{\\log}\\approx1.95\\times10^{-7}<0.05"
+      },
+      {
+        "title": "单独说明散布与独立性",
+        "body": "<p>Brown–Forsythe 比较各组到本组中位数的绝对距离。大 P 表示这次没有检测出平均距离有差，独立性仍从处理分配来判断。</p>",
+        "latex": "p_{\\mathrm{BF}}\\approx0.9971>0.05"
+      }
+    ],
+    "conclusion": "原尺度与对数尺度都有残差非正态的证据。原尺度的 Brown–Forsythe 未检测出组内散布差异；报告经典 ANOVA 时要把残差形状作为限制。",
+    "pitfall": "取对数后要重查残差。两种诊断的 P 分别回答自己的问题，不能相互抵消。",
+    "rCode": "y <- c(10,10.2,10.3,10.4,10.5,10.9,16,\n       11,11.1,11.4,11.5,11.6,11.8,16.5,\n       13,13.2,13.3,13.7,13.8,14.1,19.3,\n       14,14.1,14.4,14.7,14.9,15,20.4)\ng <- factor(rep(LETTERS[1:4],each=7))\nraw <- aov(y~g)\nlogged <- aov(log(y)~g)\nbf <- aov(abs(y-ave(y,g,FUN=median))~g)\np <- c(raw=shapiro.test(resid(raw))$p.value,\n       logged=shapiro.test(resid(logged))$p.value,\n       BF=summary(bf)[[1]]$\"Pr(>F)\"[1])\nprint(p)\nstopifnot(p[1]<.05,p[2]<.05,p[3]>.05)",
+    "readQuestion": {
+      "meaning": "判断取对数是否处理了形状问题，再分别读组内散布。",
+      "start": "给每个 P 标注它检验的条件。",
+      "link": {
+        "url": "chapters/08.html#diagnostics",
+        "label": "从一个残差开始读诊断图"
+      }
+    },
+    "options": [
+      "取对数后模型自动符合正态。",
+      "Brown–Forsythe 的大 P 证明各组方差相同且残差正态。",
+      "两次正态诊断都有偏离证据；原尺度未检测出散布差异。",
+      "原尺度正态性未通过，所以能断言所有总体均值相同。"
+    ],
+    "optionExplanations": [
+      "对数尺度的新残差 P 仍低于 0.05，表示形状问题仍在。",
+      "Brown–Forsythe 的大 P 只表示当前散布检验没有检出差异。",
+      "两次形状诊断都低于 0.05，原尺度的散布检验没有检出差异。",
+      "残差诊断评估模型条件，无法直接推出各个总体均值相等。"
+    ]
+  },
+  {
+    "id": "p09-06",
+    "chapter": "09",
+    "title": "Tukey 里为什么中间组有两个字母？",
+    "level": "应用",
+    "type": "choice",
+    "tags": [
+      "Tukey W",
+      "Fisher LSD",
+      "compact letters",
+      "Quiz 10"
+    ],
+    "source": {
+      "file": "Quiz/CPSC_440_Quiz_10-5.docx",
+      "locator": "Q1b；Homework 9 Q1c–d；PPT/Chapter_9.pptx 第46、52、58页，classnote Chapter 9 第23、25、29页",
+      "note": "按课程题型原创改编；数据和情境重新设计。"
+    },
+    "prompt": "三种育苗方法 A、B、C 的样本均值为 12、16、20 cm。每组 4 株独立苗，共同误差均方为 6，误差自由度为 9。独立正态、同方差模型下，用 5% Tukey W 保护三对比较。按从高到低把第一个字母 a 给 C，哪套字母正确？",
+    "answer": 1,
+    "hint": "先列出三段距离 4、4、8，再问哪一段跨过 Tukey 的门槛。",
+    "steps": [
+      {
+        "title": "先量三段距离",
+        "body": "<p>中间组各离两端 4 cm。最高和最低相距 8 cm。</p>",
+        "latex": "\\begin{gathered}B-A=4,\\quad C-B=4\\\\ C-A=8\\end{gathered}"
+      },
+      {
+        "title": "用整家族的门槛比三次",
+        "body": "<p>q 用三个组均值、9 个误差自由度。乘单组均值的标准误尺度，得到同样以厘米为单位的门槛。</p>",
+        "latex": "\\begin{gathered}q_{.95;3,9}\\approx3.9485\\\\ W=q_{.95;3,9}\\sqrt{\\frac64}\\approx4.8359\\\\ 4<W<8\\end{gathered}"
+      },
+      {
+        "title": "用字母记录每一对",
+        "body": "<p>C 和 B 需要共享 a，A 和 B 需要共享 b。C 与 A 不能共享字母，所以 B 同时带有 a 和 b。</p>"
+      },
+      {
+        "title": "换成 LSD，再看两段 4",
+        "body": "<p>LSD 的门槛约 3.9182，比 4 小。若用题外对照的单项 LSD 规则，三对各自都会拒绝相等。两种规则回答的错误率范围不同。</p>",
+        "latex": "L=t_{.975,9}\\sqrt{\\frac{2(6)}4}\\approx3.9182"
+      }
+    ],
+    "conclusion": "Tukey 下 C 是 a、B 是 ab、A 是 b。只有 C 与 A 在 5% 家族水平下有显著差异。",
+    "pitfall": "B 与两端各共享一个字母，只说明相邻两对的证据不足。未显著没有传递性。",
+    "rCode": "y <- c(9,12,12,15,13,16,16,19,17,20,20,23)\ng <- factor(rep(LETTERS[1:3],each=4))\nfit <- aov(y~g)\ntab <- TukeyHSD(fit)$g\nprint(tab)\nstopifnot(identical(unname(tab[,\"lwr\"]>0),c(FALSE,TRUE,FALSE)))",
+    "readQuestion": {
+      "meaning": "给字母之前，先把三对距离放到同一条尺上。",
+      "start": "先比距离和 Tukey 的门槛，再沿着共享字母核对每一对。",
+      "link": {
+        "url": "chapters/09.html#separation-letters",
+        "label": "切换 LSD 和 Tukey，观察同一差值"
+      }
+    },
+    "options": [
+      "C=a、B=b、A=c",
+      "C=a、B=ab、A=b",
+      "C=a、B=a、A=a",
+      "C=a、B=a、A=b"
+    ],
+    "optionExplanations": [
+      "每组只给独立字母会把两段 4 厘米的距离也判成显著。",
+      "两个相邻对各共享字母，最远的两个组没有共同字母。",
+      "三个组都共享字母会掩盖最远一对超过 Tukey 门槛的结果。",
+      "B 与 A 只差 4 厘米，未达到门槛，因此还需要共享 b。"
+    ]
+  },
+  {
+    "id": "p09-07",
+    "chapter": "09",
+    "title": "把四种组合等权平均，系数和是多少？",
+    "level": "基础",
+    "type": "choice",
+    "tags": [
+      "linear combination",
+      "contrast",
+      "Homework 9"
+    ],
+    "source": {
+      "file": "Homework/Homework_9/CPSC_440_Homework_9-5.docx",
+      "locator": "Q1e；PPT/Chapter_9.pptx 第7–8页，classnote Chapter 9 第5–6页",
+      "note": "按课程题型原创改编；数据和情境重新设计。"
+    },
+    "prompt": "研究设计有四种处理组合。目标是让四种组合各占 25% 后，估计总体平均干重。令四个总体均值为 μ₁、μ₂、μ₃、μ₄。应选择哪一种线性组合？",
+    "answer": 0,
+    "hint": "每一组都给同样的正权重，权重加起来是一整份。",
+    "steps": [
+      {
+        "title": "先让四种组合各占一份",
+        "body": "<p>题目说按四个条件同样重要来平均。各组权重由目标给定。</p>",
+        "latex": "c_1=c_2=c_3=c_4=1/4"
+      },
+      {
+        "title": "把总体目标写出来",
+        "body": "<p>每个总体均值各乘自己的权重，再加总。</p>",
+        "latex": "L=\\frac{\\mu_1+\\mu_2+\\mu_3+\\mu_4}{4}"
+      },
+      {
+        "title": "看它有没有把共同背景消掉",
+        "body": "<p>如果所有组都加 1，平均值也会加 1。因为系数和为 1，这个线性组合是一个平均。比较差用系数和为 0。</p>",
+        "latex": "\\sum_i c_i=4(1/4)=1"
+      }
+    ],
+    "conclusion": "选等权平均。它是线性组合，系数和为 1，报告的单位仍是干重单位。",
+    "pitfall": "总体目标是等权平均时，样本量改变会影响精度，权重依旧各是 1/4。",
+    "rCode": "mu <- c(11,13,16,20)\nw <- rep(1/4,4)\nprint(c(sum_weights=sum(w),weighted=sum(w*mu),mean=mean(mu)))\nstopifnot(sum(w)==1, sum(w*mu)==mean(mu))",
+    "readQuestion": {
+      "meaning": "这里在找平均水平，所以每一种组合都贡献一份正的权重。",
+      "start": "先写四个 1/4，再检查它们的和。",
+      "link": {
+        "url": "chapters/09.html#contrast",
+        "label": "先从问题写出权重"
+      }
+    },
+    "options": [
+      "(μ₁+μ₂+μ₃+μ₄)/4",
+      "(μ₁+μ₂−μ₃−μ₄)/4",
+      "μ₁+μ₂+μ₃+μ₄",
+      "(μ₁+μ₄)/2"
+    ],
+    "optionExplanations": [
+      "四个系数都是四分之一，四组同权，权重加起来正好为一。",
+      "两项加、两项减，系数和为零，问的是差异而非总体平均水平。",
+      "四个均值直接相加会得到四倍的等权平均，权重和不是一。",
+      "只保留第 1 和第 4 组会漏掉第 2 和第 3 种组合。"
+    ]
+  },
+  {
+    "id": "p09-08",
+    "chapter": "09",
+    "title": "两种条件等权平均后，是否低于 17？",
+    "level": "综合",
+    "type": "numeric",
+    "tags": [
+      "planned linear combination",
+      "one-sided t",
+      "Homework 9"
+    ],
+    "source": {
+      "file": "Homework/Homework_9/CPSC_440_Homework_9-5.docx",
+      "locator": "Q1f–g；PPT/Chapter_9.pptx 第7、13–15页，classnote Chapter 9 第5、13–14页",
+      "note": "按课程题型原创改编；数据和情境重新设计。"
+    },
+    "prompt": "四种播种组合各有 5 个独立重复，共同误差均方为 8，误差自由度为 16。事先指定只看第 2 和第 4 组的等权总体平均 L，两个样本均值分别为 14 和 16。按独立正态、共同方差模型，检验 H₀: L≥17 对 Hₐ: L&lt;17。左尾 P 值是多少？",
+    "answer": 0.019972359587,
+    "hint": "先按系数得到平均值和标准误，再到 16 个自由度的 t 曲线找左尾。",
+    "steps": [
+      {
+        "title": "先固定目标和方向",
+        "body": "<p>两组各占一半，另外两组在这个估计里权重为零。研究问比 17 低多少，所以先定左尾。</p>",
+        "latex": "\\begin{gathered}L=(\\mu_2+\\mu_4)/2\\\\ H_0:L\\ge17,\\quad H_a:L<17\\\\ \\widehat L=(14+16)/2=15\\end{gathered}"
+      },
+      {
+        "title": "把两组均值自己的波动都算进去",
+        "body": "<p>两组独立，因此方差贡献按系数的平方加总。用完整模型的共同 MSE。</p>",
+        "latex": "\\begin{gathered}\\mathrm{SE}=\\sqrt{8\\left(\\frac{(1/2)^2}{5}+\\frac{(1/2)^2}{5}\\right)}\\\\ \\approx0.894427\\end{gathered}"
+      },
+      {
+        "title": "在边界 17 下取左尾",
+        "body": "<p>样本平均比边界小 2。用负的 t 值作为截点，取 t 曲线左侧面积。</p>",
+        "latex": "\\begin{gathered}t=\\frac{15-17}{\\mathrm{SE}}\\approx-2.236068\\\\ p=P(T_{16}\\le t)\\approx0.0199724\\end{gathered}"
+      }
+    ],
+    "conclusion": "在 5% 水平拒绝 H₀，有证据表明第 2 与第 4 组的等权总体平均低于 17。",
+    "pitfall": "只取事先指定的左尾。把 t 平方会丢掉方向，双尾 P 会把两边都算上。",
+    "rCode": "means <- c(12,14,19,16); n <- rep(5,4)\nw <- c(0,.5,0,.5); mse <- 8; df <- 16\nestimate <- sum(w*means)\nse <- sqrt(mse*sum(w^2/n))\nt <- (estimate-17)/se\np <- pt(t,df)\nprint(c(estimate=estimate,se=se,df=df,t=t,p_left=p))\nstopifnot(abs(p-.019972359587)<1e-10)",
+    "readQuestion": {
+      "meaning": "把两组平均放到同一个目标里，然后只查「低于门槛」这一个方向。",
+      "start": "权重为 0、1/2、0、1/2。",
+      "link": {
+        "url": "chapters/09.html#contrast",
+        "label": "从系数到同一模型中的标准误"
+      }
+    },
+    "tolerance": 0.0001,
+    "unit": "P 值"
+  },
+  {
+    "id": "p09-09",
+    "chapter": "09",
+    "title": "四组最多有几条彼此正交的对比？",
+    "level": "应用",
+    "type": "numeric",
+    "tags": [
+      "orthogonal contrasts",
+      "degrees of freedom",
+      "Homework 9"
+    ],
+    "source": {
+      "file": "Homework/Homework_9/CPSC_440_Homework_9-5.docx",
+      "locator": "Q1h；PPT/Chapter_9.pptx 第9–10页，classnote Chapter 9 第15页",
+      "note": "按课程题型原创改编；数据和情境重新设计。"
+    },
+    "prompt": "四个独立处理组，组样本量相同。在组均值之间，最多能找出几个非零、两两正交的线性 contrast？",
+    "answer": 3,
+    "hint": "四个系数有一个共同限制：总和必须等于零。",
+    "steps": [
+      {
+        "title": "数可用的比较方向",
+        "body": "<p>四个均值有一个共同的整体位置。把系数和限制为零后，还剩三个可独立变化的方向。</p>",
+        "latex": "\\sum_{i=1}^4 c_i=0,\\quad \\mathrm{df}_{\\mathrm{trt}}=4-1=3"
+      },
+      {
+        "title": "实际摆出三条方向",
+        "body": "<p>第一行比较前两组与后两组，第二行和第三行用不同的分组方式。每行的系数和都是零。</p>",
+        "latex": "C=\\begin{bmatrix}1&1&-1&-1\\\\1&-1&1&-1\\\\1&-1&-1&1\\end{bmatrix}"
+      },
+      {
+        "title": "逐对检查是否正交",
+        "body": "<p>组大小相同，检查两行系数逐项相乘后相加。三对内积全为零。加第四条非零方向就超出了三维的对比空间。</p>",
+        "latex": "CC^{\\mathsf T}=4I_3"
+      }
+    ],
+    "conclusion": "最多 3 个非零、两两正交的 contrast。",
+    "pitfall": "四组有六个两两比较，但它们共享组均值信息。组样本量不同时，要用按 1/nᵢ 加权的内积来检查定义在组均值上的 contrast。",
+    "rCode": "C <- rbind(c(1,1,-1,-1),c(1,-1,1,-1),c(1,-1,-1,1))\nprint(rowSums(C))\nprint(tcrossprod(C))\nstopifnot(all(rowSums(C)==0),all(tcrossprod(C)==4*diag(3)))",
+    "readQuestion": {
+      "meaning": "问这四个组最多能提供多少个互不重叠的对比方向。",
+      "start": "先用系数和为零的限制，扣掉共同位置。",
+      "link": {
+        "url": "chapters/09.html#orthogonal",
+        "label": "看正交性怎样联系自由度"
+      }
+    },
+    "integer": true,
+    "unit": "条对比",
+    "tolerance": 0
+  },
+  {
+    "id": "p09-10",
+    "chapter": "09",
+    "title": "把 0.05 分给 25 万个检验",
+    "level": "基础",
+    "type": "numeric",
+    "tags": [
+      "Bonferroni",
+      "scientific notation",
+      "Homework 9"
+    ],
+    "source": {
+      "file": "Homework/Homework_9/CPSC_440_Homework_9-5.docx",
+      "locator": "Q1 extra credit；PPT/Chapter_9.pptx 第6页，classnote Chapter 9 第4页",
+      "note": "按课程题型原创改编；数据和情境重新设计。"
+    },
+    "prompt": "一项筛查预先指定 250,000 个检验。用等分 Bonferroni 把整批至少一次误报的概率控制在 0.05 以下或等于 0.05。每个检验的显著性阈值是多少？可以用 e 记法输入。",
+    "answer": 2e-07,
+    "hint": "先确认 0.05 是整批的额度，再除以检验总数。",
+    "steps": [
+      {
+        "title": "先圈出要一起保护的检验",
+        "body": "<p>研究预先指定了整批 25 万项。如果有多个真零假设，任何一个被错误拒绝都计一次整批误报。</p>",
+        "latex": "m=250000,\\qquad \\alpha_{\\mathrm{family}}=0.05"
+      },
+      {
+        "title": "每项拿同样的额度",
+        "body": "<p>让每项最多用同一份小额度。整批误报概率不超过每项误报概率的上界之和。</p>",
+        "latex": "\\begin{gathered}\\alpha_{\\mathrm{per}}=\\frac{0.05}{250000}\\\\ =2\\times10^{-7}\\end{gathered}"
+      },
+      {
+        "title": "用乘法检查小数点",
+        "body": "<p>每项阈值乘回检验个数，应恰好等于整批目标。</p>",
+        "latex": "250000(2\\times10^{-7})=0.05"
+      }
+    ],
+    "conclusion": "每项阈值为 0.0000002，也可写成 2e−7。",
+    "pitfall": "0.05 是概率形式的 5%。检查小数点，避免把整批阈值当作每项阈值。",
+    "rCode": "m <- 250000L\nthreshold <- .05/m\nprint(threshold)\nstopifnot(abs(m*threshold-.05)<1e-14)",
+    "readQuestion": {
+      "meaning": "把整批误报额度平分给每项，再核对小数位数。",
+      "start": "先算 0.05 除以 250000，结果乘回去检查。",
+      "link": {
+        "url": "chapters/09.html#multiplicity",
+        "label": "看同一份风险预算如何随检验数平分"
+      }
+    },
+    "tolerance": 1e-09,
+    "unit": "概率"
   }
 ]

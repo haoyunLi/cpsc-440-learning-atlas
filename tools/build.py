@@ -52,6 +52,8 @@ def doc(title,body,prefix='./'):
   extra+=f'<link rel="stylesheet" href="{prefix}assets/diagnostics.css?v={version("assets/diagnostics.css")}">'
  if 'data-brown-forsythe' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/brown-forsythe.css?v={version("assets/brown-forsythe.css")}"><script type="module" src="{prefix}assets/brown-forsythe.mjs?v={version("assets/brown-forsythe.mjs")}"></script>'
+ if 'data-separation' in body:
+  extra+=f'<link rel="stylesheet" href="{prefix}assets/separation.css?v={version("assets/separation.css")}"><script type="module" src="{prefix}assets/separation.mjs?v={version("assets/separation.mjs")}"></script>'
  if 'data-randomization' in body:
   extra+=f'<link rel="stylesheet" href="{prefix}assets/randomization.css?v={version("assets/randomization.css")}"><script type="module" src="{prefix}assets/randomization.mjs?v={version("assets/randomization.mjs")}"></script>'
  if 'data-influence' in body:

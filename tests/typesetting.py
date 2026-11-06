@@ -23,7 +23,7 @@ class Inspect(HTMLParser):
         if tag=='script' and 'src' in a:self.scripts.append(a['src'])
         if 'id' in a:self.ids.append(a['id'])
 
-assert len(RECORDS)==128
+assert len(RECORDS)==129
 assert len(WALKS)==10 and sum(len(w['frames']) for w in WALKS)==40
 for c in chapters:
     source=(ROOT/f'chapters/{c["id"]}.html').read_text();doc=Inspect();doc.feed(source)
@@ -64,9 +64,9 @@ assert (css.parent/'LICENSE').is_file()
 assert '0.16.22' in (css.parent/'VERSION').read_text()
 
 practice=(ROOT/'practice.html').read_text();doc=Inspect();doc.feed(practice)
-assert practice.count('class="exercise-translation"')==93
-assert sum('latex' in s for q in PRACTICE for s in q['steps'])==241
-assert doc.maths==241+sum('promptLatex' in q for q in PRACTICE)
+assert practice.count('class="exercise-translation"')==100
+assert sum('latex' in s for q in PRACTICE for s in q['steps'])==262
+assert doc.maths==262+sum('promptLatex' in q for q in PRACTICE)
 for q in PRACTICE:
     assert 'readQuestion' in q
-print('133 chapter and auxiliary LaTeX source bindings, 40 staged formulas, 241 solution formulas, 93 plain-language guides, prompt and inline MathML, and local math fonts passed.')
+print('134 chapter and auxiliary LaTeX source bindings, 40 staged formulas, 262 solution formulas, 100 plain-language guides, prompt and inline MathML, and local math fonts passed.')

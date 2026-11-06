@@ -83,7 +83,7 @@ export function inferenceProbabilities({ n, sigma, delta, alpha, tail }) {
   const classification = inAlternative ? 'alternative' : delta === 0 ? 'boundary' : 'null';
   return { se, lower, upper, nonRejection, rejection, classification, beta: inAlternative ? nonRejection : null, power: inAlternative ? rejection : null };
 }
-const instructions={summary:['数据摘要实验室','改变数据或 bin 数，追踪每个点如何改变 center 与 spread。'],probability:['Binomial 与 CLT 实验室','每一根柱是某个 count 的 probability；再亲自反复抽样观察 mean 的分布。'],inference:['Type I、Type II 与 power 实验室','先固定 rejection rule，再看指定真实均值下的拒绝与不拒绝概率。'],paired:['Pairing 的信息在哪里？','保留观测身份，比较整行排序与单列重排，追踪 difference、covariance 与 SE。'],variance:['χ² 与 variance CI 实验室','df 改变 reference distribution，并改变 variance interval 的不对称性。'],anova:['九株苗怎样变成一张 ANOVA 表？','改变组间距离或组内散布，再追踪一株苗对计算的贡献。'],multiple:['Multiple-testing 实验室','这里的 FWER 公式明确假定 independent null tests；Bonferroni bound 不需要独立。'],factorial:['Interaction 与不同权重的 marginal means','先改变 cell means，再保持它们不变只改样本数，区分条件效应与样本构成。'],design:['Blocking 与 Latin square 实验室','沿光照梯度，比较各 treatment 在每个 block 中均出现的结构。'],regression:['同一个 x₀，两种不同的预测问题','在同一尺度上比较总体 mean 的 CI 与新个体的 PI；逐项追踪 h₀、variance、SE 与临界值。']};
+const instructions={summary:['数据摘要实验室','改变数据或 bin 数，追踪每个点如何改变 center 与 spread。'],probability:['Binomial 与 CLT 实验室','每一根柱是某个 count 的 probability；再亲自反复抽样观察 mean 的分布。'],inference:['Type I、Type II 与 power 实验室','先固定 rejection rule，再看指定真实均值下的拒绝与不拒绝概率。'],paired:['Pairing 的信息在哪里？','保留观测身份，比较整行排序与单列重排，追踪 difference、covariance 与 SE。'],variance:['χ² 与 variance CI 实验室','df 改变 reference distribution，并改变 variance interval 的不对称性。'],anova:['九株苗怎样变成一张 ANOVA 表？','改变组间距离或组内散布，再追踪一株苗对计算的贡献。'],multiple:['一百次研究里，会有几次误报？','改变每次研究的比较数，看看至少误报一次的风险会涨多快。'],factorial:['Interaction 与不同权重的 marginal means','先改变 cell means，再保持它们不变只改样本数，区分条件效应与样本构成。'],design:['Blocking 与 Latin square 实验室','沿光照梯度，比较各 treatment 在每个 block 中均出现的结构。'],regression:['同一个 x₀，两种不同的预测问题','在同一尺度上比较总体 mean 的 CI 与新个体的 PI；逐项追踪 h₀、variance、SE 与临界值。']};
 function labSummary(el) {
   const update=setup(el, `<label for="data-values">原创示例数据；逗号或空格分隔，至少 2 个数，最多 500 个</label><textarea id="data-values">2, 3, 3, 4, 18</textarea><div class="controls">${range('bins','Bins',3,20,1,7)}</div><p class="error" role="alert"></p>${svg('示例数据 histogram 与统计量')}<p class="caption" data-summary-scale></p><div class="readout" aria-live="polite"></div><p class="caption">Histogram 纵轴为 count。改变 bins 只改分组显示，不改观测或统计量。所有观测相同时，SD 与 variance 为 0；图中会留出横轴空间显示这一根柱。≈0 表示计算结果接近本组数据尺度的浮点舍入精度。</p>
     <h3>同一组数据：箱体、须和围栏分别在哪里？</h3><p>先预测：把最后一个值移远时，mean 与 median 谁更敏感？须会伸到围栏，还是围栏内最远的实际观测？下方与 histogram 使用同一组数据；两个图各自缩放并标明刻度。</p>
@@ -193,7 +193,44 @@ function labVariance(el) {
   }
 }
 function labAnova(el){mountAnova(el)}
-function labMultiple(el){setup(el,`<div class="controls">${range('mm','m null tests',1,100,1,20)}${range('ma','Per-test α',.01,.1,.005,.05)}</div>${svg('Independent null tests 的 familywise error 随 m 增加')}<div class="readout" aria-live="polite"></div><p class="caption">模拟理论场景：tests independent 且所有 null 为真。实线为未校正 FWER，虚线是 Bonferroni bound 对固定 family target。</p>`,()=>{const m=val('mm',el),a=val('ma',el),s=$('svg',el),map=axes(s,'Number of null tests m','FWER probability',1,100,0,1);curve(s,x=>1-(1-a)**x,1,100,map);add(s,'line',{x1:55,x2:645,y1:map.y(a),y2:map.y(a),stroke:'#9a472e','stroke-dasharray':'6 4'});add(s,'circle',{cx:map.x(m),cy:map.y(1-(1-a)**m),r:6,fill:'#9a472e'});$('.readout',el).textContent=`未校正 FWER=1−(1−${a})^${m}=${fmt(1-(1-a)**m,4)} · 若 family target=${a}，Bonferroni per-test threshold=${fmt(a/m,6)}，independent case corrected FWER=${fmt(1-(1-a/m)**m,4)} ≤ target。`})}
+function labMultiple(el) {
+  setup(el, `<p>假设所有比较都碰巧面对真实的零假设。单次研究只要有一个比较误报，就在研究记录上打一个记号。做的比较越多，一次研究被打上记号的机会会怎样变？</p>
+    <div class="controls">${range('mm','每次研究做几个检验',1,100,1,20)}${range('ma','用来比较两种做法的 α',.01,.1,.005,.05)}</div>
+    <p>每张图的 100 格代表 100 次研究。深色格是平均预计会出现至少一次误报的研究数，按最接近的整格显示。</p>
+    <div class="multiple-grids">
+      <figure><figcaption><b>每项各用一份 α</b></figcaption><p data-multiple-rate="raw"></p><div class="multiple-grid" data-multiple-grid="raw" aria-hidden="true"></div></figure>
+      <figure><figcaption><b>整批平分一份 α</b></figcaption><p data-multiple-rate="adjusted"></p><div class="multiple-grid" data-multiple-grid="adjusted" aria-hidden="true"></div></figure>
+    </div>
+    <p class="readout" aria-live="polite"></p>
+    <div class="equation typeset-equation" data-multiple-math tabindex="0" role="region" aria-label="整批误报概率与每个检验的阈值，可横向滚动"></div>
+    <details><summary>看比较次数增加时，整批误报概率怎么变</summary>
+      ${svg('独立检验的整批误报风险与 Bonferroni 目标上界')}
+      <p class="caption">绿线是每个检验各用 α 时的整批误报概率，圆点是当前检验数。棕色虚线是 Bonferroni 的整批目标上界。</p>
+    </details>
+    <p class="caption">方格与绿线按独立检验且所有零假设都为真计算。实际两两比较常共享同一组数据，精确概率会随相关结构改变。Bonferroni 的整批上界来自各误报概率相加，在检验相关时也成立。</p>`, () => {
+    const m = val('mm', el), alpha = val('ma', el), cutoff = alpha / m;
+    const risk = (a, count) => -Math.expm1(count * Math.log1p(-a));
+    const raw = risk(alpha, m), adjusted = risk(cutoff, m);
+    const percent = probability => fmt(100 * probability, probability >= .99995 ? 3 : 2) + '%';
+    const plot = $('svg', el);
+    const map = axes(plot, '每次研究的检验数', '整批误报概率', 0, 100, 0, 1, String);
+    curve(plot, count => risk(alpha, count), 0, 100, map);
+    add(plot, 'line', { x1: map.x(0), x2: map.x(100), y1: map.y(alpha), y2: map.y(alpha), stroke: '#9a472e', 'stroke-dasharray': '6 4' });
+    add(plot, 'circle', { cx: map.x(m), cy: map.y(raw), r: 6, fill: '#9a472e' });
+    for (const [kind, probability] of [['raw', raw], ['adjusted', adjusted]]) {
+      const filled = Math.round(100 * probability);
+      $(`[data-multiple-rate="${kind}"]`, el).textContent = `约 ${filled} / 100 次研究 · ${percent(probability)}`;
+      $(`[data-multiple-grid="${kind}"]`, el).innerHTML = '<span class="multiple-hit"></span>'.repeat(filled) + '<span></span>'.repeat(100 - filled);
+    }
+    $('.readout', el).textContent = `每批 ${m} 个检验。各用 ${fmt(100 * alpha, 1)}% 时，整批误报概率约为 ${percent(raw)}；平分给各个检验时约为 ${percent(adjusted)}。`;
+    $('[data-multiple-math]', el).innerHTML = equationHTML(String.raw`\begin{aligned}
+      \mathrm{FWER}_{\mathrm{raw}} &= 1-(1-${alpha})^{${m}}\approx ${fmt(raw, raw >= .99995 ? 6 : 4)}\\
+      \alpha_{\mathrm{per\ test}} &= \frac{${alpha}}{${m}}\approx ${fmt(cutoff, 6)}\\
+      \mathrm{FWER}_{\mathrm{Bonf}} &= 1-\left(1-\frac{${alpha}}{${m}}\right)^{${m}}\\
+        &\approx ${fmt(adjusted, 4)}
+    \end{aligned}`);
+  });
+}
 function labFactorial(el){mountFactorial(el)}
 function labDesign(el){let seed=440;setup(el,`<div class="controls">${range('dg','Light-gradient strength',0,10,.5,5)}</div>${svg('RCBD 每个 block 包含三个 treatment，光照在 blocks 之间变化')}<div class="readout" aria-live="polite"></div><div class="lab-actions"><button id="randomize">重新 randomize（seed +1）</button></div><h3>自己构建一个 4×4 Latin square</h3><div id="latin"></div><p class="caption">上方 RCBD 图的 letters 是 treatments。其重新 randomize 按钮只在 block 内排列，保持 RCBD 的约束；Latin square 任务有自己独立的编辑与置换按钮。背景深浅编码光照；固定 residuals 在每个 treatment 和 block 内的和均为 0，因此 SSE 的变化可直接追踪到 block term。这是设计演示，不是实测数据。下方 one-way 数值是对同一 RCBD 汇总省略 block 后的分析，不能把既有抽签方案改成 CRD；真正的 CRD 在所有实验单位之间随机分配处理。</p>`,()=>draw());function draw(){const s=$('svg',el),gradient=val('dg',el),rng=M.seeded(seed);s.replaceChildren();let arrangements=[];for(let block=0;block<5;block++){const perm=[0,1,2];for(let i=2;i>0;i--){const j=Math.floor(rng()*(i+1));[perm[i],perm[j]]=[perm[j],perm[i]]}arrangements.push(perm);add(s,'rect',{x:48+block*115,y:46,width:110,height:204,fill:'#183a37',opacity:(gradient/10)*(4-block)/16});add(s,'text',{x:100+block*115,y:30,'text-anchor':'middle',class:'plot-label'},'Block '+(block+1));perm.forEach((t,row)=>{add(s,'rect',{x:55+block*115,y:60+row*62,width:95,height:50,fill:['#dcebe4','#c5ded3','#adcdbf'][t]});add(s,'text',{x:102+block*115,y:92+row*62,'text-anchor':'middle',class:'plot-label'},String.fromCharCode(65+t))})}add(s,'text',{x:55,y:278,class:'plot-label'},`More light → Less light；block effect range=${gradient}`);$('.readout',el).textContent=`加性演示模型 Y=20+2×treatment index+block effect+residual；block effects 从 +${fmt(gradient/2,2)} 到 −${fmt(gradient/2,2)}，每个 treatment 的平均 block effect=0。固定 residual SSE=10，RCBD MSE=10/8=1.250；同一数据忽略 block 的 one-way MSE=(10+1.875×gradient²)/12=${fmt((10+1.875*gradient*gradient)/12)}，MSE ratio=${fmt((10+1.875*gradient*gradient)/15)}。无梯度时 blocking 会损失 df；强梯度时可提高 precision。Seed=${seed}。`}draw();mountLatinDesigner($('#latin',el));$('#randomize',el).onclick=()=>{seed++;draw()}}
 function labRegression(el){mountRegression(el)}

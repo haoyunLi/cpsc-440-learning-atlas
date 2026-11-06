@@ -27,13 +27,15 @@ function mount(kind, settings) {
   const buttons = { a: new Element('button'), b: new Element('button') };
   const extra = { '[data-variance-interval]': interval, '[data-variance-formula]': formula,
     '[data-variance-explanation]': explanation, '#vq-a': buttons.a, '#vq-b': buttons.b };
+  const multiples = Object.fromEntries(['rate="raw"', 'rate="adjusted"', 'grid="raw"', 'grid="adjusted"', 'math'].map(key => [key, new Element()]));
+  for (const [key, element] of Object.entries(multiples)) extra[`[data-multiple-${key}]`] = element;
   const outputs = Object.fromEntries(Object.keys(fields).map(id => [`${id}-v`, new Element()]));
   const host = {
     querySelector: selector => selector === 'svg' ? graph : selector === '.readout' ? readout : extra[selector] || fields[selector.slice(1)] || outputs[selector.slice(1)],
     querySelectorAll: selector => Object.values(fields).filter(el => selector !== 'input[type=range]' || el.tag === 'input')
   };
   context.testMounts[kind](host);
-  return { graph, readout, interval, formula, explanation, buttons, change(patch) {
+  return { graph, readout, interval, formula, explanation, buttons, multiples, change(patch) {
     for (const [key, value] of Object.entries(patch)) fields[key].value = String(value);
     Object.values(fields)[0].events.input();
   } };
@@ -107,5 +109,22 @@ assert.deepEqual(labels(customX), ['0.0', '0.3', '0.5', '0.8', '1.0']);
 // in regression.mjs; shared axes are still verified above.
 const multiple = mount('labMultiple', { mm: 20, ma: .05 });
 assert.deepEqual(labels(multiple.graph), ['0.0', '0.3', '0.5', '0.8', '1.0']);
-assert.match(multiple.readout.textContent, /corrected FWER=0.0488/);
+const checkGrids = (raw, adjusted) => {
+  for (const [kind, count] of [['raw', raw], ['adjusted', adjusted]]) {
+    const grid = multiple.multiples[`grid="${kind}"`].innerHTML;
+    assert.equal([...grid.matchAll(/<span/g)].length, 100);
+    assert.equal([...grid.matchAll(/multiple-hit/g)].length, count);
+    assert.match(multiple.multiples[`rate="${kind}"`].textContent, new RegExp(`约 ${count} / 100`));
+  }
+};
+checkGrids(64, 5);
+assert.match(multiple.readout.textContent, /64\.15%.*4\.88%/);
+assert.match(multiple.multiples.math.innerHTML, /<math/);
+assert.ok(multiple.multiples.math.innerHTML.includes('0.002500'));
+multiple.change({ mm: 1 });
+checkGrids(5, 5);
+assert.match(multiple.readout.textContent, /5\.00%.*5\.00%/);
+multiple.change({ mm: 100, ma: .1 });
+checkGrids(100, 10);
+assert.match(multiple.readout.textContent, /99\.997%.*9\.52%/);
 console.log('Variance density ticks: all n=4..100 distinct and accurate; reciprocal endpoint geometry, both selectable formulas, default axes and multiplicity mount passed.');

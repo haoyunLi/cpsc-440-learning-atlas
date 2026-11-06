@@ -1,4 +1,5 @@
 import * as M from './math.mjs';
+import { equationHTML } from './formulas.mjs';
 
 const sum = values => values.reduce((a, b) => a + b, 0);
 const format = value => Math.abs(value) > 0 && Math.abs(value) < .0001 ? value.toExponential(3) : Number(value.toFixed(5)).toString();
@@ -97,17 +98,23 @@ function plot(root, r) {
 function mount(root) {
   root.classList.add('wbench');
   const input = (id, value, label) => `<label>${label}<input data-contrast=${id} value='${value}' inputmode=decimal></label>`;
-  root.innerHTML = `<h2>从一个科学问题到 contrast 的区间</h2><p>四个独立组的原创汇总示例。假设各组正态、共同 variance，单因子模型 error df = Σnᵢ − 4。先确定研究问题和比较 family，再读结果。每个设定都保留在本页。</p>
+  root.innerHTML = `<h2>把想比较的话，写成一次加减</h2><p>四组盆栽用对照与三种肥料。想问「对照比三种肥料的平均高多少」时，先把三种肥料的均值各拿三分之一，再用对照减去它们的和。换一个问题，看哪些组的系数跟着变。</p>
   <div class=wbench-controls><label>先选一个研究问题<select data-contrast=preset><option value=control>Control − 三种处理的平均</option><option value=pair>A − B</option><option value=average>三种处理平均（不是 contrast）</option><option value=custom>自定义系数（在下方编辑）</option></select></label><label>区间与双侧检验<select data-contrast=method><option value=individual>单个预定问题：普通 t</option><option value=bonferroni>预定 family：Bonferroni</option><option value=scheffe>全部 contrasts：Scheffé</option></select></label>${input('mse',4,'共同 MSE')}${input('family',3,'预定 family 中的全部问题数 m')}<label>α<select data-contrast=alpha><option value=.05>0.05</option><option value=.01>0.01</option><option value=.1>0.10</option></select></label><label>全部系数同时乘以<select data-contrast=scale><option value=1>1</option><option value=3>3</option><option value=-1>−1：反转方向</option></select></label><label>全部组均值一起平移 <output data-shift-value>0</output><input type=range data-contrast=shift min=-10 max=10 step=1 value=0></label></div>
   <div class=contrast-grid>${['Control','A','B','C'].map((name,i)=>`<fieldset><legend>${name}</legend>${input('mean'+i,[10,12,14,16][i],'组均值')}${input('n'+i,4,'样本量 nᵢ')}${input('a'+i,i?'−1/3':'1','系数 aᵢ（支持分数）')}</fieldset>`).join('')}</div>
   <p class=wbench-note>系数、样本量均可直接编辑。图和计算使用“输入均值 + 平移”及“输入系数 × 倍数”。MSE 是共同模型误差项，不能由组均值本身估计。</p><p class=wbench-error role=alert></p>
-  <div class=wbench-result data-result aria-live=polite></div><svg data-plot=terms viewBox='0 0 640 290' role=img aria-label='各组带符号的线性组合贡献'></svg><svg data-plot=interval viewBox='0 0 640 220' role=img aria-label='线性组合估计及其置信区间，与零比较'></svg>
+  <h3>各组均值乘上自己的系数，再相加</h3>
+  <p class=wbench-note>四项按对照、A、B、C 排列。括号中的数是图上带正负号的贡献，显示时经过四舍五入。</p>
+  <div class="equation typeset-equation" data-contrast-equation tabindex="0" role="region" aria-label="四组的带符号贡献，可横向滚动"></div>
+  <svg data-plot=terms viewBox='0 0 640 290' role=img aria-label='各组带符号的线性组合贡献'></svg>
+  <h3>这个差值有多确定？</h3>
+  <div class=wbench-result data-result aria-live=polite></div><svg data-plot=interval viewBox='0 0 640 220' role=img aria-label='线性组合估计及其置信区间，与零比较'></svg>
+  <p class=wbench-note>本例四组独立，各组假设正态并共享总体方差。误差自由度是总样本数减去四个组均值。</p>
   <p data-covariance class=wbench-note></p><details><summary>操作挑战：先预测，再改变一个设定</summary><ol><li>全部均值加 10。Control−active average 是否改变？切换到“三种处理平均”再试一次。</li><li>把所有系数乘 3。Estimate 和 SE 都怎样改变？t、P 与拒绝结论是否改变？</li><li>保持 Control 对比，把 A 的 n 从 4 改成 8。为什么它与 A−B 的加权内积不再为 0？</li><li>保持数据，比较普通、Bonferroni 和 Scheffé 区间。先说清各自保护的 family，不按哪个显著来选方法。</li></ol></details>
   <details><summary>用 R 核对当前设置</summary><p>以下 base R 代码已包含当前汇总数据；浏览器不运行 R。</p><button class=secondary data-copy>复制当前 R 代码</button><p class=status data-copy-status role=status></p><pre><code data-r-code></code></pre></details><p><a href='chapters/09.html#contrast'>回看 contrast 计算</a> · <a href='chapters/09.html#procedures'>比较方法与保护范围</a> · <a href='chapters/09.html#orthogonal'>正交与 SS 分解</a></p>`;
   const read = key => root.querySelector(`[data-contrast=${key}]`);
   // Use keyboard minus in editable values, while mathematical labels may use Unicode.
   for (let i=1; i<4; i++) read('a'+i).value='-1/3';
-  const code = root.querySelector('[data-r-code]'), copy = root.querySelector('[data-copy]');
+  const code = root.querySelector('[data-r-code]'), copy = root.querySelector('[data-copy]'), equation = root.querySelector('[data-contrast-equation]');
   function update() {
     read('family').disabled=read('method').value!=='bonferroni';
     root.querySelector('[data-shift-value]').textContent=read('shift').value;
@@ -119,11 +126,16 @@ function mount(root) {
       const r=contrastSummary(config), covariance=contrastCovariance(config.weights,[0,1,-1,0],config.sizes,config.mse);
       const name={individual:'普通',bonferroni:'Bonferroni 同时',scheffe:'Scheffé 同时'}[config.method];
       root.querySelector('.wbench-error').textContent=''; copy.disabled=false;
+      const [control, a, b, c, estimate] = [...r.terms, r.estimate].map(value => format(value).replace(/e([+-]?\d+)$/, '\\times 10^{$1}'));
+      equation.innerHTML = equationHTML(String.raw`\begin{aligned}\widehat L &= \sum_i a_i\bar y_i\\
+        &\approx (${control})+(${a})\\
+        &\quad +(${b})+(${c})\\
+        &\approx ${estimate}\end{aligned}`);
       root.querySelector('[data-result]').innerHTML=`<strong>${r.isContrast?'Contrast':'一般线性组合'}：L̂ = ${format(r.estimate)}；SE = ${format(r.se)}</strong><span>有效 coefficients = [${config.weights.map(format).join(', ')}]；Σaᵢ = ${format(r.weightSum)}</span><span>df = ${r.df}；t = ${format(r.t)}；未经校正双侧 P = ${format(r.rawP)}</span><span>${name} ${Math.round((1-config.alpha)*100)}% CI = [${format(r.low)}, ${format(r.high)}]；${config.method==='individual'?'P':'adjusted P'} = ${format(r.adjustedP)}</span><span>本规则在 α=${config.alpha} 下${r.adjustedP<=config.alpha?'拒绝':'不拒绝'} L=0。${r.isContrast?`SScontrast = ${format(r.ss)}，1-df F=t²=${format(r.t*r.t)}；F 右尾对应双侧 t。`:'系数和非零，整体均值平移会改变此 estimand；不能把它当作 treatment contrast SS。'}</span><span>${config.method==='bonferroni'?`family 中预定 m=${config.family} 个问题；当前显示其中一个区间，未计算其他问题。`:config.method==='scheffe'?'保护这 4 组均值之间的全部 contrasts；乘数使用组数−1=3，不使用当前列出问题的数量。':'这是单个预定问题的区间，不自动保护查看过的全部比较。'}</span>`;
       root.querySelector('[data-covariance]').textContent=`与 b=[0,1,−1,0]（A−B）的加权内积 Σaᵢbᵢ/nᵢ=${format(covariance.inner)}；估计 covariance=${format(covariance.covariance)}，correlation=${format(covariance.correlation)}。正交要求内积为 0；共同正态模型下线性估计才由不相关推出独立。t/F 还共享估计 MSE，不能据此免去 family 校正。`;
       plot(root,r); code.textContent=contrastRCode(config);
     } catch(error) {
-      root.querySelector('.wbench-error').textContent=error.message;root.querySelector('[data-result]').textContent='等待有效的研究问题与输入。';root.querySelector('[data-covariance]').textContent='';root.querySelectorAll('svg').forEach(svg=>svg.replaceChildren());code.textContent='';copy.disabled=true;
+      root.querySelector('.wbench-error').textContent=error.message;root.querySelector('[data-result]').textContent='等待有效的研究问题与输入。';root.querySelector('[data-covariance]').textContent='';equation.textContent='';root.querySelectorAll('[data-plot]').forEach(svg=>svg.replaceChildren());code.textContent='';copy.disabled=true;
     }
   }
   read('preset').addEventListener('change',()=>{

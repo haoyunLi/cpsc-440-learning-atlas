@@ -49,8 +49,8 @@ assert (css.parent/'LICENSE').is_file()
 assert '0.16.22' in (css.parent/'VERSION').read_text()
 
 practice=(ROOT/'practice.html').read_text();doc=Inspect();doc.feed(practice)
-assert practice.count('class="exercise-translation"')==40
-assert doc.maths==sum('latex' in s for q in PRACTICE for s in q['steps'])==84
+assert practice.count('class="exercise-translation"')==45
+assert doc.maths==sum('latex' in s for q in PRACTICE for s in q['steps'])==98
 for q in PRACTICE:
-    assert ('readQuestion' in q)==(q['chapter'] in {'05','06','07','08'})
-print('128 explicit LaTeX source bindings, 40 staged formulas, 84 solution formulas, 40 plain-language prompts, static MathML and all local math fonts passed.')
+    assert ('readQuestion' in q)==(q['chapter'] in {'05','06','07','08','09'})
+print('128 explicit LaTeX source bindings, 40 staged formulas, 98 solution formulas, 45 plain-language prompts, static MathML and all local math fonts passed.')

@@ -1,7 +1,7 @@
 # Run from the repository root: Rscript tests/method_cases.R
 # Export the browser inputs and results, then compare against base R fits.
 js <- "
-import { anovaCase, blockCase, factorialCase, regressionCase } from './assets/method-cases.mjs';
+import { anovaCase, blockCase, factorialCase, regressionCase, unbalancedCase } from './assets/method-cases.mjs';
 const row = (...x) => console.log(x.map(a => Array.isArray(a) ? a.map(v => v ?? 'NA').join(',') : a).join('|'));
 for (const i of [0,1]) {
   const a = anovaCase(i);
@@ -14,9 +14,13 @@ for (const i of [0,1,2]) {
   row('r',r.x,r.y,[r.fit.slope,r.slopeP,r.fit.sse,r.ssPE,r.ssLOF,r.dfPE,r.dfLOF,r.lofF,r.lofP]);
   const f = factorialCase(i);
   row('f', f.cells.flat(), [f.sse,f.mse,f.df], ...f.contrasts.map(c => [c.estimate,c.se,c.t,c.f,c.p]));
+}
+for (let a=1; a<=9; a++) for (let b=1; b<=9; b++) {
+  const u = unbalancedCase([a,b]);
+  row('u',u.centers.flat(),u.counts.flat(),[...u.raw,...u.adjusted,u.rawDifference,u.adjustedDifference]);
 }"
 rows <- system2("node", c("--input-type=module", "-e", shQuote(js)), stdout=TRUE)
-stopifnot(length(rows) == 10)
+stopifnot(length(rows) == 91)
 parse <- function(s) {
   fields <- strsplit(s, ",", fixed=TRUE)[[1]]
   fields[fields == "NA"] <- NA_character_
@@ -57,6 +61,17 @@ for (row in rows) {
       same(parse(f[i+3]), c(estimates[i],se[i],t[i],t[i]^2,p[i]))
     }
     same(t[1:2]^2, tab[c(1,3),"F value"])
+  } else if (f[1] == "u") {
+    centers <- parse(f[2])
+    counts <- parse(f[3])
+    grid <- data.frame(variety=factor(rep(1:2,each=2)), dose=factor(rep(1:2,2)))
+    d <- grid[rep(seq_len(nrow(grid)),counts),]
+    d$height <- unlist(Map(function(m,n) m + if (n==1) 0 else seq(-1,1,length.out=n),
+                           centers,counts))
+    raw <- tapply(d$height,d$variety,mean)
+    fit <- lm(height ~ variety * dose, data=d)
+    adjusted <- tapply(predict(fit, newdata=grid),grid$variety,mean)
+    same(parse(f[4]), c(raw,adjusted,diff(raw),diff(adjusted)))
   } else {
     d <- data.frame(x=parse(f[2]),y=parse(f[3]))
     straight <- lm(y ~ x, data=d)
@@ -68,4 +83,4 @@ for (row in rows) {
     same(parse(f[4]), expect)
   }
 }
-cat("Ten one-way ANOVA, factorial, block and regression scenarios agree with base R.\n")
+cat("Ten method cases plus all 81 unbalanced allocations agree with base R.\n")

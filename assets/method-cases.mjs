@@ -72,7 +72,40 @@ export function factorialCase(shape) {
   return {centers,cells,marginal,low,high,r,df,sse,mse,contrasts};
 }
 
+export function unbalancedCase(highCounts) {
+  const centers = [[10,20],[12,22]];
+  const counts = highCounts.map(n => [10-n,n]);
+  const weights = highCounts.map(n => n/10);
+  const raw = centers.map((g,i) => sum(g.map((m,j) => m*counts[i][j]))/10);
+  const adjusted = centers.map(mean);
+  return {centers,counts,weights,raw,adjusted,rawDifference:raw[1]-raw[0],adjustedDifference:adjusted[1]-adjusted[0]};
+}
+
 const cases = {
+  unbalanced:{
+    scenarios:[
+      ['描述已记录的这批苗','这批已经种出来的苗，按实际肥量构成，V2 的平均高度比 V1 高多少？'],
+      ['按相同肥量构成选品种','如果两个品种都打算低肥、高肥各用一半，按这个配比，V2 平均比 V1 高多少？'],
+    ],
+    scenarioLabel:'选择研究问题',
+    prompt:'先想清楚：要描述哪一批苗？',
+    question:'要回答这个问题，应该怎么给低肥、高肥分权重？',
+    answerLabel:'选择权重',
+    choices:['各品种按这批苗的实际盆数加权','两个品种都给低肥、高肥各一半权重','只比较高肥下的两个品种'],
+    correct:[0,1],
+    hints:[
+      '实际盆数能描述已记录的这批苗。如果题目给了共同配比，试着让两个品种都用那个配比。',
+      '各占一半是一个指定的目标配比。想想这题是否要描述原来实际种出来的苗。',
+      '只用高肥回答的是固定高肥时的简单效应。这题需要把低肥和高肥都纳入平均。',
+    ],
+    views:['每格 5 盆','V1 多数用高肥','V2 多数用高肥'],
+    presets:[[5,5],[8,2],[2,8]],
+    rangeLabels:['V1 高肥盆数','V2 高肥盆数'],
+    viewLabel:'快速切换样本量',
+    viewsChangeAnalysis:true,
+    render:showUnbalanced,
+  },
+
   factorial:{
     scenarios:[
       ['问题一：两档都考虑','若低肥和高肥各占一半，种 V2 比种 V1 平均能多长多少？'],
@@ -330,6 +363,63 @@ function showFactorial(question,shape) {
   };
 }
 
+function showUnbalanced(question,highCounts) {
+  const d = unbalancedCase(highCounts);
+  const x = v => 43+(v-8)*17;
+  const signed = v => v>0 ? '+'+fmt(v,1) : fmt(v,1);
+  const axis = [8,12,16,20,24].map(v => line(x(v),17,x(v),155)+label(x(v),172,v)).join('');
+  const rows = d.centers.map(([lo,hi],i) => {
+    const y = 30+i*72, raw = x(d.raw[i]), adjusted = x(d.adjusted[i]);
+    return label(19,y+6,'V'+(i+1))
+      + line(x(lo),y,x(hi),y,'mc-endpoint-span')+dot(x(lo),y,'#466862',3.5)+dot(x(hi),y,'#466862',3.5)
+      + label(x(lo),y-8,lo)+label(x(hi),y-8,hi)
+      + line(raw,y,raw,y+15,'mc-raw-a')+dot(raw,y+18,colors[0],question===0 ? 6 : 5)
+      + label(raw+10,y+23,fmt(d.raw[i]),'start')
+      + line(adjusted,y+26,adjusted,y+38,'mc-raw-b')+diamond(adjusted,y+40,colors[1])
+      + label(adjusted+10,y+45,fmt(d.adjusted[i]),'start');
+  }).join('');
+  const mix = `<div class="mc-mix" aria-label="实际肥量构成">${d.counts.map(([lo,hi],i) => `
+    <div><b>V${i+1}</b> · 低肥 ${lo} 盆 / 高肥 ${hi} 盆
+      <div class="mc-mix-track" aria-hidden="true"><span style="flex:${lo}"></span><span style="flex:${hi}"></span></div>
+    </div>`).join('')}</div>`;
+  const rawSteps = d.counts.map(([lo,hi],i) => {
+    const [a,b] = d.centers[i];
+    return tex`\bar y_{${i+1},\rm raw}=\frac{${lo}\cdot ${a}+${hi}\cdot ${b}}{10}=${number(d.raw[i])}`;
+  });
+  const equalSteps = d.centers.map(([a,b],i) => tex`\mathrm{LSMean}_{${i+1}}=\frac{${a}+${b}}{2}=${d.adjusted[i]}`);
+  const rawFormula = eq('原始均值：各品种用自己的实际盆数加权',...rawSteps,
+    tex`D_{\rm raw}=${number(d.raw[1])}-${number(d.raw[0])}=${number(d.rawDifference)}`);
+  const lsFormula = eq('调整均值：用模型预测的格均值，两种肥量各占一半',
+    ...equalSteps,tex`D_{\rm adj}=${d.adjusted[1]}-${d.adjusted[0]}=${d.adjustedDifference}`);
+  const decomposition = eq('为什么会反号？先分开品种差和肥量构成差',
+    tex`\bar y_{i,\rm raw}=\bar y_{iL}+10w_{iH}`,
+    tex`D_{\rm raw}=2+10(w_{2H}-w_{1H})`,
+    tex`D_{\rm raw}=2+10(${d.weights[1]}-${d.weights[0]})=${number(d.rawDifference)}`);
+  const highGap = highCounts[0]-highCounts[1];
+  const reason = d.rawDifference<0
+    ? 'V1 的高肥比例比 V2 多 '+highGap*10+' 个百分点。高肥本身对应 +10 cm，这个构成差给原始差带来 '+signed(-highGap)+' cm，盖过了 V2 同肥量下的 +2 cm。'
+    : d.rawDifference===0
+      ? 'V1 多出的高肥比例带来 −2 cm 的构成差，刚好抵消 V2 同肥量下的 +2 cm。'
+      : highGap===0
+        ? '两个品种的高肥比例相同，原始均值差里没有肥量构成差。'
+        : '原始均值差把同肥量下的 +2 cm 和样本构成带来的 '+signed(-highGap)+' cm 加在了一起。';
+  return {
+    plot:mix+svg(200,'同一高度轴上比较原始与调整均值。V1 原始 '+fmt(d.raw[0])+'、调整 '+fmt(d.adjusted[0])+'；V2 原始 '+fmt(d.raw[1])+'、调整 '+fmt(d.adjusted[1])+' 厘米。',
+      axis+rows+label(179,195,'平均苗高（厘米）')),
+    reading:'浅色是低肥盆，深色是高肥盆。小点是固定的格均值；大圆点是原始均值，菱形是两档各半的调整均值。拖动盆数，只有大圆点会左右移动。',
+    evidence:metrics(
+      metric('按实际盆数 · V2−V1',signed(d.rawDifference)+' cm'),
+      metric('按两档各半 · V2−V1',signed(d.adjustedDifference)+' cm')),
+    formulas:(question===0 ? rawFormula+lsFormula : lsFormula+rawFormula)
+      + '<p>四格都有观测，拟合含品种×肥量交互的模型（<code>height ~ variety * dose</code>）时，每格预测就是该格样本均值。这里的 LSMeans 用同一套 50/50 权重；若目标是别的配比，可以用那个共同配比。上面的差是点估计，样本量变化仍会影响估计精度。</p>'
+      + decomposition+'<p>式中的 <b>w<sub>iH</sub></b> 是该品种实际用高肥的比例。因为两种品种各自的高肥均值都比低肥高 10 cm，所以构成差要乘 10。</p>',
+    result:'',
+    conclusion:(question===0
+      ? '要描述这批盆苗，用原始均值：V2−V1 = '+signed(d.rawDifference)+' cm。'
+      : '要按低肥、高肥各一半选品种，用等权 LSMeans：V2−V1 = +2 cm。')+reason,
+  };
+}
+
 const buttons = (options,kind) => options.map((text,i) => `<button type="button" data-mc-${kind}="${i}" aria-pressed="false">${text}</button>`).join('');
 const group = (name,buttons) => `<div class="mc-buttons" role="group" aria-label="${name}">${buttons}</div>`;
 function setPressed(ui,kind,active) {
@@ -340,6 +430,11 @@ function mount(root) {
   const c = cases[root.dataset.methodCase];
   if (!c) return;
   const ui = document.createElement('div');
+  const sliders = c.rangeLabels?.map((label,i) => {
+    const id = 'mc-'+root.dataset.methodCase+'-'+i;
+    return `<label class="mc-range" for="${id}"><span>${label} <output aria-hidden="true" for="${id}"></output></span>
+      <input id="${id}" type="range" min="1" max="9" value="5" data-mc-range="${i}"></label>`;
+  }).join('') ?? '';
   ui.innerHTML = `<p class="mc-stage">① ${c.prompt ?? '先选情境，再判断'}</p>
     ${group(c.scenarioLabel ?? '选择情境',buttons(c.scenarios.map(s=>s[0]),'scenario'))}
     <p class="mc-story" aria-live="polite"></p><p><b>${c.question}</b></p>
@@ -347,11 +442,14 @@ function mount(root) {
     <p class="mc-feedback" role="status"></p>
     <div class="mc-output" hidden><p class="mc-stage">② 操作图形，核对你的判断</p>
     ${group(c.viewLabel ?? '改变图形显示',buttons(c.views,'view'))}
+    ${sliders ? '<p class="mc-range-guide">每个品种固定 10 盆；高肥多一盆，低肥就少一盆。</p><div class="mc-ranges">'+sliders+'</div>' : ''}
     <figure class="mc-figure"><div class="mc-chart"></div><figcaption class="mc-reading"></figcaption></figure>
     <div class="mc-evidence" aria-live="polite"></div>
     <details class="mc-derivation"><summary>③ 展开 LaTeX 推导与结论</summary><div class="mc-calculation"></div></details></div>`;
   const get = cls => ui.querySelector('.mc-'+cls);
-  let scenario = 0, view = 0, solved = false;
+  const ranges = [...ui.querySelectorAll('[data-mc-range]')];
+  const initialView = () => c.presets ? [...c.presets[0]] : 0;
+  let scenario = 0, view = initialView(), solved = false;
   function feedback(message,state='') {
     get('feedback').textContent = message;
     get('feedback').dataset.state = state;
@@ -362,7 +460,7 @@ function mount(root) {
     get('derivation').open = false;
   }
   function reset() {
-    view = 0;
+    view = initialView();
     hideResult();
     setPressed(ui,'scenario',scenario);
     setPressed(ui,'answer',-1);
@@ -371,7 +469,14 @@ function mount(root) {
   }
   function draw(includeDerivation) {
     const next = c.render(scenario,view);
-    setPressed(ui,'view',view);
+    const active = c.presets ? c.presets.findIndex(pair => pair.every((n,i) => n===view[i])) : view;
+    setPressed(ui,'view',active);
+    ranges.forEach((input,i) => {
+      const label = '高肥 '+view[i]+' 盆，低肥 '+(10-view[i])+' 盆';
+      input.value = view[i];
+      input.setAttribute('aria-valuetext',label);
+      input.closest('label').querySelector('output').textContent = label;
+    });
     get('chart').innerHTML = next.plot;
     get('reading').textContent = next.reading;
     get('evidence').innerHTML = next.evidence;
@@ -396,10 +501,16 @@ function mount(root) {
         feedback(c.hints[answer],'retry');
       }
     } else if ('mcView' in b.dataset && solved) {
-      view = Number(b.dataset.mcView);
+      const selected = Number(b.dataset.mcView);
+      view = c.presets ? [...c.presets[selected]] : selected;
       draw(c.viewsChangeAnalysis);
     }
   });
+  ranges.forEach((input,i) => input.addEventListener('input',() => {
+    if (!solved) return;
+    view[i] = Number(input.value);
+    draw(true);
+  }));
   reset();
   root.querySelector('.mc-static').before(ui);
 }

@@ -65,3 +65,18 @@
   [data-method-case="factorial"] .mc-evidence .mc-metric:last-child { grid-column: 1 / -1; }
   [data-method-case="factorial"] .mc-output button { padding: 6px; text-align: center; font-size: .84em; }
 }
+.mc-range-guide { margin: 12px 0 4px; }
+.mc-ranges { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 238px), 1fr)); gap: 8px; }
+.mc-range { padding: 8px 10px 0; background: var(--wash); border-radius: 5px; }
+.mc-range span { display: block; font-weight: 700; font-size: .9em; }
+.mc-range output { display: block; color: var(--muted); font-weight: 500; }
+.mc-range input { display: block; width: 100%; min-height: 44px; margin: 0; cursor: pointer; }
+.mc-mix { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 8px 16px; padding: 10px; font-size: .88em; }
+.mc-mix-track { display: flex; height: 12px; margin-top: 4px; overflow: hidden; border-radius: 5px; }
+.mc-mix-track span:first-child { background: #b9d1c5; }
+.mc-mix-track span:last-child { background: #156b67; box-shadow: inset 2px 0 var(--wash); }
+.mc-endpoint-span { stroke: #79948b; stroke-width: 2; }
+@media (max-width: 520px) {
+  [data-method-case="unbalanced"] .mc-output .mc-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-method-case="unbalanced"] .mc-output .mc-buttons button { padding: 6px; text-align: center; font-size: .84em; }
+}

@@ -50,8 +50,8 @@ assert '0.16.22' in (css.parent/'VERSION').read_text()
 
 practice=(ROOT/'practice.html').read_text();doc=Inspect();doc.feed(practice)
 assert practice.count('class="exercise-translation"')==93
-assert sum('latex' in s for q in PRACTICE for s in q['steps'])==221
-assert doc.maths==221+sum('promptLatex' in q for q in PRACTICE)
+assert sum('latex' in s for q in PRACTICE for s in q['steps'])==241
+assert doc.maths==241+sum('promptLatex' in q for q in PRACTICE)
 for q in PRACTICE:
     assert 'readQuestion' in q
-print('128 explicit LaTeX source bindings, 40 staged formulas, 221 solution formulas, 93 plain-language guides, prompt MathML and all local math fonts passed.')
+print('128 explicit LaTeX source bindings, 40 staged formulas, 241 solution formulas, 93 plain-language guides, prompt MathML and all local math fonts passed.')

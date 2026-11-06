@@ -15,7 +15,7 @@
 .intuition-story details{margin:22px 0}.intuition-story summary{cursor:pointer;line-height:1.7;padding:10px 0}
 .story-zoom>div{overflow-x:auto;max-width:100%}.story-zoom svg{width:640px;max-width:none}
 .story-next{display:inline-block;min-height:44px;padding:10px 0}
-.typeset-equation{font-family:inherit;line-height:1.8;overflow-x:auto;max-width:100%;padding:22px 20px}
+.typeset-equation{position:relative;font-family:inherit;line-height:1.8;overflow-x:auto;max-width:100%;padding:22px 20px}
 .typeset-equation .katex-display{margin:.3em 0;text-align:left}.typeset-equation .katex-display>.katex{text-align:left}
 .equation-reading{font-size:16px;color:var(--muted);margin-top:-4px!important;line-height:1.9}
 .story-zoom>div:focus-visible,.typeset-equation:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
